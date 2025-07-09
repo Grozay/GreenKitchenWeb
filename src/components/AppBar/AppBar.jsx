@@ -93,7 +93,7 @@ function ResponsiveAppBar() {
                 size="large"
                 aria-label="open drawer"
                 onClick={toggleDrawer(true)}
-                color="inherit"
+                color="primary"
               >
                 <MenuIcon />
               </IconButton>
