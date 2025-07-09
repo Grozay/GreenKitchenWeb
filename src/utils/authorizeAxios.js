@@ -1,5 +1,5 @@
 import axios from 'axios'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { interceptorLoadingElements } from '~/utils/formatter'
 import { refreshTokenCustomerAPI, refreshTokenEmployeeAPI } from '~/apis'
 import { logoutEmployeeApi } from '~/redux/user/employeeSlice.js'

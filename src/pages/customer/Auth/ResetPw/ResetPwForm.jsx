@@ -6,6 +6,8 @@ import { Card as MuiCard } from '@mui/material'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
+import Avatar from '@mui/material/Avatar'
+import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import { useForm } from 'react-hook-form'
 import {
   PASSWORD_RULE_MESSAGE,
@@ -13,23 +15,23 @@ import {
   PASSWORD_RULE,
   PASSWORD_CONFIRMATION_MESSAGE
 } from '~/utils/validators'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { resetPasswordAPI } from '~/apis'
+import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 
-function ResetPwForm({ onSubmit, userId }) {
+function ResetPwForm({ onSubmit, email }) {
   const { register, handleSubmit, formState: { errors }, getValues } = useForm()
   // const userId = location.state?.userId
 
   const submitLogIn = (data) => {
-    const { userPassword } = data
+    const { password } = data
     toast.promise(
-      resetPasswordAPI({ userId, userPassword }), {
+      resetPasswordAPI({ email, password }), {
         pending: 'Updating password...',
-        success: 'Password updated successfully!',
-        error: 'Failed to update password.'
+        success: 'Password updated successfully!'
       }
     ).then(res => {
-      // console.log(res)
+      console.log(res)
       //Đoạn này phải kiểm tra không có lỗi mới redirect về route /
       if (!res.error) {
         // navigate('/account/login')
@@ -47,9 +49,16 @@ function ResetPwForm({ onSubmit, userId }) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
+            alignItems: 'center',
             gap: 1
           }}>
-            <Typography variant="h4" align="center">YOUR NEW PASSWORD</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Avatar sx={{ bgcolor: 'primary.main' }}><VpnKeyIcon /></Avatar>
+              <Typography variant="h4" align="center">NEW PASSWORD</Typography>
+            </Box>
+            <Typography variant="body2" align="center" sx={{ color: 'text.secondary', marginTop: '0.5em' }}>
+              Create a strong password for your account security
+            </Typography>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
@@ -60,10 +69,16 @@ function ResetPwForm({ onSubmit, userId }) {
                 label="Enter your new password..."
                 type="password"
                 variant="outlined"
-                {...register('userPassword', { required: FIELD_REQUIRED_MESSAGE, pattern: PASSWORD_RULE })}
-                error={!!errors.userPassword}
-                helperText={errors.userPassword?.type === 'required' ? FIELD_REQUIRED_MESSAGE : errors.userPassword?.type === 'pattern' ? PASSWORD_RULE_MESSAGE : ''}
+                error={!!errors['password']}
+                {...register('password', {
+                  required: FIELD_REQUIRED_MESSAGE,
+                  pattern: {
+                    value: PASSWORD_RULE,
+                    message: PASSWORD_RULE_MESSAGE
+                  }
+                })}
               />
+              <FieldErrorAlert errors={errors} fieldName='password' />
             </Box>
             <Box sx={{ marginTop: '1em' }}>
               <TextField
@@ -73,10 +88,12 @@ function ResetPwForm({ onSubmit, userId }) {
                 label="Enter confirm password..."
                 type="password"
                 variant="outlined"
-                {...register('confirmPassword', { required: FIELD_REQUIRED_MESSAGE, pattern: PASSWORD_RULE, validate: (value) => value == getValues('userPassword') })}
-                error={!!errors.confirmPassword}
-                helperText={errors.confirmPassword?.type === 'required' ? FIELD_REQUIRED_MESSAGE : errors.confirmPassword?.type === 'pattern' ? PASSWORD_CONFIRMATION_MESSAGE : ''}
+                error={!!errors['passwordConfirmation']}
+                {...register('passwordConfirmation', {
+                  validate: (value) => value === getValues('password') || PASSWORD_CONFIRMATION_MESSAGE
+                })}
               />
+              <FieldErrorAlert errors={errors} fieldName='passwordConfirmation' />
             </Box>
 
           </Box>
@@ -91,14 +108,9 @@ function ResetPwForm({ onSubmit, userId }) {
               Proceed
             </Button>
           </CardActions>
-          {/* <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Typography>New to Nexus Service Marketing System?</Typography>
-            <Link to="/register" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Create account!</Typography>
-            </Link>
-          </Box> */}
+
           <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Link to="/account/login" style={{ textDecoration: 'none' }}>
+            <Link to="/login" style={{ textDecoration: 'none' }}>
               <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}> Back to Login</Typography>
             </Link>
           </Box>

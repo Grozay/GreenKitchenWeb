@@ -48,7 +48,7 @@ const MenuDetail = () => {
 
   if (!meal) {
     return (
-      <Box sx={{ bgcolor: theme.palette.primary.main, minHeight: '100vh', fontFamily: '"Poppins", sans-serif', py: 6 }}>
+      <Box sx={{ bgcolor: theme.palette.background.main, minHeight: '100vh', fontFamily: '"Poppins", sans-serif', py: 6 }}>
         <Box sx={{ maxWidth: '1280px', mx: 'auto', px: 2 }}>
           <Typography variant="h5" color="error" align="center">
             Meal package not found!
@@ -186,7 +186,7 @@ const MenuDetail = () => {
                 overflow: 'hidden',
                 border: '1px solid transparent',
                 '&:hover': {
-                  bgcolor: theme.palette.primary.main,
+                  bgcolor: theme.palette.background.main,
                   color: theme.palette.text.primary,
                   border: `1px solid ${theme.palette.primary.secondary}`,
                   boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
@@ -250,7 +250,7 @@ const MenuDetail = () => {
                 mt: 2,
                 bgcolor: theme.palette.primary.secondary,
                 color: 'white',
-                '&:hover': { bgcolor: theme.palette.primary.main }
+                '&:hover': { bgcolor: theme.palette.background.main }
               }}
               onClick={handleCommentSubmit}
               disabled={!comment || !rating}

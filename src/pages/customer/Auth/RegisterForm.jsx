@@ -13,18 +13,43 @@ import { useForm } from 'react-hook-form'
 import { FIELD_REQUIRED_MESSAGE, EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_CONFIRMATION_MESSAGE } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { registerCustomerAPI } from '~/apis'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
+import Divider from '@mui/material/Divider'
+import { GoogleLogin } from '@react-oauth/google'
+import { useDispatch } from 'react-redux'
+import { googleLoginAPI } from '~/redux/user/customerSlice'
 
 function RegisterForm() {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { register, handleSubmit, formState: { errors }, getValues } = useForm()
+  
   const submitRegister = (data) => {
     const { email, password } = data
     toast.promise(registerCustomerAPI({ email, password }), {
-      loading: 'Registering...'
+      pending: 'Registering...'
     }).then(user => {
       navigate(`/login?registeredEmail=${user.email}`)
     })
+  }
+
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    toast.promise(
+      dispatch(googleLoginAPI({ idToken: credentialResponse.credential })),
+      {
+        pending: 'Signing in with Google...',
+        success: 'Google login successful!',
+        error: 'Google login failed'
+      }
+    ).then(response => {
+      if (!response.error) {
+        navigate('/')
+      }
+    })
+  }
+
+  const handleGoogleLoginError = () => {
+    toast.error('Google login failed. Please try again.')
   }
 
   return (
@@ -41,7 +66,7 @@ function RegisterForm() {
             <Typography variant="h4" align="center">Register</Typography>
           </Box>
 
-          <Box sx={{ padding: '0 1em 1em 1em' }}>
+          <Box sx={{ padding: '0.5em 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
               <TextField
                 // autoComplete="nope"
@@ -104,10 +129,39 @@ function RegisterForm() {
               Register
             </Button>
           </CardActions>
-          <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
+
+          {/* Divider */}
+          <Box sx={{ padding: '0 1em', display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Divider sx={{ flex: 1 }} />
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              OR
+            </Typography>
+            <Divider sx={{ flex: 1 }} />
+          </Box>
+
+          {/* Google Login Button */}
+          <Box sx={{ padding: '1em', display: 'flex', justifyContent: 'center' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleLoginSuccess}
+              onError={handleGoogleLoginError}
+              theme="outline"
+              size="large"
+              width="100%"
+              text="signup_with"
+            />
+          </Box>
+
+          {/* Login link */}
+          <Box sx={{
+            padding: '0 1em 1em 1em',
+            textAlign: 'center',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 2
+          }}>
             <Typography>Already have an account?</Typography>
             <Link to="/login" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Log in!</Typography>
+              <Typography sx={{ fontWeight: 'bold', color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Log in!</Typography>
             </Link>
           </Box>
         </MuiCard>

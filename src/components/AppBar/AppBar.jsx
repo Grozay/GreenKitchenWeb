@@ -13,8 +13,10 @@ import LanguageSelect from '~/components/AppBar/LanguageSelect/LanguageSelect'
 import { useTranslation } from 'react-i18next'
 import NavItem from '~/components/AppBar/Menu/NavItem'
 import { Link } from 'react-router-dom'
+import CaloCalculator from '~/components/AppBar/Menu/CaloCalculator'
 
 function ResponsiveAppBar() {
+  // eslint-disable-next-line no-unused-vars
   const [anchorElNav, setAnchorElNav] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { t } = useTranslation()
@@ -31,7 +33,7 @@ function ResponsiveAppBar() {
   }
   return (
     <AppBar sx={{
-      backgroundColor: '#F5EDD8', height: (theme) => theme.fitbowl.appBarHeight,
+      backgroundColor: (theme) => theme.palette.background.main, height: (theme) => theme.fitbowl.appBarHeight,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center'
@@ -40,17 +42,16 @@ function ResponsiveAppBar() {
         <Toolbar disableGutters>
           <Typography
             variant="h5"
-            noWrap
             component={Link}
             to="/"
             sx={{
               display: { xs: 'none', md: 'flex' },
-              fontFamily: 'Sacramento, cursive',
-              fontWeight: 800,
+              fontWeight: 700,
               letterSpacing: '.3rem',
               textTransform: 'uppercase',
               fontSize: '2rem',
-              textDecoration: 'none'
+              textDecoration: 'none',
+              color: (theme) => theme.palette.primary.secondary
             }}
           >
             {t('navBar.nameWebsite')}
@@ -75,9 +76,11 @@ function ResponsiveAppBar() {
                 fontFamily: 'Sacramento, cursive',
                 fontWeight: 700,
                 letterSpacing: '.3rem',
+                color: (theme) => theme.palette.primary.secondary,
                 justifyContent: 'start',
                 alignItems: 'center',
-                textDecoration: 'none'
+                textDecoration: 'none',
+                color: (theme) => theme.palette.text.primary
               }}
             >
               {t('navBar.nameWebsite')}
@@ -100,7 +103,8 @@ function ResponsiveAppBar() {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center' }}>
             {/* <NavItem to="/" label="home" handleCloseNavMenu={handleCloseNavMenu} t={t} /> */}
             <NavItem to="/menu" label="menu" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/calo-calculator" label="caloCalculator" handleCloseNavMenu={handleCloseNavMenu} t={t} />
+            {/* <NavItem to="/calo-calculator" label="caloCalculator" handleCloseNavMenu={handleCloseNavMenu} t={t} /> */}
+            <CaloCalculator label="Calculator" t={t} />
             <NavItem to="/about-us" label="aboutUs" handleCloseNavMenu={handleCloseNavMenu} t={t} />
             <NavItem to="/catering" label="catering" handleCloseNavMenu={handleCloseNavMenu} t={t} />
             <NavItem to="/blogs" label="blog" handleCloseNavMenu={handleCloseNavMenu} t={t} />

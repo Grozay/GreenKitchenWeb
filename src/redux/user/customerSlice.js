@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 //khởi tạo gía trị state của 1 cái slice trong redux
 const initialState = {
   currentCustomer: null
@@ -12,6 +12,14 @@ export const loginCustomerApi = createAsyncThunk(
   'customer/loginCustomerApi',
   async (data) => {
     const response = await authorizedAxiosInstance.post(`${API_ROOT}/login`, data)
+    return response.data
+  }
+)
+
+export const googleLoginAPI = createAsyncThunk(
+  'customer/googleLoginAPI',
+  async (data) => {
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/google-login`, data)
     return response.data
   }
 )
@@ -41,6 +49,11 @@ export const customerSlice = createSlice({
       //update lại dữ liệu của currentUser
       state.currentCustomer = customer
     })
+    builder.addCase(googleLoginAPI.fulfilled, (state, action) => {
+      const customer = action.payload
+      //update lại dữ liệu của currentUser
+      state.currentCustomer = customer
+    })
     builder.addCase(logoutCustomerApi.fulfilled, (state) => {
       state.currentCustomer = null
     })
@@ -50,8 +63,8 @@ export const customerSlice = createSlice({
 // export const { } = userSlice.actions
 
 //selector: là nơi cho các component lấy dữ liệu từ redux store
-export const selectCurrentAccount = (state) => {
-  return state.account.currentAccount
+export const selectCurrentCustomer = (state) => {
+  return state.customer.currentCustomer
 }
 
 export const customerReducer = customerSlice.reducer

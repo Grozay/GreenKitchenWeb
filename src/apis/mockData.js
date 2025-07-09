@@ -131,6 +131,7 @@ export const relatedNews = [
 
 export const mealPackages = [
   {
+    id: 'fit-3-package',
     title: 'FIT 3 Package',
     description: 'Lunch - Dinner Package. Weight loss',
     price: '650,000đ',
@@ -139,6 +140,16 @@ export const mealPackages = [
     slug: 'fit-3-package'
   },
   {
+    id: 'fit-3-package',
+    title: 'FIT 3 Package',
+    description: 'Lunch - Dinner Package. Weight loss',
+    price: '650,000đ',
+    image: 'https://storage.googleapis.com/a1aa/image/90d96b02-9e0e-4225-b651-42d553a5558f.jpg',
+    alt: 'Fit3 Meal Package with shrimp and vegetables in black containers on red background',
+    slug: 'fit-3-package'
+  },
+  {
+    id: 'lunch-package',
     title: 'LUNCH Package',
     description: '1 lunch meal package. Delivered hot',
     price: '349,000đ',
@@ -147,6 +158,7 @@ export const mealPackages = [
     slug: 'lunch-package'
   },
   {
+    id: 'slim-package',
     title: 'SLIM Package (*NO STARCH)',
     description: 'Double vegetables, NO starch',
     price: '600,000đ',
@@ -155,6 +167,7 @@ export const mealPackages = [
     slug: 'slim-package'
   },
   {
+    id: 'full-package',
     title: 'FULL Package',
     description: '3 meals/day package. Healthy weight maintenance',
     price: '825,000đ',
@@ -163,3 +176,184 @@ export const mealPackages = [
     slug: 'full-package'
   }
 ]
+
+export const ItemHealthy = {
+  protein: [
+    {
+      id: 1,
+      title: 'Grilled Chicken Breast',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
+      calories: 165,
+      protein: 31,
+      carbs: 0,
+      fat: 3.6,
+      type: 'protein'
+    },
+    {
+      id: 2,
+      title: 'Salmon Fillet',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
+      calories: 208,
+      protein: 25,
+      carbs: 0,
+      fat: 13,
+      type: 'protein'
+    },
+    {
+      id: 3,
+      title: 'Tofu Scramble',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
+      calories: 144,
+      protein: 15,
+      carbs: 5,
+      fat: 8,
+      type: 'protein'
+    },
+    {
+      id: 4,
+      title: 'Grilled Shrimp',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
+      calories: 99,
+      protein: 24,
+      carbs: 0,
+      fat: 1,
+      type: 'protein'
+    }
+  ],
+  carbs: [
+    {
+      id: 5,
+      title: 'Quinoa Bowl',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      calories: 222,
+      protein: 8,
+      carbs: 39,
+      fat: 4,
+      type: 'carbs'
+    },
+    {
+      id: 6,
+      title: 'Sweet Potato Mash',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      calories: 180,
+      protein: 3,
+      carbs: 41,
+      fat: 0.2,
+      type: 'carbs'
+    },
+    {
+      id: 7,
+      title: 'Brown Rice',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      calories: 215,
+      protein: 5,
+      carbs: 45,
+      fat: 1.8,
+      type: 'carbs'
+    },
+    {
+      id: 8,
+      title: 'Whole Wheat Pasta',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      calories: 174,
+      protein: 7.5,
+      carbs: 37,
+      fat: 0.8,
+      type: 'carbs'
+    },
+    {
+      id: 9,
+      title: 'Whole Wheat Pasta',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      calories: 174,
+      protein: 7.5,
+      carbs: 37,
+      fat: 0.8,
+      type: 'carbs'
+    },
+    {
+      id: 10,
+      title: 'Whole Wheat Pasta',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      calories: 174,
+      protein: 7.5,
+      carbs: 37,
+      fat: 0.8,
+      type: 'carbs'
+    }
+  ],
+  side: [
+    {
+      id: 11,
+      title: 'Roasted Vegetables',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      calories: 80,
+      protein: 3,
+      carbs: 12,
+      fat: 3,
+      type: 'side'
+    },
+    {
+      id: 12,
+      title: 'Steamed Broccoli',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      calories: 55,
+      protein: 3.7,
+      carbs: 11,
+      fat: 0.6,
+      type: 'side'
+    },
+    {
+      id: 13,
+      title: 'Avocado Salad',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      calories: 160,
+      protein: 2,
+      carbs: 9,
+      fat: 15,
+      type: 'side'
+    },
+    {
+      id: 14,
+      title: 'Grilled Asparagus',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      calories: 40,
+      protein: 3,
+      carbs: 6,
+      fat: 1,
+      type: 'side'
+    }
+  ],
+  sauce: [
+    {
+      id: 15,
+      title: 'Pesto',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      calories: 80,
+      protein: 2,
+      carbs: 2,
+      fat: 8,
+      type: 'sauce'
+    },
+    {
+      id: 16,
+      title: 'Tahini Dressing',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      calories: 89,
+      protein: 2.6,
+      carbs: 3.2,
+      fat: 8,
+      type: 'sauce'
+    },
+    {
+      id: 17,
+      title: 'Greek Yogurt Sauce',
+      image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      calories: 30,
+      protein: 3,
+      carbs: 2,
+      fat: 1.5,
+      type: 'sauce'
+    }
+  ]
+}

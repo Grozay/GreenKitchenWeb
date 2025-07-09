@@ -113,7 +113,7 @@ const BlogDetail = () => {
                 '& ul, & ol': { ml: 3, mb: 2 },
                 '& li': { mb: 1 },
                 '& blockquote': {
-                  borderLeft: `4px solid ${theme.palette.primary.main}`,
+                  borderLeft: `4px solid ${theme.palette.background.main}`,
                   backgroundColor: theme.palette.grey[100],
                   padding: theme.spacing(1, 2),
                   ml: 0,

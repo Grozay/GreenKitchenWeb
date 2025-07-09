@@ -6,32 +6,31 @@ import { Card as MuiCard } from '@mui/material'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
+import Avatar from '@mui/material/Avatar'
+import LockResetIcon from '@mui/icons-material/LockReset'
 import { useForm } from 'react-hook-form'
 import {
   FIELD_REQUIRED_MESSAGE,
-  ACCOUNT_ID_RULE,
-  ACCOUNT_ID_RULE_MESSAGE
+  EMAIL_RULE,
+  EMAIL_RULE_MESSAGE
 } from '~/utils/validators'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { sendOtpCodeAPI } from '~/apis'
+import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 
 function AccountForm({ onNext }) {
   const { register, handleSubmit, formState: { errors } } = useForm()
 
   const submitLogIn = (data) => {
-    const { userId } = data
+    const { email } = data
     toast.promise(
-      sendOtpCodeAPI({ userId }), {
+      sendOtpCodeAPI({ email }), {
         pending: 'Sending OTP code...',
-        success: 'OTP code sent successfully!',
-        error: 'Failed to send OTP code.'
+        success: 'OTP code sent successfully!'
       }
     ).then(res => {
-      // console.log(res)
-      //Đoạn này phải kiểm tra không có lỗi mới redirect về route /
       if (!res.error) {
-        // navigate('/account/reset-password/otp', { state: { userId } })
-        onNext(userId)
+        onNext(email)
       }
     })
   }
@@ -45,9 +44,16 @@ function AccountForm({ onNext }) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
+            alignItems: 'center',
             gap: 1
           }}>
-            <Typography variant="h4" align="center">YOUR ACCOUNT ID</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Avatar sx={{ bgcolor: 'primary.main' }}><LockResetIcon /></Avatar>
+              <Typography variant="h4" align="center">RESET PASSWORD</Typography>
+            </Box>
+            <Typography variant="body2" align="center" sx={{ color: 'text.secondary', marginTop: '0.5em' }}>
+              Please enter your email address to begin the password reset process
+            </Typography>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
@@ -55,17 +61,23 @@ function AccountForm({ onNext }) {
                 // autoComplete="nope"
                 autoFocus
                 fullWidth
-                label="Please enter your Account ID..."
+                label="Enter your Email Address..."
                 type="text"
-                variant="outlined"
-                {...register('userId', { required: FIELD_REQUIRED_MESSAGE, pattern: ACCOUNT_ID_RULE })}
-                error={!!errors.userId}
-                helperText={errors.userId?.type === 'required' ? FIELD_REQUIRED_MESSAGE : errors.userId?.type === 'pattern' ? ACCOUNT_ID_RULE_MESSAGE : ''}
+                error={!!errors['email']}
+                {...register('email', {
+                  required: FIELD_REQUIRED_MESSAGE,
+                  pattern: {
+                    value: EMAIL_RULE,
+                    message: EMAIL_RULE_MESSAGE
+                  }
+                })}
               />
+              <FieldErrorAlert errors={errors} fieldName='email' />
             </Box>
           </Box>
           <CardActions sx={{ padding: '0 1em 1em 1em' }}>
             <Button
+              className='interceptor-loading'
               type="submit"
               variant="contained"
               color="primary"
@@ -82,7 +94,7 @@ function AccountForm({ onNext }) {
             </Link>
           </Box> */}
           <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Link to="/account/login" style={{ textDecoration: 'none' }}>
+            <Link to="/login" style={{ textDecoration: 'none' }}>
               <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}> Back to Login</Typography>
             </Link>
           </Box>

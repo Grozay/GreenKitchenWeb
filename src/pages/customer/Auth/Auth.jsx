@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import LoginForm from './LoginForm'
 import AppBar from '~/components/AppBar/AppBar'
@@ -8,6 +8,8 @@ import RegisterForm from './RegisterForm'
 // import ResetPwForm from './ResetPw/ResetPwForm'
 import ResetPw from './ResetPw'
 import bgImage from '~/assets/images/Account-login-bg.jpeg'
+import { Typography } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 function Auth() {
   const location = useLocation()
@@ -17,25 +19,31 @@ function Auth() {
 
   return (
     <Box>
-      <AppBar />
       <Box sx={{
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
         alignItems: 'center',
-        justifyContent: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundImage: `url(${bgImage})`,
-        backgroundBlendMode: 'overlay',
-        // backgroundColor: 'rgba(255, 255, 255, 0.55)',
-        boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.2)'
+        justifyContent: 'center'
       }}>
         {isLogin && <LoginForm />}
         {isRegister && <RegisterForm />}
-        {/* {isResetPw && <ResetPw />} */}
+        {isResetPw && <ResetPw />}
+
+
+        <Box to="/" sx={{
+          marginTop: '1em',
+          textDecoration: 'none',
+          color: 'inherit',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 1
+        }}>
+          <ArrowBackIcon fontSize="small" />
+          <Link to="/" variant="body1">Go back</Link>
+        </Box>
 
 
       </Box>

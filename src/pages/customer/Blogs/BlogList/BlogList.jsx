@@ -22,7 +22,7 @@ const NewsCard = ({ item }) => (
                   fontSize: '0.875rem',
                   lineHeight: 1.2,
                   fontFamily: 'Montserrat, sans-serif',
-                  color: (theme) => theme.palette.primary.main,
+                  color: (theme) => theme.palette.background.main,
                   '&:hover': {
                     textDecoration: 'underline'
                   }

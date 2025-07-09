@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import ChatBox from '~/components/AppBar/AIChat/ChatBox'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
@@ -90,7 +91,7 @@ const Footer = () => {
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={{ xs: 3, md: 5 }}>
           {/* Green Kitchen Info */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -160,7 +161,7 @@ const Footer = () => {
           </Grid>
 
           {/* Tính năng */}
-          <Grid item xs={6} md={2}>
+          <Grid size={{ xs: 6, md: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -198,9 +199,10 @@ const Footer = () => {
               </Link>
             ))}
           </Grid>
+          <ChatBox />
 
           {/* Hữu ích */}
-          <Grid item xs={6} md={2}>
+          <Grid size={{ xs: 6, md: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -237,7 +239,7 @@ const Footer = () => {
           </Grid>
 
           {/* Liên hệ */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Typography
               variant="h6"
               gutterBottom

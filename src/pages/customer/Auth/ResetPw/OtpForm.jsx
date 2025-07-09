@@ -6,34 +6,50 @@ import { Card as MuiCard } from '@mui/material'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
+import Avatar from '@mui/material/Avatar'
+import SecurityIcon from '@mui/icons-material/Security'
 import { useForm } from 'react-hook-form'
 import {
   FIELD_REQUIRED_MESSAGE,
   OTP_RULE,
   OTP_RULE_MESSAGE
 } from '~/utils/validators'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { verifyOtpCodeAPI } from '~/apis'
+import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 
-function OtpForm({ onNext, userId }) {
+function OtpForm({ onNext, email }) {
   const { register, handleSubmit, formState: { errors } } = useForm()
   // const userId = location.state?.userId
 
+  // Debug: Check if email is received
+  if (!email) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 4 }}>
+        <Typography color="error">Email is required. Please go back and enter your email.</Typography>
+      </Box>
+    )
+  }
+
   const submitLogIn = (data) => {
     const { otpCode } = data
+    const requestData = {
+      email: email,
+      token: otpCode
+    }
     toast.promise(
-      verifyOtpCodeAPI(userId, otpCode), {
+      verifyOtpCodeAPI(requestData), {
         pending: 'Verifying OTP...',
-        success: 'OTP verified successfully!',
-        error: 'Failed to verify OTP.'
+        success: 'OTP verified successfully!'
       }
     ).then(res => {
-      // console.log(res)
       //Đoạn này phải kiểm tra không có lỗi mới redirect về route /
       if (!res.error) {
         // navigate('/account/reset-password/new-password', { state: { userId } })
-        onNext(userId)
+        onNext(email)
       }
+    }).catch(() => {
+      // Handle error silently or show user-friendly message
     })
   }
 
@@ -44,10 +60,20 @@ function OtpForm({ onNext, userId }) {
           <Box sx={{
             margin: '1em',
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
+            alignItems: 'center',
             gap: 1
           }}>
-            <Typography variant="h4" align="center">VERIFY OTP</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Avatar sx={{ bgcolor: 'primary.main' }}><SecurityIcon /></Avatar>
+              <Typography variant="h4" align="center">VERIFY OTP</Typography>
+            </Box>
+          </Box>
+          <Box sx={{ padding: '0 1em', textAlign: 'center', mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              Enter the OTP code sent to: <strong>{email}</strong>
+            </Typography>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
@@ -58,14 +84,21 @@ function OtpForm({ onNext, userId }) {
                 label="Please enter your OTP..."
                 type="text"
                 variant="outlined"
-                {...register('otpCode', { required: FIELD_REQUIRED_MESSAGE, pattern: OTP_RULE })}
-                error={!!errors.otpCode}
-                helperText={errors.otpCode?.type === 'required' ? FIELD_REQUIRED_MESSAGE : errors.otpCode?.type === 'pattern' ? OTP_RULE_MESSAGE : ''}
+                error={!!errors['otpCode']}
+                {...register('otpCode', {
+                  required: FIELD_REQUIRED_MESSAGE,
+                  pattern: {
+                    value: OTP_RULE,
+                    message: OTP_RULE_MESSAGE
+                  }
+                })}
               />
+              <FieldErrorAlert errors={errors} fieldName='otpCode' />
             </Box>
           </Box>
           <CardActions sx={{ padding: '0 1em 1em 1em' }}>
             <Button
+              className='interceptor-loading'
               type="submit"
               variant="contained"
               color="primary"
@@ -82,7 +115,7 @@ function OtpForm({ onNext, userId }) {
             </Link>
           </Box> */}
           <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Link to="/account/login" style={{ textDecoration: 'none' }}>
+            <Link to="/login" style={{ textDecoration: 'none' }}>
               <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}> Back to Login</Typography>
             </Link>
           </Box>

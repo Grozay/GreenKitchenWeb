@@ -71,8 +71,8 @@ function AutoCompleteSearchItem() {
         borderColor: theme.palette.grey[500]
       },
       '&.Mui-focused fieldset': {
-        borderColor: theme.palette.primary.main,
-        boxShadow: `0 0 0 2px ${theme.palette.primary.light}`
+        borderColor: theme.palette.background.main,
+        boxShadow: `0 0 0 2px ${theme.palette.background.main}`
       },
       input: {
         padding: theme.spacing(1.2, 1.5),

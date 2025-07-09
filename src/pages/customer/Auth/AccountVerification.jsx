@@ -33,7 +33,9 @@ export default function AccountVerification() {
 
   // 2. Neu chua verify thi hien thi loading
   if (!isVerified) {
-    return <PageLoadingSpinner caption="Verifying your account..." />
+    return (
+      <PageLoadingSpinner caption="Verifying your account..." />
+    )
   }
 
   // 3. Neu verify thanh cong thi dieu huong den trang login cung gia tri verifiedEmail

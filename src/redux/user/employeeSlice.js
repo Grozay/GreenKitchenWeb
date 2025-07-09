@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 //khởi tạo gía trị state của 1 cái slice trong redux
 const initialState = {
   currentEmployee: null

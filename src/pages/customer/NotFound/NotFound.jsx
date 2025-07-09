@@ -6,7 +6,6 @@ import Grid from '@mui/material/Grid'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link } from 'react-router-dom'
-import AppBar from '~/components/AppBar/AppBar'
 import Footer from '~/components/Footer/Footer'
 
 const NotFound = () => {
@@ -15,8 +14,6 @@ const NotFound = () => {
 
   return (
     <Box>
-      <AppBar />
-
       <Container
         maxWidth="md"
         sx={{
