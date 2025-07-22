@@ -6,14 +6,18 @@ import ChoiceCal from './Item/HealthyChoice/HealthyChoice'
 import ListCard from './Item/ListCard/ListCard'
 import { useState, useRef, useEffect } from 'react'
 import Footer from '~/components/Footer/Footer'
-import { ItemHealthy } from '~/apis/mockData'
+// import { ItemHealthy } from '~/apis/mockData'
 import TabCalMobile from './Item/TabCal/TabCalMobile'
 import { useSelector } from 'react-redux'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 import HealthyChoiceMobile from './Item/HealthyChoice/HealthyChoiceMobile'
+import { getIngredientsAPI } from '~/apis'
+import { t } from 'i18next'
+
 const SmartMealLayout = () => {
+  const [itemHealthy, setItemHealthy] = useState({})
   const [value, setValue] = useState(0)
-  const itemHealthy = ItemHealthy
+  const [loading, setLoading] = useState(false)
   const proteinRef = useRef(null)
   const carbsRef = useRef(null)
   const sideRef = useRef(null)
@@ -42,6 +46,17 @@ const SmartMealLayout = () => {
       refs[newValue]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 40)
   }
+
+  useEffect(() => {
+    getIngredientsAPI().then(data => {
+      setLoading(true)
+      setItemHealthy(data)
+    }).catch(error => {
+      console.error('Error fetching ingredients:', error)
+    }).finally(() => {
+      setLoading(false)
+    })
+  }, [])
 
   return (
     <Box>
@@ -108,16 +123,16 @@ const SmartMealLayout = () => {
             </Box>
             <Box sx={{ mx: '15px' }}>
               <Box ref={proteinRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title="SELECT PROTEIN" index={1} type="protein" cards={itemHealthy?.protein} />
+                <ListCard title="SELECT PROTEIN" index={1} type="PROTEIN" cards={itemHealthy?.protein} loading={loading}/>
               </Box>
               <Box ref={carbsRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title="SELECT CARBS" index={2} type="carbs" cards={itemHealthy?.carbs} />
+                <ListCard title="SELECT CARBS" index={2} type="CARDS" cards={itemHealthy?.carbs} loading={loading} />
               </Box>
               <Box ref={sideRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title="SELECT SIDE" index={3} type="side" cards={itemHealthy?.side} />
+                <ListCard title="SELECT SIDE" index={3} type="SIDE" cards={itemHealthy?.side} loading={loading}/>
               </Box>
               <Box ref={sauceRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title="SELECT SAUCE" index={4} type="sauce" cards={itemHealthy?.sauce} />
+                <ListCard title="SELECT SAUCE" index={4} type="SAUCE" cards={itemHealthy?.sauce} loading={loading}/>
               </Box>
             </Box>
 

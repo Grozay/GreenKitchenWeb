@@ -1,4 +1,5 @@
-import { createSlice, createSelector } from '@reduxjs/toolkit'
+import { createSlice, createSelector, createAsyncThunk } from '@reduxjs/toolkit'
+import { createIngredientActHistoryAPI } from '~/apis/index'
 
 const initialState = {
   selectedItems: {
@@ -13,19 +14,63 @@ const initialState = {
   totalFat: 0
 }
 
+export const createIngredientActHistory = createAsyncThunk(
+  'meal/createIngredientActHistory',
+  async ({ item, customerId }, { dispatch }) => {
+    const apiData = {
+      customerId: customerId,
+      ingredientId: item.id,
+      actionType: 'ADD'
+    }
+    const response = await createIngredientActHistoryAPI(apiData)
+    dispatch(addItem(item))
+    return response
+  }
+)
+
+export const hoverIngredientActHistory = createAsyncThunk(
+  'meal/hoverIngredientActHistory',
+  async ({ item, customerId }, { dispatch }) => {
+    const apiData = {
+      customerId: customerId,
+      ingredientId: item.id,
+      actionType: 'HOVER'
+    }
+    const response = await createIngredientActHistoryAPI(apiData)
+    dispatch(addItem(item))
+    return response
+  }
+)
+
+
+export const removeIngredientActHistory = createAsyncThunk(
+  'meal/removeIngredientActHistory',
+  async ({ item, customerId }, { dispatch }) => {
+    const apiData = {
+      customerId: customerId,
+      ingredientId: item.id,
+      actionType: 'REMOVE'
+    }
+    const response = await createIngredientActHistoryAPI(apiData)
+    dispatch(removeItem(item))
+    return response
+  }
+)
+
 const mealSlice = createSlice({
   name: 'meal',
   initialState,
   reducers: {
     addItem: (state, action) => {
-      const existingItem = state.selectedItems[action.payload.type].find(
+      const typeKey = action.payload.type.toLowerCase()
+      const existingItem = state.selectedItems[typeKey].find(
         item => item.id === action.payload.id
       )
 
       if (existingItem) {
         existingItem.quantity += 1
       } else {
-        state.selectedItems[action.payload.type].push({
+        state.selectedItems[typeKey].push({
           ...action.payload,
           quantity: 1
         })
@@ -36,7 +81,8 @@ const mealSlice = createSlice({
       state.totalFat += action.payload.fat || 0
     },
     removeItem: (state, action) => {
-      const itemToRemove = state.selectedItems[action.payload.type].find(
+      const typeKey = action.payload.type.toLowerCase()
+      const itemToRemove = state.selectedItems[typeKey].find(
         item => item.id === action.payload.id
       )
 
@@ -44,7 +90,7 @@ const mealSlice = createSlice({
         if (itemToRemove.quantity > 1) {
           itemToRemove.quantity -= 1
         } else {
-          state.selectedItems[action.payload.type] = state.selectedItems[action.payload.type].filter(
+          state.selectedItems[typeKey] = state.selectedItems[typeKey].filter(
             item => item.id !== action.payload.id
           )
         }
@@ -66,6 +112,27 @@ const mealSlice = createSlice({
       state.totalCarbs = 0
       state.totalFat = 0
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createIngredientActHistory.pending, () => {
+        // Handle loading state if needed
+      })
+      .addCase(createIngredientActHistory.fulfilled, () => {
+        // API call successful, item already added to state via addItem dispatch
+      })
+      .addCase(createIngredientActHistory.rejected, () => {
+        // Handle error state if needed
+      })
+      .addCase(removeIngredientActHistory.pending, () => {
+        // Handle loading state if needed
+      })
+      .addCase(removeIngredientActHistory.fulfilled, () => {
+        // API call successful, item already removed from state via removeItem dispatch
+      })
+      .addCase(removeIngredientActHistory.rejected, () => {
+        // Handle error state if needed
+      })
   }
 })
 
@@ -79,7 +146,7 @@ export const selectCurrentMeal = (state) => {
 export const selectMealTotals = createSelector(
   (state) => state.meal,
   (meal) => ({
-    totalCalories: (meal.totalProtein * 4) + (meal.totalCarbs * 4) + (meal.totalFat * 9), // Công thức: Protein * 4 + Carbs * 4 + Fat * 9
+    totalCalories: (meal.totalProtein * 4) + (meal.totalCarbs * 4) + (meal.totalFat * 9), // Protein * 4 + Carbs * 4 + Fat * 9
     totalProtein: meal.totalProtein,
     totalCarbs: meal.totalCarbs,
     totalFat: meal.totalFat

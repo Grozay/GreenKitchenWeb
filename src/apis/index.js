@@ -1,3 +1,4 @@
+import axios from 'axios'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
@@ -39,5 +40,36 @@ export const verifyCustomerAPI = async (data) => {
 
 export const resendVerifyEmailApi = async (data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/resendVerifyEmail`, data)
+  return response.data
+}
+
+// ingredients
+export const getIngredientsAPI = async () => {
+  const response = await axios.get(`${API_ROOT}/apis/v1/ingredients`)
+  return response.data
+}
+
+export const createIngredientActHistoryAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/ingredient-act-his`, data)
+  return response.data
+}
+
+export const getIngredientActHistoryByCustomerIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/ingredient-act-his/customer/${id}`)
+  return response.data
+}
+
+export const createMixFoodAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/saved-food-mix`, data)
+  return response.data
+}
+
+export const getMixFoodByCustomerIdAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/saved-food-mix/customer/${customerId}`)
+  return response.data
+}
+
+export const createCustomerHealthyInfoAPI = async (data) => {
+  const response = await axios.post(`${API_ROOT}/apis/v1/customer-health-info`, data)
   return response.data
 }
