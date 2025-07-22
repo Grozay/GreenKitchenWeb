@@ -19,11 +19,16 @@ import PageviewIcon from '@mui/icons-material/Pageview'
 import SuggestFood from './SuggestFood'
 import SelectedFood from './SelectedFood'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-
+import { createMixFoodAPI } from '~/apis/index'
+import { toast } from 'react-toastify'
+import { clearCart } from '~/redux/meal/mealSlice'
+import { useDispatch } from 'react-redux'
 const DrawerInfo = ({ onClose }) => {
   const [isReviewing, setIsReviewing] = useState(false)
   const theme = useTheme()
+  const dispatch = useDispatch()
   const selected = useSelector(selectCurrentMeal)
+  // const customerId = useSelector(state => state.user.id)
   const customTotal = calcCustomTotal(selected)
   const suggestedMeals = getSuggestedMeals(customTotal, ItemHealthy, selected)
   const nutritionalAdvice = getNutritionalAdvice(customTotal)
@@ -35,8 +40,38 @@ const DrawerInfo = ({ onClose }) => {
     alert('You have successfully ordered a custom meal!')
   }
 
-  const handleSaveCustom = () => {
-    alert('Your custom meal has been saved!')
+  const handleSaveCustom = async () => {
+    try {
+      const customerId = 1 // Lấy từ user state hoặc localStorage
+      const mixFoodData = {
+        customerId: customerId,
+        proteins: selected.protein.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        })),
+        carbs: selected.carbs.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        })),
+        sides: selected.side.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        })),
+        sauces: selected.sauce.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        })),
+        note: 'My favorite mix with quantities'
+      }
+
+      await createMixFoodAPI(mixFoodData).then(() => {
+        dispatch(clearCart())
+        onClose()
+        toast.success('Custom meal saved successfully!')
+      })
+    } catch {
+      toast.error('Failed to save custom meal. Please try again.')
+    }
   }
 
   const handleCloseDrawer = () => {

@@ -14,30 +14,33 @@ import Chip from '@mui/material/Chip'
 import theme from '~/theme'
 import { useForm, Controller } from 'react-hook-form'
 import { createSearchParams, useNavigate } from 'react-router-dom'
+import { createCustomerHealthyInfoAPI } from '~/apis/index'
+import { toast } from 'react-toastify'
 
 const exerciseLevels = [
-  'Không tập luyện',
-  'Tập nhẹ (1-3 buổi/tuần)',
-  'Tập vừa (3-5 buổi/tuần)',
-  'Tập nặng (6-7 buổi/tuần)',
-  'Tập rất nặng (2 lần/ngày)'
+  { value: 'SEDENTARY', label: 'Ít vận động' },
+  { value: 'LIGHT', label: 'Vận động nhẹ (1-3 buổi/tuần)' },
+  { value: 'MODERATE', label: 'Vận động vừa (3-5 buổi/tuần)' },
+  { value: 'ACTIVE', label: 'Vận động nhiều (6-7 buổi/tuần)' },
+  { value: 'VERY_ACTIVE', label: 'Vận động rất nhiều (2 lần/ngày)' }
 ]
 
 const goals = [
-  'Giảm cân',
-  'Duy trì cân nặng',
-  'Tăng cân'
+  { value: 'LOSE_WEIGHT', label: 'Giảm cân' },
+  { value: 'MAINTAIN_WEIGHT', label: 'Duy trì cân nặng' },
+  { value: 'GAIN_WEIGHT', label: 'Tăng cân' },
+  { value: 'BUILD_MUSCLE', label: 'Tăng cơ' }
 ]
 
 const allergies = [
-  'Đậu phộng',
-  'Hải sản',
-  'Trứng',
-  'Sữa',
-  'Lúa mì',
-  'Đậu nành',
-  'Cá',
-  'Động vật có vỏ'
+  { value: 'PEANUTS', label: 'Đậu phộng' },
+  { value: 'SEAFOOD', label: 'Hải sản' },
+  { value: 'EGGS', label: 'Trứng' },
+  { value: 'MILK', label: 'Sữa' },
+  { value: 'WHEAT', label: 'Lúa mì' },
+  { value: 'SOY', label: 'Đậu nành' },
+  { value: 'FISH', label: 'Cá' },
+  { value: 'SHELLFISH', label: 'Động vật có vỏ' }
 ]
 
 const styleInput = {
@@ -128,6 +131,7 @@ const CaloInfo = () => {
     formState: { errors },
     reset
   } = useForm({
+    mode: 'onChange', // Validate khi có thay đổi
     defaultValues: {
       gender: '',
       age: '',
@@ -139,10 +143,26 @@ const CaloInfo = () => {
     }
   })
 
-  const onSubmit = (data) => {
-    console.log('Form submitted:', data)
-    const path = createSearchParams(data)
-    navigate(`/calo-calculator/suggest?${path.toString()}`)
+  const onSubmit = async (data) => {
+    try {
+      const customerId = 2 // Lấy từ user state hoặc localStorage
+      const healthyInfoData = {
+        customerId: customerId,
+        age: parseInt(data.age),
+        weight: parseFloat(data.weight),
+        height: parseFloat(data.height),
+        activityLevel: data.exerciseLevel,
+        goal: data.goal,
+        allergies: data.allergies
+      }
+
+      await createCustomerHealthyInfoAPI(healthyInfoData)
+      toast.success('Infomation healthy has been saved successfully!')
+      const path = createSearchParams(data)
+      navigate(`/calo-calculator/suggest?${path.toString()}`)
+    } catch {
+      toast.error('An error occurred while saving information. Please try again!')
+    }
   }
 
   const handleClear = () => {
@@ -155,7 +175,7 @@ const CaloInfo = () => {
         <Typography variant="h5" component="h2" gutterBottom color="text.primary" sx={{ mb: 4, fontWeight: 'bold' }}>
           Thông tin cá nhân
         </Typography>
-        <form onSubmit={handleSubmit(onSubmit)} method='get' >
+        <form onSubmit={handleSubmit(onSubmit)} method='post' >
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <FormControl fullWidth margin="normal">
@@ -191,8 +211,12 @@ const CaloInfo = () => {
                 control={control}
                 rules={{
                   required: 'Vui lòng nhập tuổi',
-                  min: { value: 1, message: 'Tuổi phải lớn hơn 0' },
-                  max: { value: 120, message: 'Tuổi không hợp lệ' }
+                  min: { value: 18, message: 'Tuổi phải lớn hơn 18' },
+                  max: { value: 60, message: 'Tuổi không hợp lệ' },
+                  pattern: {
+                    value: /^[0-9]+$/,
+                    message: 'Tuổi phải là số nguyên dương'
+                  }
                 }}
                 render={({ field }) => (
                   <TextField
@@ -204,6 +228,7 @@ const CaloInfo = () => {
                     type="number"
                     error={!!errors.age}
                     helperText={errors.age?.message}
+                    inputProps={{ min: 1, max: 120 }}
                   />
                 )}
               />
@@ -215,8 +240,12 @@ const CaloInfo = () => {
                 control={control}
                 rules={{
                   required: 'Vui lòng nhập cân nặng',
-                  min: { value: 20, message: 'Cân nặng không hợp lệ' },
-                  max: { value: 300, message: 'Cân nặng không hợp lệ' }
+                  min: { value: 20, message: 'Cân nặng phải từ 20kg trở lên' },
+                  max: { value: 300, message: 'Cân nặng không được vượt quá 300kg' },
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: 'Cân nặng phải là số hợp lệ (tối đa 2 chữ số thập phân)'
+                  }
                 }}
                 render={({ field }) => (
                   <TextField
@@ -228,6 +257,7 @@ const CaloInfo = () => {
                     type="number"
                     error={!!errors.weight}
                     helperText={errors.weight?.message}
+                    inputProps={{ min: 20, max: 300, step: 0.1 }}
                   />
                 )}
               />
@@ -239,8 +269,12 @@ const CaloInfo = () => {
                 control={control}
                 rules={{
                   required: 'Vui lòng nhập chiều cao',
-                  min: { value: 100, message: 'Chiều cao không hợp lệ' },
-                  max: { value: 250, message: 'Chiều cao không hợp lệ' }
+                  min: { value: 100, message: 'Chiều cao phải từ 100cm trở lên' },
+                  max: { value: 250, message: 'Chiều cao không được vượt quá 250cm' },
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: 'Chiều cao phải là số hợp lệ (tối đa 2 chữ số thập phân)'
+                  }
                 }}
                 render={({ field }) => (
                   <TextField
@@ -252,6 +286,7 @@ const CaloInfo = () => {
                     type="number"
                     error={!!errors.height}
                     helperText={errors.height?.message}
+                    inputProps={{ min: 100, max: 250, step: 0.1 }}
                   />
                 )}
               />
@@ -273,8 +308,8 @@ const CaloInfo = () => {
                       error={!!errors.exerciseLevel}
                     >
                       {exerciseLevels.map((level, index) => (
-                        <MenuItem key={index} value={level}>
-                          {level}
+                        <MenuItem key={index} value={level.value}>
+                          {level.label}
                         </MenuItem>
                       ))}
                     </Select>
@@ -304,8 +339,8 @@ const CaloInfo = () => {
                       error={!!errors.goal}
                     >
                       {goals.map((goal, index) => (
-                        <MenuItem key={index} value={goal}>
-                          {goal}
+                        <MenuItem key={index} value={goal.value}>
+                          {goal.label}
                         </MenuItem>
                       ))}
                     </Select>
@@ -334,16 +369,19 @@ const CaloInfo = () => {
                       label="Dị ứng thực phẩm (nếu có)"
                       renderValue={(selected) => (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                          {selected.map((value) => (
-                            <Chip key={value} label={value} />
-                          ))}
+                          {selected.map((value) => {
+                            const allergy = allergies.find(a => a.value === value)
+                            return (
+                              <Chip key={value} label={allergy?.label || value} />
+                            )
+                          })}
                         </Box>
                       )}
                     >
                       {allergies.map((allergy) => (
-                        <MenuItem key={allergy} value={allergy}>
-                          <Checkbox checked={field.value?.includes(allergy)} />
-                          {allergy}
+                        <MenuItem key={allergy.value} value={allergy.value}>
+                          <Checkbox checked={field.value?.includes(allergy.value)} />
+                          {allergy.label}
                         </MenuItem>
                       ))}
                     </Select>

@@ -3,8 +3,11 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import theme from '~/theme'
 import FoodCard from '~/components/FoodCard/FoodCard'
+import Skeleton from '@mui/material/Skeleton'
 
-const ListCard = ({ title, index, cards }) => {
+const ListCard = ({ title, index, cards, loading }) => {
+  const skeletonArray = Array.from({ length: 4 })
+
   return (
     <Box sx={{ mb: { xs: 3, md: 6 } }}>
       <Box sx={{
@@ -47,11 +50,17 @@ const ListCard = ({ title, index, cards }) => {
           px: { xs: 0.5, sm: 1 }
         }}
       >
-        {cards.map((card, idx) => (
-          <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={idx}>
-            <FoodCard card={card} />
-          </Grid>
-        ))}
+        {loading || !cards
+          ? skeletonArray.map((_, idx) => (
+            <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={idx}>
+              <Skeleton variant="rectangular" height={250} sx={{ borderRadius: 5 }} />
+            </Grid>
+          ))
+          : cards?.map((card, idx) => (
+            <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={idx}>
+              <FoodCard card={card} />
+            </Grid>
+          ))}
       </Grid>
     </Box>
   )
