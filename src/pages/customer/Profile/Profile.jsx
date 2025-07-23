@@ -1,20 +1,19 @@
 import { useState } from 'react'
-import AppBar from '~/components/AppBar/AppBar'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import SecurityIcon from '@mui/icons-material/Security'
-import PersonIcon from '@mui/icons-material/Person'
 import { Link, useLocation } from 'react-router-dom'
-import AccountTab from './AccountTab'
+import AccountTab from './AccountTab/AccountTab'
 import MembershipTab from './MembershipTab'
 import OverviewTab from './OverviewTab'
 import ProfileNavBar from '~/components/ProfileNavBar/ProfileNavBar'
 import OrderHistoryTab from './OrderHistoryTab'
 import HealthProfileTab from './HealthProfileTab'
+import { useSelector } from 'react-redux'
+import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 
 // Khai báo đống tabs ra biến const để dùng lại cho gọn
 const TABS = {
@@ -27,6 +26,7 @@ const TABS = {
 
 function Profile() {
   const location = useLocation()
+  const currentCustomer = useSelector(selectCurrentCustomer)
   // Function đơn giản có nhiệm vụ lấy ra cái tab mặc định dựa theo url.
   const getDefaultTab = () => {
     if (location.pathname.includes(TABS.MEMBERSHIP)) return TABS.MEMBERSHIP
@@ -42,9 +42,9 @@ function Profile() {
   const handleChangeTab = (event, selectedTab) => { setActiveTab(selectedTab) }
 
   return (
-    <Box>
+    <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
       <ProfileNavBar />
-      <Box sx={{ display: 'flex', width: '100%', minHeight: 400, p: { xs: 0, sm: 5, md: 10 } }}>
+      <Box sx={{ display: 'flex', width: '100%', minHeight: 400, pt: { xs: 2, sm: 3, md: 4 } }}>
         <TabContext value={activeTab}>
           <TabList
             orientation='vertical'
@@ -52,13 +52,23 @@ function Profile() {
             sx={{
               display: { xs: 'none', sm: 'none', md: 'flex' },
               borderRight: 1,
+              height: '100%',
               borderColor: 'divider',
-              minWidth: 180,
+              minWidth: 250,
               textAlign: 'left',
+              cursor: 'pointer',
               '& .MuiTab-root': {
                 justifyContent: 'flex-start',
                 textAlign: 'left',
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
+                '&.Mui-selected': {
+                  backgroundColor: 'primary.main',
+                  color: 'white'
+                },
+                transition: 'background-color 0.3s, color 0.3s'
+              },
+              '& .MuiTabs-indicator': {
+                display: 'none'
               }
             }}
           >
@@ -68,8 +78,8 @@ function Profile() {
               label={
                 <Box>
                   {/* Hiển thị tên và email khách hàng ở đây */}
-                  <Box fontWeight={700} fontSize={16}>Nguyen Van A</Box>
-                  <Box fontSize={14} color="text.secondary">email@gmail.com</Box>
+                  <Box fontWeight={700} fontSize={16}>{currentCustomer.fullName}</Box>
+                  <Box fontSize={14} color="text.secondary">{currentCustomer.email}</Box>
                 </Box>
               }
             />
@@ -104,7 +114,7 @@ function Profile() {
               component={Link}
               to="/profile/health-profile" />
           </TabList>
-          <Box sx={{ flex: 1, pl: { xs: 0, sm: 0, md: 4 } }}>
+          <Box sx={{ flex: 1 }}>
             <TabPanel value={TABS.OVERVIEW}><OverviewTab /></TabPanel>
             <TabPanel value={TABS.ACCOUNT}><AccountTab /></TabPanel>
             <TabPanel value={TABS.MEMBERSHIP}><MembershipTab /></TabPanel>
@@ -113,7 +123,7 @@ function Profile() {
           </Box>
         </TabContext>
       </Box>
-    </Box>
+    </Container>
   )
 }
 

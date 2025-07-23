@@ -1,4 +1,3 @@
-import { Link, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -8,7 +7,9 @@ import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
 import Avatar from '@mui/material/Avatar'
 import SecurityIcon from '@mui/icons-material/Security'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { useForm } from 'react-hook-form'
+import { useState, useEffect } from 'react'
 import {
   FIELD_REQUIRED_MESSAGE,
   OTP_RULE,
@@ -17,10 +18,40 @@ import {
 import { toast } from 'react-toastify'
 import { verifyOtpCodeAPI } from '~/apis'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import BackToLoginConfirm from '~/components/BackToLoginConfirm/BackToLoginConfirm'
 
 function OtpForm({ onNext, email }) {
   const { register, handleSubmit, formState: { errors } } = useForm()
+  const [timeLeft, setTimeLeft] = useState(300) // 5 minutes = 300 seconds
+  const [isExpired, setIsExpired] = useState(false)
   // const userId = location.state?.userId
+
+  // Countdown timer
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      setIsExpired(true)
+      return
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prevTime => {
+        if (prevTime <= 1) {
+          setIsExpired(true)
+          return 0
+        }
+        return prevTime - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [timeLeft])
+
+  // Format time to MM:SS
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
 
   // Debug: Check if email is received
   if (!email) {
@@ -32,6 +63,11 @@ function OtpForm({ onNext, email }) {
   }
 
   const submitLogIn = (data) => {
+    if (isExpired) {
+      toast.error('OTP đã hết hạn. Vui lòng yêu cầu mã OTP mới.')
+      return
+    }
+
     const { otpCode } = data
     const requestData = {
       email: email,
@@ -74,6 +110,38 @@ function OtpForm({ onNext, email }) {
             <Typography variant="body2" color="text.secondary">
               Enter the OTP code sent to: <strong>{email}</strong>
             </Typography>
+
+            {/* OTP Timer */}
+            <Box sx={{
+              mt: 2,
+              p: 1.5,
+              borderRadius: 1,
+              backgroundColor: isExpired ? '#ffebee' : '#e8f5e8',
+              border: `1px solid ${isExpired ? '#f44336' : '#4caf50'}`
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                <AccessTimeIcon
+                  sx={{
+                    color: isExpired ? '#f44336' : '#4caf50',
+                    fontSize: '1.2rem'
+                  }}
+                />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    color: isExpired ? '#f44336' : '#4caf50'
+                  }}
+                >
+                  {isExpired ? 'OTP đã hết hạn' : `Thời gian còn lại: ${formatTime(timeLeft)}`}
+                </Typography>
+              </Box>
+              {isExpired && (
+                <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                  Vui lòng yêu cầu mã OTP mới
+                </Typography>
+              )}
+            </Box>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
@@ -104,21 +172,25 @@ function OtpForm({ onNext, email }) {
               color="primary"
               size="large"
               fullWidth
+              disabled={isExpired}
+              sx={{
+                opacity: isExpired ? 0.6 : 1,
+                '&.Mui-disabled': {
+                  backgroundColor: '#bdbdbd',
+                  color: '#ffffff'
+                }
+              }}
             >
-              Proceed
+              {isExpired ? 'OTP đã hết hạn' : 'Proceed'}
             </Button>
           </CardActions>
-          {/* <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Typography>New to Nexus Service Marketing System?</Typography>
-            <Link to="/register" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Create account!</Typography>
-            </Link>
-          </Box> */}
-          <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Link to="/login" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}> Back to Login</Typography>
-            </Link>
-          </Box>
+
+          <BackToLoginConfirm
+            stepName="quá trình xác thực OTP"
+            customMessage="Bạn có chắc chắn muốn quay lại trang đăng nhập?
+
+Mã OTP hiện tại sẽ hết hiệu lực và bạn sẽ cần phải yêu cầu mã OTP mới để đặt lại mật khẩu."
+          />
         </MuiCard>
       </Zoom>
     </form>

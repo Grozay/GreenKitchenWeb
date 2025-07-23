@@ -51,8 +51,8 @@ export const employeeSlice = createSlice({
 // export const { } = userSlice.actions
 
 //selector: là nơi cho các component lấy dữ liệu từ redux store
-export const selectCurrentUser = (state) => {
-  return state.user.currentUser
+export const selectCurrentEmployee = (state) => {
+  return state.employee.currentEmployee
 }
 
 export const employeeReducer = employeeSlice.reducer

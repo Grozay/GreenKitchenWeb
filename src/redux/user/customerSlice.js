@@ -7,11 +7,11 @@ const initialState = {
   currentCustomer: null
 }
 
-//Các hành động gọi api (bất đồng bộ) và cập nhập dữ liệu vào redux, dùng middleware CreateAsyncThunk đi kèm với extraReducers
+//Các hành động gọi api (bất đồng bộ) và cập nhật dữ liệu vào redux, dùng middleware CreateAsyncThunk đi kèm với extraReducers
 export const loginCustomerApi = createAsyncThunk(
   'customer/loginCustomerApi',
   async (data) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/login`, data)
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/auth/login`, data)
     return response.data
   }
 )
@@ -19,7 +19,7 @@ export const loginCustomerApi = createAsyncThunk(
 export const googleLoginAPI = createAsyncThunk(
   'customer/googleLoginAPI',
   async (data) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/google-login`, data)
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/auth/google-login`, data)
     return response.data
   }
 )
@@ -27,14 +27,13 @@ export const googleLoginAPI = createAsyncThunk(
 export const logoutCustomerApi = createAsyncThunk(
   'customer/logoutCustomerApi',
   async (showSuccessMessage = true) => {
-    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/logout`)
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/auth/logout`)
     if (showSuccessMessage) {
       toast.success('Logout successfully')
     }
     return response.data
   }
 )
-
 
 //tạo ra 1 slice trong redux store
 export const customerSlice = createSlice({
