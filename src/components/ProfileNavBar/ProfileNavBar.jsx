@@ -32,6 +32,7 @@ function ProfileNavBar() {
     e.preventDefault()
     const { confirmed } = await confirm({
       title: 'Are you sure you want to logout?',
+      body: 'You will be redirected to the login page.',
       cancellationText: 'Cancel',
       confirmationText: 'Log out'
     })

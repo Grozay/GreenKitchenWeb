@@ -31,6 +31,7 @@ import { useForm } from 'react-hook-form'
 import { useConfirm } from 'material-ui-confirm'
 import { createNewAddressAPI, updateAddressAPI, deleteAddressAPI } from '~/apis'
 import { toast } from 'react-toastify'
+import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 
 export default function AddressList({ addressList, setAddressList, customerDetails }) {
   const [openDialog, setOpenDialog] = useState(false)
@@ -130,7 +131,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
       return
     }
 
-    const fullAddress = `${data.street}, ${data.ward}, ${data.district}, ${data.city}`
+    const fullAddress = `${data.street}, Phường ${data.ward}, Quận ${data.district}, ${data.city}`
     // Chuẩn bị payload cho API
     const addressPayload = {
       customerId: customerDetails?.id,
@@ -197,7 +198,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
       }).then(res => {
         if (!res.error) {
           toast.success('Địa chỉ đã được thêm thành công!')
-          const fullAddress = `${data.street}, ${data.ward}, ${data.district}, ${data.city}`
+          const fullAddress = `${data.street}, Phường ${data.ward}, Quận ${data.district}, ${data.city}`
           // Cập nhật state frontend
           let updatedAddressList = [...(addressList || [])]
 
@@ -452,8 +453,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.recipientName}
-                          helperText={errors.recipientName?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='recipientName' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -468,8 +469,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.recipientPhone}
-                          helperText={errors.recipientPhone?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='recipientPhone' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -478,8 +479,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.street}
-                          helperText={errors.street?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='street' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -488,8 +489,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.ward}
-                          helperText={errors.ward?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='ward' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -498,8 +499,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.district}
-                          helperText={errors.district?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='district' />
                       </Grid>
                       <Grid size={6}>
                         <FormControl fullWidth size="small">
@@ -510,12 +511,9 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             error={!!errors.city}
                           >
                             <MenuItem value="HCM">TP. Hồ Chí Minh</MenuItem>
-                            <MenuItem value="HN">Hà Nội</MenuItem>
-                            <MenuItem value="DN">Đà Nẵng</MenuItem>
-                            <MenuItem value="HP">Hải Phòng</MenuItem>
-                            <MenuItem value="CT">Cần Thơ</MenuItem>
                           </Select>
                         </FormControl>
+                        <FieldErrorAlert errors={errors} fieldName='city' />
                       </Grid>
                       <Grid size={12}>
                         <FormControl component="fieldset">
@@ -607,8 +605,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.recipientName}
-                          helperText={errors.recipientName?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='recipientName' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -623,8 +621,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.recipientPhone}
-                          helperText={errors.recipientPhone?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='recipientPhone' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -633,8 +631,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.street}
-                          helperText={errors.street?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='street' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -643,8 +641,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.ward}
-                          helperText={errors.ward?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='ward' />
                       </Grid>
                       <Grid size={6}>
                         <TextField
@@ -653,8 +651,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           fullWidth
                           size="small"
                           error={!!errors.district}
-                          helperText={errors.district?.message}
                         />
+                        <FieldErrorAlert errors={errors} fieldName='district' />
                       </Grid>
                       <Grid size={6}>
                         <FormControl fullWidth size="small">
@@ -671,6 +669,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             <MenuItem value="CT">Cần Thơ</MenuItem>
                           </Select>
                         </FormControl>
+                        <FieldErrorAlert errors={errors} fieldName='city' />
                       </Grid>
                       <Grid size={12}>
                         <FormControl component="fieldset">

@@ -11,7 +11,7 @@ import MembershipTab from './MembershipTab'
 import OverviewTab from './OverviewTab'
 import ProfileNavBar from '~/components/ProfileNavBar/ProfileNavBar'
 import OrderHistoryTab from './OrderHistoryTab'
-import HealthProfileTab from './HealthProfileTab'
+import CustomerTDEETab from './CustomerTDEETab/CustomerTDEETab'
 import { useSelector } from 'react-redux'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 
@@ -21,7 +21,7 @@ const TABS = {
   MEMBERSHIP: 'membership',
   OVERVIEW: 'overview',
   ORDERHISTORY: 'order-history',
-  HEALTHPROFILE: 'health-profile'
+  TDEEPROFILE: 'tdee-profile'
 }
 
 function Profile() {
@@ -31,7 +31,7 @@ function Profile() {
   const getDefaultTab = () => {
     if (location.pathname.includes(TABS.MEMBERSHIP)) return TABS.MEMBERSHIP
     if (location.pathname.includes(TABS.ACCOUNT)) return TABS.ACCOUNT
-    if (location.pathname.includes(TABS.HEALTHPROFILE)) return TABS.HEALTHPROFILE
+    if (location.pathname.includes(TABS.TDEEPROFILE)) return TABS.TDEEPROFILE
     if (location.pathname.includes(TABS.ORDERHISTORY)) return TABS.ORDERHISTORY
     return TABS.OVERVIEW
   }
@@ -84,42 +84,42 @@ function Profile() {
               }
             />
             <Tab
-              label="Overview"
+              label="Tổng Quan"
               value={TABS.OVERVIEW}
               iconPosition="start"
               component={Link}
               to="/profile/overview" />
             <Tab
-              label="Account"
+              label="Thông Tin Tài Khoản"
               value={TABS.ACCOUNT}
               iconPosition="start"
               component={Link}
               to="/profile/account" />
             <Tab
-              label="Membership"
+              label="Hạng Thành Viên"
               value={TABS.MEMBERSHIP}
               iconPosition="start"
               component={Link}
               to="/profile/membership" />
             <Tab
-              label="Order History"
+              label="Lịch Sử Đặt Hàng"
               value={TABS.ORDERHISTORY}
               iconPosition="start"
               component={Link}
               to="/profile/order-history" />
             <Tab
-              label="Health Profile"
-              value={TABS.HEALTHPROFILE}
+              label="Thông tin TDEE"
+              value={TABS.TDEEPROFILE}
               iconPosition="start"
               component={Link}
-              to="/profile/health-profile" />
+              to="/profile/Tdee-profile" />
           </TabList>
           <Box sx={{ flex: 1 }}>
             <TabPanel value={TABS.OVERVIEW}><OverviewTab /></TabPanel>
             <TabPanel value={TABS.ACCOUNT}><AccountTab /></TabPanel>
             <TabPanel value={TABS.MEMBERSHIP}><MembershipTab /></TabPanel>
             <TabPanel value={TABS.ORDERHISTORY}><OrderHistoryTab /></TabPanel>
-            <TabPanel value={TABS.HEALTHPROFILE}><HealthProfileTab /></TabPanel>
+            <TabPanel value={TABS.TDEEPROFILE}><CustomerTDEETab /></TabPanel>
           </Box>
         </TabContext>
       </Box>

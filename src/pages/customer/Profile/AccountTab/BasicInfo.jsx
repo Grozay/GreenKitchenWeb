@@ -15,16 +15,14 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
-import { useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
-import { selectCurrentCustomer } from '~/redux/user/customerSlice'
-import { fetchCustomerDetails, updateCustomerInfo } from '~/apis'
+import { updateCustomerInfo } from '~/apis'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import { formatDate } from '~/utils/formatter'
+import { toast } from 'react-toastify'
 
 export default function BasicInfo({ basicInfo, setBasicInfo }) {
-  const currentCustomer = useSelector(selectCurrentCustomer)
   const [openDialog, setOpenDialog] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -47,16 +45,25 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
   }
 
   const submitUpdate = async (data) => {
-    try {
-      const { email, firstName, lastName, phone, gender, birthDate } = data
-      await updateCustomerInfo({ email, firstName, lastName, phone, gender, birthDate })
-      setOpenDialog(false)
-      // Refresh data sau khi cập nhật
-      const newData = await fetchCustomerDetails(currentCustomer.email)
-      setBasicInfo(newData)
-    } catch {
-      // Error handling
-    }
+    const { email, firstName, lastName, phone, gender, birthDate } = data
+    await toast.promise(updateCustomerInfo({ email, firstName, lastName, phone, gender, birthDate }), {
+      pending: 'Đang cập nhật...',
+      success: 'Cập nhật thành công!',
+      error: 'Cập nhật thất bại!'
+    }).then(res => {
+      if (!res.error) {
+        setOpenDialog(false)
+        setBasicInfo(prev => ({
+          ...prev,
+          firstName,
+          lastName,
+          phone,
+          gender,
+          birthDate,
+          fullName: `${firstName} ${lastName}`
+        }))
+      }
+    })
   }
 
   return (

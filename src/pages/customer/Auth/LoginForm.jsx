@@ -58,8 +58,8 @@ function LoginForm() {
         setOpenResendVerifyPanel(true)
       }
       if (!res.error) {
-        toast.success('Login successfully!')
-        navigate('/')
+        toast.success('Login successful!')
+        navigate('/profile')
       }
     })
   }
@@ -68,12 +68,12 @@ function LoginForm() {
     const email = resendEmail.trim()
     toast.promise(
       resendVerifyEmailApi({ email }), {
-        pending: 'Resending verification email...'
+        pending: 'Resending verification email...',
+        success: 'Verification email resent successfully!'
       }
     ).then(() => {
       setOpenResendVerifyPanel(false)
       setResendEmail('')
-      toast.success('Verification email resent successfully! Please check your inbox.')
     })
   }
 
@@ -88,7 +88,7 @@ function LoginForm() {
     ).then(response => {
       if (!response.error) {
         // Update Redux state with user information
-        navigate('/')
+        navigate('/profile')
       }
     })
   }
