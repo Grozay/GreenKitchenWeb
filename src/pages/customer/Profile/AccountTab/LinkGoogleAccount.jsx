@@ -14,12 +14,21 @@ import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'react-toastify'
 import { useState } from 'react'
 import { unlinkGoogleAPI, linkGoogleAPI } from '~/apis'
+import { useDispatch } from 'react-redux'
+import { logoutCustomerApi } from '~/redux/user/customerSlice'
+import { useNavigate } from 'react-router-dom'
+import { useConfirm } from 'material-ui-confirm'
+
 
 export default function GoogleSync({ customerDetails, setCustomerDetails }) {
   const [openUnlinkDialog, setOpenUnlinkDialog] = useState(false)
   const [openEmailMismatchDialog, setOpenEmailMismatchDialog] = useState(false)
   const [googleEmailMismatch, setGoogleEmailMismatch] = useState(null)
   const isLinkedWithGoogle = customerDetails?.isOauthUser && customerDetails?.oauthProvider === 'google'
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const confirm = useConfirm()
 
   const handleUnlinkGoogle = async () => {
     setOpenUnlinkDialog(false)
@@ -50,10 +59,24 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
     setGoogleEmailMismatch(null)
   }
 
-  const handleSwitchToGoogleAccount = () => {
+  const handleSwitchToGoogleAccount = async () => {
     // Option 1: Redirect to logout and suggest login with Google email
     toast.info(`Vui lòng đăng xuất và đăng nhập lại bằng email ${googleEmailMismatch.googleEmail}`)
     handleCloseEmailMismatchDialog()
+
+    const { confirmed } = await confirm({
+      title: 'Xác nhận đăng xuất',
+      description: 'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?',
+      confirmationText: 'Đăng xuất',
+      cancellationText: 'Hủy'
+    })
+
+    if (confirmed) {
+      dispatch(logoutCustomerApi())
+        .then(() => {
+          navigate('/login')
+        })
+    }
   }
 
   const handleIgnoreAndContinue = () => {
@@ -100,7 +123,6 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
 
       // Nếu email trùng khớp, thực hiện link bình thường
       await performGoogleLink(credentialResponse.credential)
-      
     } catch {
       toast.error('Có lỗi xảy ra khi xử lý đăng nhập Google')
     }
@@ -187,7 +209,7 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
         <DialogContent>
           <DialogContentText id="unlink-dialog-description">
             Bạn có chắc chắn muốn hủy liên kết tài khoản Google không?
-            Sau khi hủy liên kết, bạn sẽ không thể đăng nhập bằng Google nữa.
+            Sau khi hủy liên kết, dữ liệu liên kết với tài khoản Google có thể bị mất!
           </DialogContentText>
         </DialogContent>
         <DialogActions>

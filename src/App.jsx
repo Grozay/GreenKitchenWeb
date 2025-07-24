@@ -49,7 +49,7 @@ function App() {
         <Route path="/profile/account" element={<Profile />} />
         <Route path="/profile/membership" element={<Profile />} />
         <Route path="/profile/order-history" element={<Profile />} />
-        <Route path="/profile/health-profile" element={<Profile />} />
+        <Route path="/profile/tdee-profile" element={<Profile />} />
       </Route>
 
       {/* 404 Not Found */}

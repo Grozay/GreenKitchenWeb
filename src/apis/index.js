@@ -67,13 +67,19 @@ export const updateCustomerInfo = async (data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/customers/update`, data)
   return response.data
 }
+export const updateAvatarAPI = async (email, file) => {
+  const formData = new FormData()
+  formData.append('imageFile', file)
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/customers/updateAvatar/${email}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
 
 export const updateCustomerPassword = async (data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/customers/updatePassword`, data)
   return response.data
 }
-
-
 
 // Address
 export const createNewAddressAPI = async (data) => {
@@ -88,5 +94,21 @@ export const updateAddressAPI = async (data) => {
 
 export const deleteAddressAPI = async (id) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/addresses/delete/${id}`)
+  return response.data
+}
+
+// Customer TDEE APIs
+export const saveCustomerTDEEAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/customer-tdees`, data)
+  return response.data
+}
+
+export const getCustomerTDEEsAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/customer-tdees/customer/${customerId}`)
+  return response.data
+}
+
+export const deleteCustomerTDEEAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/customer-tdees/${id}`)
   return response.data
 }

@@ -19,8 +19,9 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import PasswordStrengthIndicator from '~/components/Form/PasswordStrengthIndicator'
 import { FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_CONFIRMATION_MESSAGE } from '~/utils/validators'
 import { changePasswordAPI } from '~/apis'
+import { formatDate } from '~/utils/formatter'
 
-export default function ChangePassword({ email }) {
+export default function ChangePassword({ customerDetails, setCustomerDetails }) {
   const [open, setOpen] = useState(false)
   const { register, handleSubmit, formState: { errors }, getValues, watch, reset } = useForm()
 
@@ -37,20 +38,19 @@ export default function ChangePassword({ email }) {
 
   const onSubmit = async (data) => {
     const { oldPassword, newPassword } = data
-    
-    try {
-      await toast.promise(
-        changePasswordAPI({ email, oldPassword, newPassword }),
-        {
-          pending: 'Đang thay đổi mật khẩu...',
-          success: 'Mật khẩu đã được thay đổi thành công!',
-          error: 'Có lỗi xảy ra khi thay đổi mật khẩu'
-        }
-      )
-      handleClose()
-    } catch {
-      // Error handling is done by toast.promise
-    }
+    await toast.promise(changePasswordAPI({ email: customerDetails.email, oldPassword, newPassword }), {
+      pending: 'Đang thay đổi mật khẩu...',
+      success: 'Mật khẩu đã được thay đổi thành công!',
+      error: 'Có lỗi xảy ra khi thay đổi mật khẩu'
+    }).then(res => {
+      if (!res.error) {
+        setCustomerDetails(prev => ({
+          ...prev,
+          passwordUpdatedAt: new Date().toISOString() // Update password updated time
+        }))
+        handleClose()
+      }
+    })
   }
 
   return (
@@ -101,7 +101,7 @@ export default function ChangePassword({ email }) {
                   fontStyle: 'italic',
                   fontSize: '0.75rem'
                 }}>
-                  Cập nhật lần cuối: 2 tuần trước
+                  {customerDetails?.passwordUpdatedAt ? `Cập nhật lần cuối: ${formatDate(customerDetails.passwordUpdatedAt)}` : 'Chưa cập nhật mật khẩu'}
                 </Typography>
               </Box>
             </Box>
