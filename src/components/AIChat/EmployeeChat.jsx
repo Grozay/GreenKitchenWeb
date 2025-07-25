@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 import SendIcon from '@mui/icons-material/Send'
-import { fetchMessagesPaged, sendMessage, fetchEmployeeConversations, markConversationRead } from '~/apis/chatApi'
+import { fetchMessagesPaged, sendMessage, fetchEmployeeConversations, markConversationRead } from '~/apis/chatAPICus'
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
 
 const PAGE_SIZE = 20
