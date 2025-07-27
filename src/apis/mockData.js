@@ -131,7 +131,7 @@ export const relatedNews = [
 
 export const mealPackages = [
   {
-    id: 1,
+    id: 'fit-3-package',
     title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
     image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
@@ -143,7 +143,7 @@ export const mealPackages = [
     size: 'low'
   },
   {
-    id: 2,
+    id: 'fit-3-package',
     title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
     image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
@@ -155,7 +155,7 @@ export const mealPackages = [
     size: 'high'
   },
   {
-    id: 3,
+    id: 'fit-3-package',
     title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
     image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
@@ -167,7 +167,7 @@ export const mealPackages = [
     size: 'balance'
   },
   {
-    id: 4,
+    id: 'fit-3-package',
     title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
     image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
@@ -179,7 +179,7 @@ export const mealPackages = [
     size: 'vegetarian'
   },
   {
-    id: 5,
+    id: 'fit-3-package',
     title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
     image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
@@ -191,7 +191,7 @@ export const mealPackages = [
     size: 'low'
   },
   {
-    id: 6,
+    id: 'fit-3-package',
     title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
     image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
@@ -385,7 +385,72 @@ export const ItemHealthy = {
   ]
 }
 
-
+export const menuSuggest = [
+  {
+    id: 1,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos'
+  },
+  {
+    id: 2,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos'
+  },
+  {
+    id: 3,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos dddddddddddddddddđssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss'
+  },
+  {
+    id: 4,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos'
+  }
+]
 
 export const itemCart = [
   {

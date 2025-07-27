@@ -9,19 +9,18 @@ import { useNavigate } from 'react-router-dom'
 import Grid from '@mui/material/Grid'
 
 
-const CardMenu = ({ item, sizeIndex }) => {
+const CardMenu = ({ item, typeBasedIndex }) => {
   const navigate = useNavigate()
-  
   const handleNavigateToDetail = (slug) => {
     navigate(`/menu/${slug}`)
   }
 
-  const getSizeShort = (size) => {
-    switch (size) {
-    case 'high': return 'H'
-    case 'low': return 'L'
-    case 'balance': return 'B'
-    case 'vegetarian': return 'V'
+  const getSizeShort = (type) => {
+    switch (type) {
+    case 'HIGH': return 'H'
+    case 'LOW': return 'L'
+    case 'BALANCE': return 'B'
+    case 'VEGETARIAN': return 'V'
     default: return ''
     }
   }
@@ -34,10 +33,10 @@ const CardMenu = ({ item, sizeIndex }) => {
 
   const itemFilter = {
     ...item,
-    size: getSizeShort(item.size)
+    typeShort: getSizeShort(item.type)
   }
 
-  const label = `${itemFilter.size.toUpperCase()}${(sizeIndex ?? 0) + 1}`
+  const label = `${itemFilter.typeShort}${typeBasedIndex || 1}`
 
   return (
     <>
@@ -63,7 +62,7 @@ const CardMenu = ({ item, sizeIndex }) => {
             component="img"
             src={itemFilter.image}
             alt={itemFilter.alt}
-            sx={{ objectFit: 'cover', cursor: 'pointer', p: 2, width: '100%' }}
+            sx={{ objectFit: 'cover', cursor: 'pointer', p: 2, width: '100%', borderRadius: '50%' }}
             onClick={() => handleNavigateToDetail(itemFilter.slug)}
           />
           <Typography variant='h6' sx={{
@@ -95,13 +94,12 @@ const CardMenu = ({ item, sizeIndex }) => {
               alignItems: 'center'
             }}
           >
-
             <Box sx={{
               display: 'flex',
               alignItems: 'center',
               border: '1.5px solid #4C082A',
               borderRadius: '50px',
-              fontWeight: 400,
+              fontWeight: 600,
               px: 2,
               py: 0.2,
               color: '#4C082A',
@@ -132,7 +130,7 @@ const CardMenu = ({ item, sizeIndex }) => {
                 alignItems: 'center',
                 border: '1.5px solid #4C082A',
                 borderRadius: '50px',
-                fontWeight: 500,
+                fontWeight: 600,
                 px: 2,
                 py: 0.5,
                 color: '#4C082A',
@@ -183,7 +181,7 @@ const CardMenu = ({ item, sizeIndex }) => {
                 >
                   {items.map((item, index) => (
                     <Grid size={{ xs: 3 }} key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <Typography variant="h7" fontWeight="bold" sx={{ fontSize: '1rem', fontWeight: 500, lineHeight: 1.2 }}>
+                      <Typography variant="h7" fontWeight="bold" sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
                         {item.value}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 400, fontSize: '0.75rem' }}>
@@ -205,7 +203,7 @@ const CardMenu = ({ item, sizeIndex }) => {
               fontWeight: 800,
               color: theme.palette.text.textSub
             }}>
-              {itemFilter.price}
+              {itemFilter.price} $
             </Typography>
             <IconButton
               sx={{
