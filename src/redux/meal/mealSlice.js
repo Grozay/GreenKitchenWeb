@@ -30,14 +30,13 @@ export const createIngredientActHistory = createAsyncThunk(
 
 export const hoverIngredientActHistory = createAsyncThunk(
   'meal/hoverIngredientActHistory',
-  async ({ item, customerId }, { dispatch }) => {
+  async ({ item, customerId }) => {
     const apiData = {
       customerId: customerId,
       ingredientId: item.id,
       actionType: 'HOVER'
     }
     const response = await createIngredientActHistoryAPI(apiData)
-    dispatch(addItem(item))
     return response
   }
 )
