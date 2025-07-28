@@ -3,7 +3,7 @@ import {
   API_ROOT
 } from '~/utils/constants'
 
-const CHAT_URL = `${API_ROOT}/chat`
+const CHAT_URL = `${API_ROOT}/apis/v1/chat`
 
 export async function initGuestConversation() {
   try {
