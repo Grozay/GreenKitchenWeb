@@ -19,11 +19,16 @@ import PageviewIcon from '@mui/icons-material/Pageview'
 import SuggestFood from './SuggestFood'
 import SelectedFood from './SelectedFood'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-
+import { createCustomMealAPI } from '~/apis/index'
+import { toast } from 'react-toastify'
+import { clearCart } from '~/redux/meal/mealSlice'
+import { useDispatch } from 'react-redux'
 const DrawerInfo = ({ onClose }) => {
   const [isReviewing, setIsReviewing] = useState(false)
   const theme = useTheme()
+  const dispatch = useDispatch()
   const selected = useSelector(selectCurrentMeal)
+  // const customerId = useSelector(state => state.user.id)
   const customTotal = calcCustomTotal(selected)
   const suggestedMeals = getSuggestedMeals(customTotal, ItemHealthy, selected)
   const nutritionalAdvice = getNutritionalAdvice(customTotal)
@@ -35,8 +40,63 @@ const DrawerInfo = ({ onClose }) => {
     alert('You have successfully ordered a custom meal!')
   }
 
-  const handleSaveCustom = () => {
-    alert('Your custom meal has been saved!')
+  const handleSaveCustom = async () => {
+    try {
+      const customerId = 1
+
+      const customMealData = {
+        customerId: customerId,
+        name: 'My favorite mix with quantities',
+        calories: Math.round(customTotal.calories),
+        protein: Math.round(customTotal.protein),
+        carb: Math.round(customTotal.carbs),
+        fat: Math.round(customTotal.fat)
+      }
+
+      if (selected.protein.length > 0) {
+        customMealData.proteins = selected.protein.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        }))
+      } else {
+        customMealData.proteins = []
+      }
+
+      if (selected.carbs.length > 0) {
+        customMealData.carbs = selected.carbs.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        }))
+      } else {
+        customMealData.carbs = []
+      }
+
+      if (selected.side.length > 0) {
+        customMealData.sides = selected.side.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        }))
+      } else {
+        customMealData.sides = []
+      }
+
+      if (selected.sauce.length > 0) {
+        customMealData.sauces = selected.sauce.map(item => ({
+          ingredientId: item.id,
+          quantity: item.quantity
+        }))
+      } else {
+        customMealData.sauces = []
+      }
+
+      await createCustomMealAPI(customMealData).then(() => {
+        dispatch(clearCart())
+        onClose()
+        toast.success('Custom meal saved successfully!')
+      })
+    } catch {
+      toast.error('Failed to save custom meal. Please try again.')
+    }
   }
 
   const handleCloseDrawer = () => {

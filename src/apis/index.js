@@ -1,3 +1,4 @@
+import axios from 'axios'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
@@ -80,6 +81,46 @@ export const updateCustomerPassword = async (data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/customers/updatePassword`, data)
   return response.data
 }
+
+// ingredients
+export const getIngredientsAPI = async () => {
+  const response = await axios.get(`${API_ROOT}/apis/v1/customers/ingredients`)
+  return response.data
+}
+
+export const createIngredientActHistoryAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customers/ingredient-act-his`, data)
+  return response.data
+}
+
+export const getIngredientActHistoryByCustomerIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/ingredient-act-his/customer/${id}`)
+  return response.data
+}
+
+export const createCustomMealAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/custom-meals`, data)
+  return response.data
+}
+
+export const getCustomMealByCustomerIdAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/customer/${customerId}`)
+  return response.data
+}
+
+export const createCustomerHealthyInfoAPI = async (data) => {
+  const response = await axios.post(`${API_ROOT}/apis/v1/customer-health-info`, data)
+  return response.data
+}
+
+// MenuMeal
+export const getMenuMealAPI = async () => {
+  const response = await axios.get(`${API_ROOT}/apis/v1/customers/menu-meals`)
+  return response.data
+}
+
+export const getDetailMenuMealAPI = async (slug) => {
+  const response = await axios.get(`${API_ROOT}/apis/v1/customers/menu-meals/slug/${slug}`)
 
 // Address
 export const createNewAddressAPI = async (data) => {

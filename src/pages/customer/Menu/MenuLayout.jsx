@@ -1,10 +1,95 @@
+import { useEffect, useState, useRef } from 'react'
 import { Box, Typography } from '@mui/material'
 import AppBar from '~/components/AppBar/AppBar'
-import { mealPackages } from '~/apis/mockData'
+import { getMenuMealAPI } from '~/apis'
 import theme from '~/theme'
 import MenuList from './MenuList/MenuList'
+import TabMenu from './TabMenu/TabMenu'
+import TabMenuMobile from './TabMenu/TabMenuMobile'
 import Footer from '~/components/Footer/Footer'
+
 function MenuLayout() {
+  const [mealPackages, setMealPackages] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [value, setValue] = useState(0)
+
+  const highRef = useRef(null)
+  const balanceRef = useRef(null)
+  const lowRef = useRef(null)
+  const vegetarianRef = useRef(null)
+
+  const getFilteredMeals = (type) => {
+    return mealPackages.filter(meal => meal.type === type)
+  }
+
+  useEffect(() => {
+    const fetchMealPackages = async () => {
+      try {
+        setLoading(true)
+        const data = await getMenuMealAPI()
+        setMealPackages(data)
+      } catch {
+        // Error fetching meal packages
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMealPackages()
+  }, [])
+
+  useEffect(() => {
+    const refs = [highRef, balanceRef, lowRef, vegetarianRef]
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = refs.findIndex(ref => ref.current === entry.target)
+            if (index !== -1 && index !== value) {
+              setValue(index)
+            }
+          }
+        })
+      },
+      {
+        threshold: 0.3,
+        rootMargin: `-${parseInt(theme.fitbowl.appBarHeight) + 300}px 0px -60% 0px`
+      }
+    )
+
+    refs.forEach(ref => {
+      if (ref.current) {
+        observer.observe(ref.current)
+      }
+    })
+
+    return () => {
+      refs.forEach(ref => {
+        if (ref.current) {
+          observer.unobserve(ref.current)
+        }
+      })
+    }
+  }, [value])
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue)
+    const refs = [highRef, balanceRef, lowRef, vegetarianRef]
+    setTimeout(() => {
+      if (refs[newValue]?.current) {
+        const targetElement = refs[newValue].current
+        const offsetTop = targetElement.offsetTop
+        const appBarHeight = parseInt(theme.fitbowl.appBarHeight) || 64
+        const stickyTabHeight = 60 // Chiều cao của sticky tab
+        const extraOffset = 5 // Khoảng cách thêm mà bạn muốn
+        const scrollPosition = offsetTop - appBarHeight - stickyTabHeight - extraOffset
+        window.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
+  }
+
   return (
     <Box sx={{ bgcolor: theme.palette.background.default, color: theme.palette.text.primary, minHeight: '100vh', fontFamily: '"Poppins", sans-serif' }}>
       <AppBar />
@@ -22,19 +107,72 @@ function MenuLayout() {
         >
           Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>MEAL PACKAGE</span>
         </Typography>
-        <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 8 }} />
+        <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 4 }} />
         <Typography
           variant="body1"
           align="center"
-          sx={{ maxWidth: '48rem', mx: 'auto', mb: 10, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
+          sx={{ maxWidth: '48rem', mx: 'auto', mb: 6, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
         >
           Fitfood provides many meal packages and accompanying foods to meet your needs
         </Typography>
-        <Box>
-          <MenuList pkg={mealPackages} />
+
+        {/* Tab Navigation - Sticky */}
+        <Box
+          sx={{
+            position: 'sticky',
+            top: theme.fitbowl.appBarHeight,
+            zIndex: 100,
+            py: 2,
+            mb: 6,
+            display: 'flex',
+            justifyContent: 'center',
+            maxWidth: '1280px',
+            mx: 'auto',
+            px: 2
+          }}
+        >
+
+          {/* Desktop TabMenu */}
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <TabMenu value={value} handleChange={handleChange} />
+          </Box>
+          {/* Mobile TabMenu */}
+          <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+            <TabMenuMobile value={value} handleChange={handleChange} />
+          </Box>
+        </Box>        {/* HIGH PROTEIN Section */}
+        <Box ref={highRef} sx={{ mb: 8 }}>
+          <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
+            HIGH PROTEIN
+          </Typography>
+          <MenuList pkg={getFilteredMeals('HIGH')} loading={loading} />
+        </Box>
+
+        {/* BALANCE Section */}
+        <Box ref={balanceRef} sx={{ mb: 8 }}>
+          <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
+            BALANCE
+          </Typography>
+          <MenuList pkg={getFilteredMeals('BALANCE')} loading={loading} />
+        </Box>
+
+        {/* LOW CARB Section */}
+        <Box ref={lowRef} sx={{ mb: 8 }}>
+          <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
+            LOW CARB
+          </Typography>
+          <MenuList pkg={getFilteredMeals('LOW')} loading={loading} />
+        </Box>
+
+        {/* VEGETARIAN Section */}
+        <Box ref={vegetarianRef} sx={{ mb: 8 }}>
+          <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
+            VEGETARIAN
+          </Typography>
+          <MenuList pkg={getFilteredMeals('VEGETARIAN')} loading={loading} />
         </Box>
       </Box>
-      <Footer/>
+      <Footer />
     </Box>
   )
 }
