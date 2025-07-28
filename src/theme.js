@@ -55,6 +55,12 @@ const theme = createTheme({
     MuiTypography: {
       defaultProps: {
         component: 'div'
+      },
+      styleOverrides: {
+        h6: {
+          color: '#4C082A',
+          fontWeight: 600
+        }
       }
     },
     MuiButton: {
@@ -62,9 +68,110 @@ const theme = createTheme({
         root: {
           textTransform: 'none',
           borderWidth: '0.3px',
+          fontWeight: 500,
           '&:hover': {
             borderWidth: '1.5px'
           }
+        },
+        contained: {
+          backgroundColor: '#4C082A',
+          '&:hover': {
+            backgroundColor: '#6D0B3A',
+            boxShadow: '0 4px 8px rgba(76, 8, 42, 0.3)'
+          }
+        },
+        outlined: {
+          borderColor: '#4C082A',
+          color: '#4C082A',
+          '&:hover': {
+            borderColor: '#6D0B3A',
+            backgroundColor: 'rgba(76, 8, 42, 0.04)',
+            color: '#6D0B3A'
+          }
+        },
+        text: {
+          '&.MuiButton-colorInherit': {
+            color: '#666',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+            }
+          }
+        }
+      }
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            '&:hover fieldset': {
+              borderColor: '#4C082A'
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#4C082A'
+            }
+          },
+          '& .MuiInputLabel-root.Mui-focused': {
+            color: '#4C082A'
+          }
+        }
+      }
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            '&:hover fieldset': {
+              borderColor: '#4C082A'
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#4C082A'
+            }
+          },
+          '& .MuiInputLabel-root.Mui-focused': {
+            color: '#4C082A'
+          }
+        }
+      }
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focused': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#4C082A'
+            }
+          }
+        }
+      }
+    },
+    MuiCircularProgress: {
+      styleOverrides: {
+        root: {
+          color: '#4C082A'
+        }
+      }
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          border: '1px solid #e0e0e0'
+        }
+      }
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          color: '#4C082A',
+          fontWeight: 600,
+          borderBottom: '1px solid #e0e0e0'
+        }
+      }
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          borderTop: '1px solid #e0e0e0',
+          padding: '16px 24px'
         }
       }
     },
@@ -75,6 +182,15 @@ const theme = createTheme({
           '& fieldset': { borderWidth: '0.3px !important' },
           '&:hover fieldset': { borderWidth: '1.5px !important' },
           '&.Mui-focused fieldset': { borderWidth: '1.5px !important' }
+        }
+      }
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+          }
         }
       }
     },

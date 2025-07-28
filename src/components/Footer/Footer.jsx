@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import ChatBox from '~/components/AppBar/AIChat/ChatBox'
+import ChatBox from '~/components/AIChat/ChatBox'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'

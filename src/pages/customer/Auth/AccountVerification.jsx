@@ -21,6 +21,7 @@ export default function AccountVerification() {
           setIsVerified(true)
         })
         .catch((error) => {
+          // eslint-disable-next-line no-console
           console.log(error)
         })
     }

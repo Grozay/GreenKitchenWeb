@@ -38,10 +38,10 @@ let refreshTokenPromise = null
 // Hàm xác định loại người dùng từ Redux store
 const getUserType = () => {
   const state = axiosReduxStore.getState()
-  const currentUser = state.user?.currentUser // Employee
+  const currentEmployee = state.user?.currentEmployee // Employee
   const currentCustomer = state.customer?.currentCustomer // Customer
 
-  if (currentUser) return 'employee'
+  if (currentEmployee) return 'employee'
   if (currentCustomer) return 'customer'
   return null // Không có người dùng nào đăng nhập
 }

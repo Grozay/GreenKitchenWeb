@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -17,6 +16,7 @@ import {
 import { toast } from 'react-toastify'
 import { sendOtpCodeAPI } from '~/apis'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import BackToLoginConfirm from '~/components/BackToLoginConfirm/BackToLoginConfirm'
 
 function AccountForm({ onNext }) {
   const { register, handleSubmit, formState: { errors } } = useForm()
@@ -87,17 +87,13 @@ function AccountForm({ onNext }) {
               Proceed
             </Button>
           </CardActions>
-          {/* <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Typography>New to Nexus Service Marketing System?</Typography>
-            <Link to="/register" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Create account!</Typography>
-            </Link>
-          </Box> */}
-          <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Link to="/login" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}> Back to Login</Typography>
-            </Link>
-          </Box>
+
+          <BackToLoginConfirm
+            stepName="quá trình nhập email để đặt lại mật khẩu"
+            customMessage="Bạn có chắc chắn muốn quay lại trang đăng nhập?
+
+Thông tin email đã nhập sẽ bị mất và bạn sẽ cần phải bắt đầu lại quá trình đặt lại mật khẩu."
+          />
         </MuiCard>
       </Zoom>
     </form>
