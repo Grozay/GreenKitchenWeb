@@ -112,3 +112,54 @@ export const deleteCustomerTDEEAPI = async (id) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/customer-tdees/${id}`)
   return response.data
 }
+
+// Coupon APIs
+export const getExchangeableCouponsAPI = async (tier, points) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/exchangeable?tier=${tier}&points=${points}`)
+  return response.data
+}
+
+export const getAvailableCouponsAPI = async (tier) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/available?tier=${tier}`)
+  return response.data
+}
+
+export const getCustomerCouponsAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/customer/${customerId}`)
+  return response.data
+}
+
+export const getAvailableCustomerCouponsAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/customer/${customerId}/available`)
+  return response.data
+}
+
+export const exchangeCouponAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/coupons/exchange`, data)
+  return response.data
+}
+
+export const useCouponAPI = async (customerId, couponCode, orderId) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/coupons/customer/${customerId}/use?couponCode=${couponCode}&orderId=${orderId}`)
+  return response.data
+}
+
+export const canExchangeCouponAPI = async (customerId, couponId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/customer/${customerId}/can-exchange/${couponId}`)
+  return response.data
+}
+
+export const canUseCouponAPI = async (customerId, couponCode) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/customer/${customerId}/can-use/${couponCode}`)
+  return response.data
+}
+
+export const validateCouponAPI = async (code) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/validate/${code}`)
+  return response.data
+}
+
+export const calculateDiscountAPI = async (code, orderAmount) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/coupons/discount?code=${code}&orderAmount=${orderAmount}`)
+  return response.data
+}
