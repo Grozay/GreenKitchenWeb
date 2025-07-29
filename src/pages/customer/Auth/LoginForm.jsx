@@ -29,6 +29,8 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import { GoogleLogin } from '@react-oauth/google'
+import PasswordField from '~/components/Form/PasswordField'
+import RememberMeCheckbox from '~/components/Form/RememberMeCheckbox'
 
 function LoginForm() {
   const dispatch = useDispatch()
@@ -42,29 +44,32 @@ function LoginForm() {
 
   const [openResendVerifyPanel, setOpenResendVerifyPanel] = useState(false)
   const [resendEmail, setResendEmail] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
 
   const submitLogIn = (data) => {
     const { email, password } = data
     toast.promise(
       dispatch(loginCustomerApi({ email, password })), {
-      pending: 'Logging in...'
-    }
+        pending: 'Logging in...'
+      }
     ).then(res => {
       if (res.error?.message?.includes('not active')) {
         setResendEmail(email)
         setOpenResendVerifyPanel(true)
       }
       if (!res.error) {
-        toast.success('Login successfully!')
-        navigate('/')
+        toast.success('Login successful!')
+        navigate('/profile')
       }
     })
   }
 
   const handleResend = () => {
+    const email = resendEmail.trim()
     toast.promise(
-      resendVerifyEmailApi({ resendEmail }), {
-        pending: 'Resending verification email...'
+      resendVerifyEmailApi({ email }), {
+        pending: 'Resending verification email...',
+        success: 'Verification email resent successfully!'
       }
     ).then(() => {
       setOpenResendVerifyPanel(false)
@@ -83,7 +88,7 @@ function LoginForm() {
     ).then(response => {
       if (!response.error) {
         // Update Redux state with user information
-        navigate('/')
+        navigate('/profile')
       }
     })
   }
@@ -148,23 +153,28 @@ function LoginForm() {
                 />
                 <FieldErrorAlert errors={errors} fieldName='email' />
               </Box>
+
               <Box sx={{ marginTop: '1em' }}>
-                <TextField
-                  fullWidth
+                <PasswordField
                   label="Enter Password..."
-                  type="password"
-                  variant="outlined"
                   error={!!errors['password']}
-                  {...register('password', {
+                  register={register}
+                  registerName="password"
+                  registerOptions={{
                     required: FIELD_REQUIRED_MESSAGE,
                     pattern: {
                       value: PASSWORD_RULE,
                       message: PASSWORD_RULE_MESSAGE
                     }
-                  })}
+                  }}
                 />
                 <FieldErrorAlert errors={errors} fieldName='password' />
-                <Box sx={{ textAlign: 'right', marginTop: '0.5em' }}>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5em' }}>
+                  <RememberMeCheckbox
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
                   <Link to="/reset-password" style={{ textDecoration: 'none' }}>
                     <Typography variant="body2" sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>
                       Forgot Password?

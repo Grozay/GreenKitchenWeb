@@ -91,7 +91,7 @@ export default function OrderHistoryTab() {
           <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2e7d32' }}>
             Bộ lọc tìm kiếm
           </Typography>
-          
+
           <Grid container spacing={3}>
             {/* Filter theo trạng thái */}
             <Grid size={{ xs: 12, md: 7 }}>
@@ -122,7 +122,7 @@ export default function OrderHistoryTab() {
                 ))}
               </Box>
             </Grid>
-            
+
             {/* Filter theo ngày tháng */}
             <Grid size={{ xs: 12, md: 5 }}>
               <Typography variant="body1" sx={{ mb: 2, fontWeight: 600, color: '#666' }}>
@@ -231,7 +231,7 @@ export default function OrderHistoryTab() {
                         {order.total.toLocaleString('vi-VN')}đ
                       </Typography>
                     </Grid>
-                    
+
                     <Grid size={{ xs: 12, sm: 1.5 }}>
                       <Typography variant="body2" sx={{
                         overflow: 'hidden',
@@ -241,7 +241,7 @@ export default function OrderHistoryTab() {
                         {dayjs(order.date).format('DD/MM/YYYY')}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid size={{ xs: 12, sm: 1.5 }}>
                       <Chip
                         label={getStatusLabel(order.status)}
@@ -259,7 +259,7 @@ export default function OrderHistoryTab() {
                         }}
                       />
                     </Grid>
-                    
+
                     <Grid size={{ xs: 12, sm: 4.5 }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {order.items.slice(0, 2).map((item, idx) => (
@@ -292,7 +292,7 @@ export default function OrderHistoryTab() {
                         )}
                       </Box>
                     </Grid>
-                    
+
                     <Grid size={{ xs: 12, sm: 2 }} sx={{ textAlign: 'right' }}>
                       <Button
                         variant="outlined"
@@ -311,7 +311,7 @@ export default function OrderHistoryTab() {
                       </Button>
                     </Grid>
                   </Grid>
-                  
+
                   {index < filteredOrders.length - 1 && <Divider />}
                 </Box>
               ))

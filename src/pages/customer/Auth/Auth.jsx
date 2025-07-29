@@ -1,21 +1,37 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import LoginForm from './LoginForm'
-import AppBar from '~/components/AppBar/AppBar'
 import RegisterForm from './RegisterForm'
-// import AccountForm from './ResetPw/AccountForm'
-// import OtpForm from './ResetPw/OtpForm'
-// import ResetPwForm from './ResetPw/ResetPwForm'
 import ResetPw from './ResetPw'
-import bgImage from '~/assets/images/Account-login-bg.jpeg'
-import { Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { useConfirm } from 'material-ui-confirm'
+import { useSelector } from 'react-redux'
+import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 
 function Auth() {
   const location = useLocation()
   const isLogin = location.pathname === '/login'
   const isRegister = location.pathname === '/register'
   const isResetPw = location.pathname === '/reset-password'
+  const confirm = useConfirm()
+  const navigate = useNavigate()
+
+  const currentCustomer = useSelector(selectCurrentCustomer)
+  if (currentCustomer) {
+    return <Navigate to="/" replace />
+  }
+
+  const confirmBack = async (e) => {
+    e.preventDefault()
+    const warningMessage = 'Ban có chắc chắn muốn quay lại trang chủ không?'
+    const { confirmed } = await confirm({
+      title: 'Xác nhận quay lại trang chủ',
+      description: warningMessage,
+      confirmationText: 'Quay lại',
+      cancellationText: 'Tiếp tục'
+    })
+    if (confirmed) navigate('/')
+  }
 
   return (
     <Box>
@@ -42,7 +58,7 @@ function Auth() {
           gap: 1
         }}>
           <ArrowBackIcon fontSize="small" />
-          <Link to="/" variant="body1">Go back</Link>
+          <Link onClick={confirmBack} variant="body1">Go back</Link>
         </Box>
 
 

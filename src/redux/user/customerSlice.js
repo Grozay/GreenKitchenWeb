@@ -7,11 +7,11 @@ const initialState = {
   currentCustomer: null
 }
 
-//Các hành động gọi api (bất đồng bộ) và cập nhập dữ liệu vào redux, dùng middleware CreateAsyncThunk đi kèm với extraReducers
+//Các hành động gọi api (bất đồng bộ) và cập nhật dữ liệu vào redux, dùng middleware CreateAsyncThunk đi kèm với extraReducers
 export const loginCustomerApi = createAsyncThunk(
   'customer/loginCustomerApi',
   async (data) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/login`, data)
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/auth/login`, data)
     return response.data
   }
 )
@@ -19,7 +19,7 @@ export const loginCustomerApi = createAsyncThunk(
 export const googleLoginAPI = createAsyncThunk(
   'customer/googleLoginAPI',
   async (data) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/google-login`, data)
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/auth/google-login`, data)
     return response.data
   }
 )
@@ -27,14 +27,13 @@ export const googleLoginAPI = createAsyncThunk(
 export const logoutCustomerApi = createAsyncThunk(
   'customer/logoutCustomerApi',
   async (showSuccessMessage = true) => {
-    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/logout`)
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/auth/logout`)
     if (showSuccessMessage) {
       toast.success('Logout successfully')
     }
     return response.data
   }
 )
-
 
 //tạo ra 1 slice trong redux store
 export const customerSlice = createSlice({
@@ -67,4 +66,9 @@ export const selectCurrentCustomer = (state) => {
   return state.customer.currentCustomer
 }
 
+//selectIsCustomerLoggedIn: là 1 hàm selector giúp cho các component biết xem người dùng có đang đăng nhập hay không
+export const selectIsCustomerLoggedIn = (state) => !!state.customer.currentCustomer
+//selectCustomerName: là 1 hàm selector giúp cho các component biết tên của người dùng
+//nếu người dùng chưa đăng nhập (currentCustomer === null) thì sẽ trả về chuỗi 'Guest'
+export const selectCustomerName = (state) => state.customer.currentCustomer?.name || 'Guest'
 export const customerReducer = customerSlice.reducer

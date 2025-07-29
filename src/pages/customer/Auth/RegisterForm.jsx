@@ -18,15 +18,19 @@ import Divider from '@mui/material/Divider'
 import { GoogleLogin } from '@react-oauth/google'
 import { useDispatch } from 'react-redux'
 import { googleLoginAPI } from '~/redux/user/customerSlice'
+import PasswordField from '~/components/Form/PasswordField'
+import PasswordStrengthIndicator from '~/components/Form/PasswordStrengthIndicator'
 
 function RegisterForm() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { register, handleSubmit, formState: { errors }, getValues } = useForm()
-  
+  const { register, handleSubmit, formState: { errors }, getValues, watch } = useForm()
+
+  const watchPassword = watch('password', '')
+
   const submitRegister = (data) => {
-    const { email, password } = data
-    toast.promise(registerCustomerAPI({ email, password }), {
+    const { firstName, lastName, email, password } = data
+    toast.promise(registerCustomerAPI({ firstName, lastName, email, password }), {
       pending: 'Registering...'
     }).then(user => {
       navigate(`/login?registeredEmail=${user.email}`)
@@ -67,10 +71,46 @@ function RegisterForm() {
           </Box>
 
           <Box sx={{ padding: '0.5em 1em 1em 1em' }}>
+            {/* First Name and Last Name on same row for larger screens */}
+            <Box sx={{
+              marginTop: '1em',
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 2
+            }}>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  autoFocus
+                  fullWidth
+                  label="Enter First Name..."
+                  type="text"
+                  variant="outlined"
+                  error={!!errors['firstName']}
+                  {...register('firstName', {
+                    required: FIELD_REQUIRED_MESSAGE
+                  })}
+                />
+                <FieldErrorAlert errors={errors} fieldName='firstName' />
+              </Box>
+
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  label="Enter Last Name..."
+                  type="text"
+                  variant="outlined"
+                  error={!!errors['lastName']}
+                  {...register('lastName', {
+                    required: FIELD_REQUIRED_MESSAGE
+                  })}
+                />
+                <FieldErrorAlert errors={errors} fieldName='lastName' />
+              </Box>
+            </Box>
+
             <Box sx={{ marginTop: '1em' }}>
               <TextField
                 // autoComplete="nope"
-                autoFocus
                 fullWidth
                 label="Enter Email..."
                 type="text"
@@ -86,33 +126,34 @@ function RegisterForm() {
               />
               <FieldErrorAlert errors={errors} fieldName='email' />
             </Box>
+
             <Box sx={{ marginTop: '1em' }}>
-              <TextField
-                fullWidth
+              <PasswordField
                 label="Enter Password..."
-                type="password"
-                variant="outlined"
                 error={!!errors['password']}
-                {...register('password', {
+                register={register}
+                registerName="password"
+                registerOptions={{
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
                     value: PASSWORD_RULE,
                     message: PASSWORD_RULE_MESSAGE
                   }
-                })}
+                }}
               />
               <FieldErrorAlert errors={errors} fieldName='password' />
+              <PasswordStrengthIndicator password={watchPassword} />
             </Box>
+
             <Box sx={{ marginTop: '1em' }}>
-              <TextField
-                fullWidth
+              <PasswordField
                 label="Enter Password Confirmation..."
-                type="password"
-                variant="outlined"
                 error={!!errors['passwordConfirmation']}
-                {...register('passwordConfirmation', {
+                register={register}
+                registerName="passwordConfirmation"
+                registerOptions={{
                   validate: (value) => value === getValues('password') || PASSWORD_CONFIRMATION_MESSAGE
-                })}
+                }}
               />
               <FieldErrorAlert errors={errors} fieldName='passwordConfirmation' />
             </Box>

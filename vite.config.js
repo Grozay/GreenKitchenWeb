@@ -12,5 +12,13 @@ export default defineConfig({
     alias: [
       { find: '~', replacement: '/src' }
     ]
+  },
+  define: {
+    // thay thế 'global' trong bundle thành 'window'
+    global: 'window'
+  },
+  optimizeDeps: {
+    // ép Vite bundle riêng hai lib này trước, để define tác dụng lên chúng
+    include: ['sockjs-client', 'stompjs']
   }
 })

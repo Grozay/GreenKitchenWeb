@@ -132,48 +132,75 @@ export const relatedNews = [
 export const mealPackages = [
   {
     id: 'fit-3-package',
-    title: 'FIT 3 Package',
-    description: 'Lunch - Dinner Package. Weight loss',
+    title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
-    image: 'https://storage.googleapis.com/a1aa/image/90d96b02-9e0e-4225-b651-42d553a5558f.jpg',
-    alt: 'Fit3 Meal Package with shrimp and vegetables in black containers on red background',
-    slug: 'fit-3-package'
+    image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
+    calories: 650,
+    protein: 40,
+    carbs: 50,
+    fat: 20,
+    slug: 'fit-3-package',
+    size: 'low'
   },
   {
     id: 'fit-3-package',
-    title: 'FIT 3 Package',
-    description: 'Lunch - Dinner Package. Weight loss',
+    title: 'Half beef steak, sweet potato, cauliflower, pickles',
     price: '650,000đ',
-    image: 'https://storage.googleapis.com/a1aa/image/90d96b02-9e0e-4225-b651-42d553a5558f.jpg',
-    alt: 'Fit3 Meal Package with shrimp and vegetables in black containers on red background',
-    slug: 'fit-3-package'
+    image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
+    calories: 650,
+    protein: 40,
+    carbs: 50,
+    fat: 20,
+    slug: 'fit-3-package',
+    size: 'high'
   },
   {
-    id: 'lunch-package',
-    title: 'LUNCH Package',
-    description: '1 lunch meal package. Delivered hot',
-    price: '349,000đ',
-    image: 'https://storage.googleapis.com/a1aa/image/c9e5d67d-de94-4423-2a25-3833ccbe8158.jpg',
-    alt: 'Lunch Meal Package with broccoli and detox drink in white container on red background',
-    slug: 'lunch-package'
+    id: 'fit-3-package',
+    title: 'Half beef steak, sweet potato, cauliflower, pickles',
+    price: '650,000đ',
+    image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
+    calories: 650,
+    protein: 40,
+    carbs: 50,
+    fat: 20,
+    slug: 'fit-3-package',
+    size: 'balance'
   },
   {
-    id: 'slim-package',
-    title: 'SLIM Package (*NO STARCH)',
-    description: 'Double vegetables, NO starch',
-    price: '600,000đ',
-    image: 'https://storage.googleapis.com/a1aa/image/7b07eae7-bee1-410e-9a2a-b8b6942699d0.jpg',
-    alt: 'Slim Meal Package with double vegetables no starch in black containers on green background',
-    slug: 'slim-package'
+    id: 'fit-3-package',
+    title: 'Half beef steak, sweet potato, cauliflower, pickles',
+    price: '650,000đ',
+    image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
+    calories: 650,
+    protein: 40,
+    carbs: 50,
+    fat: 20,
+    slug: 'fit-3-package',
+    size: 'vegetarian'
   },
   {
-    id: 'full-package',
-    title: 'FULL Package',
-    description: '3 meals/day package. Healthy weight maintenance',
-    price: '825,000đ',
-    image: 'https://storage.googleapis.com/a1aa/image/3eefa773-af94-4cdd-4789-974b1d6d0970.jpg',
-    alt: 'Full Meal Package with three black containers of vegetables and protein on red background',
-    slug: 'full-package'
+    id: 'fit-3-package',
+    title: 'Half beef steak, sweet potato, cauliflower, pickles',
+    price: '650,000đ',
+    image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
+    calories: 650,
+    protein: 40,
+    carbs: 50,
+    fat: 20,
+    slug: 'fit-3-package',
+    size: 'low'
+  },
+  {
+    id: 'fit-3-package',
+    title: 'Half beef steak, sweet potato, cauliflower, pickles',
+    price: '650,000đ',
+    image: 'https://res.cloudinary.com/quyendev/image/upload/v1752552841/L1-300x300_mgdje8.png',
+    calories: 650,
+    protein: 40,
+    carbs: 50,
+    fat: 20,
+    slug: 'fit-3-package',
+    size: 'low'
   }
 ]
 
@@ -357,3 +384,193 @@ export const ItemHealthy = {
     }
   ]
 }
+
+export const menuSuggest = [
+  {
+    id: 1,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos'
+  },
+  {
+    id: 2,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos'
+  },
+  {
+    id: 3,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos dddddddddddddddddđssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss'
+  },
+  {
+    id: 4,
+    calories: 100,
+    protein: 10,
+    carbs: 10,
+    fat: 10,
+    image: [
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+      'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png'
+    ],
+    description: 'Sous vide duck breast, Baked baby potato, Cold soba, French bean, Wasabi mayos'
+  }
+]
+
+export const itemCart = [
+  {
+    id: 1,
+    mealItem: {
+      protein: [
+        {
+          id: 1,
+          title: 'Grilled Chicken Breast',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
+          calories: 165,
+          protein: 31,
+          carbs: 0,
+          fat: 3.6,
+          type: 'protein'
+        }
+      ],
+      carbs: [
+        {
+          id: 5,
+          title: 'Quinoa Bowl',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+          calories: 222,
+          protein: 8,
+          carbs: 39,
+          fat: 4,
+          type: 'carbs'
+        }
+      ],
+      side: [
+        {
+          id: 11,
+          title: 'Roasted Vegetables',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+          calories: 80,
+          protein: 3,
+          carbs: 12,
+          fat: 3,
+          type: 'side'
+        }
+      ],
+      sauce: [
+        {
+          id: 15,
+          title: 'Pesto',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+          calories: 80,
+          protein: 2,
+          carbs: 2,
+          fat: 8,
+          type: 'sauce'
+        }
+      ]
+    },
+    customer: {
+      id: 1,
+      name: 'Nguyen Van A',
+      email: '0Vn0u@example.com'
+    },
+    quantity: 1,
+    totalPrice: 1200
+  },
+  {
+    id: 2,
+    mealItem: {
+      protein: [
+        {
+          id: 1,
+          title: 'Grilled Chicken Breast',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
+          calories: 165,
+          protein: 31,
+          carbs: 0,
+          fat: 3.6,
+          type: 'protein'
+        }
+      ],
+      carbs: [
+        {
+          id: 5,
+          title: 'Quinoa Bowl',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
+          calories: 222,
+          protein: 8,
+          carbs: 39,
+          fat: 4,
+          type: 'carbs'
+        }
+      ],
+      side: [
+        {
+          id: 11,
+          title: 'Roasted Vegetables',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
+          calories: 80,
+          protein: 3,
+          carbs: 12,
+          fat: 3,
+          type: 'side'
+        }
+      ],
+      sauce: [
+        {
+          id: 15,
+          title: 'Pesto',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
+          calories: 80,
+          protein: 2,
+          carbs: 2,
+          fat: 8,
+          type: 'sauce'
+        }
+      ]
+    },
+    customer: {
+      id: 1,
+      name: 'Nguyen Van A',
+      email: '0Vn0u@example.com'
+    },
+    quantity: 2,
+    totalPrice: 1200
+  }
+]

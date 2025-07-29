@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -18,6 +17,7 @@ import {
 import { toast } from 'react-toastify'
 import { resetPasswordAPI } from '~/apis'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import BackToLoginConfirm from '~/components/BackToLoginConfirm/BackToLoginConfirm'
 
 function ResetPwForm({ onSubmit, email }) {
   const { register, handleSubmit, formState: { errors }, getValues } = useForm()
@@ -31,7 +31,7 @@ function ResetPwForm({ onSubmit, email }) {
         success: 'Password updated successfully!'
       }
     ).then(res => {
-      console.log(res)
+      // console.log(res)
       //Đoạn này phải kiểm tra không có lỗi mới redirect về route /
       if (!res.error) {
         // navigate('/account/login')
@@ -109,11 +109,12 @@ function ResetPwForm({ onSubmit, email }) {
             </Button>
           </CardActions>
 
-          <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Link to="/login" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}> Back to Login</Typography>
-            </Link>
-          </Box>
+          <BackToLoginConfirm
+            stepName="quá trình đặt lại mật khẩu mới"
+            customMessage="Bạn có chắc chắn muốn quay lại trang đăng nhập?
+
+Mật khẩu mới bạn đã nhập sẽ không được lưu và bạn sẽ cần phải bắt đầu lại toàn bộ quá trình đặt lại mật khẩu từ đầu."
+          />
         </MuiCard>
       </Zoom>
     </form>

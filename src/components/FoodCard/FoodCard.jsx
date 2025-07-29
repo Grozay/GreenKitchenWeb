@@ -6,50 +6,93 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import theme from '~/theme'
 import { useDispatch, useSelector } from 'react-redux'
-import { addItem, removeItem } from '~/redux/meal/mealSlice'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
+import { createIngredientActHistory, removeIngredientActHistory, hoverIngredientActHistory } from '~/redux/meal/mealSlice'
 
 const FoodCard = ({ card }) => {
   const [count, setCount] = useState(0)
   const selectedItems = useSelector(selectCurrentMeal)
   const dispatch = useDispatch()
+  const [hoverTimeout, setHoverTimeout] = useState(null)
 
   useEffect(() => {
-    const itemInCart = selectedItems[card.type]?.find(item => item.id === card.id)
+    const itemInCart = selectedItems[card.type.toLowerCase()]?.find(item => item.id === card.id)
     setCount(itemInCart?.quantity || 0)
   }, [selectedItems, card.id, card.type])
 
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout)
+      }
+    }
+  }, [hoverTimeout])
+
+  const handleMouseEnter = () => {
+    const timeout = setTimeout(() => {
+      const customerId = 1 // Lấy từ user state hoặc localStorage
+      dispatch(hoverIngredientActHistory({
+        item: {
+          id: card.id,
+          title: card.title,
+          image: card.image,
+          calories: card.calories,
+          protein: card.protein,
+          carbs: card.carbs,
+          fat: card.fat,
+          type: card.type
+        },
+        customerId
+      }))
+    }, 4000)
+    setHoverTimeout(timeout)
+  }
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout)
+      setHoverTimeout(null)
+    }
+  }
+
   const handleDecrease = () => {
     if (count > 0) {
-      setCount(prev => prev - 1)
-      dispatch(removeItem({
-        id: card.id,
-        calories: card.calories,
-        protein: card.protein,
-        carbs: card.carbs,
-        fat: card.fat,
-        type: card.type
+      const customerId = 1 // Lấy từ user state hoặc localStorage
+      dispatch(removeIngredientActHistory({
+        item: {
+          id: card.id,
+          calories: card.calories,
+          protein: card.protein,
+          carbs: card.carbs,
+          fat: card.fat,
+          type: card.type
+        },
+        customerId
       }))
     }
   }
 
   const handleIncrease = () => {
-    setCount(prev => prev + 1)
-    dispatch(addItem({
-      id: card.id,
-      title: card.title,
-      image: card.image,
-      calories: card.calories,
-      protein: card.protein,
-      carbs: card.carbs,
-      fat: card.fat,
-      type: card.type,
-      quantity: 1
+    const customerId = 1 // Lấy từ user state hoặc localStorage
+    dispatch(createIngredientActHistory({
+      item: {
+        id: card.id,
+        title: card.title,
+        image: card.image,
+        calories: card.calories,
+        protein: card.protein,
+        carbs: card.carbs,
+        fat: card.fat,
+        type: card.type
+      },
+      customerId
     }))
   }
 
   return (
     <Box
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       sx={{
         borderRadius: 5,
         pt: { xs: 2, md: 3 },

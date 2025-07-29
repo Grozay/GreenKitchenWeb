@@ -8,7 +8,7 @@ import {
   Avatar,
   Fab,
   Slide,
-  CircularProgress,
+  CircularProgress
 } from '@mui/material'
 import { Send, Close, Chat, Restaurant } from '@mui/icons-material'
 import { styled, keyframes } from '@mui/material/styles'
@@ -38,7 +38,7 @@ const ChatContainer = styled(Paper)(({ theme }) => ({
   boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
   zIndex: 1300,
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'column'
 }))
 const ChatHeader = styled(Box)(({ theme }) => ({
   background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
@@ -46,16 +46,16 @@ const ChatHeader = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
+  justifyContent: 'space-between'
 }))
 const MessagesContainer = styled(Box)(({ theme }) => ({
   flex: 1,
   padding: theme.spacing(1),
   overflowY: 'auto',
-  backgroundColor: '#f8f9fa',
+  backgroundColor: '#f8f9fa'
 }))
 const MessageBubble = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'isAI',
+  shouldForwardProp: (prop) => prop !== 'isAI'
 })(({ theme, isAI }) => ({
   maxWidth: '80%',
   padding: theme.spacing(1.5, 2),
@@ -69,15 +69,15 @@ const MessageBubble = styled(Box, {
       color: theme.palette.text.primary,
       alignSelf: 'flex-start',
       borderBottomLeftRadius: 6,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
     }
     : {
       backgroundColor: '#4caf50',
       color: 'white',
       alignSelf: 'flex-end',
       borderBottomRightRadius: 6,
-      marginLeft: 'auto',
-    }),
+      marginLeft: 'auto'
+    })
 }))
 const TypingIndicator = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -88,7 +88,7 @@ const TypingIndicator = styled(Box)(({ theme }) => ({
   borderBottomLeftRadius: 6,
   maxWidth: 120,
   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-  marginBottom: theme.spacing(1),
+  marginBottom: theme.spacing(1)
 }))
 const TypingDot = styled(Box)(({ theme, delay }) => ({
   width: 8,
@@ -97,7 +97,7 @@ const TypingDot = styled(Box)(({ theme, delay }) => ({
   backgroundColor: theme.palette.primary.main,
   margin: '0 2px',
   animation: `${bounce} 1.4s infinite ease-in-out`,
-  animationDelay: delay,
+  animationDelay: delay
 }))
 const FloatingButton = styled(Fab)(({ theme }) => ({
   position: 'fixed',
@@ -108,8 +108,8 @@ const FloatingButton = styled(Fab)(({ theme }) => ({
   zIndex: 1300,
   '&:hover': {
     background: 'linear-gradient(135deg, #388e3c 0%, #4caf50 100%)',
-    animation: `${pulse} 0.6s ease-in-out`,
-  },
+    animation: `${pulse} 0.6s ease-in-out`
+  }
 }))
 const NotificationBadge = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -125,7 +125,7 @@ const NotificationBadge = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   fontSize: 12,
   fontWeight: 'bold',
-  animation: `${pulse} 2s infinite`,
+  animation: `${pulse} 2s infinite`
 }))
 
 const ChatBox = () => {
@@ -151,7 +151,7 @@ const ChatBox = () => {
             id: i,
             text: m.message,
             isAI: m.isFromAI,
-            timestamp: new Date(),
+            timestamp: new Date()
           }))
           setMessages(loadedMessages)
         })
@@ -170,7 +170,7 @@ const ChatBox = () => {
       id: Date.now(),
       text: inputText,
       isAI: false,
-      timestamp: new Date(),
+      timestamp: new Date()
     }
     setMessages((prev) => [...prev, userMessage])
     setInputText('')
@@ -197,7 +197,7 @@ const ChatBox = () => {
           id: Date.now() + 1,
           text: response.data.message,
           isAI: true,
-          timestamp: new Date(),
+          timestamp: new Date()
         }
         setMessages((prev) => [...prev, aiMessage])
         setIsTyping(false)
@@ -208,7 +208,7 @@ const ChatBox = () => {
           id: Date.now() + 1,
           text: 'Xin lỗi, lỗi kết nối. Vui lòng thử lại sau.',
           isAI: true,
-          timestamp: new Date(),
+          timestamp: new Date()
         }
         setMessages((prev) => [...prev, errorMessage])
         setIsTyping(false)
@@ -265,7 +265,7 @@ const ChatBox = () => {
                     >
                       {message.timestamp.toLocaleTimeString('vi-VN', {
                         hour: '2-digit',
-                        minute: '2-digit',
+                        minute: '2-digit'
                       })}
                     </Typography>
                   </MessageBubble>
@@ -304,8 +304,8 @@ const ChatBox = () => {
                     borderRadius: 3,
                     backgroundColor: '#f5f5f5',
                     '&:hover': { backgroundColor: 'white' },
-                    '&.Mui-focused': { backgroundColor: 'white' },
-                  },
+                    '&.Mui-focused': { backgroundColor: 'white' }
+                  }
                 }}
               />
               <IconButton
@@ -317,7 +317,7 @@ const ChatBox = () => {
                   width: 40,
                   height: 40,
                   '&:hover': { bgcolor: 'primary.dark' },
-                  '&.Mui-disabled': { bgcolor: 'grey.300' },
+                  '&.Mui-disabled': { bgcolor: 'grey.300' }
                 }}
               >
                 {isTyping ? (
