@@ -12,7 +12,7 @@ import Paper from '@mui/material/Paper'
 import Slide from '@mui/material/Slide'
 import ChatIcon from '@mui/icons-material/Chat'
 import CloseIcon from '@mui/icons-material/Close'
-import { fetchMessagesPaged, sendMessage, initGuestConversation ,getConversations} from '~/apis/chatAPICus'
+import { fetchMessagesPaged, sendMessage, initGuestConversation, getConversations } from '~/apis/chatAPICus'
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
 import {
   initGuestConversation as guestInitConversation,
@@ -24,8 +24,8 @@ import {
 import {
   sendMessage as userSendMessage,
   fetchMessagesPaged as userFetchMessagesPaged,
-  fetchConversationStatus as userFetchConversationStatus,
- 
+  fetchConversationStatus as userFetchConversationStatus
+
 } from '~/apis/chatAPICus'
 
 // Helper fallback cho senderName
@@ -191,6 +191,20 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
 
 
   useChatWebSocket(`/topic/conversations/${animationConvId}`, handleIncoming)
+  useChatWebSocket('/topic/emp-notify', async (convId) => {
+    const conversationId = typeof convId === 'object' ? convId.conversationId : convId
+    if (Number(conversationId) === Number(animationConvId)) {
+      try {
+        const status = await chatAPI.fetchConversationStatus(animationConvId)
+        setConversationStatus(status)
+        setChatMode(status === 'EMP' ? 'EMP' : 'AI')
+        // Optional: toast thông báo "Nhân viên đã tham gia hỗ trợ"
+      } catch (error) {
+        console.error('Failed to fetch conversation status:', error)
+      }
+    }
+  })
+
 
   function getChatAPI(isCustomerLoggedIn) {
     if (isCustomerLoggedIn) {
@@ -264,40 +278,6 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
   ])
 
 
-  // Chuyển AI <-> EMP
-  const handleToggleChat = useCallback(() => {
-    if (chatMode === 'AI') {
-      if (!isCustomerLoggedIn) {
-        window.location.href = '/login'
-        return
-      }
-      sendMessage({
-        conversationId: animationConvId,
-        senderRole: 'CUSTOMER',
-        customerId,
-        content: '/meet_emp',
-        lang: 'vi'
-      }).then((resp) => {
-        if (resp.senderName !== 'SYSTEM') setMessages(prev => [...prev, resp])
-        setConversationStatus('WAITING_EMP')
-        setChatMode('EMP')
-      })
-    } else {
-      sendMessage({
-        conversationId: animationConvId,
-        senderRole: 'CUSTOMER',
-        customerId,
-        content: '/backtoAI',
-        lang: 'vi'
-      }).then((resp) => {
-        if (resp.senderName !== 'SYSTEM') setMessages(prev => [...prev, resp])
-        setConversationStatus('AI')
-        setChatMode('AI')
-      })
-    }
-  }, [chatMode, isCustomerLoggedIn, animationConvId, customerId])
-
-
   return (
     <Box sx={{ width: 400, border: 1, borderColor: 'grey.300', borderRadius: 2, p: 2 }}>
       <Typography variant="h6" gutterBottom>
@@ -338,6 +318,52 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
                 {getSenderName(m, customerName)}
               </Typography>
               <Typography variant="body2">{m.content}</Typography>
+              {m.menu && Array.isArray(m.menu) && m.menu.length > 0 && (
+                <Box sx={{ mt: 1 }}>
+                  {m.menu.map(meal => (
+                    <Box
+                      key={meal.id}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        border: '1px solid #eee',
+                        borderRadius: 2,
+                        mb: 1,
+                        p: 1,
+                        width: 140,
+                        bgcolor: '#fff'
+                      }}
+                    >
+                      <img
+                        src={meal.image || 'src/assets/images/Dial-up-Connection.jpg'}
+                        alt={meal.title}
+                        width={80}
+                        height={80}
+                        style={{
+                          borderRadius: 12,
+                          margin: '0 auto',
+                          display: 'block',
+                          objectFit: 'cover'
+                        }}
+                        onError={e => { e.target.src = 'src/assets/images/Dial-up-Connection.jpg' }}
+                      />
+                      <Box>
+                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                          {meal.title}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="primary"
+                          sx={{ fontWeight: 600, mt: 0.5 }}
+                        >
+                          {meal.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) ?? ''}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
           </ListItem>
         ))}
@@ -362,12 +388,6 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
           }
         >
           Gửi
-        </Button>
-      </Box>
-
-      <Box sx={{ mt: 1, textAlign: 'right' }}>
-        <Button color="secondary" onClick={handleToggleChat} disabled={chatMode === 'AI' && awaitingAI}>
-          {chatMode === 'AI' ? 'Gặp nhân viên' : 'Gặp AI'}
         </Button>
       </Box>
     </Box>
