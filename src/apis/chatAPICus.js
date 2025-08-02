@@ -193,8 +193,8 @@ export const chatApis = {
     } catch (error) {
       console.error('getConversations error:', error)
       throw error
-    } 
-  },
+    }
+  }
 
 }
 
@@ -205,7 +205,7 @@ export async function fetchMessagesPaged(conversationId, page = 0, size = 20) {
       `${CHAT_URL}/messages-paged`,
       { params: { conversationId, page, size } }
     )
-    console.log(data) 
+    console.log(data)
     return data
   } catch (error) {
     console.error('fetchMessagesPaged error:', error)
@@ -227,5 +227,5 @@ export async function markConversationRead(conversationId) {
     console.error('markConversationRead error:', error)
     throw error
   }
-} 
+}
 
