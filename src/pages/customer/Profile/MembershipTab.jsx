@@ -5,107 +5,209 @@ import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import LinearProgress from '@mui/material/LinearProgress'
 import Chip from '@mui/material/Chip'
-import Divider from '@mui/material/Divider'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
+import Alert from '@mui/material/Alert'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import HistoryIcon from '@mui/icons-material/History'
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard'
+import LoyaltyOutlinedIcon from '@mui/icons-material/LoyaltyOutlined'
 import { useState, useEffect } from 'react'
+import { fetchCustomerDetails, getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
+import { selectCurrentCustomer } from '~/redux/user/customerSlice'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
 
 export default function MembershipTab() {
-  const [membershipData, setMembershipData] = useState(null)
+  const [customerData, setCustomerData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [historyModalOpen, setHistoryModalOpen] = useState(false)
+  const [couponModalOpen, setCouponModalOpen] = useState(false)
+  const [selectedTier, setSelectedTier] = useState(null)
+  const [exchangeableCoupons, setExchangeableCoupons] = useState([])
+  const [couponsLoading, setCouponsLoading] = useState(false)
+  const [exchangeLoading, setExchangeLoading] = useState(null)
+  const currentCustomer = useSelector(selectCurrentCustomer)
 
-  // Mock API call
   useEffect(() => {
     const fetchMembershipData = async () => {
-      // Simulate API call
-      const mockData = {
-        currentTier: 'gold',
-        totalSpent: 3200000, // 3.2M VND
-        pointsEarned: 1500,
-        pointsUsed: 500,
-        pointsAvailable: 1000,
-        yearlySpending: 3200000,
-        nextTierRequirement: 5000000
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchCustomerDetails(currentCustomer.email)
+        setCustomerData(data)
+      } catch {
+        setError('Không thể tải thông tin thành viên')
+      } finally {
+        setLoading(false)
       }
-      setMembershipData(mockData)
     }
 
     fetchMembershipData()
-  }, [])
+  }, [currentCustomer.email])
 
-  const membershipTiers = [
+  // Fetch exchangeable coupons when modal opens
+  const fetchExchangeableCoupons = async () => {
+    if (!customerData?.membership) return
+
+    try {
+      setCouponsLoading(true)
+      const tier = customerData.membership.currentTier
+      const points = Math.floor(customerData.membership.availablePoints || 0)
+
+      const coupons = await getExchangeableCouponsAPI(tier, points)
+      setExchangeableCoupons(coupons)
+    } catch (error) {
+      console.error('Error fetching exchangeable coupons:', error)
+      setExchangeableCoupons([])
+    } finally {
+      setCouponsLoading(false)
+    }
+  }
+
+  // Handle coupon exchange
+  const handleExchangeCoupon = async (couponId) => {
+    if (!customerData?.id) return
+
+    try {
+      setExchangeLoading(couponId)
+      await exchangeCouponAPI({ customerId: customerData.id, couponId })
+
+      // Refresh customer data to update points
+      const updatedData = await fetchCustomerDetails(currentCustomer.email)
+      setCustomerData(updatedData)
+
+      toast.success('Đổi coupon thành công!')
+    } catch (error) {
+      console.error('Error exchanging coupon:', error)
+    } finally {
+      setExchangeLoading(null)
+    }
+  }
+
+  // Open coupon modal and fetch data
+  const handleOpenCouponModal = () => {
+    setCouponModalOpen(true)
+    // fetchExchangeableCoupons()
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Đang tải thông tin thành viên...
+        </Typography>
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button
+          variant="contained"
+          onClick={() => window.location.reload()}
+          sx={{ mt: 2 }}
+        >
+          Thử lại
+        </Button>
+      </Box>
+    )
+  }
+
+  // Helper functions để xử lý dữ liệu
+  const calculateTierProgress = (currentTier, totalSpent) => {
+    const tierRequiredSpending = {
+      'ENERGY': { min: 0, max: 2000000 }, // Next: VITALITY
+      'VITALITY': { min: 2000000, max: 5000000 }, // Next: RADIANCE
+      'RADIANCE': { min: 5000000, max: null } // Already highest
+    }
+
+    const tierOrder = ['ENERGY', 'VITALITY', 'RADIANCE']
+    const currentTierIndex = tierOrder.indexOf(currentTier)
+    const nextTier = currentTierIndex < tierOrder.length - 1 ? tierOrder[currentTierIndex + 1] : null
+
+    let progressToNextTier = 0
+    let spentToNextTier = 0
+    let currentTierRange = tierRequiredSpending[currentTier]
+
+    if (nextTier && currentTierRange.max) {
+      const currentProgress = totalSpent - currentTierRange.min
+      const tierRange = currentTierRange.max - currentTierRange.min
+      progressToNextTier = Math.min((currentProgress / tierRange) * 100, 100)
+      spentToNextTier = Math.max(currentTierRange.max - totalSpent, 0)
+    }
+
+    return {
+      nextTier,
+      progressToNextTier,
+      spentToNextTier,
+      currentTierMin: currentTierRange.min,
+      currentTierMax: currentTierRange.max
+    }
+  }
+
+  // Thông tin các tier (đặt ở đây để có thể sử dụng cho cả member và non-member)
+  const tierInfo = [
     {
-      tier: 'silver',
-      name: 'Silver',
-      minSpending: 0,
-      maxSpending: 2000000,
-      color: '#C0C0C0',
-      gradient: 'linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%)',
-      benefits: [
-        'Quà tặng sinh nhật đặc biệt',
-        'Tích điểm thưởng từ mỗi đơn hàng',
-        'Thông báo ưu đãi sớm'
-      ]
+      name: 'ENERGY',
+      displayName: 'Energy',
+      minSpent: 0,
+      maxSpent: 2000000,
+      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt'],
+      color: '#32CD32',
+      bgColor: '#F5F5F5'
     },
     {
-      tier: 'gold',
-      name: 'Gold',
-      minSpending: 2000000,
-      maxSpending: 5000000,
-      color: '#FFD700',
-      gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-      benefits: [
-        'Tất cả quyền lợi Silver',
-        'Giảm 5% cho mỗi đơn hàng',
-        'Miễn phí giao hàng',
-        'Hỗ trợ khách hàng ưu tiên'
-      ]
+      name: 'VITALITY',
+      displayName: 'Vitality',
+      minSpent: 2000000,
+      maxSpent: 5000000,
+      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt', 'Giảm giá 5% cho tất cả đơn hàng', 'Ưu tiên hỗ trợ khách hàng'],
+      color: '#FF7043',
+      bgColor: '#FBE9E7'
     },
     {
-      tier: 'platinum',
-      name: 'Platinum',
-      minSpending: 5000000,
-      maxSpending: Infinity,
-      color: '#E5E4E2',
-      gradient: 'linear-gradient(135deg, #E5E4E2 0%, #BCC6CC 100%)',
-      benefits: [
-        'Tất cả quyền lợi Gold',
-        'Giảm 10% cho mỗi đơn hàng',
-        'Quà tặng VIP định kỳ',
-        'Dịch vụ cá nhân hóa',
-        'Ưu tiên đặt hàng sản phẩm mới'
-      ]
+      name: 'RADIANCE',
+      displayName: 'Radiance',
+      minSpent: 5000000,
+      maxSpent: null,
+      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt', 'Giảm giá 10% cho tất cả đơn hàng', 'Ưu tiên hỗ trợ khách hàng', 'Miễn phí giao hàng', 'Tặng món khai vị miễn phí'],
+      color: '#FFB300',
+      bgColor: '#FFF8E1'
     }
   ]
 
+  // Lấy dữ liệu từ customer data
+  const membership = customerData?.membership
+  const pointHistories = customerData?.pointHistories || []
+  const tierProgress = membership ? calculateTierProgress(membership.currentTier, membership.totalSpentLast6Months) : null
+
+  const handleTierClick = (tier) => {
+    setSelectedTier(tier)
+  }
+
+  // Mặc định hiển thị thông tin của currentTier
   const getCurrentTierInfo = () => {
-    if (!membershipData) return membershipTiers[0]
-    return membershipTiers.find(tier => tier.tier === membershipData.currentTier)
+    return tierInfo.find(tier => tier.name === membership?.currentTier)
   }
 
-  const getProgressToNextTier = () => {
-    if (!membershipData) return 0
-    const currentTier = getCurrentTierInfo()
-    const nextTier = membershipTiers.find(tier => tier.minSpending > membershipData.yearlySpending)
+  const displayTier = selectedTier || getCurrentTierInfo()
 
-    if (!nextTier) return 100 // Already at highest tier
-
-    const progress = ((membershipData.yearlySpending - currentTier.minSpending) /
-                     (nextTier.minSpending - currentTier.minSpending)) * 100
-    return Math.min(progress, 100)
+  const tierColor = {
+    'ENERGY': '#32CD32',
+    'VITALITY': '#FF7043',
+    'RADIANCE': '#FFB300'
   }
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount)
-  }
-
-  if (!membershipData) {
-    return <Box>Loading...</Box>
-  }
-
-  const currentTierInfo = getCurrentTierInfo()
-  const nextTier = membershipTiers.find(tier => tier.minSpending > membershipData.yearlySpending)
 
   return (
     <Box sx={{
@@ -113,297 +215,720 @@ export default function MembershipTab() {
       maxWidth: '1200px',
       margin: '0 auto'
     }}>
-      {/* Current Membership Card */}
-      <Card sx={{
-        mb: 3,
-        borderRadius: 3,
-        background: currentTierInfo.gradient,
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
-      }}>
-        <CardContent sx={{ p: { xs: 2, md: 3 }, position: 'relative', zIndex: 1 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h5" sx={{
-                  fontWeight: 700,
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-                  mr: 2
+      <Grid container spacing={1.5}>
+        {/* Thông báo cho non-member */}
+        {!membership && (
+          <Grid size={12}>
+            <Card sx={{
+              background: 'linear-gradient(135deg, #782d0aff 0%, #764ba2 100%)',
+              borderRadius: 3,
+              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+              textAlign: 'center'
+            }}>
+              <CardContent sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
+                <Typography sx={{ fontSize: '80px', mb: 2 }}>🎯</Typography>
+                <Typography variant="h4" sx={{
+                  fontWeight: 'bold',
+                  color: 'white',
+                  mb: 2,
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3)'
                 }}>
-                  {currentTierInfo.name}
+                  Chào {customerData?.fullName}!
                 </Typography>
-                <Chip
-                  label="Thành viên hiện tại"
-                  size="small"
+                <Typography variant="h5" sx={{
+                  fontWeight: 'bold',
+                  color: '#FFD700',
+                  mb: 3,
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                }}>
+                  Bạn chưa là hội viên!
+                </Typography>
+                <Typography variant="h6" sx={{
+                  color: 'white',
+                  mb: 4,
+                  opacity: 0.9
+                }}>
+                  Hãy order một món bất kỳ để nhận ưu đãi hội viên nhé! 🌟
+                </Typography>
+                <Button
+                  variant="contained"
+                  size="large"
                   sx={{
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    fontWeight: 600
+                    backgroundColor: '#FFD700',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem',
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 3,
+                    boxShadow: '0 4px 16px rgba(255, 215, 0, 0.4)',
+                    '&:hover': {
+                      backgroundColor: '#FFC107',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 20px rgba(255, 215, 0, 0.6)'
+                    },
+                    transition: 'all 0.3s ease'
                   }}
-                />
-              </Box>
-
-              <Typography variant="body1" sx={{
-                mb: 1,
-                textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
-              }}>
-                Tổng chi tiêu năm nay
-              </Typography>
-              <Typography variant="h4" sx={{
-                fontWeight: 700,
-                textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
-              }}>
-                {formatCurrency(membershipData.yearlySpending)}
-              </Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-                <Typography variant="body2" sx={{ mb: 1, opacity: 0.9 }}>
-                  Điểm khả dụng
-                </Typography>
-                <Typography variant="h5" sx={{
-                  fontWeight: 700,
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
-                }}>
-                  {membershipData.pointsAvailable.toLocaleString()}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  điểm
-                </Typography>
-
-                {/* Points Action Buttons */}
-                <Box sx={{ mt: 2, display: 'flex', gap: 1, flexDirection: { xs: 'column', md: 'row' } }}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      color: 'white',
-                      borderColor: 'rgba(255,255,255,0.5)',
-                      '&:hover': {
-                        borderColor: 'white',
-                        backgroundColor: 'rgba(255,255,255,0.1)'
-                      }
-                    }}
-                  >
-                    Chi tiết
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      backgroundColor: 'rgba(255,255,255,0.2)',
-                      color: 'white',
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,0.3)'
-                      }
-                    }}
-                  >
-                    Sử dụng điểm
-                  </Button>
-                </Box>
-              </Box>
-            </Grid>
+                  onClick={() => window.location.href = '/menu'}
+                >
+                  🍽️ See Menu
+                </Button>
+              </CardContent>
+            </Card>
           </Grid>
+        )}
 
-          {/* Progress to next tier */}
-          {nextTier && (
-            <Box sx={{ mt: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Tiến độ lên hạng {nextTier.name}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  {formatCurrency(membershipData.yearlySpending)} / {formatCurrency(nextTier.minSpending)}
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={getProgressToNextTier()}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(255,255,255,0.3)',
-                  '& .MuiLinearProgress-bar': {
-                    backgroundColor: 'white',
-                    borderRadius: 4
-                  }
-                }}
-              />
-              <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>
-                Còn {formatCurrency(nextTier.minSpending - membershipData.yearlySpending)} để lên hạng {nextTier.name}
-              </Typography>
-            </Box>
-          )}
-        </CardContent>
+        {/* Grid 1: Thông tin thành viên hiện tại - chỉ hiển thị khi có membership */}
+        {membership && (
+          <Grid size={12}>
+            <Card sx={{
+              background: `linear-gradient(135deg, ${tierColor[membership?.currentTier] || '#1976d2'} 0%, ${tierColor[membership?.currentTier] || '#1976d2'}CC 100%)`,
+              borderRadius: 3,
+              boxShadow: `0 4px 16px ${tierColor[membership?.currentTier] || '#1976d2'}40`
+            }}>
+              <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+                {/* Dòng 1: Tên + Hạng + 2 Buttons tất cả trong 1 hàng */}
+                <Grid container spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
+                  <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+                      <LoyaltyOutlinedIcon sx={{ fontSize: '2rem', color: 'white' }} />
+                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
+                        Hạng Thành Viên
+                      </Typography>
+                    </Box>
+                  </Grid>
 
-        {/* Decorative elements */}
-        <Box sx={{
-          position: 'absolute',
-          top: -50,
-          right: -50,
-          width: 150,
-          height: 150,
-          borderRadius: '50%',
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          zIndex: 0
-        }} />
-        <Box sx={{
-          position: 'absolute',
-          bottom: -30,
-          left: -30,
-          width: 100,
-          height: 100,
-          borderRadius: '50%',
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          zIndex: 0
-        }} />
-      </Card>
+                  {/* Button 1: Lịch sử điểm */}
+                  <Grid size={{ xs: 12, sm: 3, md: 3 }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<HistoryIcon />}
+                      onClick={() => setHistoryModalOpen(true)}
+                      fullWidth
+                      size="medium"
+                      sx={{
+                        backgroundColor: 'rgba(255,255,255,0.15)',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        borderRadius: 3,
+                        py: 1.5,
+                        border: '2px solid rgba(255,255,255,0.2)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255,255,255,0.25)',
+                          border: '2px solid rgba(255,255,255,0.4)',
+                          transform: 'translateY(-2px)'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Lịch sử điểm
+                    </Button>
+                  </Grid>
 
-      <Grid container spacing={3}>
-        {/* Points Summary */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 2, boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2e7d32' }}>
-                Thông tin điểm thưởng
-              </Typography>
-
-              <Grid container spacing={2}>
-                <Grid size={6}>
-                  <Box sx={{ textAlign: 'center', p: 2, backgroundColor: '#f8f9fa', borderRadius: 2 }}>
-                    <Typography variant="h4" sx={{ fontWeight: 700, color: '#4caf50' }}>
-                      {membershipData.pointsEarned.toLocaleString()}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Điểm tích lũy
-                    </Typography>
-                  </Box>
+                  {/* Button 2: Đổi coupon */}
+                  <Grid size={{ xs: 12, sm: 3, md: 3 }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<CardGiftcardIcon />}
+                      onClick={handleOpenCouponModal}
+                      fullWidth
+                      size="medium"
+                      sx={{
+                        backgroundColor: 'rgba(255,255,255,0.15)',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        borderRadius: 3,
+                        py: 1.5,
+                        border: '2px solid rgba(255,255,255,0.2)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255,255,255,0.25)',
+                          border: '2px solid rgba(255,255,255,0.4)',
+                          transform: 'translateY(-2px)'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Đổi coupon
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid size={6}>
-                  <Box sx={{ textAlign: 'center', p: 2, backgroundColor: '#f8f9fa', borderRadius: 2 }}>
-                    <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff9800' }}>
-                      {membershipData.pointsUsed.toLocaleString()}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Điểm đã dùng
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
 
-              <Divider sx={{ my: 2 }} />
-
-              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-                1 điểm = 1,000 VND khi thanh toán
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Current Benefits */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 2, boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2e7d32' }}>
-                Quyền lợi hiện tại
-              </Typography>
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {currentTierInfo.benefits.map((benefit, index) => (
-                  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {/* Dòng 2: 3 thẻ thông tin (Điểm + Chi tiêu + Progress) */}
+                <Grid container spacing={2}>
+                  {/* Điểm khả dụng */}
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <Box sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      backgroundColor: currentTierInfo.color
-                    }} />
-                    <Typography variant="body2">
-                      {benefit}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* All Membership Tiers */}
-        <Grid size={12}>
-          <Card sx={{ borderRadius: 2, boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2e7d32' }}>
-                Chính sách thành viên
-              </Typography>
-
-              <Grid container spacing={2}>
-                {membershipTiers.map((tier) => (
-                  <Grid key={tier.tier} size={{ xs: 12, md: 4 }}>
-                    <Card sx={{
+                      backgroundColor: 'rgba(255,255,255,0.1)',
                       borderRadius: 2,
-                      border: membershipData.currentTier === tier.tier ? `3px solid ${tier.color}` : '1px solid #e0e0e0',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      height: '220px', // Fixed height for equal heights
-                      display: 'flex',
-                      flexDirection: 'column'
+                      p: 2,
+                      textAlign: 'center',
+                      height: '100%'
                     }}>
+                      <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, fontWeight: 'bold', color: 'white' }}>
+                        Điểm Khả Dụng:
+                      </Typography>
+                      <Typography variant="h5" sx={{
+                        fontWeight: 'bold',
+                        color: 'white'
+                      }}>
+                        {membership?.availablePoints?.toLocaleString() || '0'}
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.8, fontWeight: 'bold', color: 'white' }}>
+                        điểm
+                      </Typography>
+                    </Box>
+                  </Grid>
+
+                  {/* Tổng chi tiêu */}
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Box sx={{
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      borderRadius: 2,
+                      p: 2,
+                      textAlign: 'center',
+                      height: '100%'
+                    }}>
+                      <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, fontWeight: 'bold', color: 'white' }}>
+                        Tổng chi tiêu:
+                      </Typography>
+                      <Typography variant="h5" sx={{
+                        fontWeight: 'bold',
+                        color: 'white'
+                      }}>
+                        {membership?.totalSpentLast6Months?.toLocaleString() || '0'}
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.8, fontWeight: 'bold', color: 'white' }}>
+                        VNĐ
+                      </Typography>
+                    </Box>
+                  </Grid>
+
+                  {/* Progress tier - size 6 */}
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    {/* Progress bar hoặc thông báo hạng tối đa */}
+                    {tierProgress?.nextTier ? (
                       <Box sx={{
-                        background: tier.gradient,
-                        height: 60,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
+                        backgroundColor: 'rgba(255,255,255,0.15)',
+                        borderRadius: 3,
+                        p: 2,
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        height: '100%'
                       }}>
                         <Typography variant="h6" sx={{
+                          mb: 1.5,
+                          fontWeight: 'bold',
+                          textAlign: 'center',
                           color: 'white',
-                          fontWeight: 700,
-                          textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                          fontSize: { xs: '1rem', sm: '1.25rem' }
                         }}>
-                          {tier.name}
+                          🎯 Tiến độ lên {tierProgress.nextTier}
                         </Typography>
-                        {membershipData.currentTier === tier.tier && (
-                          <Chip
-                            label="Hiện tại"
-                            size="small"
+
+                        <Box sx={{ position: 'relative', mb: 1.5 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={tierProgress.progressToNextTier}
                             sx={{
-                              position: 'absolute',
-                              top: 8,
-                              right: 8,
-                              backgroundColor: 'rgba(255,255,255,0.2)',
-                              color: 'white',
-                              fontSize: '0.6rem'
+                              height: 10,
+                              borderRadius: 5,
+                              backgroundColor: 'rgba(255,255,255,0.3)',
+                              '& .MuiLinearProgress-bar': {
+                                backgroundColor: '#FFD700',
+                                borderRadius: 5,
+                                boxShadow: '0 2px 6px rgba(255, 215, 0, 0.3)'
+                              }
                             }}
                           />
-                        )}
-                      </Box>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              position: 'absolute',
+                              top: '50%',
+                              left: '50%',
+                              transform: 'translate(-50%, -50%)',
+                              color: tierProgress?.progressToNextTier > 50 ? '#000' : '#fff',
+                              fontWeight: 'bold',
+                              fontSize: '0.7rem'
+                            }}
+                          >
+                            {Math.round(tierProgress?.progressToNextTier || 0)}%
+                          </Typography>
+                        </Box>
 
-                      <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                        <Typography variant="body2" sx={{ mb: 2, fontWeight: 600, color: tier.color }}>
-                          {tier.maxSpending === Infinity
-                            ? `Từ ${formatCurrency(tier.minSpending)}+`
-                            : `${formatCurrency(tier.minSpending)} - ${formatCurrency(tier.maxSpending)}`
+                        <Box sx={{ textAlign: 'center' }}>
+                          <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.8rem', color: 'white' }}>
+                            Còn cần: <strong style={{ color: '#FFD700' }}>{tierProgress?.spentToNextTier?.toLocaleString() || '0'} VNĐ</strong>
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ) : (
+                      // Thông báo cho hạng RADIANCE (hạng cao nhất)
+                      <Box sx={{
+                        backgroundColor: 'rgba(255,255,255,0.15)',
+                        borderRadius: 3,
+                        p: 2,
+                        border: '2px solid #FFD700',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
+                      }}>
+                        {/* Hiệu ứng lấp lánh */}
+                        <Box sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: '-100%',
+                          width: '100%',
+                          height: '100%',
+                          background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent)',
+                          animation: 'shimmer 3s infinite',
+                          '@keyframes shimmer': {
+                            '0%': { left: '-100%' },
+                            '100%': { left: '100%' }
+                          }
+                        }} />
+
+                        <Box sx={{ position: 'relative', textAlign: 'center' }}>
+                          <Typography variant="h6" sx={{
+                            mb: 1,
+                            fontWeight: 'bold',
+                            color: '#FFD700',
+                            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                            fontSize: { xs: '1rem', sm: '1.25rem' }
+                          }}>
+                            👑 HẠNG TỐI ĐA
+                          </Typography>
+
+                          <Typography variant="h5" sx={{
+                            mb: 1,
+                            fontWeight: 'bold',
+                            color: 'white',
+                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                            fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                          }}>
+                            ✨ RADIANCE ✨
+                          </Typography>
+
+                          <Typography variant="body2" sx={{
+                            color: 'white',
+                            opacity: 0.9,
+                            fontSize: '0.8rem'
+                          }}>
+                            Chi tiêu: <strong>{membership?.totalSpentLast6Months?.toLocaleString() || '0'} VNĐ</strong>
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+
+        {/* Grid 2: Uu dai - chỉ hiển thị khi có membership */}
+        {membership && (
+          <Grid item size={12} sx={{
+            width: '100%',
+            textAlign: 'center',
+            margin: '0 auto',
+            backgroundColor: '#ffffff',
+            borderRadius: 2,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{
+              fontWeight: 'bold',
+              textAlign: 'center',
+              m: 2
+            }}>
+              Ưu đãi của bạn
+            </Typography>
+
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Box sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 2
+              }}>
+                <Typography sx={{ fontSize: '80px' }}>🎁</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                Bạn đang chưa có ưu đãi nào
+              </Typography>
+            </Box>
+          </Grid>
+        )}
+
+        {/* Grid 3: 3 Cards thông tin các tier - hiển thị cho cả member và non-member */}
+        <Grid item size={12} sx={{
+          backgroundColor: '#ffffff',
+          margin: '0 auto',
+          borderRadius: 2,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          p: 2
+        }}>
+          <Typography variant="h5" gutterBottom sx={{
+            fontWeight: 'bold',
+            m: 2,
+            textAlign: 'center'
+          }}>
+            🏆 {membership ? 'Các hạng thành viên' : 'Các hạng thành viên - Ưu đãi đang chờ bạn!'}
+          </Typography>
+          <Grid container spacing={1.5}>
+            {tierInfo.map((tier) => {
+              const isCurrentTier = tier.name === membership?.currentTier
+              const isSelectedTier = selectedTier && selectedTier.name === tier.name
+              return (
+                <Grid item size={{ xs: 12, sm: 6, md: 4 }} key={tier.name}>
+                  <Card
+                    onClick={membership ? () => handleTierClick(tier) : undefined}
+                    sx={{
+                      height: '100%',
+                      position: 'relative',
+                      backgroundColor: tier.bgColor,
+                      border: isSelectedTier
+                        ? `3px solid ${tier.color}`
+                        : '1px solid #e0e0e0',
+                      borderRadius: 3,
+                      boxShadow: isSelectedTier
+                        ? `0 8px 32px ${tier.color}40`
+                        : isCurrentTier
+                          ? `0 6px 24px ${tier.color}30`
+                          : '0 4px 16px rgba(0,0,0,0.1)',
+                      transform: isSelectedTier
+                        ? 'scale(1.05)'
+                        : isCurrentTier
+                          ? 'scale(1.02)'
+                          : 'scale(1)',
+                      transition: 'all 0.3s ease-in-out',
+                      cursor: membership ? 'pointer' : 'default',
+                      '&:hover': {
+                        transform: isSelectedTier
+                          ? 'scale(1.05)'
+                          : membership ? 'scale(1.02)' : 'scale(1)',
+                        boxShadow: `0 8px 24px ${tier.color}40`
+                      }
+                    }}
+                  >
+                    <CardContent sx={{ p: { xs: 2, sm: 3 }, height: '100%' }}>
+                      <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <Typography variant="h5" sx={{
+                          fontWeight: 'bold',
+                          color: tier.color,
+                          mb: 1
+                        }}>
+                          {tier.displayName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.75rem' } }}>
+                          {tier.maxSpent
+                            ? `Chi tiêu từ ${tier.minSpent.toLocaleString()} - ${tier.maxSpent.toLocaleString()} VNĐ`
+                            : `Chi tiêu từ ${tier.minSpent.toLocaleString()} VNĐ trở lên`
                           }
                         </Typography>
+                      </Box>
 
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
+                      {/* Hiển thị ưu đãi ngắn gọn cho non-member */}
+                      {!membership && (
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="body2" sx={{
+                            fontWeight: 'bold',
+                            color: tier.color,
+                            mb: 1
+                          }}>
+                            🎁 Ưu đãi chính:
+                          </Typography>
                           {tier.benefits.map((benefit, index) => (
-                            <Typography key={index} variant="body2" sx={{ fontSize: '0.75rem' }}>
+                            <Typography key={index} variant="body2" sx={{
+                              fontSize: '0.85rem',
+                              mb: 0.5,
+                              color: 'text.secondary'
+                            }}>
                               • {benefit}
                             </Typography>
                           ))}
                         </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </CardContent>
-          </Card>
+                      )}
+
+                      {isCurrentTier && (
+                        <Chip
+                          label="HẠNG HIỆN TẠI"
+                          sx={{
+                            width: '100%',
+                            margin: '0 auto',
+                            backgroundColor: tier.color,
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '0.5rem',
+                            zIndex: 1
+                          }}
+                        />
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )
+            })}
+          </Grid>
+
+          {/* Hiển thị thông tin ưu đãi - chỉ cho member */}
+          {displayTier && membership && (
+            <Card sx={{
+              borderRadius: 3,
+              border: `2px solid ${displayTier.color}`,
+              backgroundColor: displayTier.bgColor,
+              mt: 3
+            }}>
+              <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h5" sx={{
+                    fontWeight: 'bold',
+                    color: displayTier.color
+                  }}>
+                    🎁 Ưu đãi cho hạng {displayTier.displayName}
+                    {displayTier.name === membership?.currentTier && (
+                      <Chip
+                        label="HẠNG HIỆN TẠI"
+                        sx={{
+                          ml: 2,
+                          backgroundColor: displayTier.color,
+                          color: 'white',
+                          fontSize: '0.75rem'
+                        }}
+                      />
+                    )}
+                  </Typography>
+                </Box>
+
+                {/* Hiển thị quyền lợi dạng list */}
+                <Box>
+                  <Box sx={{ pl: 2 }}>
+                    {displayTier.benefits.map((benefit, index) => (
+                      <Box key={index} sx={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        mb: 1.5,
+                        p: 1,
+                        borderRadius: 1,
+                        backgroundColor: 'rgba(255,255,255,0.3)',
+                        border: `1px solid ${displayTier.color}30`
+                      }}>
+                        <Typography sx={{
+                          color: displayTier.color,
+                          fontWeight: 'bold',
+                          minWidth: '24px',
+                          mr: 1
+                        }}>
+                          {index + 1}.
+                        </Typography>
+                        <Typography variant="body1" sx={{
+                          color: 'text.primary',
+                          fontWeight: '500'
+                        }}>
+                          {benefit}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
       </Grid>
+
+      {/* Modal lịch sử điểm thưởng */}
+      <Dialog
+        open={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{
+          backgroundColor: theme => theme.palette.primary.main,
+          color: 'white',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Typography variant="h6" sx={{ color: 'white' }}>Lịch sử điểm thưởng</Typography>
+          <IconButton onClick={() => setHistoryModalOpen(false)} sx={{ color: 'white' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          {pointHistories && pointHistories.length > 0 ? (
+            <Box sx={{ maxHeight: '400px', overflowY: 'auto' }}>
+              {pointHistories.map((pHistory) => (
+                <Card key={pHistory.id} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} sm={3}>
+                        <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
+                          {new Date(pHistory.earnedAt).toLocaleDateString('vi-VN')}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="body1">
+                          {pHistory.description ||
+                            (pHistory.transactionType === 'USED'
+                              ? `Sử dụng điểm (${pHistory.pointsUsed || 0} điểm)`
+                              : `Điểm từ đơn hàng ${pHistory.spentAmount?.toLocaleString()} VNĐ`
+                            )
+                          }
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <Chip
+                          label={`${pHistory.transactionType === 'USED' ? '' : '+'}${pHistory.pointsEarned || pHistory.pointsUsed || 0} điểm`}
+                          color={pHistory.transactionType === 'USED' ? 'error' : 'success'}
+                          sx={{ fontWeight: 'bold' }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="h6" color="text.secondary">
+                📝 Chưa có lịch sử giao dịch điểm
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal đổi coupon */}
+      <Dialog
+        open={couponModalOpen}
+        onClose={() => setCouponModalOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{
+          backgroundColor: theme => theme.palette.primary.main,
+          color: 'white',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Typography variant="h6">🎁 Đổi coupon</Typography>
+          <IconButton onClick={() => setCouponModalOpen(false)} sx={{ color: 'white' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          {couponsLoading ? (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <CircularProgress />
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                Đang tải danh sách coupon...
+              </Typography>
+            </Box>
+          ) : exchangeableCoupons.length > 0 ? (
+            <Grid container spacing={3}>
+              {exchangeableCoupons.map((coupon) => (
+                <Grid item xs={12} sm={6} key={coupon.id}>
+                  <Card sx={{
+                    border: '2px solid #1976d2',
+                    borderRadius: 2,
+                    transition: 'transform 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 16px rgba(25,118,210,0.3)'
+                    }
+                  }}>
+                    <CardContent>
+                      <Typography variant="h6" color="primary" gutterBottom>
+                        🎫 {coupon.name}
+                      </Typography>
+
+                      {coupon.description && (
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          {coupon.description}
+                        </Typography>
+                      )}
+
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Loại giảm giá:
+                          {coupon.type === 'PERCENTAGE' && ` ${coupon.value}%`}
+                          {coupon.type === 'FIXED_AMOUNT' && ` ${coupon.value?.toLocaleString()} VNĐ`}
+                          {coupon.type === 'FREE_SHIPPING' && ' Miễn phí vận chuyển'}
+                        </Typography>
+
+                        {coupon.minOrderValue && (
+                          <Typography variant="body2" color="text.secondary">
+                            Đơn hàng tối thiểu: {coupon.minOrderValue?.toLocaleString()} VNĐ
+                          </Typography>
+                        )}
+
+                        {coupon.maxDiscountAmount && (
+                          <Typography variant="body2" color="text.secondary">
+                            Giảm tối đa: {coupon.maxDiscountAmount?.toLocaleString()} VNĐ
+                          </Typography>
+                        )}
+
+                        <Typography variant="body2" color="text.secondary">
+                          Hạn sử dụng: {new Date(coupon.endDate).toLocaleDateString('vi-VN')}
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
+                          Còn lại: {coupon.totalQuantity - coupon.usedQuantity} coupon
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                        <Chip
+                          label={`${coupon.pointsRequired} điểm`}
+                          color="primary"
+                          variant="outlined"
+                          sx={{ fontWeight: 'bold' }}
+                        />
+                        <Button
+                          variant="contained"
+                          size="small"
+                          disabled={
+                            (membership?.availablePoints || 0) < coupon.pointsRequired ||
+                            exchangeLoading === coupon.id
+                          }
+                          onClick={() => handleExchangeCoupon(coupon.id)}
+                          sx={{ ml: 1, minWidth: '120px' }}
+                        >
+                          {exchangeLoading === coupon.id ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : (membership?.availablePoints || 0) >= coupon.pointsRequired ? (
+                            'Đổi ngay'
+                          ) : (
+                            'Không đủ điểm'
+                          )}
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography sx={{ fontSize: '64px', mb: 2 }}>🎁</Typography>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                Không có coupon nào có thể đổi
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {!membership?.availablePoints || membership.availablePoints === 0
+                  ? 'Bạn chưa có điểm để đổi coupon. Hãy mua sắm để tích điểm nhé!'
+                  : 'Hiện tại chưa có coupon phù hợp với hạng thành viên và số điểm của bạn.'
+                }
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   )
 }

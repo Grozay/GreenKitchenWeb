@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
 import theme from '~/theme'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { GlobalStyles } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { Provider } from 'react-redux'
 import store from '~/redux/store'
@@ -14,6 +13,8 @@ import '~/customLibraries/i18n'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ToastContainer, Slide } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import ScrollToTop from '~/components/ScrollToTop/ScrollToTop.jsx'
+
 
 const persistor = persistStore(store)
 
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <BrowserRouter>
+        <ScrollToTop />
         <ThemeProvider theme={theme} noSsr disableTransitionOnChange defaultMode='light'>
           <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
             <ConfirmProvider defaultOptions={{

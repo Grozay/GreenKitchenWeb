@@ -237,7 +237,7 @@ const HomeLayout = () => {
                 bgcolor: 'rgba(255,255,255,0.9)',
                 color: theme.palette.primary.main
               },
-              borderRadius: 10,
+              borderRadius: 10
             }}
           >
             Experience now

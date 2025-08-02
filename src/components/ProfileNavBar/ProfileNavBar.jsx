@@ -83,7 +83,7 @@ function ProfileNavBar() {
         >
           <AccountCircleIcon fontSize="large" />
         </IconButton>
-        
+
         <Menu
           id="account-menu"
           anchorEl={anchorEl}
