@@ -6,13 +6,40 @@ import IconButton from '@mui/material/IconButton'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { addToCart } from '~/redux/order/orderSlice'
 import Grid from '@mui/material/Grid'
 
 
 const CardMenu = ({ item, typeBasedIndex }) => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const handleNavigateToDetail = (slug) => {
     navigate(`/menu/${slug}`)
+  }
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation() // Prevent navigation when clicking add to cart
+    const cartItem = {
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      image: item.image,
+      price: item.price,
+      totalPrice: item.price,
+      quantity: 1,
+      isCustom: false,
+      calories: item.calories,
+      protein: item.protein,
+      carbs: item.carbs,
+      fat: item.fat,
+      slug: item.slug,
+      mealItem: {
+        menu: [item]
+      }
+    }
+
+    dispatch(addToCart(cartItem))
   }
 
   const getSizeShort = (type) => {
@@ -206,6 +233,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               {itemFilter.price} $
             </Typography>
             <IconButton
+              onClick={handleAddToCart}
               sx={{
                 color: theme.palette.primary.secondary,
                 '&:hover': {

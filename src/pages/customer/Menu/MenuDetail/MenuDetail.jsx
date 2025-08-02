@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { addToCart } from '~/redux/order/orderSlice'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
@@ -21,6 +23,7 @@ import AppBar from '~/components/AppBar/AppBar'
 const MenuDetail = () => {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [menuMeal, setMenuMeal] = useState(null)
   const [mealPackages, setMealPackages] = useState([])
   const [quantity, setQuantity] = useState(1)
@@ -30,6 +33,28 @@ const MenuDetail = () => {
   const [loading, setLoading] = useState(true)
 
   const handleAddToCart = () => {
+    if (!menuMeal) return
+
+    const cartItem = {
+      id: menuMeal.id,
+      title: menuMeal.title,
+      description: menuMeal.description,
+      image: menuMeal.image,
+      price: menuMeal.price,
+      totalPrice: menuMeal.price,
+      quantity: quantity,
+      isCustom: false,
+      calories: menuMeal.calories,
+      protein: menuMeal.protein,
+      carbs: menuMeal.carbs,
+      fat: menuMeal.fat,
+      slug: menuMeal.slug,
+      mealItem: {
+        menu: [menuMeal]
+      }
+    }
+
+    dispatch(addToCart(cartItem))
     setSnackbarOpen(true)
   }
 
@@ -59,8 +84,8 @@ const MenuDetail = () => {
         ])
         setMenuMeal(detailData)
         setMealPackages(listData)
-      } catch (error) {
-        console.error('Error fetching data:', error)
+      } catch {
+        // console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
