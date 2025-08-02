@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
@@ -7,13 +7,15 @@ import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { Link, useLocation } from 'react-router-dom'
 import AccountTab from './AccountTab/AccountTab'
-import MembershipTab from './MembershipTab'
-import OverviewTab from './OverviewTab'
+import MembershipTab from './MembershipTab/MembershipTab'
+import OverviewTab from './OverviewTab/OverviewTab'
 import ProfileNavBar from '~/components/ProfileNavBar/ProfileNavBar'
-import OrderHistoryTab from './OrderHistoryTab'
+import OrderHistoryTab from './OrderHistoryTab/OrderHistoryTab'
 import CustomerTDEETab from './CustomerTDEETab/CustomerTDEETab'
 import { useSelector } from 'react-redux'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
+import { fetchCustomerDetails } from '~/apis'
+import { CircularProgress } from '@mui/material'
 
 // Khai báo đống tabs ra biến const để dùng lại cho gọn
 const TABS = {
@@ -26,7 +28,10 @@ const TABS = {
 
 function Profile() {
   const location = useLocation()
+  const [customerDetails, setCustomerDetails] = useState(null)
+  const [loading, setLoading] = useState(false)
   const currentCustomer = useSelector(selectCurrentCustomer)
+
   // Function đơn giản có nhiệm vụ lấy ra cái tab mặc định dựa theo url.
   const getDefaultTab = () => {
     if (location.pathname.includes(TABS.MEMBERSHIP)) return TABS.MEMBERSHIP
@@ -37,6 +42,41 @@ function Profile() {
   }
   // State lưu trữ giá trị tab nào đang active
   const [activeTab, setActiveTab] = useState(getDefaultTab())
+
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true)
+      try {
+        const data = await fetchCustomerDetails(currentCustomer.email)
+        setCustomerDetails(data)
+      } catch {
+        // Error handling
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetch()
+  }, [currentCustomer.email])
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    )
+  }
 
   // https://mui.com/material-ui/react-tabs
   const handleChangeTab = (event, selectedTab) => { setActiveTab(selectedTab) }
@@ -115,11 +155,11 @@ function Profile() {
               to="/profile/Tdee-profile" />
           </TabList>
           <Box sx={{ flex: 1 }}>
-            <TabPanel value={TABS.OVERVIEW}><OverviewTab /></TabPanel>
-            <TabPanel value={TABS.ACCOUNT}><AccountTab /></TabPanel>
-            <TabPanel value={TABS.MEMBERSHIP}><MembershipTab /></TabPanel>
-            <TabPanel value={TABS.ORDERHISTORY}><OrderHistoryTab /></TabPanel>
-            <TabPanel value={TABS.TDEEPROFILE}><CustomerTDEETab /></TabPanel>
+            <TabPanel value={TABS.OVERVIEW}><OverviewTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            <TabPanel value={TABS.ACCOUNT}><AccountTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            <TabPanel value={TABS.MEMBERSHIP}><MembershipTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            <TabPanel value={TABS.ORDERHISTORY}><OrderHistoryTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            <TabPanel value={TABS.TDEEPROFILE}><CustomerTDEETab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
           </Box>
         </TabContext>
       </Box>

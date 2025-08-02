@@ -22,106 +22,19 @@ import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 
-export default function MembershipTab() {
-  const [customerData, setCustomerData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+export default function MembershipTab({ customerDetails, setcustomerDetails }) {
   const [historyModalOpen, setHistoryModalOpen] = useState(false)
   const [couponModalOpen, setCouponModalOpen] = useState(false)
   const [selectedTier, setSelectedTier] = useState(null)
   const [exchangeableCoupons, setExchangeableCoupons] = useState([])
   const [couponsLoading, setCouponsLoading] = useState(false)
   const [exchangeLoading, setExchangeLoading] = useState(null)
-  const currentCustomer = useSelector(selectCurrentCustomer)
 
-  useEffect(() => {
-    const fetchMembershipData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await fetchCustomerDetails(currentCustomer.email)
-        setCustomerData(data)
-      } catch {
-        setError('Không thể tải thông tin thành viên')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMembershipData()
-  }, [currentCustomer.email])
-
-  // Fetch exchangeable coupons when modal opens
-  const fetchExchangeableCoupons = async () => {
-    if (!customerData?.membership) return
-
-    try {
-      setCouponsLoading(true)
-      const tier = customerData.membership.currentTier
-      const points = Math.floor(customerData.membership.availablePoints || 0)
-
-      const coupons = await getExchangeableCouponsAPI(tier, points)
-      setExchangeableCoupons(coupons)
-    } catch (error) {
-      console.error('Error fetching exchangeable coupons:', error)
-      setExchangeableCoupons([])
-    } finally {
-      setCouponsLoading(false)
-    }
-  }
-
-  // Handle coupon exchange
-  const handleExchangeCoupon = async (couponId) => {
-    if (!customerData?.id) return
-
-    try {
-      setExchangeLoading(couponId)
-      await exchangeCouponAPI({ customerId: customerData.id, couponId })
-
-      // Refresh customer data to update points
-      const updatedData = await fetchCustomerDetails(currentCustomer.email)
-      setCustomerData(updatedData)
-
-      toast.success('Đổi coupon thành công!')
-    } catch (error) {
-      console.error('Error exchanging coupon:', error)
-    } finally {
-      setExchangeLoading(null)
-    }
-  }
 
   // Open coupon modal and fetch data
   const handleOpenCouponModal = () => {
     setCouponModalOpen(true)
     // fetchExchangeableCoupons()
-  }
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Đang tải thông tin thành viên...
-        </Typography>
-      </Box>
-    )
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Button
-          variant="contained"
-          onClick={() => window.location.reload()}
-          sx={{ mt: 2 }}
-        >
-          Thử lại
-        </Button>
-      </Box>
-    )
   }
 
   // Helper functions để xử lý dữ liệu
@@ -188,8 +101,8 @@ export default function MembershipTab() {
   ]
 
   // Lấy dữ liệu từ customer data
-  const membership = customerData?.membership
-  const pointHistories = customerData?.pointHistories || []
+  const membership = customerDetails?.membership
+  const pointHistories = customerDetails?.pointHistories || []
   const tierProgress = membership ? calculateTierProgress(membership.currentTier, membership.totalSpentLast6Months) : null
 
   const handleTierClick = (tier) => {
@@ -233,7 +146,7 @@ export default function MembershipTab() {
                   mb: 2,
                   textShadow: '0 2px 4px rgba(0,0,0,0.3)'
                 }}>
-                  Chào {customerData?.fullName}!
+                  Chào {customerDetails?.fullName}!
                 </Typography>
                 <Typography variant="h5" sx={{
                   fontWeight: 'bold',
@@ -530,7 +443,7 @@ export default function MembershipTab() {
 
         {/* Grid 2: Uu dai - chỉ hiển thị khi có membership */}
         {membership && (
-          <Grid item size={12} sx={{
+          <Grid size={12} sx={{
             width: '100%',
             textAlign: 'center',
             margin: '0 auto',
@@ -563,7 +476,7 @@ export default function MembershipTab() {
         )}
 
         {/* Grid 3: 3 Cards thông tin các tier - hiển thị cho cả member và non-member */}
-        <Grid item size={12} sx={{
+        <Grid size={12} sx={{
           backgroundColor: '#ffffff',
           margin: '0 auto',
           borderRadius: 2,
@@ -582,7 +495,7 @@ export default function MembershipTab() {
               const isCurrentTier = tier.name === membership?.currentTier
               const isSelectedTier = selectedTier && selectedTier.name === tier.name
               return (
-                <Grid item size={{ xs: 12, sm: 6, md: 4 }} key={tier.name}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={tier.name}>
                   <Card
                     onClick={membership ? () => handleTierClick(tier) : undefined}
                     sx={{
@@ -765,12 +678,12 @@ export default function MembershipTab() {
                 <Card key={pHistory.id} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
                   <CardContent sx={{ p: 2 }}>
                     <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} sm={3}>
+                      <Grid size={{ xs: 12, sm: 3 }}>
                         <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
                           {new Date(pHistory.earnedAt).toLocaleDateString('vi-VN')}
                         </Typography>
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
                         <Typography variant="body1">
                           {pHistory.description ||
                             (pHistory.transactionType === 'USED'
@@ -780,7 +693,7 @@ export default function MembershipTab() {
                           }
                         </Typography>
                       </Grid>
-                      <Grid item xs={12} sm={3}>
+                      <Grid size={{ xs: 12, sm: 3 }}>
                         <Chip
                           label={`${pHistory.transactionType === 'USED' ? '' : '+'}${pHistory.pointsEarned || pHistory.pointsUsed || 0} điểm`}
                           color={pHistory.transactionType === 'USED' ? 'error' : 'success'}
@@ -832,7 +745,7 @@ export default function MembershipTab() {
           ) : exchangeableCoupons.length > 0 ? (
             <Grid container spacing={3}>
               {exchangeableCoupons.map((coupon) => (
-                <Grid item xs={12} sm={6} key={coupon.id}>
+                <Grid size={{ xs: 12, sm: 6 }} key={coupon.id}>
                   <Card sx={{
                     border: '2px solid #1976d2',
                     borderRadius: 2,
@@ -896,7 +809,6 @@ export default function MembershipTab() {
                             (membership?.availablePoints || 0) < coupon.pointsRequired ||
                             exchangeLoading === coupon.id
                           }
-                          onClick={() => handleExchangeCoupon(coupon.id)}
                           sx={{ ml: 1, minWidth: '120px' }}
                         >
                           {exchangeLoading === coupon.id ? (

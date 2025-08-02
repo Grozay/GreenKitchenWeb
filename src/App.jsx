@@ -15,6 +15,7 @@ import CaloCalculatorLayout from './pages/customer/CaloCalculator/CaloCalculator
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
+import Chat from './pages/Employee/Chat/Chat'
 import Cart from './pages/customer/Cart/CardLayout'
 
 
@@ -53,6 +54,9 @@ function App() {
         <Route path="/profile/order-history" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
       </Route>
+
+      {/* Test Employee Inbox */}
+      <Route path="/employee/inbox" element={<Chat />} />
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />
