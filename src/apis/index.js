@@ -165,3 +165,14 @@ export const getExchangeableCouponsAPI = async (customerId) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-coupons/exchangeable/${customerId}`)
   return response.data
 }
+
+// Customer Reference APIs
+export const getCustomerReferencesByCustomerIdAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-references/customer/${customerId}`)
+  return response.data
+}
+
+export const createCustomerReferenceAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-references`, data)
+  return response.data
+}
