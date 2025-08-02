@@ -10,8 +10,19 @@ import Typography from '@mui/material/Typography'
 import Fab from '@mui/material/Fab'
 import Paper from '@mui/material/Paper'
 import Slide from '@mui/material/Slide'
+import Avatar from '@mui/material/Avatar'
+import IconButton from '@mui/material/IconButton'
+import Divider from '@mui/material/Divider'
+import Badge from '@mui/material/Badge'
+import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
 import ChatIcon from '@mui/icons-material/Chat'
 import CloseIcon from '@mui/icons-material/Close'
+import PersonIcon from '@mui/icons-material/Person'
+import SmartToyIcon from '@mui/icons-material/SmartToy'
+import SupportAgentIcon from '@mui/icons-material/SupportAgent'
+import SendIcon from '@mui/icons-material/Send'
+import MinimizeIcon from '@mui/icons-material/Minimize'
 import { fetchMessagesPaged, sendMessage, initGuestConversation, getConversations } from '~/apis/chatAPICus'
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
 import {
@@ -34,6 +45,193 @@ function getSenderName(msg, customerName) {
   if (msg.senderRole === 'CUSTOMER') return customerName || 'Bạn'
   if (msg.senderRole === 'EMP') return 'Nhân viên'
   return msg.senderRole
+}
+
+// Component cho message bubble
+function MessageBubble({ message, customerName, isOwn }) {
+  const getSenderIcon = (senderRole) => {
+    switch (senderRole) {
+    case 'CUSTOMER':
+      return <PersonIcon sx={{ fontSize: 20 }} />
+    case 'AI':
+      return <SmartToyIcon sx={{ fontSize: 20 }} />
+    case 'EMP':
+      return <SupportAgentIcon sx={{ fontSize: 20 }} />
+    default:
+      return <PersonIcon sx={{ fontSize: 20 }} />
+    }
+  }
+
+  const getSenderColor = (senderRole) => {
+    switch (senderRole) {
+    case 'CUSTOMER':
+      return '#1976d2'
+    case 'AI':
+      return '#9c27b0'
+    case 'EMP':
+      return '#2e7d32'
+    default:
+      return '#757575'
+    }
+  }
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: isOwn ? 'row-reverse' : 'row',
+        alignItems: 'flex-end',
+        gap: 1,
+        mb: 2,
+        px: 1
+      }}
+    >
+      <Avatar
+        sx={{
+          width: 40,
+          height: 40,
+          bgcolor: getSenderColor(message.senderRole),
+          flexShrink: 0
+        }}
+      >
+        {getSenderIcon(message.senderRole)}
+      </Avatar>
+
+      <Box
+        sx={{
+          maxWidth: '75%',
+          minWidth: 120
+        }}
+      >
+        <Paper
+          elevation={2}
+          sx={{
+            p: 2,
+            bgcolor: isOwn ? '#1976d2' : '#f5f5f5',
+            color: isOwn ? 'white' : 'text.primary',
+            borderRadius: 3,
+            borderTopLeftRadius: isOwn ? 3 : 0.5,
+            borderTopRightRadius: isOwn ? 0.5 : 3,
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              [isOwn ? 'right' : 'left']: -8,
+              width: 0,
+              height: 0,
+              borderTop: `8px solid ${isOwn ? '#1976d2' : '#f5f5f5'}`,
+              borderLeft: isOwn ? '8px solid transparent' : 'none',
+              borderRight: isOwn ? 'none' : '8px solid transparent'
+            }
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              display: 'block',
+              fontWeight: 600,
+              mb: 0.5,
+              opacity: 0.8,
+              fontSize: '0.75rem'
+            }}
+          >
+            {getSenderName(message, customerName)}
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '16px',
+              lineHeight: 1.4,
+              wordBreak: 'break-word'
+            }}
+          >
+            {message.content}
+          </Typography>
+
+          {message.menu && Array.isArray(message.menu) && message.menu.length > 0 && (
+            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {message.menu.map((meal) => (
+                <Paper
+                  key={meal.id}
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: 'background.paper',
+                    color: 'text.primary',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: 4
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <Box
+                      component="img"
+                      src={meal.image || 'src/assets/images/Dial-up-Connection.jpg'}
+                      alt={meal.title}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 2,
+                        objectFit: 'cover',
+                        flexShrink: 0
+                      }}
+                      onError={(e) => {
+                        e.target.src = 'src/assets/images/Dial-up-Connection.jpg'
+                      }}
+                    />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 1,
+                          color: 'text.primary',
+                          fontSize: '16px'
+                        }}
+                      >
+                        {meal.title}
+                      </Typography>
+                      <Chip
+                        label={meal.price?.toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND'
+                        }) ?? ''}
+                        color="primary"
+                        variant="filled"
+                        sx={{ fontWeight: 600 }}
+                      />
+                    </Box>
+                  </Box>
+                </Paper>
+              ))}
+            </Box>
+          )}
+
+          <Typography
+            variant="caption"
+            sx={{
+              display: 'block',
+              textAlign: 'right',
+              mt: 1,
+              opacity: 0.6,
+              fontSize: '0.7rem'
+            }}
+          >
+            {message.timestamp ? new Date(message.timestamp).toLocaleTimeString('vi-VN', {
+              hour: '2-digit',
+              minute: '2-digit'
+            }) : ''}
+          </Typography>
+        </Paper>
+      </Box>
+    </Box>
+  )
 }
 
 function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
@@ -277,120 +475,246 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
     isCustomerLoggedIn, customerId, customerName, chatAPI
   ])
 
+  const getChatModeIcon = () => {
+    switch (chatMode) {
+    case 'AI':
+      return <SmartToyIcon sx={{ mr: 1 }} />
+    case 'EMP':
+      return <SupportAgentIcon sx={{ mr: 1 }} />
+    default:
+      return <ChatIcon sx={{ mr: 1 }} />
+    }
+  }
+
+  const getChatModeColor = () => {
+    switch (chatMode) {
+    case 'AI':
+      return '#9c27b0'
+    case 'EMP':
+      return '#2e7d32'
+    default:
+      return '#1976d2'
+    }
+  }
 
   return (
-    <Box sx={{ width: 400, border: 1, borderColor: 'grey.300', borderRadius: 2, p: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        Chat với {chatMode === 'AI' ? 'AI' : 'nhân viên'}
-      </Typography>
-
-      <List
-        ref={listRef}
+    <Paper
+      elevation={8}
+      sx={{
+        position: 'fixed',
+        right: { xs: 0, md: 24 },
+        bottom: { xs: 0, md: 100 },
+        width: { xs: '100vw', sm: 420, md: 480 },
+        maxWidth: '100vw',
+        height: { xs: '100vh', sm: '70vh', md: 600 },
+        minHeight: 600,
+        bgcolor: 'background.paper',
+        zIndex: 1300,
+        borderRadius: { xs: 0, sm: 3 },
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Header */}
+      <Box
         sx={{
-          height: 300,
-          overflowY: 'auto',
-          bgcolor: 'grey.50',
-          mb: 2,
+          p: 2,
+          bgcolor: getChatModeColor(),
+          color: 'white',
           display: 'flex',
-          flexDirection: 'column'
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          minHeight: 64
         }}
       >
-        {messages.map((m, idx) => (
-          <ListItem
-            key={`${m.id}-${idx}`}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Badge
+            variant="dot"
+            color="success"
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: m.senderRole === 'CUSTOMER' ? 'flex-end' : 'flex-start' // ✅ GIỮ
+              '& .MuiBadge-badge': {
+                bgcolor: '#4caf50',
+                color: '#4caf50'
+              }
             }}
           >
-            <Box
+            <Avatar
               sx={{
-                bgcolor: m.senderRole === 'CUSTOMER' ? '#e0f7fa' : '#f1f1f1',
-                alignSelf: m.senderRole === 'CUSTOMER' ? 'flex-end' : 'flex-start', // ✅ GIỮ
-                px: 2,
-                py: 1,
-                borderRadius: 2,
-                maxWidth: '80%'
+                width: 40,
+                height: 40,
+                bgcolor: 'rgba(255,255,255,0.2)',
+                mr: 2
               }}
             >
-              <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
-                {getSenderName(m, customerName)}
-              </Typography>
-              <Typography variant="body2">{m.content}</Typography>
-              {m.menu && Array.isArray(m.menu) && m.menu.length > 0 && (
-                <Box sx={{ mt: 1 }}>
-                  {m.menu.map(meal => (
-                    <Box
-                      key={meal.id}
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        border: '1px solid #eee',
-                        borderRadius: 2,
-                        mb: 1,
-                        p: 1,
-                        width: 140,
-                        bgcolor: '#fff'
-                      }}
-                    >
-                      <img
-                        src={meal.image || 'src/assets/images/Dial-up-Connection.jpg'}
-                        alt={meal.title}
-                        width={80}
-                        height={80}
-                        style={{
-                          borderRadius: 12,
-                          margin: '0 auto',
-                          display: 'block',
-                          objectFit: 'cover'
-                        }}
-                        onError={e => { e.target.src = 'src/assets/images/Dial-up-Connection.jpg' }}
-                      />
-                      <Box>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                          {meal.title}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="primary"
-                          sx={{ fontWeight: 600, mt: 0.5 }}
-                        >
-                          {meal.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) ?? ''}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
-              )}
-            </Box>
-          </ListItem>
-        ))}
-      </List>
+              {getChatModeIcon()}
+            </Avatar>
+          </Badge>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '18px' }}>
+              Chat với {chatMode === 'AI' ? 'AI Assistant' : 'Nhân viên'}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.9 }}>
+              {awaitingAI ? 'Đang soạn tin...' : 'Đang hoạt động'}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Divider />
+
+      {/* Messages Area */}
+      <Box
+        ref={listRef}
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          bgcolor: '#fafafa',
+          p: 1,
+          '&::-webkit-scrollbar': {
+            width: 6
+          },
+          '&::-webkit-scrollbar-track': {
+            bgcolor: 'transparent'
+          },
+          '&::-webkit-scrollbar-thumb': {
+            bgcolor: 'rgba(0,0,0,0.2)',
+            borderRadius: 3
+          }
+        }}
+      >
+        {isLoading && hasMore && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+
+        {messages.map((message, idx) => (
+          <MessageBubble
+            key={`${message.id}-${idx}`}
+            message={message}
+            customerName={customerName}
+            isOwn={message.senderRole === 'CUSTOMER'}
+          />
+        ))}
+
+        {awaitingAI && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              gap: 1,
+              mb: 2,
+              px: 1
+            }}
+          >
+            <Avatar
+              sx={{
+                width: 40,
+                height: 40,
+                bgcolor: '#9c27b0',
+                flexShrink: 0
+              }}
+            >
+              <SmartToyIcon sx={{ fontSize: 20 }} />
+            </Avatar>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 2,
+                bgcolor: '#f5f5f5',
+                borderRadius: 3,
+                borderTopLeftRadius: 0.5,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2
+              }}
+            >
+              <CircularProgress size={16} />
+              <Typography variant="body2" color="text.secondary">
+                AI đang soạn phản hồi...
+              </Typography>
+            </Paper>
+          </Box>
+        )}
+      </Box>
+
+      <Divider />
+
+      {/* Input Area */}
+      <Box
+        sx={{
+          p: 2,
+          bgcolor: 'background.paper',
+          display: 'flex',
+          gap: 1,
+          alignItems: 'flex-end',
+          minHeight: 80
+        }}
+      >
         <TextField
           fullWidth
+          multiline
+          maxRows={4}
           variant="outlined"
-          size="small"
+          size="medium"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Nhập tin nhắn..."
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              handleSend()
+            }
+          }}
           disabled={chatMode === 'AI' && awaitingAI}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 3,
+              bgcolor: '#f8f9fa',
+              fontSize: '16px',
+              '& fieldset': {
+                borderColor: 'rgba(0,0,0,0.12)'
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(0,0,0,0.23)'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: getChatModeColor()
+              }
+            },
+            '& .MuiInputBase-input': {
+              fontSize: '16px',
+              py: 1.5
+            }
+          }}
         />
-        <Button
-          variant="contained"
+        <IconButton
           onClick={handleSend}
           disabled={
-            (chatMode === 'AI' && awaitingAI) || (chatMode === 'EMP' && !isCustomerLoggedIn)
+            (chatMode === 'AI' && awaitingAI) ||
+            (chatMode === 'EMP' && !isCustomerLoggedIn) ||
+            !input.trim()
           }
+          sx={{
+            bgcolor: getChatModeColor(),
+            color: 'white',
+            width: 48,
+            height: 48,
+            '&:hover': {
+              bgcolor: getChatModeColor(),
+              opacity: 0.8
+            },
+            '&:disabled': {
+              bgcolor: 'rgba(0,0,0,0.12)',
+              color: 'rgba(0,0,0,0.26)'
+            }
+          }}
         >
-          Gửi
-        </Button>
+          <SendIcon />
+        </IconButton>
       </Box>
-    </Box>
+    </Paper>
   )
 }
 
@@ -403,38 +727,32 @@ export default function Chat() {
     <>
       <Fab
         color="primary"
+        size="large"
         sx={{
           position: 'fixed',
           bottom: 24,
           right: 24,
           zIndex: 1000,
-          transition: 'transform 0.3s ease',
-          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+          width: 64,
+          height: 64,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: isOpen ? 'rotate(180deg) scale(0.9)' : 'rotate(0deg) scale(1)',
+          boxShadow: 4,
+          '&:hover': {
+            transform: isOpen ? 'rotate(180deg) scale(0.95)' : 'rotate(0deg) scale(1.05)',
+            boxShadow: 6
+          }
         }}
         onClick={handleToggleChat}
       >
-        {isOpen ? <CloseIcon /> : <ChatIcon />}
+        {isOpen ? <CloseIcon sx={{ fontSize: 28 }} /> : <ChatIcon sx={{ fontSize: 28 }} />}
       </Fab>
 
-      <Slide direction="up" in={isOpen} mountOnEnter unmountOnExit>
-        <Paper
-          elevation={8}
-          sx={{
-            position: 'fixed',
-            bottom: 100,
-            right: 24,
-            zIndex: 999,
-            borderRadius: 2,
-            overflow: 'hidden',
-            maxWidth: '90vw',
-            maxHeight: '80vh'
-          }}
-        >
+      <Slide direction="up" in={isOpen} mountOnEnter unmountOnExit timeout={400}>
+        <div>
           <ChatWidget />
-        </Paper>
+        </div>
       </Slide>
     </>
   )
 }
-
-

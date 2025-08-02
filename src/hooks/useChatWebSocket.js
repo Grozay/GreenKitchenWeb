@@ -36,7 +36,7 @@ export function useChatWebSocket(topic, onMessage) {
       },
       debug: (str) => {
         // Muốn debug tất cả, mở dòng này!
-        // console.debug('[WebSocket DEBUG]', str)
+        console.debug('[WebSocket DEBUG]', str)
       }
     })
 

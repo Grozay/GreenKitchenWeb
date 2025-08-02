@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 import SendIcon from '@mui/icons-material/Send'
-import { fetchMessagesPaged, sendMessage, fetchEmployeeConversations, markConversationRead } from '~/apis/chatAPICus'
+import { fetchMessagesPaged, sendMessage, fetchEmployeeConversations, markConversationRead, releaseConversationToAI, claimConversationAsEmp } from '~/apis/chatAPICus'
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
 
 const PAGE_SIZE = 20
@@ -38,14 +38,18 @@ export default function EmployeeMessenger() {
   const [snackbar, setSnackbar] = useState({ open: false, msg: '', sev: 'info' })
 
   const listRef = useRef(null)
-  const isEmpCanChat = selectedConv?.status === 'EMP' || selectedConv?.status === 'WAITING_EMP'
+  const isEmpCanChat = selectedConv?.status === 'EMP' || selectedConv?.status === 'WAITING_EMP' || selectedConv?.status === 'AI'
   const isMounted = useRef(true)
 
   // Fetch danh sách hội thoại
-  const loadConvs = useCallback(() => {
-    fetchEmployeeConversations()
-      .then(setConvs)
-      .catch(() => setSnackbar({ open: true, msg: 'Không tải được danh sách hội thoại', sev: 'error' }))
+  const loadConvs = useCallback(async () => {
+    try {
+      const conversations = await fetchEmployeeConversations()
+      setConvs(conversations)
+    } catch (error) {
+      console.error('Error fetching conversations:', error)
+      setSnackbar({ open: true, msg: 'Không tải được danh sách hội thoại', sev: 'error' })
+    }
   }, [])
 
   useEffect(() => {
@@ -54,33 +58,83 @@ export default function EmployeeMessenger() {
     return () => { isMounted.current = false }
   }, [loadConvs])
 
-  // Khi chọn hội thoại, load trang đầu
   useEffect(() => {
     if (!selectedConv) return
+    console.log('selectedConv changed:', selectedConv)
+
+    // Nếu chưa là EMP thì claim trước
+    if (selectedConv.status !== 'EMP') {
+      claimConversationAsEmp(selectedConv.conversationId, 1)
+        .then(async () => {
+        // Reload lại convs để có trạng thái mới nhất
+          await loadConvs()
+          // Gọi lại fetchMessagesPaged cho conversationId đó
+          return fetchMessagesPaged(selectedConv.conversationId, 0, PAGE_SIZE)
+        })
+        .then((data) => {
+          if (!isMounted.current) return
+          setMessages([...data.content].reverse())
+          setHasMore(!data.last)
+          setIsLoading(false)
+          // Sau khi chắc chắn đã là EMP thì mark-read
+          if (selectedConv.conversationId) {
+            console.log('Gọi markConversationRead với conversationId:', selectedConv.conversationId)
+            markConversationRead(selectedConv.conversationId)
+              .then(() => {
+                console.log('[markConversationRead] Thành công:', selectedConv.conversationId)
+                loadConvs()
+              })
+              .catch(err => {
+                setSnackbar({ open: true, msg: 'Mark read thất bại!', sev: 'error' })
+                console.error('[markConversationRead] Lỗi:', err)
+              })
+          }
+        })
+        .catch(err => {
+          setErrMsg('Không thể claim hội thoại này!')
+          setIsLoading(false)
+        })
+      return // Không chạy xuống dưới
+    }
+
+    // Nếu đã là EMP thì load luôn messages
     setMessages([])
     setPage(0)
     setIsLoading(true)
-    fetchMessagesPaged(selectedConv.id, 0, PAGE_SIZE)
+    fetchMessagesPaged(selectedConv.conversationId, 0, PAGE_SIZE)
       .then(data => {
         if (!isMounted.current) return
         setMessages([...data.content].reverse())
         setHasMore(!data.last)
         setIsLoading(false)
+
+        // Mark read luôn khi đã là EMP
+        if (selectedConv.conversationId) {
+          console.log('Gọi markConversationRead với conversationId:', selectedConv.conversationId)
+          markConversationRead(selectedConv.conversationId)
+            .then(() => {
+              console.log('[markConversationRead] Thành công:', selectedConv.conversationId)
+              loadConvs()
+            })
+            .catch(err => {
+              setSnackbar({ open: true, msg: 'Mark read thất bại!', sev: 'error' })
+              console.error('[markConversationRead] Lỗi:', err)
+            })
+        }
       })
-      .catch(() => {
+      .catch(err => {
         setErrMsg('Không tải được tin nhắn')
         setIsLoading(false)
       })
-    // Đánh dấu đã đọc
-    markConversationRead(selectedConv.id).then(loadConvs)
   }, [selectedConv, loadConvs])
+
 
   // Infinite scroll đúng
   const handleLoadMore = useCallback(() => {
     if (!selectedConv || !hasMore || isLoading) return
     setIsLoading(true)
     const lastMsgId = messages[0]?.id
-    fetchMessagesPaged(selectedConv.id, lastMsgId, PAGE_SIZE)
+    fetchMessagesPaged(selectedConv.conversationId, lastMsgId, PAGE_SIZE)
       .then(data => {
         if (!isMounted.current) return
         setMessages(prev => [...[...data.content].reverse(), ...prev])
@@ -107,7 +161,7 @@ export default function EmployeeMessenger() {
 
   // Nhận notify
   useChatWebSocket('/topic/emp-notify', (convId) => {
-    if (selectedConv?.id === convId) {
+    if (selectedConv?.conversationId === convId) {
       markConversationRead(convId).then(loadConvs)
     } else {
       loadConvs()
@@ -116,16 +170,17 @@ export default function EmployeeMessenger() {
 
   // Nhận tin nhắn mới qua WS
   useChatWebSocket(
-    selectedConv?.id ? `/topic/conversations/${selectedConv.id}` : null,
+    selectedConv?.conversationId ? `/topic/conversations/${selectedConv.conversationId}` : null,
     (msg) => {
       setMessages(prev => [...prev, msg])
     }
   )
 
+
   // Nếu selectedConv bị xóa khỏi convs (VD: chuyển về AI), tự clear
   useEffect(() => {
     if (!selectedConv) return
-    if (!convs.some(c => c.id === selectedConv.id)) {
+    if (!convs.some(c => c.conversationId === selectedConv.conversationId)) {
       setSelectedConv(null)
       setMessages([])
     }
@@ -151,7 +206,7 @@ export default function EmployeeMessenger() {
     setIsSending(true)
     try {
       const resp = await sendMessage({
-        conversationId: selectedConv.id,
+        conversationId: selectedConv.conversationId,
         senderRole: 'EMP',
         // TODO: lấy employeeId động
         employeeId: 1,
@@ -188,14 +243,14 @@ export default function EmployeeMessenger() {
         <List sx={{ p: 0 }}>
           {convs.map(conv => (
             <ListItem
-              key={conv.id}
-              selected={selectedConv?.id === conv.id}
+              key={conv.conversationId}
+              selected={selectedConv?.conversationId === conv.conversationId}
               button
               onClick={() => setSelectedConv(conv)}
               sx={{
                 borderRadius: 2, mx: 1, my: 0.5, p: 1,
-                bgcolor: selectedConv?.id === conv.id ? 'primary.50' : 'background.paper',
-                boxShadow: selectedConv?.id === conv.id ? 1 : undefined,
+                bgcolor: selectedConv?.conversationId === conv.conversationId ? 'primary.50' : 'background.paper',
+                boxShadow: selectedConv?.conversationId === conv.conversationId ? 1 : undefined,
                 '&:hover': { bgcolor: 'grey.100' }
               }}
             >
@@ -242,12 +297,33 @@ export default function EmployeeMessenger() {
               {selectedConv?.customerName || 'Chọn hội thoại để chat'}
             </Typography>
             {selectedConv &&
-              <Typography variant="body2" color={isEmpCanChat ? 'success.main' : 'text.secondary'}>
-                {selectedConv.status}
-              </Typography>
+      <Typography variant="body2" color={isEmpCanChat ? 'success.main' : 'text.secondary'}>
+        {selectedConv.status}
+      </Typography>
             }
           </Box>
+          {/* Nút trả về AI */}
+          {selectedConv && isEmpCanChat && (
+            <Button
+              color="secondary"
+              variant="outlined"
+              sx={{ ml: 2 }}
+              onClick={async () => {
+                try {
+                  await releaseConversationToAI(selectedConv.conversationId)
+                  setSnackbar({ open: true, msg: 'Đã chuyển về AI!', sev: 'info' })
+                  setSelectedConv(null)
+                  loadConvs()
+                } catch (e) {
+                  setSnackbar({ open: true, msg: 'Không thể chuyển về AI!', sev: 'error' })
+                }
+              }}
+            >
+      Trả về AI
+            </Button>
+          )}
         </Box>
+
 
         {/* Chat messages */}
         <Box ref={listRef}
@@ -262,23 +338,27 @@ export default function EmployeeMessenger() {
                 <Typography align="center" color="text.secondary" sx={{ mt: 6 }}>Chưa có tin nhắn nào</Typography>
               ) : (
                 messages.map((m, idx) => {
-                  const isMe = m.senderRole === 'EMP'
+                  const isEmp = m.senderRole === 'EMP'
+                  const isAI = m.senderRole === 'AI'
+                  const isRight = isEmp || isAI
                   return (
                     <Box key={`${m.id || idx}`} sx={{
-                      display: 'flex', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-end'
+                      display: 'flex',
+                      flexDirection: isRight ? 'row-reverse' : 'row',
+                      alignItems: 'flex-end'
                     }}>
                       <Avatar sx={{
                         width: 32, height: 32, mx: 1,
-                        bgcolor: isMe ? 'primary.main' : 'grey.400'
+                        bgcolor: isEmp ? 'primary.main' : (isAI ? '#ffbb39' : 'grey.400')
                       }}>
                         {m.senderName?.[0]?.toUpperCase() || '?'}
                       </Avatar>
                       <Box sx={{
                         maxWidth: '60%', px: 2, py: 1, borderRadius: 2,
-                        bgcolor: isMe ? 'primary.main' : 'white',
-                        color: isMe ? 'white' : 'black', boxShadow: 1,
+                        bgcolor: isEmp ? 'primary.main' : (isAI ? '#ffbb39' : 'white'),
+                        color: isEmp ? 'white' : 'black', boxShadow: 1,
                         wordBreak: 'break-word', fontSize: 15,
-                        ml: isMe ? 0 : 1, mr: isMe ? 1 : 0
+                        ml: isRight ? 0 : 1, mr: isRight ? 1 : 0
                       }}>
                         <Typography fontWeight="bold" fontSize={13}>
                           {m.senderName}
@@ -328,11 +408,6 @@ export default function EmployeeMessenger() {
               sx: { bgcolor: '#f0f2f5', borderRadius: 2 }
             }}
           />
-          {selectedConv && !isEmpCanChat && (
-            <Typography color="warning.main" sx={{ px: 2, fontSize: 13 }}>
-              Khách đang chat với AI, bạn chưa gửi được tin nhắn.
-            </Typography>
-          )}
         </Box>
 
         {/* Snackbar */}

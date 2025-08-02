@@ -87,7 +87,7 @@ export async function sendMessage({
 export async function getConversations(customerId) {
   try {
     const response = await authorizedAxiosInstance.get(
-      `${API_ROOT}/chat/conversations?customerId=${customerId}`
+      `${CHAT_URL}/conversations?customerId=${customerId}`
     )
     return response.data
   } catch (error) {
@@ -141,7 +141,7 @@ export const chatApis = {
   getMessagesPaged: async (conversationId, page = 0, size = 20) => {
     try {
       const response = await authorizedAxiosInstance.get(
-        `${API_ROOT}/chat/messages-paged?conversationId=${conversationId}&page=${page}&size=${size}`
+        `${CHAT_URL}/messages-paged?conversationId=${conversationId}&page=${page}&size=${size}`
       )
       return response.data // response là Page<ChatResponse>
     } catch (error) {
@@ -153,7 +153,7 @@ export const chatApis = {
   // Customer chat
   sendCustomerMessage: async ({ conversationId, content, customerId, senderRole = 'CUSTOMER', lang = 'vi' }) => {
     try {
-      const response = await authorizedAxiosInstance.post(`${API_ROOT}/chat/send`, {
+      const response = await authorizedAxiosInstance.post(`${CHAT_URL}/send`, {
         conversationId,
         content,
         customerId,
@@ -170,7 +170,7 @@ export const chatApis = {
   // Employee chat
   sendEmployeeMessage: async ({ conversationId, content, employeeId, senderRole = 'EMP', lang = 'vi' }) => {
     try {
-      const response = await authorizedAxiosInstance.post(`${API_ROOT}/chat/send`, {
+      const response = await authorizedAxiosInstance.post(`${CHAT_URL}/send`, {
         conversationId,
         content,
         employeeId,
@@ -187,20 +187,23 @@ export const chatApis = {
   getConversations: async (customerId) => {
     try {
       const response = await authorizedAxiosInstance.get(
-        `${API_ROOT}/chat/conversations?customerId=${customerId}`
+        `${CHAT_URL}/conversations?customerId=${customerId}`
       )
       return response.data
     } catch (error) {
       console.error('getConversations error:', error)
       throw error
     } 
-  },
+  }
 
 }
 
 // Lấy tin nhắn phân trang, tin mới nhất trước (page=0)
 export async function fetchMessagesPaged(conversationId, page = 0, size = 20) {
   try {
+    if (!conversationId) {
+      throw new Error('fetchMessagesPaged: conversationId is required')
+    }
     const { data } = await authorizedAxiosInstance.get(
       `${CHAT_URL}/messages-paged`,
       { params: { conversationId, page, size } }
@@ -228,4 +231,18 @@ export async function markConversationRead(conversationId) {
     throw error
   }
 } 
+export async function claimConversationAsEmp(conversationId, employeeId) {
+  const { data } = await axios.post(
+    `${CHAT_URL}/claim-emp`,
+    { conversationId, employeeId }
+  )
+  return data // Có thể trả về conv mới
+}
+
+export async function releaseConversationToAI(conversationId) {
+  return axios.post(
+    `${CHAT_URL}/release-to-ai`,
+    { conversationId }
+  )
+}
 
