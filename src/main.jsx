@@ -14,8 +14,10 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ToastContainer, Slide } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import ScrollToTop from '~/components/ScrollToTop/ScrollToTop.jsx'
+import { injectStore } from '~/utils/authorizeAxios'
 
-
+// Inject store để sử dụng trong axios interceptor
+injectStore(store)
 const persistor = persistStore(store)
 
 createRoot(document.getElementById('root')).render(

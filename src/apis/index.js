@@ -2,13 +2,8 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
 //token
-export const refreshTokenEmployeeAPI = async () => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/Employees/RefreshToken`)
-  return response.data
-}
-
 export const refreshTokenCustomerAPI = async () => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/auth/RefreshToken`)
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/auth/refresh-token`)
   return response.data
 }
 
