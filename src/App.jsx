@@ -17,6 +17,7 @@ import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
 import Chat from './pages/Employee/Chat/Chat'
 import Cart from './pages/customer/Cart/CardLayout'
+import Checkout from './pages/customer/Checkout/Checkout'
 
 
 const ProtectedRoute = ({ user }) => {
@@ -53,6 +54,7 @@ function App() {
         <Route path="/profile/membership" element={<Profile />} />
         <Route path="/profile/order-history" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Route>
 
       {/* Test Employee Inbox */}
