@@ -176,3 +176,15 @@ export const createCustomerReferenceAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-references`, data)
   return response.data
 }
+
+// Order APIs
+export const createOrder = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/orders`, data)
+  return response.data
+}
+
+export const getOrderByIdAPI = async (orderId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/orders/${orderId}`)
+  return response.data
+}
+

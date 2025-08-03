@@ -1,83 +1,58 @@
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Avatar from '@mui/material/Avatar'
 import Grid from '@mui/material/Grid'
-import Divider from '@mui/material/Divider'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import OrderCard from './OrderCard'
 
-export default function OrderHistoryTab({ customerDetails, setCustomerDetails }) {
+export default function OrderHistoryTab({ customerDetails }) {
   const [selectedStatus, setSelectedStatus] = useState('all')
-  const [dateRange, setDateRange] = useState([dayjs().subtract(30, 'day'), dayjs()])
+  const [startDate, setStartDate] = useState(dayjs().subtract(30, 'day'))
+  const [endDate, setEndDate] = useState(dayjs())
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(true)
 
   const statusOptions = [
     { key: 'all', label: 'Tất cả', color: 'default' },
-    { key: 'pending', label: 'Chờ xác nhận', color: 'warning' },
-    { key: 'confirmed', label: 'Đã xác nhận', color: 'info' },
-    { key: 'shipping', label: 'Đang giao hàng', color: 'primary' },
-    { key: 'delivered', label: 'Đã giao hàng', color: 'success' },
-    { key: 'cancelled', label: 'Đã hủy', color: 'error' }
+    { key: 'PENDING', label: 'Chờ xác nhận', color: 'warning' },
+    { key: 'CONFIRMED', label: 'Đã xác nhận', color: 'info' },
+    { key: 'SHIPPING', label: 'Đang giao hàng', color: 'primary' },
+    { key: 'DELIVERED', label: 'Đã giao hàng', color: 'success' },
+    { key: 'CANCELLED', label: 'Đã hủy', color: 'error' }
   ]
 
-  // Mock data
-  const orders = [
-    {
-      id: 'DH001',
-      date: '2025-01-05',
-      status: 'delivered',
-      total: 450000,
-      items: [
-        { name: 'Salad rau xanh hữu cơ', image: '/api/placeholder/60/60', price: 150000, quantity: 2 },
-        { name: 'Nước ép cà rốt tươi', image: '/api/placeholder/60/60', price: 75000, quantity: 2 }
-      ]
-    },
-    {
-      id: 'DH002',
-      date: '2025-01-03',
-      status: 'shipping',
-      total: 320000,
-      items: [
-        { name: 'Bánh mì nguyên cám', image: '/api/placeholder/60/60', price: 85000, quantity: 2 },
-        { name: 'Sữa hạnh nhân không đường', image: '/api/placeholder/60/60', price: 150000, quantity: 1 }
-      ]
-    },
-    {
-      id: 'DH003',
-      date: '2024-12-28',
-      status: 'pending',
-      total: 280000,
-      items: [
-        { name: 'Quinoa hữu cơ', image: '/api/placeholder/60/60', price: 180000, quantity: 1 },
-        { name: 'Dầu oliva nguyên chất', image: '/api/placeholder/60/60', price: 100000, quantity: 1 }
-      ]
-    }
-  ]
+  // Lấy dữ liệu orders từ customerDetails
+  const orders = customerDetails?.orders || []
 
-  const getStatusColor = (status) => {
-    const statusObj = statusOptions.find(s => s.key === status)
-    return statusObj ? statusObj.color : 'default'
+  // Filter orders theo status và date range
+  const filteredOrders = orders.filter(order => {
+    // Filter theo status
+    const statusMatch = selectedStatus === 'all' || order.status === selectedStatus
+    
+    // Filter theo date range
+    const orderDate = dayjs(order.deliveryTime)
+    const dateMatch = orderDate.isAfter(startDate.startOf('day')) &&
+                     orderDate.isBefore(endDate.endOf('day'))
+
+    return statusMatch && dateMatch
+  }).sort((a, b) => {
+    // Sort theo thời gian tạo đơn hàng (mới nhất lên trước)
+    return dayjs(b.createdAt || b.deliveryTime).valueOf() - dayjs(a.createdAt || a.deliveryTime).valueOf()
+  })
+
+  const handleViewOrderDetails = (order) => {
+    // TODO: Implement view details functionality
+    alert(`Xem chi tiết đơn hàng #${order.id}`)
   }
-
-  const getStatusLabel = (status) => {
-    const statusObj = statusOptions.find(s => s.key === status)
-    return statusObj ? statusObj.label : status
-  }
-
-  const filteredOrders = selectedStatus === 'all'
-    ? orders
-    : orders.filter(order => order.status === selectedStatus)
 
   return (
     <Box sx={{
@@ -129,21 +104,41 @@ export default function OrderHistoryTab({ customerDetails, setCustomerDetails })
                 Lọc theo khoảng thời gian
               </Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateRangePicker
-                  value={dateRange}
-                  onChange={(newValue) => setDateRange(newValue)}
-                  sx={{
-                    width: '100%',
-                    '& .MuiOutlinedInput-root': {
-                      '&:hover fieldset': {
-                        borderColor: '#4caf50'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#4caf50'
+                <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
+                  <DatePicker
+                    label="Từ ngày"
+                    value={startDate}
+                    onChange={(newValue) => setStartDate(newValue)}
+                    sx={{
+                      flex: 1,
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': {
+                          borderColor: '#4caf50'
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#4caf50'
+                        }
                       }
-                    }
-                  }}
-                />
+                    }}
+                  />
+                  <DatePicker
+                    label="Đến ngày"
+                    value={endDate}
+                    onChange={(newValue) => setEndDate(newValue)}
+                    minDate={startDate}
+                    sx={{
+                      flex: 1,
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': {
+                          borderColor: '#4caf50'
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#4caf50'
+                        }
+                      }
+                    }}
+                  />
+                </Box>
               </LocalizationProvider>
             </Grid>
           </Grid>
@@ -171,150 +166,23 @@ export default function OrderHistoryTab({ customerDetails, setCustomerDetails })
           </Box>
 
           <Collapse in={isOrderHistoryOpen}>
-            {/* Header */}
-            <Grid container spacing={2} sx={{
-              mb: 2,
-              p: 2,
-              backgroundColor: '#f5f5f5',
-              borderRadius: 1,
-              fontWeight: 600
-            }}>
-              <Grid size={{ xs: 12, sm: 2.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#666' }}>
-                  Mã đơn hàng
-                </Typography>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 1.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#666' }}>
-                  Ngày đặt
-                </Typography>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 1.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#666' }}>
-                  Trạng thái
-                </Typography>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 4.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#666' }}>
-                  Sản phẩm
-                </Typography>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 2 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#666', textAlign: 'right' }}>
-                  Thao tác
-                </Typography>
-              </Grid>
-            </Grid>
-
-            <Divider sx={{ mb: 2 }} />
-
-            {/* Order Items */}
+            {/* Order Cards */}
             {filteredOrders.length === 0 ? (
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <Typography variant="body1" color="text.secondary">
-                  Không có đơn hàng nào phù hợp
+                  Không có đơn hàng nào phù hợp với bộ lọc
                 </Typography>
               </Box>
             ) : (
-              filteredOrders.map((order, index) => (
-                <Box key={order.id}>
-                  <Grid container spacing={2} sx={{
-                    p: 2,
-                    '&:hover': { backgroundColor: '#f9f9f9' },
-                    alignItems: 'center'
-                  }}>
-                    <Grid size={{ xs: 12, sm: 2.5 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#2e7d32' }}>
-                        #{order.id}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#4caf50', fontWeight: 500 }}>
-                        {order.total.toLocaleString('vi-VN')}đ
-                      </Typography>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 1.5 }}>
-                      <Typography variant="body2" sx={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {dayjs(order.date).format('DD/MM/YYYY')}
-                      </Typography>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 1.5 }}>
-                      <Chip
-                        label={getStatusLabel(order.status)}
-                        color={getStatusColor(order.status)}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          maxWidth: '100%',
-                          '& .MuiChip-label': {
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            maxWidth: '100%'
-                          }
-                        }}
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 4.5 }}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        {order.items.slice(0, 2).map((item, idx) => (
-                          <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Avatar
-                              src={item.image}
-                              sx={{ width: 32, height: 32 }}
-                              variant="rounded"
-                            />
-                            <Box sx={{ flex: 1, minWidth: 0 }}>
-                              <Typography variant="body2" sx={{
-                                fontSize: '0.75rem',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                {item.name} x{item.quantity}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        ))}
-                        {order.items.length > 2 && (
-                          <Typography variant="body2" sx={{
-                            fontSize: '0.75rem',
-                            color: '#666',
-                            fontStyle: 'italic'
-                          }}>
-                            +{order.items.length - 2} sản phẩm khác
-                          </Typography>
-                        )}
-                      </Box>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 2 }} sx={{ textAlign: 'right' }}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          borderColor: '#4caf50',
-                          color: '#4caf50',
-                          fontSize: '0.75rem',
-                          '&:hover': {
-                            borderColor: '#45a049',
-                            backgroundColor: 'rgba(76, 175, 80, 0.04)'
-                          }
-                        }}
-                      >
-                        Xem chi tiết
-                      </Button>
-                    </Grid>
-                  </Grid>
-
-                  {index < filteredOrders.length - 1 && <Divider />}
-                </Box>
-              ))
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {filteredOrders.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    onViewDetails={handleViewOrderDetails}
+                  />
+                ))}
+              </Box>
             )}
           </Collapse>
         </CardContent>
