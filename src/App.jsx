@@ -12,6 +12,7 @@ import AccountVerification from './pages/customer/Auth/AccountVerification'
 import NotFound from './pages/customer/NotFound/NotFound'
 import Profile from './pages/customer/Profile/Profile'
 import CaloCalculatorLayout from './pages/customer/CaloCalculator/CaloCalculatorLayout'
+import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
@@ -54,6 +55,8 @@ function App() {
         <Route path="/profile/order-history" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
       </Route>
+      {/* Employee Chat */}
+      <Route path="/employee/chat" element={<Chat />} />
 
       {/* Test Employee Inbox */}
       <Route path="/employee/inbox" element={<Chat />} />
