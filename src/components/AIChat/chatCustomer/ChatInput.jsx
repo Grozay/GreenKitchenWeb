@@ -1,4 +1,6 @@
-import { Box, TextField, IconButton } from '@mui/material'
+import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
+import IconButton from '@mui/material/IconButton'
 import SendIcon from '@mui/icons-material/Send'
 
 function ChatInput({

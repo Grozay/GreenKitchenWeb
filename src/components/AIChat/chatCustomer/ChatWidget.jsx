@@ -1,14 +1,15 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useSelector } from 'react-redux'
-import { Box, CircularProgress, Slide } from '@mui/material'
-import ChatContainer from './chat/ChatContainer'
-import MessageBubble from './chat/MessageBubble'
-import ProductMessageBubble from './chat/ProductMessageBubble'
-import TypingIndicator from './chat/TypingIndicator'
-import ChatInput from './chat/ChatInput'
-import FloatingChatButton from './chat/FloatingChatButton'
-import FloatingCloseButton from './chat/FloatingCloseButton'
-import { fetchMessagesPaged, sendMessage, initGuestConversation, getConversations } from '~/apis/chatAPICus'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
+import ChatContainer from './ChatContainer'
+import MessageBubble from './MessageBubble'
+import ProductMessageBubble from './ProductMessageBubble'
+import TypingIndicator from './TypingIndicator'
+import ChatInput from './ChatInput'
+import FloatingChatButton from './FloatingChatButton'
+import FloatingCloseButton from './FloatingCloseButton'
+import { fetchMessagesPaged, initGuestConversation, getConversations } from '~/apis/chatAPICus'
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
 import {
   initGuestConversation as guestInitConversation,
@@ -24,9 +25,23 @@ import {
 } from '~/apis/chatAPICus'
 
 function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
+  const isCustomerLoggedIn = useSelector(state => !!state.customer.currentCustomer)
+  const customerId = useSelector(state => state.customer.currentCustomer?.id)
+  const customerName = useSelector(state => state.customer.currentCustomer?.name)
+
+  const chatAPI = getChatAPI(isCustomerLoggedIn)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
-  const [animationConvId, setAnimationConvId] = useState(conversationId)
+
+  const [animationConvId, setAnimationConvId] = useState(() => {
+    if (!isCustomerLoggedIn) {
+    // Nếu đã có trong localStorage thì lấy lại, còn không thì null để tạo mới
+      return Number(localStorage.getItem('conversationId')) || null
+    }
+    // User login thì vẫn lấy từ prop/conversations
+    return conversationId
+  })
+
   const [chatMode, setChatMode] = useState(initialMode)
   const [awaitingAI, setAwaitingAI] = useState(false)
   const [conversationStatus, setConversationStatus] = useState('AI')
@@ -36,20 +51,13 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
   const listRef = useRef(null)
   const PAGE_SIZE = 20
 
-  const customerId = useSelector(state => state.customer.currentCustomer?.id)
-  const customerName = useSelector(state => state.customer.currentCustomer?.name)
-  const isCustomerLoggedIn = useSelector(state => !!state.customer.currentCustomer)
-  const chatAPI = getChatAPI(isCustomerLoggedIn)
 
   // Gộp các logic lấy conversationId từ props/localStorage
   useEffect(() => {
-    let id = conversationId
-
-    // === GUEST FLOW ===
     if (!isCustomerLoggedIn) {
-      if (!id) id = Number(localStorage.getItem('conversationId')) || null
+      let id = Number(localStorage.getItem('conversationId')) || null
       if (!id) {
-      // Guest chưa có conversation, gọi API tạo mới
+      // Chưa có conversationId localStorage thì tạo mới
         chatAPI.initConversation().then(newId => {
           setAnimationConvId(newId)
           localStorage.setItem('conversationId', newId)
@@ -58,35 +66,32 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
             setChatMode(status === 'AI' ? 'AI' : 'EMP')
           })
         })
-        return
+      } else {
+        setAnimationConvId(id)
+        chatAPI.fetchConversationStatus(id).then(status => {
+          setConversationStatus(status)
+          setChatMode(status === 'AI' ? 'AI' : 'EMP')
+        })
       }
-      setAnimationConvId(id)
-      chatAPI.fetchConversationStatus(id).then(status => {
-        setConversationStatus(status)
-        setChatMode(status === 'AI' ? 'AI' : 'EMP')
-      })
       return
     }
 
-    // === LOGIN FLOW ===
-    // Không dùng localStorage nữa, luôn lấy theo customerId
+    // LOGIN FLOW (như cũ)
     chatAPI.getConversations(customerId).then(convs => {
       if (convs && convs.length > 0) {
-        const latestConvId = convs[0] // hoặc sort lấy cái mới nhất
+        const latestConvId = convs[0]
         setAnimationConvId(latestConvId)
-        localStorage.removeItem('conversationId') // clear guest id
+        localStorage.removeItem('conversationId')
         chatAPI.fetchConversationStatus(latestConvId).then(status => {
           setConversationStatus(status)
           setChatMode(status === 'AI' ? 'AI' : 'EMP')
         })
-      } else {
-      // Nếu muốn: Tạo mới conversation cho user khi chưa có
-      // chatAPI.initConversationForUser(customerId).then(newId => {...})
       }
+    // else ...
     })
 
-  // eslint-disable-next-line
-}, [conversationId, isCustomerLoggedIn, customerId])
+    // eslint-disable-next-line
+}, [isCustomerLoggedIn, customerId])
 
 
   useEffect(() => {

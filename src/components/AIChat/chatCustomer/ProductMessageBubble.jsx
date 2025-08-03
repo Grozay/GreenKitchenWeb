@@ -1,4 +1,11 @@
-import { Box, Typography, Avatar, Paper, Card, CardMedia, CardContent, Tooltip } from '@mui/material'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Avatar from '@mui/material/Avatar'
+import Paper from '@mui/material/Paper'
+import Card from '@mui/material/Card'
+import CardMedia from '@mui/material/CardMedia'
+import CardContent from '@mui/material/CardContent'
+import Tooltip from '@mui/material/Tooltip'
 import SupportAgentIcon from '@mui/icons-material/SupportAgent'
 
 function ProductMessageBubble({ message }) {
@@ -192,7 +199,7 @@ function ProductMessageBubble({ message }) {
                     >
                       {product.price.toLocaleString('vi-VN', {
                         style: 'currency',
-                        currency: '$'
+                        currency: 'VND'
                       })}
                     </Typography>
                   )}
