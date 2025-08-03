@@ -16,7 +16,6 @@ import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
-import Chat from './pages/Employee/Chat/Chat'
 import Cart from './pages/customer/Cart/CardLayout'
 
 
@@ -55,8 +54,6 @@ function App() {
         <Route path="/profile/order-history" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
       </Route>
-      {/* Employee Chat */}
-      <Route path="/employee/chat" element={<Chat />} />
 
       {/* Test Employee Inbox */}
       <Route path="/employee/inbox" element={<Chat />} />
