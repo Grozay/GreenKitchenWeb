@@ -17,7 +17,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 
-export default function OrderHistoryTab() {
+export default function OrderHistoryTab({ customerDetails, setCustomerDetails }) {
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [dateRange, setDateRange] = useState([dayjs().subtract(30, 'day'), dayjs()])
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(true)

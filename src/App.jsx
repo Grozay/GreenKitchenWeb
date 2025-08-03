@@ -16,6 +16,8 @@ import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
+import Chat from './pages/Employee/Chat/Chat'
+import Cart from './pages/customer/Cart/CardLayout'
 
 
 const ProtectedRoute = ({ user }) => {
@@ -36,6 +38,7 @@ function App() {
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/smart-meal-planner" element={<SmartMealLayout />} />
       <Route path="/calo-calculator" element={<CaloCalculatorLayout />} />
+      <Route path="/cart" element={<Cart />} />
 
       {/* Authentication */}
       <Route path="/login" element={<Auth />} />
@@ -54,6 +57,9 @@ function App() {
       </Route>
       {/* Employee Chat */}
       <Route path="/employee/chat" element={<Chat />} />
+
+      {/* Test Employee Inbox */}
+      <Route path="/employee/inbox" element={<Chat />} />
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />

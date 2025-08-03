@@ -13,6 +13,7 @@ import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import { useTheme } from '@mui/material'
 import { ItemHealthy } from '~/apis/mockData'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
+import { addCustomMealToCart } from '~/redux/order/orderSlice'
 import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice } from '~/utils/nutrition'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import PageviewIcon from '@mui/icons-material/Pageview'
@@ -37,7 +38,16 @@ const DrawerInfoMobile = ({ onClose }) => {
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
 
   const handleOrderCustom = () => {
-    alert('You have successfully ordered a custom meal!')
+    const customerId = 1 // Get from user state
+
+    dispatch(addCustomMealToCart({
+      selectedItems: selected,
+      totalNutrition: customTotal,
+      customerId
+    }))
+
+    dispatch(clearCart()) // Clear the meal builder
+    onClose()
   }
 
   const handleClearSelections = () => {

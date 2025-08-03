@@ -453,8 +453,11 @@ export const menuSuggest = [
 ]
 
 export const itemCart = [
+  // Custom meal item (bowl tự tạo)
   {
     id: 1,
+    isCustom: true,
+    type: 'custom',
     mealItem: {
       protein: [
         {
@@ -513,54 +516,85 @@ export const itemCart = [
     quantity: 1,
     totalPrice: 1200
   },
+  // Menu item có sẵn
   {
     id: 2,
+    isCustom: false,
+    type: 'menu',
+    mealItem: {
+      menu: [
+        {
+          id: 20,
+          title: 'Mediterranean Salmon Bowl',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/mediterranean-salmon-bowl_tg4mxt.jpg',
+          calories: 450,
+          protein: 35,
+          carbs: 25,
+          fat: 22,
+          type: 'menu',
+          description: 'Grilled salmon with quinoa, cucumber, tomatoes, red onion, and tzatziki sauce'
+        }
+      ]
+    },
+    customer: {
+      id: 2,
+      name: 'Tran Thi B',
+      email: 'tranb@example.com'
+    },
+    quantity: 1,
+    totalPrice: 1500
+  },
+  // Custom meal khác
+  {
+    id: 3,
+    isCustom: true,
+    type: 'custom',
     mealItem: {
       protein: [
         {
-          id: 1,
-          title: 'Grilled Chicken Breast',
-          image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
-          calories: 165,
-          protein: 31,
+          id: 2,
+          title: 'Beef Sirloin',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/beef-sirloin-300x300_abc123.png',
+          calories: 250,
+          protein: 26,
           carbs: 0,
-          fat: 3.6,
+          fat: 15,
           type: 'protein'
         }
       ],
       carbs: [
         {
-          id: 5,
-          title: 'Quinoa Bowl',
-          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Donburi-white-rice--300x300_nszum2.png',
-          calories: 222,
-          protein: 8,
-          carbs: 39,
-          fat: 4,
+          id: 6,
+          title: 'Sweet Potato',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/sweet-potato-300x300_def456.png',
+          calories: 180,
+          protein: 4,
+          carbs: 41,
+          fat: 0.3,
           type: 'carbs'
         }
       ],
       side: [
         {
-          id: 11,
-          title: 'Roasted Vegetables',
-          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Salad-and-nuts-300x300_rqk6ub.png',
-          calories: 80,
-          protein: 3,
-          carbs: 12,
-          fat: 3,
+          id: 12,
+          title: 'Steamed Broccoli',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/broccoli-300x300_ghi789.png',
+          calories: 55,
+          protein: 6,
+          carbs: 11,
+          fat: 0.6,
           type: 'side'
         }
       ],
       sauce: [
         {
-          id: 15,
-          title: 'Pesto',
-          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/Cilantro-lime-300x300_sf78nk.png',
-          calories: 80,
-          protein: 2,
-          carbs: 2,
-          fat: 8,
+          id: 16,
+          title: 'Teriyaki Sauce',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/teriyaki-300x300_jkl012.png',
+          calories: 60,
+          protein: 1,
+          carbs: 14,
+          fat: 0,
           type: 'sauce'
         }
       ]
@@ -571,6 +605,34 @@ export const itemCart = [
       email: '0Vn0u@example.com'
     },
     quantity: 2,
-    totalPrice: 1200
+    totalPrice: 1300
+  },
+  // Menu item khác
+  {
+    id: 4,
+    isCustom: false,
+    type: 'menu',
+    mealItem: {
+      menu: [
+        {
+          id: 21,
+          title: 'Asian Fusion Buddha Bowl',
+          image: 'https://res.cloudinary.com/quyendev/image/upload/v1751107724/buddha-bowl-asian_mnb345.jpg',
+          calories: 380,
+          protein: 18,
+          carbs: 45,
+          fat: 16,
+          type: 'menu',
+          description: 'Tofu, edamame, brown rice, carrots, cucumber with sesame ginger dressing'
+        }
+      ]
+    },
+    customer: {
+      id: 3,
+      name: 'Le Van C',
+      email: 'lec@example.com'
+    },
+    quantity: 3,
+    totalPrice: 1100
   }
 ]

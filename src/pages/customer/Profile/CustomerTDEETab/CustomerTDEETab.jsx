@@ -36,7 +36,7 @@ import { useSelector } from 'react-redux'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { useConfirm } from 'material-ui-confirm'
 
-export default function CustomerTDEETab() {
+export default function CustomerTDEETab({ customerDetails, setCustomerDetails }) {
   const currentCustomer = useSelector(selectCurrentCustomer)
   const [healthRecords, setHealthRecords] = useState([])
   const [openDialog, setOpenDialog] = useState(false)
@@ -52,20 +52,14 @@ export default function CustomerTDEETab() {
   })
   const [tdeeResult, setTdeeResult] = useState(null)
   const confirm = useConfirm()
-  // Load health records from API
+
   useEffect(() => {
-    const getCustomerTDEEs = async () => {
-      try {
-        if (currentCustomer?.id) {
-          const records = await getCustomerTDEEsAPI(currentCustomer.id)
-          setHealthRecords(records || [])
-        }
-      } catch (error) {
-        toast.error('Không thể tải dữ liệu sức khỏe')
-      }
+    if (customerDetails?.customerTDEEs) {
+      setHealthRecords(customerDetails.customerTDEEs)
+    } else {
+      setHealthRecords([])
     }
-    getCustomerTDEEs()
-  }, [currentCustomer])
+  }, [customerDetails])
 
   // Tính BMR (Basal Metabolic Rate) theo công thức Mifflin-St Jeor
   const calculateBMR = (weight, height, age, gender) => {

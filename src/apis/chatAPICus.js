@@ -208,7 +208,7 @@ export async function fetchMessagesPaged(conversationId, page = 0, size = 20) {
       `${CHAT_URL}/messages-paged`,
       { params: { conversationId, page, size } }
     )
-    console.log(data) 
+    console.log(data)
     return data
   } catch (error) {
     console.error('fetchMessagesPaged error:', error)
