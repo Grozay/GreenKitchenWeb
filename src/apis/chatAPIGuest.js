@@ -127,7 +127,7 @@ export const chatApis = {
   getMessagesPaged: async (conversationId, page = 0, size = 20) => {
     try {
       const response = await axios.get(
-        `${API_ROOT}/chat/messages-paged?conversationId=${conversationId}&page=${page}&size=${size}`
+        `${CHAT_URL}/chat/messages-paged?conversationId=${conversationId}&page=${page}&size=${size}`
       )
       return response.data // response là Page<ChatResponse>
     } catch (error) {
@@ -139,7 +139,7 @@ export const chatApis = {
   // Customer chat
   sendCustomerMessage: async ({ conversationId, content, customerId, senderRole = 'CUSTOMER', lang = 'vi' }) => {
     try {
-      const response = await axios.post(`${API_ROOT}/chat/send`, {
+      const response = await axios.post(`${CHAT_URL}/send`, {
         conversationId,
         content,
         customerId,

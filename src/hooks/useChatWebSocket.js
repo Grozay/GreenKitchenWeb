@@ -6,6 +6,7 @@ import SockJS from 'sockjs-client'
 import {
   Client
 } from '@stomp/stompjs'
+import { API_ROOT } from '~/utils/constants'
 
 export function useChatWebSocket(topic, onMessage) {
   const clientRef = useRef(null)
@@ -13,7 +14,7 @@ export function useChatWebSocket(topic, onMessage) {
   useEffect(() => {
     if (!topic) return
 
-    const sock = new SockJS('http://localhost:8080/apis/v1/ws')
+    const sock = new SockJS(`${API_ROOT}/apis/v1/ws`)
     const client = new Client({
       webSocketFactory: () => sock,
       onConnect: () => {
@@ -36,7 +37,7 @@ export function useChatWebSocket(topic, onMessage) {
       },
       debug: (str) => {
         // Muốn debug tất cả, mở dòng này!
-        // console.debug('[WebSocket DEBUG]', str)
+        console.debug('[WebSocket DEBUG]', str)
       }
     })
 

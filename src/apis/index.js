@@ -2,13 +2,8 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
 //token
-export const refreshTokenEmployeeAPI = async () => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/Employees/RefreshToken`)
-  return response.data
-}
-
 export const refreshTokenCustomerAPI = async () => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/auth/RefreshToken`)
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/auth/refresh-token`)
   return response.data
 }
 
@@ -191,3 +186,26 @@ export const decreaseMealQuantityInCartAPI = async (customerId, cartItemId) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/carts/customer/${customerId}/items/${cartItemId}/decrease`)
   return response.data
 }
+// Customer Reference APIs
+export const getCustomerReferencesByCustomerIdAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-references/customer/${customerId}`)
+  return response.data
+}
+
+export const createCustomerReferenceAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-references`, data)
+  return response.data
+}
+
+// Order APIs
+export const createOrder = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/orders`, data)
+  return response.data
+}
+
+export const getOrderByIdAPI = async (orderId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/orders/${orderId}`)
+  return response.data
+}
+
+

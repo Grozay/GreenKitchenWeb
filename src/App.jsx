@@ -12,10 +12,12 @@ import AccountVerification from './pages/customer/Auth/AccountVerification'
 import NotFound from './pages/customer/NotFound/NotFound'
 import Profile from './pages/customer/Profile/Profile'
 import CaloCalculatorLayout from './pages/customer/CaloCalculator/CaloCalculatorLayout'
+import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
 import Cart from './pages/customer/Cart/CartLayout'
+import Checkout from './pages/customer/Checkout/Checkout'
 
 
 const ProtectedRoute = ({ user }) => {
@@ -52,7 +54,11 @@ function App() {
         <Route path="/profile/membership" element={<Profile />} />
         <Route path="/profile/order-history" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Route>
+
+      {/* Test Employee Inbox */}
+      <Route path="/employee/inbox" element={<Chat />} />
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />

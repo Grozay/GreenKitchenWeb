@@ -1,9 +1,8 @@
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { interceptorLoadingElements } from '~/utils/formatter'
-import { refreshTokenCustomerAPI, refreshTokenEmployeeAPI } from '~/apis'
-import { logoutEmployeeApi } from '~/redux/user/employeeSlice.js'
-import { logoutCustomerApi } from '~/redux/user/customerSlice'
+import { refreshTokenCustomerAPI } from '~/apis'
+import { logoutCustomerApi } from '~/redux/user/customerSlice.js'
 
 //Không thể import {store } from '~/redux/store.js' theo cách thông thường
 //giải pháp: Inject store : là kỹ thuật khi cần sửa dụng biến redux store ở các file ngoài phạm vi component như file này
@@ -34,17 +33,6 @@ authorizedAxiosInstance.interceptors.request.use((config) => {
 //Khởi tạo một cái promise cho việc gọi api refresh_token
 //Mục đichs tạo ra promíe này để khi nào gọi api refresh_token xong xuôi thì mới retry lại nhiều api bị lỗi trước đó.
 let refreshTokenPromise = null
-
-// Hàm xác định loại người dùng từ Redux store
-const getUserType = () => {
-  const state = axiosReduxStore.getState()
-  const currentEmployee = state.user?.currentEmployee // Employee
-  const currentCustomer = state.customer?.currentCustomer // Customer
-
-  if (currentEmployee) return 'employee'
-  if (currentCustomer) return 'customer'
-  return null // Không có người dùng nào đăng nhập
-}
 // intercepter response: Can thiệp vào giữa mọi response nhận được từ BE
 authorizedAxiosInstance.interceptors.response.use((response) => {
   // Any status code that lie within the range of 2xx cause this function to trigger
@@ -65,13 +53,11 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
   //Trường hợp 1: Nếu như nhận mã 401 thừ BE, thì gọi api đăng xuất luôn
 
   // Xử lý lỗi 401 - Token hết hạn hoặc không hợp lệ
+  // console.log('Error response:', error?.response)
   if (error?.response?.status === 401) {
-    const userType = getUserType()
-    if (userType === 'employee') {
-      axiosReduxStore.dispatch(logoutEmployeeApi())
-    } else if (userType === 'customer') {
-      axiosReduxStore.dispatch(logoutCustomerApi())
-    }
+
+    axiosReduxStore.dispatch(logoutCustomerApi())
+
     return Promise.reject(error)
   }
   //Trường hợp 2: Nếu như nhận mã 410 thừ BE, thì gọi api refresh_token để lấy token mới
@@ -81,17 +67,9 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
   if (error?.response?.status === 410 && !originalRequests._retry) {
     // Gán thêm một thuộc tính _retry vào originalRequests để biết được rằng đây là request đã được retry
     originalRequests._retry = true
-    //Lay user Type
-    const userType = getUserType()
-    if (!userType) {
-      // Nếu không xác định được userType, logout cả hai và báo lỗi
-      axiosReduxStore.dispatch(logoutEmployeeApi())
-      axiosReduxStore.dispatch(logoutCustomerApi())
-      return Promise.reject(new Error('Error - Refresh Token'))
-    }
     // Kiểm tra xem nếu chưa có refreshTokenPromise thì thực hiện việc gọi api refresh_token
     if (!refreshTokenPromise) {
-      refreshTokenPromise = userType === 'employee' ? refreshTokenEmployeeAPI() : refreshTokenCustomerAPI()
+      refreshTokenPromise = refreshTokenCustomerAPI()
 
       refreshTokenPromise = refreshTokenPromise
         .then((data) => {
@@ -99,12 +77,9 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
           return data?.accessToken
         })
         .catch((_error) => {
-          // Nếu nhận bất kì lỗi nào từ api refresh token thì cứ logout luôn
-          if (userType === 'employee') {
-            axiosReduxStore.dispatch(logoutEmployeeApi())
-          } else if (userType === 'customer') {
-            axiosReduxStore.dispatch(logoutCustomerApi())
-          }
+          // Nếu nhận bất kì lỗi nào từ api refresh token thì cứ logout luô
+          axiosReduxStore.dispatch(logoutCustomerApi())
+
           return Promise.reject(_error)
         })
         .finally(() => {
