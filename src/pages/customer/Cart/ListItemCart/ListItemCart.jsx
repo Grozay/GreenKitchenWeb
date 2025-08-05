@@ -6,11 +6,17 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import Typography from '@mui/material/Typography'
 import CartItem from './CartItem/CartItem'
 import CartSummary from '../CartSummary/CartSummary'
-import { useSelector } from 'react-redux'
 
-const ListItemCart = ( { cartItems, updateQuantity, removeItem, totalNutrition, calculateItemNutrition }) => {
+const ListItemCart = ({
+  cartItems,
+  increaseQuantity,
+  decreaseQuantity,
+  removeItem,
+  totalNutrition,
+  calculateItemNutrition
+}) => {
   const navigate = useNavigate()
-  const totalPrice = useSelector(state => state.order.totalPrice)
+
   return (
     <Box>
       <Box>
@@ -31,7 +37,7 @@ const ListItemCart = ( { cartItems, updateQuantity, removeItem, totalNutrition, 
           }}>
             <ShoppingCartIcon />
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              Giỏ mua hàng
+              Giỏ mua hàng ({cartItems?.length || 0} sản phẩm)
             </Typography>
           </Box>
         </Box>
@@ -40,15 +46,32 @@ const ListItemCart = ( { cartItems, updateQuantity, removeItem, totalNutrition, 
           {/* Cart Items */}
           <Grid size={{ xs: 12, md: 8 }}>
             <Box sx={{ px: 2 }}>
-              {cartItems.map((item) => (
-                <CartItem
-                  key={item.id}
-                  item={item}
-                  onUpdateQuantity={updateQuantity}
-                  onRemove={removeItem}
-                  calculateItemNutrition={calculateItemNutrition}
-                />
-              ))}
+              {cartItems?.length > 0 ? (
+                cartItems.map((item) => (
+                  <CartItem
+                    key={item.id}
+                    item={item}
+                    onIncreaseQuantity={increaseQuantity} // Pass hàm tăng
+                    onDecreaseQuantity={decreaseQuantity} // Pass hàm giảm
+                    onRemove={removeItem}
+                    calculateItemNutrition={calculateItemNutrition}
+                  />
+                ))
+              ) : (
+                <Box sx={{
+                  textAlign: 'center',
+                  py: 8,
+                  color: 'text.secondary'
+                }}>
+                  <ShoppingCartIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
+                  <Typography variant="h6">
+                    Giỏ hàng của bạn đang trống
+                  </Typography>
+                  <Typography variant="body2">
+                    Hãy thêm sản phẩm vào giỏ hàng để tiếp tục
+                  </Typography>
+                </Box>
+              )}
             </Box>
           </Grid>
 
@@ -56,7 +79,8 @@ const ListItemCart = ( { cartItems, updateQuantity, removeItem, totalNutrition, 
           <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ px: 2, position: 'sticky', top: `calc(${theme.fitbowl.appBarHeight} + 20px)` }}>
               <CartSummary
-                totalPrice={totalPrice}
+                totalNutrition={totalNutrition}
+                itemCount={cartItems?.length || 0}
                 navigate={navigate}
               />
             </Box>

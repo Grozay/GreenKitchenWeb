@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { addToCart } from '~/redux/order/orderSlice'
+import { fetchCart } from '~/redux/cart/cartSlice' // Import từ cart slice thay vì order slice
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
@@ -16,9 +16,10 @@ import Rating from '@mui/material/Rating'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import { ShoppingCart, Add, Remove, ArrowBack } from '@mui/icons-material'
 import theme from '~/theme'
-import { getDetailMenuMealAPI, getMenuMealAPI } from '~/apis'
+import { getDetailMenuMealAPI, getMenuMealAPI, addMealToCartAPI } from '~/apis' // Import API add to cart
 import CardContent from '@mui/material/CardContent'
 import AppBar from '~/components/AppBar/AppBar'
+import { toast } from 'react-toastify'
 
 const MenuDetail = () => {
   const { slug } = useParams()
@@ -31,31 +32,44 @@ const MenuDetail = () => {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(true)
+  const [addingToCart, setAddingToCart] = useState(false) // State để handle loading khi add to cart
 
-  const handleAddToCart = () => {
-    if (!menuMeal) return
+  const customerId = 1 // Hoặc lấy từ Redux auth state
 
-    const cartItem = {
-      id: menuMeal.id,
-      title: menuMeal.title,
-      description: menuMeal.description,
-      image: menuMeal.image,
-      price: menuMeal.price,
-      totalPrice: menuMeal.price,
-      quantity: quantity,
-      isCustom: false,
-      calories: menuMeal.calories,
-      protein: menuMeal.protein,
-      carbs: menuMeal.carbs,
-      fat: menuMeal.fat,
-      slug: menuMeal.slug,
-      mealItem: {
-        menu: [menuMeal]
+  const handleAddToCart = async () => {
+    if (!menuMeal || addingToCart) return
+
+    try {
+      setAddingToCart(true)
+
+      // Tạo request data theo format API
+      const requestData = {
+        isCustom: false,
+        menuMealId: menuMeal.id,
+        quantity: quantity,
+        basePrice: menuMeal.price,
+        title: menuMeal.title,
+        description: menuMeal.description,
+        calories: menuMeal.calories,
+        protein: menuMeal.protein,
+        carbs: menuMeal.carbs,
+        fat: menuMeal.fat
       }
-    }
 
-    dispatch(addToCart(cartItem))
-    setSnackbarOpen(true)
+      // Gọi API add to cart
+      await addMealToCartAPI(customerId, requestData)
+
+      // Refresh cart data sau khi add thành công
+      await dispatch(fetchCart(customerId))
+
+      setSnackbarOpen(true)
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      toast.error('Failed to add to cart')
+      // Có thể hiển thị error message
+    } finally {
+      setAddingToCart(false)
+    }
   }
 
   const handleCloseSnackbar = () => {
@@ -267,10 +281,11 @@ const MenuDetail = () => {
               </IconButton>
             </Box>
 
-            {/* Add to cart button */}
+            {/* Add to cart button - Cập nhật */}
             <Button
               variant="contained"
               startIcon={<ShoppingCart />}
+              disabled={addingToCart} // Disable khi đang add to cart
               sx={{
                 bgcolor: theme.palette.primary.secondary,
                 color: 'white',
@@ -283,11 +298,14 @@ const MenuDetail = () => {
                 '&:hover': {
                   bgcolor: theme.palette.primary.main,
                   transform: 'scale(1.02)'
+                },
+                '&:disabled': {
+                  bgcolor: theme.palette.grey[400]
                 }
               }}
               onClick={handleAddToCart}
             >
-              Add to Cart
+              {addingToCart ? 'Adding...' : 'Add to Cart'}
             </Button>
           </Grid>
         </Grid>
@@ -439,7 +457,7 @@ const MenuDetail = () => {
         )}
       </Box>
 
-      {/* Notification */}
+      {/* Notification - Cập nhật message */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -447,7 +465,7 @@ const MenuDetail = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          {comment ? 'Review submitted successfully!' : `Added ${quantity} ${menuMeal.title} to cart!`}
+          {comment ? 'Review submitted successfully!' : `Added ${quantity} ${menuMeal?.title} to cart!`}
         </Alert>
       </Snackbar>
     </Box>
