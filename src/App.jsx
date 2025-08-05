@@ -15,7 +15,7 @@ import CaloCalculatorLayout from './pages/customer/CaloCalculator/CaloCalculator
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
-import Cart from './pages/customer/Cart/CardLayout'
+import Cart from './pages/customer/Cart/CartLayout'
 
 
 const ProtectedRoute = ({ user }) => {
