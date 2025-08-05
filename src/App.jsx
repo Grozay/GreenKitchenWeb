@@ -16,7 +16,7 @@ import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
-import Cart from './pages/customer/Cart/CardLayout'
+import Cart from './pages/customer/Cart/CartLayout'
 import Checkout from './pages/customer/Checkout/Checkout'
 
 

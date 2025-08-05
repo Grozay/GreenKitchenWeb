@@ -78,7 +78,7 @@ export const updateCustomerPassword = async (data) => {
 
 // ingredients
 export const getIngredientsAPI = async () => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customers/ingredients`)
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/ingredients`)
   return response.data
 }
 
@@ -161,6 +161,31 @@ export const getExchangeableCouponsAPI = async (customerId) => {
   return response.data
 }
 
+//cart
+export const getCartByCustomerIdAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/carts/customer/${customerId}`)
+  return response.data
+}
+
+export const addMealToCartAPI = async (customerId, data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/carts/customer/items/${customerId}`, data)
+  return response.data
+}
+
+export const removeMealFromCartAPI = async (customerId, cartItemId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/carts/customer/${customerId}/items/${cartItemId}`)
+  return response.data
+}
+
+export const increaseMealQuantityInCartAPI = async (customerId, cartItemId) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/carts/customer/${customerId}/items/${cartItemId}/increase`)
+  return response.data
+}
+
+export const decreaseMealQuantityInCartAPI = async (customerId, cartItemId) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/carts/customer/${customerId}/items/${cartItemId}/decrease`)
+  return response.data
+}
 // Customer Reference APIs
 export const getCustomerReferencesByCustomerIdAPI = async (customerId) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-references/customer/${customerId}`)
@@ -182,4 +207,5 @@ export const getOrderByIdAPI = async (orderId) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/orders/${orderId}`)
   return response.data
 }
+
 
