@@ -127,7 +127,7 @@ const Cart = () => {
     <Box>
       <AppBar />
       <Box sx={{ mt: theme.fitbowl.appBarHeight }}>
-        <Box sx={{ mx: 2 }}>
+        <Box sx={{ mx: 2.5, minHeight: '85vh' }}>
           <Box sx={{ pt: 2, pb: 1, ml: 2 }}>
             <Button
               startIcon={<ArrowBackIcon />}

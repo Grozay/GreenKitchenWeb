@@ -19,6 +19,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
       bgcolor: 'background.paper',
       borderRadius: 3,
       p: 3,
+      mb: 2,
       boxShadow: 1
     }}>
       <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
@@ -41,19 +42,38 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
             Tổng hợp dinh dưỡng
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              Năng lượng: {Math.round(totalNutrition.calories)} kcal
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Đạm: {Math.round(totalNutrition.protein)}g
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Carb: {Math.round(totalNutrition.carbs)}g
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Béo: {Math.round(totalNutrition.fat)}g
-            </Typography>
+
+          <Box sx={{ mb: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="body2" color="text.secondary">Năng lượng</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {Math.round(totalNutrition.calories)} kcal
+              </Typography>
+            </Box>
+            <Divider sx={{ my: 0.5 }} />
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 1 }}>
+              <Typography variant="body2" color="text.secondary">Đạm</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {Math.round(totalNutrition.protein)} g
+              </Typography>
+            </Box>
+            <Divider sx={{ my: 0.5 }} />
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 1 }}>
+              <Typography variant="body2" color="text.secondary">Carb</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {Math.round(totalNutrition.carbs)} g
+              </Typography>
+            </Box>
+            <Divider sx={{ my: 1 }} />
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+              <Typography variant="body2" color="text.secondary">Béo</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {Math.round(totalNutrition.fat)} g
+              </Typography>
+            </Box>
           </Box>
         </>
       )}
