@@ -22,7 +22,7 @@ import OrderConfirmDialog from './components/OrderConfirmDialog'
 import { createOrder } from '~/apis'
 import { fetchCustomerDetails } from '~/apis'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
-import { selectCartItems, clearCart } from '~/redux/order/orderSlice'
+import { selectCartItems, clearCart } from '~/redux/cart/cartSlice'
 
 const Checkout = () => {
   const navigate = useNavigate()
