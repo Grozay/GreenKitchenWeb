@@ -13,16 +13,18 @@ const en = {
     openMenu: 'Open navigation menu',
     selectLanguage: 'Select language',
     aboutUs: 'ABOUT US',
-    caloCalculator: [
-      {
-        title: 'Smart Meal Planner',
-        description: 'Personalized meal planning'
-      },
-      {
-        title: 'Calorie & Macros Calculator',
-        description: 'Calculate your daily calorie and macronutrient needs'
-      }
-    ]
+    // caloCalculator: [
+    //   {
+    //     title: 'Smart Meal Planner',
+    //     description: 'Personalized meal planning'
+    //   },
+    //   {
+    //     title: 'Calorie & Macros Calculator',
+    //     description: 'Calculate your daily calorie and macronutrient needs'
+    //   }
+    // ]
+    customMeal: 'CUSTOM MEAL',
+    weekMeal: 'WEEK MEAL'
   }
 }
 

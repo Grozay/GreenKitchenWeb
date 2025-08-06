@@ -47,43 +47,44 @@ const Profile = () => {
 
   return (
     <Box>
-      <Tooltip title="Account settings">
-        <IconButton
-          onClick={handleClick}
-          size="small"
-          sx={{ p: 0 }}
-          aria-controls={open ? 'basic-menu-profiles' : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? 'true' : undefined}
+      <Box>
+        <Tooltip title="Account settings">
+          <IconButton
+            onClick={handleClick}
+            size="small"
+            sx={{ p: 0 }}
+            aria-controls={open ? 'basic-menu-profiles' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+          >
+            <Avatar
+              sx={{ width: 36, height: 36 }}
+              alt="profile"
+            />
+          </IconButton>
+        </Tooltip>
+      </Box>
+      <Box>
+        <Menu
+          id="basic-menu-profiles"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          onClick={handleClose}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button-profiles'
+          }}
         >
-          <Avatar
-            sx={{ width: 36, height: 36 }}
-            alt="profile"
-          />
-        </IconButton>
-      </Tooltip>
-      <Menu
-        id="basic-menu-profiles"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button-profiles'
-        }}
-      >
-        {!currentCustomer ? (
-          <>
-            <Link to='/login' style={{ color: 'inherit', textDecoration: 'none' }}>
+          {!currentCustomer ? ([
+            <Link to='/login' style={{ color: 'inherit', textDecoration: 'none' }} key="login">
               <MenuItem sx={{ '&:hover': { color: 'primary.main' } }}>
                 <ListItemIcon>
                   <Login fontSize="small" />
                 </ListItemIcon>
                 Login
               </MenuItem>
-            </Link>
-
-            <Link to='/register' style={{ color: 'inherit', textDecoration: 'none' }}>
+            </Link>,
+            <Link to='/register' style={{ color: 'inherit', textDecoration: 'none' }} key="register">
               <MenuItem sx={{ '&:hover': { color: 'success.main' } }}>
                 <ListItemIcon>
                   <PersonAdd fontSize="small" />
@@ -91,21 +92,17 @@ const Profile = () => {
                 Register
               </MenuItem>
             </Link>
-          </>
-        ) : (
-          <>
-            <Link to='/profile' style={{ color: 'inherit', textDecoration: 'none' }}>
+          ]) : ([
+            <Link to='/profile' style={{ color: 'inherit', textDecoration: 'none' }} key="profile">
               <MenuItem sx={{ '&:hover': { color: 'success.light' } }}>
                 <ListItemIcon>
                   <Person fontSize="small" />
                 </ListItemIcon>
                 Profile
               </MenuItem>
-            </Link>
-
-            <Divider />
-
-            <MenuItem onClick={handleLogout} sx={{
+            </Link>,
+            <Divider key="divider" />,
+            <MenuItem onClick={handleLogout} key="logout" sx={{
               '&:hover': {
                 color: 'warning.dark',
                 '& .logout-icon': {
@@ -118,9 +115,9 @@ const Profile = () => {
               </ListItemIcon>
               Logout
             </MenuItem>
-          </>
-        )}
-      </Menu>
+          ])}
+        </Menu>
+      </Box>
     </Box>
   )
 }

@@ -37,7 +37,7 @@ function App() {
       <Route path="/menu/:slug" element={<MenuDetail />} />
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/smart-meal-planner" element={<SmartMealLayout />} />
-      <Route path="/calo-calculator" element={<CaloCalculatorLayout />} />
+      {/* <Route path="/calo-calculator" element={<CaloCalculatorLayout />} /> */}
       <Route path="/cart" element={<Cart />} />
 
       {/* Authentication */}
