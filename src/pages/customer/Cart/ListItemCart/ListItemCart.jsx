@@ -77,7 +77,7 @@ const ListItemCart = ({
 
           {/* Cart Summary */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Box sx={{ px: 2, position: 'sticky', top: `calc(${theme.fitbowl.appBarHeight} + 20px)` }}>
+            <Box sx={{ px: 2, mb: 2, position: 'sticky', top: `calc(${theme.fitbowl.appBarHeight} + 20px)` }}>
               <CartSummary
                 totalNutrition={totalNutrition}
                 itemCount={cartItems?.length || 0}

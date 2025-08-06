@@ -98,7 +98,7 @@ const CartItem = ({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              alignSelf: { xs: 'center', sm: 'flex-start' }
+              alignSelf: 'center'
             }}>
               <Avatar
                 src={getProductImage()}
@@ -217,7 +217,7 @@ const CartItem = ({
 
               {/* Nutrition Info */}
               <Box sx={{ borderBottom: '1.5px dashed' }}></Box>
-              <Box sx={{ my: 1 }}>
+              <Box sx={{ mt: 2.5 }}>
                 <Grid
                   container
                   spacing={2}
@@ -227,7 +227,7 @@ const CartItem = ({
                     justifyContent: 'center',
                     justifyItems: 'center',
                     width: '100%',
-                    m: 0,
+                    m: 1,
                     '& .MuiGrid-item': {
                       padding: '0 8px',
                       flexBasis: '25%',
