@@ -37,7 +37,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
   }
 
   return (
-    <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+    <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
       <Box
         sx={{
           width: 250,
@@ -82,13 +82,21 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
             path="/menu"
           />
 
+          <DrawerAppBarItem
+            toggleDrawer={toggleDrawer}
+            navItemStyle={navItemStyle}
+            t={t}
+            label="customMeal"
+            path="/smart-meal-planner"
+          />
+
           {/* <ListItemButton >
             <ListItemIcon>
               {t('navBar.Calculator')}
             </ListItemIcon>
             {open ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton> */}
-          <ListItem disablePadding >
+          {/* <ListItem disablePadding >
             <ListItemButton
               onClick={handleClick}
               sx={navItemStyle}
@@ -96,8 +104,8 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
               <ListItemText sx={{ color: (theme) => theme.palette.text.primary }} primary={t('navBar.Calculator')} />
               {open ? <ExpandLess sx={{ color: (theme) => theme.palette.text.primary }}/> : <ExpandMore sx={{ color: (theme) => theme.palette.text.primary }} />}
             </ListItemButton>
-          </ListItem>
-          <Collapse in={open} timeout="auto" unmountOnExit>
+          </ListItem> */}
+          {/* <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <ListItem disablePadding>
                 <ListItemButton
@@ -121,7 +129,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
                 </ListItemButton>
               </ListItem>
             </List>
-          </Collapse>
+          </Collapse> */}
           {/* <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
@@ -150,8 +158,8 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             t={t}
-            label="catering"
-            path="/catering"
+            label="weekMeal"
+            path="/#"
           />
 
           <DrawerAppBarItem

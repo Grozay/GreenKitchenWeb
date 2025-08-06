@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import { useSelector } from 'react-redux'
-import { selectCartItems } from '../../../../redux/order/orderSlice'
+import { selectCartItems } from '~/redux/cart/cartSlice'
 
 const OrderSummary = ({ 
   subtotal, 

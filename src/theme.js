@@ -1,7 +1,7 @@
 import { deepOrange } from '@mui/material/colors'
 import { createTheme } from '@mui/material/styles'
 
-const APP_BAR_HEIGHT = '90px'
+const APP_BAR_HEIGHT = '95px'
 const CONTENT_HEIGHT = `calc(100vh - ${APP_BAR_HEIGHT})`
 
 // Create a theme instance.
