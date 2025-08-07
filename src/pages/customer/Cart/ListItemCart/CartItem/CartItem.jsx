@@ -138,13 +138,13 @@ const CartItem = ({
                       color: '#2c2c2c',
                       fontSize: { xs: '1.1rem', md: '1.25rem' }
                     }}>
-                      {item.totalPrice?.toLocaleString() || '0'} $
+                      {item.totalPrice?.toLocaleString() || '0'} VNĐ
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{
                       textDecoration: 'line-through',
                       fontSize: { xs: '0.8rem', md: '0.875rem' }
                     }}>
-                      {((item.totalPrice || 0) * 1.2).toLocaleString()} $
+                      {((item.totalPrice || 0) * 1.2).toLocaleString()} VNĐ
                     </Typography>
                   </Box>
                 </Box>

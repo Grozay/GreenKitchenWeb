@@ -49,7 +49,7 @@ function ResponsiveAppBar() {
               fontWeight: 700,
               letterSpacing: '.3rem',
               fontFamily: 'Sacramento, cursive',
-              fontSize: '1.5rem',
+              fontSize: '1.8rem',
               textDecoration: 'none',
               color: (theme) => theme.palette.primary.secondary
             }}
