@@ -25,7 +25,16 @@ const MenuList = ({ pkg, loading }) => {
         {loading || !pkg
           ? skeletonArray.map((_, idx) => (
             <Grid size={{ xs: 6, sm: 4, md: 3 }} key={idx}>
-              <Skeleton variant="rectangular" height={500} sx={{ borderRadius: 5 }} />
+              <Box sx={{ p: 1 }}>
+                <Skeleton variant="rectangular" height={350} sx={{ borderRadius: 2, mb: 1 }} />
+                <Skeleton variant="text" height={30} width="60%" sx={{ mb: 1 }} />
+                <Skeleton variant="text" height={20} width="40%" sx={{ mb: 1 }} />
+                <Skeleton variant="text" height={20} width="80%" sx={{ mb: 1 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                  <Skeleton variant="rectangular" width={80} height={36} sx={{ borderRadius: 5 }} />
+                  <Skeleton variant="circular" width={36} height={36} />
+                </Box>
+              </Box>
             </Grid>
           ))
           : pkg?.map((item, index) => {

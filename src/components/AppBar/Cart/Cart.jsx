@@ -258,7 +258,7 @@ const Cart = () => {
                       {getProductTitle(item)}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-                      {item.totalPrice.toLocaleString()} $
+                      {item.totalPrice.toLocaleString()} VNĐ
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>

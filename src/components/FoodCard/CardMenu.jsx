@@ -248,7 +248,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               fontWeight: 800,
               color: theme.palette.text.textSub
             }}>
-              {itemFilter.price} $
+              {itemFilter.price} VNĐ
             </Typography>
             <IconButton
               onClick={handleAddToCart}
