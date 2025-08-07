@@ -7,7 +7,6 @@ import { selectTotalAmount } from '~/redux/cart/cartSlice' // Import từ cart s
 import theme from '~/theme'
 
 const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
-  // Lấy totalAmount từ Redux cart slice thay vì prop
   const totalPrice = useSelector(selectTotalAmount)
 
   const handleCheckout = () => {
@@ -31,7 +30,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
           Số lượng sản phẩm ({itemCount})
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: 500 }}>
-          {totalPrice?.toFixed(2) || '0.00'} $
+          {totalPrice?.toFixed(2) || '0.00'} VNĐ
         </Typography>
       </Box>
 
@@ -86,7 +85,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
           Tổng cộng
         </Typography>
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          {totalPrice?.toFixed(2) || '0.00'} $
+          {totalPrice?.toFixed(2) || '0.00'} VNĐ
         </Typography>
       </Box>
 

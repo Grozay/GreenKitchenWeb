@@ -37,10 +37,20 @@ function MenuLayout() {
     fetchMealPackages()
   }, [])
 
+  // Chỉ cập nhật tab khi cuộn, không khi click tab
   useEffect(() => {
+    let isTabClick = false
     const refs = [highRef, balanceRef, lowRef, vegetarianRef]
+    const handleTabClick = () => {
+      isTabClick = true
+      setTimeout(() => { isTabClick = false }, 800) // Đợi scroll xong
+    }
+    // Lắng nghe sự kiện click tab
+    document.addEventListener('tab-menu-click', handleTabClick)
+
     const observer = new IntersectionObserver(
       (entries) => {
+        if (isTabClick) return // Nếu vừa click tab thì không update value
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const index = refs.findIndex(ref => ref.current === entry.target)
@@ -52,42 +62,41 @@ function MenuLayout() {
       },
       {
         threshold: 0.3,
-        rootMargin: `-${parseInt(theme.fitbowl.appBarHeight) + 300}px 0px -60% 0px`
+        rootMargin: `-${parseInt(theme.fitbowl.appBarHeight) + 80}px 0px -60% 0px`
       }
     )
-
     refs.forEach(ref => {
       if (ref.current) {
         observer.observe(ref.current)
       }
     })
-
     return () => {
       refs.forEach(ref => {
         if (ref.current) {
           observer.unobserve(ref.current)
         }
       })
+      document.removeEventListener('tab-menu-click', handleTabClick)
     }
   }, [value])
 
   const handleChange = (event, newValue) => {
+    // Phát sự kiện để báo là click tab
+    const tabClickEvent = new Event('tab-menu-click')
+    document.dispatchEvent(tabClickEvent)
     setValue(newValue)
     const refs = [highRef, balanceRef, lowRef, vegetarianRef]
-    setTimeout(() => {
-      if (refs[newValue]?.current) {
-        const targetElement = refs[newValue].current
-        const offsetTop = targetElement.offsetTop
-        const appBarHeight = parseInt(theme.fitbowl.appBarHeight) || 64
-        const stickyTabHeight = 60 // Chiều cao của sticky tab
-        const extraOffset = 5 // Khoảng cách thêm mà bạn muốn
-        const scrollPosition = offsetTop - appBarHeight - stickyTabHeight - extraOffset
-        window.scrollTo({
-          top: scrollPosition,
-          behavior: 'smooth'
-        })
-      }
-    }, 100)
+    if (refs[newValue]?.current) {
+      const targetElement = refs[newValue].current
+      const offsetTop = targetElement.offsetTop
+      const appBarHeight = parseInt(theme.fitbowl.appBarHeight) || 64
+      const stickyTabHeight = 60
+      const extraOffset = 5
+      window.scrollTo({
+        top: offsetTop - appBarHeight - stickyTabHeight - extraOffset,
+        behavior: 'smooth'
+      })
+    }
   }
 
   return (
@@ -105,7 +114,7 @@ function MenuLayout() {
             color: theme.palette.text.primary
           }}
         >
-          Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>MEAL PACKAGE</span>
+          Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>MEAL PLAN</span>
         </Typography>
         <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 4 }} />
         <Typography
@@ -113,7 +122,7 @@ function MenuLayout() {
           align="center"
           sx={{ maxWidth: '48rem', mx: 'auto', mb: 6, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
         >
-          Fitfood provides many meal packages and accompanying foods to meet your needs
+          Green kit provides many meal plans and accompanying foods to meet your needs
         </Typography>
 
         {/* Tab Navigation - Sticky */}
