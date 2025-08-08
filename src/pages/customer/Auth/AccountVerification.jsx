@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import { verifyCustomerAPI } from '~/apis'
 
@@ -35,7 +35,10 @@ export default function AccountVerification() {
   // 2. Neu chua verify thi hien thi loading
   if (!isVerified) {
     return (
-      <PageLoadingSpinner caption="Verifying your account..." />
+      <>
+        <PageLoadingSpinner caption="Verifying your account..." />
+        <Link to="/login" style={{ marginTop: '12px', display: 'inline-block' }}>Back to Login</Link>
+      </>
     )
   }
 
