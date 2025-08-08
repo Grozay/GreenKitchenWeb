@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
 import ResetPw from './ResetPw'
+import PhoneLoginForm from './PhoneLoginForm'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useConfirm } from 'material-ui-confirm'
 import { useSelector } from 'react-redux'
@@ -13,6 +14,7 @@ function Auth() {
   const isLogin = location.pathname === '/login'
   const isRegister = location.pathname === '/register'
   const isResetPw = location.pathname === '/reset-password'
+  const isPhoneLogin = location.pathname === '/login-by-phone'
   const confirm = useConfirm()
   const navigate = useNavigate()
 
@@ -34,7 +36,10 @@ function Auth() {
   }
 
   return (
-    <Box>
+    <Box sx={{ 
+      minHeight: '100vh',
+      bgcolor: '#FAF5E8' // Match background color with other forms
+    }}>
       <Box sx={{
         overflow: 'hidden',
         display: 'flex',
@@ -46,7 +51,7 @@ function Auth() {
         {isLogin && <LoginForm />}
         {isRegister && <RegisterForm />}
         {isResetPw && <ResetPw />}
-
+        {isPhoneLogin && <PhoneLoginForm />}
 
         <Box to="/" sx={{
           marginTop: '1em',

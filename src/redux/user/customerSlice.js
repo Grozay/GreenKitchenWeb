@@ -24,12 +24,20 @@ export const googleLoginAPI = createAsyncThunk(
   }
 )
 
+export const phoneLoginAPI = createAsyncThunk(
+  'customer/phoneLoginAPI',
+  async (data) => {
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/auth/phone-login`, data)
+    return response.data
+  }
+)
+
 export const logoutCustomerApi = createAsyncThunk(
   'customer/logoutCustomerApi',
   async (showSuccessMessage = true) => {
     const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/auth/logout`)
     if (showSuccessMessage) {
-      toast.success('Logout successfully')
+      toast.info('You have been logged out')
     }
     return response.data
   }
@@ -49,6 +57,11 @@ export const customerSlice = createSlice({
       state.currentCustomer = customer
     })
     builder.addCase(googleLoginAPI.fulfilled, (state, action) => {
+      const customer = action.payload
+      //update lại dữ liệu của currentUser
+      state.currentCustomer = customer
+    })
+    builder.addCase(phoneLoginAPI.fulfilled, (state, action) => {
       const customer = action.payload
       //update lại dữ liệu của currentUser
       state.currentCustomer = customer

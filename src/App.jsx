@@ -42,6 +42,7 @@ function App() {
 
       {/* Authentication */}
       <Route path="/login" element={<Auth />} />
+      <Route path="/login-by-phone" element={<Auth />} />
       <Route path="/register" element={<Auth />} />
       <Route path="/reset-password" element={<Auth />} />
       <Route path="/verify-email" element={<AccountVerification />} />

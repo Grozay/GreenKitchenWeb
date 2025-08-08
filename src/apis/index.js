@@ -47,6 +47,12 @@ export const verifyCustomerAPI = async (data) => {
   return response.data
 }
 
+// Phone authentication
+export const phoneLoginAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/auth/phone-login`, data)
+  return response.data
+}
+
 export const resendVerifyEmailApi = async (data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/auth/resendVerifyEmail`, data)
   return response.data
