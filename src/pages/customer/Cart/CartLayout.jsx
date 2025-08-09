@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   selectItems,
-  fetchCart,
   removeFromCart,
   increaseQuantity,
   decreaseQuantity
@@ -26,10 +25,6 @@ const Cart = () => {
   // Redux selectors - cập nhật selectors
   const items = useSelector(selectItems)
 
-  // Load cart data on component mount
-  useEffect(() => {
-    dispatch(fetchCart(customerId))
-  }, [dispatch, customerId])
 
   const handleBackToMenu = () => {
     navigate('/menu')
@@ -40,7 +35,6 @@ const Cart = () => {
     try {
       await dispatch(increaseQuantity({ customerId, itemId: cartItemId }))
       // Refresh cart data sau khi update
-      await dispatch(fetchCart(customerId))
     } catch (error) {
       console.error('Error increasing quantity:', error)
     }
@@ -50,7 +44,6 @@ const Cart = () => {
     try {
       await dispatch(decreaseQuantity({ customerId, itemId: cartItemId }))
       // Refresh cart data sau khi update
-      await dispatch(fetchCart(customerId))
     } catch (error) {
       console.error('Error decreasing quantity:', error)
     }

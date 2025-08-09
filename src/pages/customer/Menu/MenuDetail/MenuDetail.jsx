@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { fetchCart } from '~/redux/cart/cartSlice' // Import từ cart slice thay vì order slice
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
@@ -59,8 +58,6 @@ const MenuDetail = () => {
       // Gọi API add to cart
       await addMealToCartAPI(customerId, requestData)
 
-      // Refresh cart data sau khi add thành công
-      await dispatch(fetchCart(customerId))
 
       setSnackbarOpen(true)
     // eslint-disable-next-line no-unused-vars
