@@ -15,6 +15,7 @@ export const fetchCart = createAsyncThunk(
   }
 )
 
+
 export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
   async ({ customerId, itemId }) => {

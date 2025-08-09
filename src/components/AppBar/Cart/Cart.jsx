@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
 import Menu from '@mui/material/Menu'
@@ -10,7 +9,7 @@ import theme from '~/theme'
 import Badge from '@mui/material/Badge'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   fetchCart,
@@ -44,13 +43,17 @@ const Cart = () => {
   const totalItems = useSelector(selectTotalItems)
   const items = useSelector(selectItems)
   const totalAmount = useSelector(selectTotalAmount)
+  const status = useSelector((s) => s.cart.status)
 
-  useEffect(() => {
-    dispatch(fetchCart(customerId))
-  }, [dispatch, customerId])
-
+  // Fetch only when opening the cart menu (with simple TTL guard)
+  const lastFetchRef = useRef(0)
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
+    const now = Date.now()
+    if (status !== 'loading' && now - lastFetchRef.current > 3000) {
+      lastFetchRef.current = now
+      dispatch(fetchCart(customerId))
+    }
   }
 
   const handleClose = () => {

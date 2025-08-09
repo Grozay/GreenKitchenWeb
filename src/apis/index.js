@@ -89,7 +89,7 @@ export const getIngredientsAPI = async () => {
 }
 
 export const createIngredientActHistoryAPI = async (data) => {
-  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/ingredient-act-his/customers/ingredient-act-his`, data)
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/ingredient-act-his/customers`, data)
   return response.data
 }
 
@@ -115,12 +115,12 @@ export const createCustomerHealthyInfoAPI = async (data) => {
 
 // MenuMeal
 export const getMenuMealAPI = async () => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers/menu-meals`)
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers`)
   return response.data
 }
 
 export const getDetailMenuMealAPI = async (slug) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers/menu-meals/slug/${slug}`)
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers/slug/${slug}`)
   return response.data
 }
 
