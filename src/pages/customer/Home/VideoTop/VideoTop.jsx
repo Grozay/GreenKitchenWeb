@@ -3,6 +3,7 @@ import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import { useNavigate } from 'react-router-dom'
+import videoSrc from '~/assets/videos/video_title.mp4'
 
 const VideoTop = () => {
   const navigate = useNavigate()
@@ -31,7 +32,7 @@ const VideoTop = () => {
           left: 0,
           top: 0
         }}
-        src="https://res.cloudinary.com/quyendev/video/upload/v1752563345/H%E1%BB%8CC_N%E1%BA%A4U_%C4%82N_EAT_CLEAN_SALAD_GI%C3%80U_N%C4%82NG_L%C6%AF%E1%BB%A2NG_CHO_NG%C6%AF%E1%BB%9CI_T%E1%BA%ACP_YOGA_-_Emma_Pham_Kitchen_1080p_h264_mpwvgs.mp4"
+        src={videoSrc}
       />
       <Box
         sx={{
