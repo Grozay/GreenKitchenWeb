@@ -16,7 +16,7 @@ import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
-import Cart from './pages/customer/Cart/CardLayout'
+import Cart from './pages/customer/Cart/CartLayout'
 import Checkout from './pages/customer/Checkout/Checkout'
 
 
@@ -37,11 +37,12 @@ function App() {
       <Route path="/menu/:slug" element={<MenuDetail />} />
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/smart-meal-planner" element={<SmartMealLayout />} />
-      <Route path="/calo-calculator" element={<CaloCalculatorLayout />} />
+      {/* <Route path="/calo-calculator" element={<CaloCalculatorLayout />} /> */}
       <Route path="/cart" element={<Cart />} />
 
       {/* Authentication */}
       <Route path="/login" element={<Auth />} />
+      <Route path="/login-by-phone" element={<Auth />} />
       <Route path="/register" element={<Auth />} />
       <Route path="/reset-password" element={<Auth />} />
       <Route path="/verify-email" element={<AccountVerification />} />

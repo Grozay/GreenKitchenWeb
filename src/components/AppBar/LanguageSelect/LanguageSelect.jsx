@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import LanguageIcon from '@mui/icons-material/Language'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentLanguage, updateCurrentLanguage } from '~/redux/translations/translationsSlice'
@@ -7,8 +6,6 @@ import Typography from '@mui/material/Typography'
 
 import i18n from '~/customLibraries/i18n'
 const LanguageSelect = () => {
-  const [anchorEl, setAnchorEl] = useState(null)
-  const open = Boolean(anchorEl)
   const dispatch = useDispatch()
   const currentLanguageCode = useSelector(selectCurrentLanguage)
   const languages = [
@@ -30,10 +27,10 @@ const LanguageSelect = () => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          gap: 1,
+          gap: 0.6,
           border: '1px solid #4C082A',
           borderRadius: '50px',
-          padding: '0.5rem 1rem',
+          padding: '4px 8px',
           cursor: 'pointer',
           '&:hover': { backgroundColor: (theme) => theme.palette.action.hover }
 

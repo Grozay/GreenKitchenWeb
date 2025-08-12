@@ -9,9 +9,15 @@ import theme from '~/theme'
 import Badge from '@mui/material/Badge'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectCartItems, selectCartTotalQuantity, selectCartTotalPrice, removeFromCart } from '~/redux/order/orderSlice'
+import {
+  fetchCart,
+  removeFromCart,
+  selectTotalItems,
+  selectItems,
+  selectTotalAmount
+} from '~/redux/cart/cartSlice'
 import { Typography, Button, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -29,16 +35,25 @@ const Cart = () => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [itemToRemove, setItemToRemove] = useState(null)
+  const customerId = 1
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
   // Redux selectors
-  const cartItems = useSelector(selectCartItems)
-  const totalQuantity = useSelector(selectCartTotalQuantity)
-  const totalPrice = useSelector(selectCartTotalPrice)
+  const totalItems = useSelector(selectTotalItems)
+  const items = useSelector(selectItems)
+  const totalAmount = useSelector(selectTotalAmount)
+  const status = useSelector((s) => s.cart.status)
 
+  // Fetch only when opening the cart menu (with simple TTL guard)
+  const lastFetchRef = useRef(0)
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
+    const now = Date.now()
+    if (status !== 'loading' && now - lastFetchRef.current > 3000) {
+      lastFetchRef.current = now
+      dispatch(fetchCart(customerId))
+    }
   }
 
   const handleClose = () => {
@@ -55,14 +70,14 @@ const Cart = () => {
     navigate('/cart')
   }
 
-  const handleRemoveItem = (cartId) => {
-    setItemToRemove(cartId)
+  const handleRemoveItem = (cartItemId) => {
+    setItemToRemove(cartItemId)
     setConfirmDialogOpen(true)
   }
 
-  const handleConfirmRemove = () => {
+  const handleConfirmRemove = async () => {
     if (itemToRemove) {
-      dispatch(removeFromCart(itemToRemove))
+      await dispatch(removeFromCart({ customerId, itemId: itemToRemove }))
     }
     setConfirmDialogOpen(false)
     setItemToRemove(null)
@@ -74,16 +89,21 @@ const Cart = () => {
   }
 
   const getProductTitle = (item) => {
-    return item.title || `Menu Item ${item.id}`
+    if (item.isCustom) {
+      return item.customMealName || item.title || 'Custom Meal'
+    } else {
+      return item.menuMealTitle || item.title || 'Menu Meal'
+    }
   }
 
   const getProductImage = (item) => {
-    if (item.isCustom && item.mealItem) {
-      // Get first available image from custom meal items
-      const allItems = Object.values(item.mealItem).flat()
-      return allItems[0]?.image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+    if (item.isCustom) {
+      if (item.details && item.details.length > 0) {
+        return item.details[0].image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+      }
+      return 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
     }
-    return item.image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+    return item.menuMealImage || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
   }
 
   return (
@@ -98,7 +118,7 @@ const Cart = () => {
             aria-haspopup="true"
             aria-expanded={anchorEl ? 'true' : undefined}
           >
-            <StyledBadge badgeContent={totalQuantity}>
+            <StyledBadge badgeContent={totalItems} color="secondary">
               <ShoppingCartIcon sx={{ color: theme.palette.primary.main }} />
             </StyledBadge>
           </IconButton>
@@ -148,7 +168,7 @@ const Cart = () => {
           borderBottom: '1px solid #e0e0e0'
         }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {totalQuantity} SẢN PHẨM
+            {totalItems} SẢN PHẨM
           </Typography>
           <Button
             variant="text"
@@ -164,7 +184,7 @@ const Cart = () => {
         </Box>
 
         {/* Cart Items */}
-        {cartItems.length === 0 ? (
+        {totalItems === 0 ? (
           <Box sx={{ px: 2, py: 4, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
               Giỏ hàng của bạn đang trống
@@ -172,7 +192,7 @@ const Cart = () => {
           </Box>
         ) : (
           <Box sx={{
-            maxHeight: 240, // Chiều cao hiển thị khoảng 3 items (mỗi item ~80px)
+            maxHeight: 240,
             overflowY: 'auto',
             overflowX: 'hidden',
             '&::-webkit-scrollbar': {
@@ -190,9 +210,9 @@ const Cart = () => {
               }
             }
           }}>
-            {cartItems.map((item) => (
+            {items?.map((item) => (
               <MenuItem
-                key={item.cartId}
+                key={item.id}
                 onClick={handleItemClick}
                 sx={{
                   px: 2,
@@ -208,8 +228,8 @@ const Cart = () => {
                   <IconButton
                     size="small"
                     onClick={(e) => {
-                      e.stopPropagation() // Ngăn không cho event bubble up đến MenuItem
-                      handleRemoveItem(item.cartId)
+                      e.stopPropagation()
+                      handleRemoveItem(item.id)
                     }}
                     sx={{
                       position: 'absolute',
@@ -241,7 +261,7 @@ const Cart = () => {
                       {getProductTitle(item)}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-                      {item.totalPrice.toLocaleString()} $
+                      {item.totalPrice.toLocaleString()} VNĐ
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -261,7 +281,7 @@ const Cart = () => {
         <Divider />
 
         {/* Total */}
-        {cartItems.length > 0 && (
+        {totalItems > 0 && (
           <Box sx={{
             px: 2,
             py: 1.5,
@@ -273,13 +293,13 @@ const Cart = () => {
               TỔNG TIỀN:
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {totalPrice.toLocaleString()} $
+              {totalAmount?.toLocaleString()} $
             </Typography>
           </Box>
         )}
 
         {/* Checkout Button */}
-        {cartItems.length > 0 && (
+        {totalItems > 0 && (
           <Box sx={{ px: 2, pb: 2 }}>
             <Button
               fullWidth

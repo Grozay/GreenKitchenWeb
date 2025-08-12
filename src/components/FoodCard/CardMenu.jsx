@@ -7,39 +7,57 @@ import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { addToCart } from '~/redux/order/orderSlice'
+import { fetchCart } from '~/redux/cart/cartSlice' // Import từ cart slice thay vì order slice
+import { addMealToCartAPI } from '~/apis' // Import API add to cart
 import Grid from '@mui/material/Grid'
-
+import { useState } from 'react'
+import { toast } from 'react-toastify'
 
 const CardMenu = ({ item, typeBasedIndex }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [addingToCart, setAddingToCart] = useState(false)
+  const customerId = 1 // Hoặc lấy từ Redux auth state
+
   const handleNavigateToDetail = (slug) => {
     navigate(`/menu/${slug}`)
   }
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.stopPropagation() // Prevent navigation when clicking add to cart
-    const cartItem = {
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      image: item.image,
-      price: item.price,
-      totalPrice: item.price,
-      quantity: 1,
-      isCustom: false,
-      calories: item.calories,
-      protein: item.protein,
-      carbs: item.carbs,
-      fat: item.fat,
-      slug: item.slug,
-      mealItem: {
-        menu: [item]
-      }
-    }
 
-    dispatch(addToCart(cartItem))
+    if (addingToCart) return
+
+    try {
+      setAddingToCart(true)
+
+      // Tạo request data theo format API
+      const requestData = {
+        isCustom: false,
+        menuMealId: item.id,
+        quantity: 1,
+        basePrice: item.price,
+        title: item.title,
+        description: item.description,
+        calories: item.calories,
+        protein: item.protein,
+        carbs: item.carbs,
+        fat: item.fat
+      }
+
+      // Gọi API add to cart
+      await addMealToCartAPI(customerId, requestData)
+
+      // Refresh cart data sau khi add thành công
+      await dispatch(fetchCart(customerId))
+
+      toast.success('Added to cart successfully!')
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      toast.error('Failed to add to cart')
+    } finally {
+      setAddingToCart(false)
+    }
   }
 
   const getSizeShort = (type) => {
@@ -230,15 +248,19 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               fontWeight: 800,
               color: theme.palette.text.textSub
             }}>
-              {itemFilter.price} $
+              {itemFilter.price} VNĐ
             </Typography>
             <IconButton
               onClick={handleAddToCart}
+              disabled={addingToCart} // Disable khi đang add to cart
               sx={{
                 color: theme.palette.primary.secondary,
                 '&:hover': {
                   bgcolor: theme.palette.primary.secondary,
                   color: 'white'
+                },
+                '&:disabled': {
+                  color: theme.palette.grey[400]
                 }
               }}
             >

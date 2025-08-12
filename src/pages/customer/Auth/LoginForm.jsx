@@ -31,6 +31,7 @@ import DialogActions from '@mui/material/DialogActions'
 import { GoogleLogin } from '@react-oauth/google'
 import PasswordField from '~/components/Form/PasswordField'
 import RememberMeCheckbox from '~/components/Form/RememberMeCheckbox'
+import theme from '~/theme'
 
 function LoginForm() {
   const dispatch = useDispatch()
@@ -205,16 +206,39 @@ function LoginForm() {
               <Divider sx={{ flex: 1 }} />
             </Box>
 
-            {/* Google Login Button */}
-            <Box sx={{ padding: '1em', display: 'flex', justifyContent: 'center' }}>
+            {/* Google and Phone Login Button */}
+            <Box sx={{
+              padding: '1em',
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              gap: 1.5
+            }}>
               <GoogleLogin
                 onSuccess={handleGoogleLoginSuccess}
                 onError={handleGoogleLoginError}
                 theme="outline"
                 size="large"
-                width="100%"
-                text="signin_with"
+                logo_alignment="center"
               />
+
+              <Button sx={{
+                width: '100%',
+                height: '42px',
+                fontSize: '0.875rem',
+                fontWeight: 400,
+                transform: 'none',
+                transition: 'background-color 0.2s ease-in-out, color 0.2s ease-in-out',
+                '&:hover': {
+                  bgcolor: theme.palette.primary.light,
+                  color: theme.palette.primary.contrastText
+                  // Remove all transform effects
+                }
+              }}
+              onClick={() => navigate('/login-by-phone')}
+              variant='outlined'>
+                Login By Phone Number
+              </Button>
             </Box>
 
             {/* Sign up link */}

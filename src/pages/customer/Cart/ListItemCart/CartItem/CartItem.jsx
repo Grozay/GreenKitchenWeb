@@ -6,207 +6,326 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid'
+import { useState } from 'react'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
 
-const CartItem = ({ item, onUpdateQuantity, onRemove, calculateItemNutrition }) => {
+const CartItem = ({
+  item,
+  onIncreaseQuantity,
+  onDecreaseQuantity,
+  onRemove,
+  calculateItemNutrition
+}) => {
+  const [confirmDialog, setConfirmDialog] = useState(false)
   const nutrition = calculateItemNutrition(item)
-
-  const allFoodItems = []
-  Object.values(item.mealItem).forEach(category => {
-    if (Array.isArray(category)) {
-      allFoodItems.push(...category)
-    }
-  })
 
   const getProductTitle = () => {
     if (item.isCustom) {
-      return item.title || `Custom Bowl ${item.cartId}`
+      return item.customMealName || item.title || 'Custom Meal'
     } else {
-      const menuItem = allFoodItems[0]
-      return menuItem?.title || item.title || `Menu Item ${item.cartId}`
+      return item.menuMealTitle || item.title || 'Menu Meal'
+    }
+  }
+
+  const getProductImage = () => {
+    if (item.isCustom) {
+      // For custom meals, use first ingredient image or default
+      if (item.details && item.details.length > 0) {
+        return item.details[0].image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+      }
+      return 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+    } else {
+      return item.menuMealImage || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+    }
+  }
+
+  const getProductDescription = () => {
+    if (item.isCustom) {
+      return item.description || 'Custom meal với các nguyên liệu được lựa chọn'
+    } else {
+      return item.menuMealDescription || item.description || ''
+    }
+  }
+
+  const handleRemove = () => {
+    setConfirmDialog(true)
+  }
+
+  const confirmRemove = () => {
+    onRemove(item.id)
+    setConfirmDialog(false)
+  }
+
+  const handleIncreaseQuantity = () => {
+    onIncreaseQuantity(item.id) // Chỉ cần pass itemId
+  }
+
+  const handleDecreaseQuantity = () => {
+    if (item.quantity > 1) {
+      onDecreaseQuantity(item.id) // Chỉ cần pass itemId
+    } else {
+      handleRemove() // Nếu quantity = 1, xóa item
     }
   }
 
   const items = [
     { label: 'Calories', value: `${Math.round(nutrition.calories)}` },
-    { label: 'Protein', value: `${Math.round(nutrition.protein)}` },
-    { label: 'Carbs', value: `${Math.round(nutrition.carbs)}` },
-    { label: 'Fat', value: `${Math.round(nutrition.fat)}` }
+    { label: 'Protein', value: `${Math.round(nutrition.protein)}g` },
+    { label: 'Carbs', value: `${Math.round(nutrition.carbs)}g` },
+    { label: 'Fat', value: `${Math.round(nutrition.fat)}g` }
   ]
 
-  const mainProduct = allFoodItems[0] || {}
-
   return (
-    <Box sx={{
-      bgcolor: 'white',
-      borderRadius: 5,
-      border: '1px solid #e0e0e0',
-      mb: 2,
-      overflow: 'hidden'
-    }}>
+    <>
       <Box sx={{
-        p: { xs: 2, md: 3 }
+        bgcolor: 'white',
+        borderRadius: 5,
+        border: '1px solid #e0e0e0',
+        mb: 2,
+        overflow: 'hidden'
       }}>
         <Box sx={{
-          display: 'flex',
-          gap: { xs: 2, md: 5 },
-          flexDirection: { xs: 'column', sm: 'row' }
+          p: { xs: 2, md: 3 }
         }}>
-          {/* Product Image */}
           <Box sx={{
-            flexShrink: 0,
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: { xs: 'center', sm: 'flex-start' }
+            gap: { xs: 2, md: 5 },
+            flexDirection: { xs: 'column', sm: 'row' }
           }}>
-            <Avatar
-              src={mainProduct.image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'}
-              alt={mainProduct.title || `Món ăn ${item.cartId}`}
-              sx={{
-                width: { xs: 100, md: 120 },
-                height: { xs: 100, md: 120 },
-                borderRadius: '50%'
-              }}
-            />
-          </Box>
-
-          {/* Product Info */}
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' } }}>
-              <Box>
-                <Typography variant="h6" sx={{
-                  fontWeight: 600,
-                  mb: 1,
-                  color: '#2c2c2c',
-                  fontSize: { xs: '1rem', md: '1.25rem' }
-                }}>
-                  {getProductTitle()}
-                </Typography>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
-                  <Typography variant="h6" sx={{
-                    fontWeight: 700,
-                    color: '#2c2c2c',
-                    fontSize: { xs: '1.1rem', md: '1.25rem' }
-                  }}>
-                    {(item.totalPrice * item.quantity).toLocaleString()} $
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{
-                    textDecoration: 'line-through',
-                    fontSize: { xs: '0.8rem', md: '0.875rem' }
-                  }}>
-                    {(item.totalPrice * item.quantity * 1.2).toLocaleString()} $
-                  </Typography>
-                </Box>
-              </Box>
-              {/* Quantity and Actions */}
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 2, sm: 0 }
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <IconButton
-                    onClick={() => onUpdateQuantity(item.cartId, item.quantity - 1)}
-                    size="small"
-                    sx={{
-                      border: '1px solid #e0e0e0',
-                      borderRadius: 1,
-                      width: 32,
-                      height: 32,
-                      '&:hover': { bgcolor: '#f5f5f5' }
-                    }}
-                  >
-                    <RemoveIcon fontSize="small" />
-                  </IconButton>
-
-                  <Typography variant="h6" sx={{
-                    mx: 2,
-                    minWidth: '30px',
-                    textAlign: 'center',
-                    fontWeight: 600,
-                    border: '1px solid #e0e0e0',
-                    borderRadius: 1,
-                    px: 2,
-                    py: 0.5
-                  }}>
-                    {item.quantity}
-                  </Typography>
-
-                  <IconButton
-                    onClick={() => onUpdateQuantity(item.cartId, item.quantity + 1)}
-                    size="small"
-                    sx={{
-                      border: '1px solid #e0e0e0',
-                      borderRadius: 1,
-                      width: 32,
-                      height: 32,
-                      '&:hover': { bgcolor: '#f5f5f5' }
-                    }}
-                  >
-                    <AddIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-
-                <Box sx={{ ml: { xs: 0, sm: 4 }, mb: { xs: 2, sm: 0 } }}>
-                  <IconButton
-                    onClick={() => onRemove(item.cartId)}
-                    size="small"
-                    sx={{
-                      color: '#666',
-                      '&:hover': { color: '#f44336', bgcolor: '#ffebee' }
-                    }}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              </Box>
+            {/* Product Image */}
+            <Box sx={{
+              flexShrink: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center'
+            }}>
+              <Avatar
+                src={getProductImage()}
+                alt={getProductTitle()}
+                sx={{
+                  width: { xs: 100, md: 120 },
+                  height: { xs: 100, md: 120 },
+                  borderRadius: '50%'
+                }}
+              />
             </Box>
 
-
-            {/* Additional Info */}
-            <Box sx={{ borderBottom: '1.5px dashed' }}></Box>
-            <Box sx={{ my: 1 }}>
-              <Box>
+            {/* Product Info */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' } }}>
                 <Box>
-                  <Grid
-                    container
-                    spacing={2}
-                    sx={{
+                  <Typography variant="h6" sx={{
+                    fontWeight: 600,
+                    mb: 1,
+                    color: '#2c2c2c',
+                    fontSize: { xs: '1rem', md: '1.25rem' }
+                  }}>
+                    {getProductTitle()}
+                  </Typography>
+
+                  <Typography variant="body2" sx={{
+                    color: 'text.secondary',
+                    mb: 2,
+                    fontSize: { xs: '0.8rem', md: '0.875rem' }
+                  }}>
+                    {getProductDescription()}
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
+                    <Typography variant="h6" sx={{
+                      fontWeight: 700,
+                      color: '#2c2c2c',
+                      fontSize: { xs: '1.1rem', md: '1.25rem' }
+                    }}>
+                      {item.totalPrice?.toLocaleString() || '0'} VNĐ
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{
+                      textDecoration: 'line-through',
+                      fontSize: { xs: '0.8rem', md: '0.875rem' }
+                    }}>
+                      {((item.totalPrice || 0) * 1.2).toLocaleString()} VNĐ
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Quantity and Actions */}
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 2, sm: 0 }
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton
+                      onClick={handleDecreaseQuantity}
+                      size="small"
+                      sx={{
+                        border: '1px solid #e0e0e0',
+                        borderRadius: 1,
+                        width: 32,
+                        height: 32,
+                        '&:hover': { bgcolor: '#f5f5f5' }
+                      }}
+                    >
+                      <RemoveIcon fontSize="small" />
+                    </IconButton>
+
+                    <Typography variant="h6" sx={{
+                      mx: 2,
+                      minWidth: '30px',
                       textAlign: 'center',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      justifyItems: 'center',
-                      width: '100%',
-                      m: 0,
-                      '& .MuiGrid-item': {
-                        padding: '0 8px',
-                        flexBasis: '25%',
-                        maxWidth: '25%',
-                        flexGrow: 1
-                      }
-                    }}
-                  >
-                    {items.map((item, index) => (
-                      <Grid size={{ xs: 3 }} key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <Typography variant="h7" fontWeight="bold" sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
-                          {item.value}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 400, fontSize: '0.75rem' }}>
-                          {item.label}
-                        </Typography>
-                      </Grid>
-                    ))}
-                  </Grid>
+                      fontWeight: 600,
+                      border: '1px solid #e0e0e0',
+                      borderRadius: 1,
+                      px: 2,
+                      py: 0.5
+                    }}>
+                      {item.quantity}
+                    </Typography>
+
+                    <IconButton
+                      onClick={handleIncreaseQuantity}
+                      size="small"
+                      sx={{
+                        border: '1px solid #e0e0e0',
+                        borderRadius: 1,
+                        width: 32,
+                        height: 32,
+                        '&:hover': { bgcolor: '#f5f5f5' }
+                      }}
+                    >
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+
+                  <Box sx={{ ml: { xs: 0, sm: 4 }, mb: { xs: 2, sm: 0 } }}>
+                    <IconButton
+                      onClick={handleRemove}
+                      size="small"
+                      sx={{
+                        color: '#666',
+                        '&:hover': { color: '#f44336', bgcolor: '#ffebee' }
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                 </Box>
               </Box>
+
+              {/* Nutrition Info */}
+              <Box sx={{ borderBottom: '1.5px dashed' }}></Box>
+              <Box sx={{ mt: 2.5 }}>
+                <Grid
+                  container
+                  spacing={2}
+                  sx={{
+                    textAlign: 'center',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    justifyItems: 'center',
+                    width: '100%',
+                    m: 1,
+                    '& .MuiGrid-item': {
+                      padding: '0 8px',
+                      flexBasis: '25%',
+                      maxWidth: '25%',
+                      flexGrow: 1
+                    }
+                  }}
+                >
+                  {items.map((nutritionItem, index) => (
+                    <Grid size={{ xs: 3 }} key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Typography variant="h7" fontWeight="bold" sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
+                        {nutritionItem.value}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 400, fontSize: '0.75rem' }}>
+                        {nutritionItem.label}
+                      </Typography>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+
+              {/* Custom Meal Ingredients */}
+              {item.isCustom && item.details && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                    Nguyên liệu:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {item.details.slice(0, 5).map((detail) => (
+                      <Typography
+                        key={detail.id}
+                        variant="caption"
+                        sx={{
+                          bgcolor: '#f5f5f5',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          fontSize: '0.7rem'
+                        }}
+                      >
+                        {detail.title}
+                      </Typography>
+                    ))}
+                    {item.details.length > 5 && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                          px: 1,
+                          py: 0.5,
+                          fontSize: '0.7rem'
+                        }}
+                      >
+                        +{item.details.length - 5} khác...
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              )}
             </Box>
           </Box>
         </Box>
       </Box>
-    </Box>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={confirmDialog}
+        onClose={() => setConfirmDialog(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ textAlign: 'center', fontWeight: 600 }}>
+          Xác nhận xóa sản phẩm
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', py: 2 }}>
+          <Typography>
+            Bạn có chắc chắn muốn xóa {getProductTitle()} khỏi giỏ hàng?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 3 }}>
+          <Button
+            onClick={() => setConfirmDialog(false)}
+            variant="outlined"
+            sx={{ minWidth: 100 }}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={confirmRemove}
+            variant="contained"
+            color="error"
+            sx={{ minWidth: 100 }}
+          >
+            Xóa
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   )
 }
 

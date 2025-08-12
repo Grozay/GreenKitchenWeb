@@ -1,3 +1,11 @@
-// export const API_ROOT = import.meta.env.VITE_API_ROOT
-export const API_ROOT = 'http://localhost:8080'
-//export const API_ROOT = 'http://localhost:8080/apis/v1'
+// Dynamic API_ROOT based on current hostname
+const getApiRoot = () => {
+  if (import.meta.env.VITE_API_ROOT) {
+    return import.meta.env.VITE_API_ROOT
+  }
+
+  const hostname = window.location.hostname
+  return `http://${hostname}:8080`
+}
+
+export const API_ROOT = getApiRoot()

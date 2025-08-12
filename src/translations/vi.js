@@ -13,16 +13,18 @@ const vi = {
     openMenu: 'Mở menu điều hướng',
     selectLanguage: 'Chọn ngôn ngữ',
     aboutUs: 'VỀ CHÚNG TÔI',
-    caloCalculator: [
-      {
-        title: 'Lên thực đơn thông minh',
-        description: 'Lên thực đơn được cá nhân hóa'
-      },
-      {
-        title: 'Tính toán calo & macro cá nhân',
-        description: 'Tính toán nhu cầu calo & macro hàng ngày của bạn'
-      }
-    ]
+    // caloCalculator: [
+    //   {
+    //     title: 'Lên thực đơn thông minh',
+    //     description: 'Lên thực đơn được cá nhân hóa'
+    //   },
+    //   {
+    //     title: 'Tính toán calo & macro cá nhân',
+    //     description: 'Tính toán nhu cầu calo & macro hàng ngày của bạn'
+    //   }
+    // ]
+    customMeal: 'BỮA ĂN TÙY CHỌN',
+    weekMeal: 'BỮA ĂN TUẦN'
   }
 }
 
