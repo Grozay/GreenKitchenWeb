@@ -17,9 +17,7 @@ import HistoryIcon from '@mui/icons-material/History'
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard'
 import LoyaltyOutlinedIcon from '@mui/icons-material/LoyaltyOutlined'
 import { useState, useEffect } from 'react'
-import { fetchCustomerDetails, getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
-import { selectCurrentCustomer } from '~/redux/user/customerSlice'
-import { useSelector } from 'react-redux'
+import { getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
 export default function MembershipTab({ customerDetails, setcustomerDetails }) {
@@ -29,12 +27,113 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
   const [exchangeableCoupons, setExchangeableCoupons] = useState([])
   const [couponsLoading, setCouponsLoading] = useState(false)
   const [exchangeLoading, setExchangeLoading] = useState(null)
+  
+  // Separate states for membership data
+  const [membership, setMembership] = useState(customerDetails?.membership || null)
+  const [pointHistories, setPointHistories] = useState(customerDetails?.pointHistories || [])
+  const [customerCoupons, setCustomerCoupons] = useState(customerDetails?.customerCoupons || [])
 
+  // // Sync states when customerDetails changes
+  // useEffect(() => {
+  //   setMembership(customerDetails?.membership || null)
+  //   setPointHistories(customerDetails?.pointHistories || [])
+  //   setCustomerCoupons(customerDetails?.customerCoupons || [])
+  // }, [customerDetails])
+
+  // Fetch available coupons
+  const fetchExchangeableCoupons = async () => {
+    setCouponsLoading(true)
+    try {
+      const data = await getExchangeableCouponsAPI()
+      setExchangeableCoupons(data || [])
+    } catch (error) {
+      console.error('Error fetching coupons:', error)
+      setExchangeableCoupons([])
+    } finally {
+      setCouponsLoading(false)
+    }
+  }
+
+  // Handle coupon exchange
+  const handleExchangeCoupon = (couponId) => {
+    if (!customerDetails?.id) {
+      toast.error('Không tìm thấy thông tin khách hàng')
+      return
+    }
+
+    setExchangeLoading(couponId)
+
+    toast.promise(
+      exchangeCouponAPI({
+        customerId: customerDetails.id,
+        couponId: couponId
+      }),
+      {
+        pending: 'Đang xử lý đổi coupon...',
+        success: 'Đổi coupon thành công! 🎉'
+      }
+    ).then(() => {
+      // Tìm coupon đã đổi từ danh sách exchangeableCoupons
+      const exchangedCoupon = exchangeableCoupons.find(c => c.id === couponId)
+
+      if (exchangedCoupon) {
+        // 1. Cập nhật membership - trừ điểm khả dụng
+        setMembership(prevMembership => ({
+          ...prevMembership,
+          availablePoints: (prevMembership.availablePoints || 0) - exchangedCoupon.pointsRequired
+        }))
+
+        // 2. Thêm lịch sử điểm mới (sử dụng điểm)
+        const newPointHistory = {
+          id: Date.now(), // Temporary ID
+          transactionType: 'USED',
+          pointsEarned: -exchangedCoupon.pointsRequired,
+          earnedAt: new Date().toISOString(),
+          description: `Đổi coupon: ${exchangedCoupon.name}`,
+          spentAmount: 0
+        }
+
+        setPointHistories(prevHistories => [
+          newPointHistory,
+          ...prevHistories
+        ])
+
+        // 3. Thêm customer coupon mới
+        const newCustomerCoupon = {
+          id: Date.now() + 1, // Temporary ID
+          customerId: customerDetails.id,
+          couponId: exchangedCoupon.id,
+          status: 'AVAILABLE',
+          exchangedAt: new Date().toISOString(),
+          expiresAt: exchangedCoupon.validUntil,
+          usedAt: null,
+          orderId: null,
+          // Snapshot data từ coupon
+          couponCode: exchangedCoupon.code,
+          couponName: exchangedCoupon.name,
+          couponDescription: exchangedCoupon.description,
+          couponType: exchangedCoupon.type,
+          couponDiscountValue: exchangedCoupon.discountValue
+        }
+
+        setCustomerCoupons(prevCoupons => [
+          newCustomerCoupon,
+          ...prevCoupons
+        ])
+      }
+
+      // Đóng modal và refresh coupon list
+      setCouponModalOpen(false)
+      fetchExchangeableCoupons()
+    }).finally(() => {
+      setExchangeLoading(null)
+    })
+  }
 
   // Open coupon modal and fetch data
   const handleOpenCouponModal = () => {
     setCouponModalOpen(true)
-    // fetchExchangeableCoupons()
+    fetchExchangeableCoupons()
   }
 
   // Helper functions để xử lý dữ liệu
@@ -100,9 +199,6 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
     }
   ]
 
-  // Lấy dữ liệu từ customer data
-  const membership = customerDetails?.membership
-  const pointHistories = customerDetails?.pointHistories || []
   const tierProgress = membership ? calculateTierProgress(membership.currentTier, membership.totalSpentLast6Months) : null
 
   const handleTierClick = (tier) => {
@@ -459,19 +555,136 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
               Ưu đãi của bạn
             </Typography>
 
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-              <Box sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mb: 2
-              }}>
-                <Typography sx={{ fontSize: '80px' }}>🎁</Typography>
+            {/* Hiển thị danh sách customer coupons */}
+            {customerCoupons && customerCoupons.length > 0 ? (
+              <Grid container spacing={2} sx={{ p: 2 }}>
+                {customerCoupons.map((customerCoupon) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 6 }} key={customerCoupon.id}>
+                    <Card sx={{
+                      border: customerCoupon.status === 'AVAILABLE' ? '2px solid #4caf50' : '2px solid #ff9800',
+                      borderRadius: 3,
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: customerCoupon.status === 'AVAILABLE'
+                          ? '0 8px 24px rgba(76,175,80,0.3)'
+                          : '0 8px 24px rgba(255,152,0,0.3)'
+                      }
+                    }}>
+                      <CardContent sx={{ p: 3 }}>
+                        {/* Header với status chip */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                          <Typography variant="h6" sx={{
+                            fontWeight: 'bold',
+                            color: customerCoupon.status === 'AVAILABLE' ? '#4caf50' : '#ff9800'
+                          }}>
+                            🎫 {customerCoupon.couponName || 'Coupon'}
+                          </Typography>
+                          <Chip
+                            label={customerCoupon.status === 'AVAILABLE' ? 'Có thể dùng' :
+                              customerCoupon.status === 'USED' ? 'Đã sử dụng' : 'Hết hạn'}
+                            color={customerCoupon.status === 'AVAILABLE' ? 'success' :
+                              customerCoupon.status === 'USED' ? 'warning' : 'error'}
+                            sx={{ fontWeight: 'bold', fontSize: '0.75rem' }}
+                          />
+                        </Box>
+
+                        {/* Thông tin coupon */}
+                        <Box sx={{ textAlign: 'left', mb: 2 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            <strong>Mã:</strong> {customerCoupon.couponCode}
+                          </Typography>
+
+                          {customerCoupon.couponDescription && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              <strong>Mô tả:</strong> {customerCoupon.couponDescription}
+                            </Typography>
+                          )}
+
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            <strong>Giảm:</strong>{' '}
+                            {customerCoupon.couponType === 'PERCENTAGE'
+                              ? `${customerCoupon.couponDiscountValue}%`
+                              : `${customerCoupon.couponDiscountValue?.toLocaleString()} VNĐ`}
+                          </Typography>
+
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            <strong>Ngày đổi:</strong> {new Date(customerCoupon.exchangedAt).toLocaleDateString('vi-VN')}
+                          </Typography>
+
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            <strong>Hạn sử dụng:</strong> {new Date(customerCoupon.expiresAt).toLocaleDateString('vi-VN')}
+                          </Typography>
+
+                          {customerCoupon.usedAt && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              <strong>Ngày sử dụng:</strong> {new Date(customerCoupon.usedAt).toLocaleDateString('vi-VN')}
+                            </Typography>
+                          )}
+
+                          {customerCoupon.orderId && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              <strong>Đơn hàng:</strong> #{customerCoupon.orderId}
+                            </Typography>
+                          )}
+                        </Box>
+
+                        {/* Action button */}
+                        <Box sx={{ textAlign: 'center', mt: 2 }}>
+                          {customerCoupon.status === 'AVAILABLE' ? (
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              sx={{
+                                borderRadius: 2,
+                                px: 3,
+                                fontWeight: 'bold'
+                              }}
+                              onClick={() => {
+                                // TODO: Implement use coupon functionality
+                                alert('Chức năng sử dụng coupon sẽ được triển khai trong đơn hàng')
+                              }}
+                            >
+                              Sử dụng ngay
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outlined"
+                              disabled
+                              size="small"
+                              sx={{
+                                borderRadius: 2,
+                                px: 3
+                              }}
+                            >
+                              {customerCoupon.status === 'USED' ? 'Đã sử dụng' : 'Hết hạn'}
+                            </Button>
+                          )}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <Box sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mb: 2
+                }}>
+                  <Typography sx={{ fontSize: '80px' }}>🎁</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Bạn đang chưa có ưu đãi nào
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Hãy đổi điểm lấy coupon để nhận ưu đãi nhé!
+                </Typography>
               </Box>
-              <Typography variant="body2" color="text.secondary">
-                Bạn đang chưa có ưu đãi nào
-              </Typography>
-            </Box>
+            )}
           </Grid>
         )}
 
@@ -674,13 +887,19 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
         <DialogContent sx={{ p: 3 }}>
           {pointHistories && pointHistories.length > 0 ? (
             <Box sx={{ maxHeight: '400px', overflowY: 'auto' }}>
-              {pointHistories.map((pHistory) => (
+              {pointHistories.sort((a, b) => new Date(b.earnedAt) - new Date(a.earnedAt)).map((pHistory) => (
                 <Card key={pHistory.id} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
                   <CardContent sx={{ p: 2 }}>
                     <Grid container spacing={2} alignItems="center">
                       <Grid size={{ xs: 12, sm: 3 }}>
                         <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
                           {new Date(pHistory.earnedAt).toLocaleDateString('vi-VN')}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(pHistory.earnedAt).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
@@ -695,7 +914,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
                       </Grid>
                       <Grid size={{ xs: 12, sm: 3 }}>
                         <Chip
-                          label={`${pHistory.transactionType === 'USED' ? '' : '+'}${pHistory.pointsEarned || pHistory.pointsUsed || 0} điểm`}
+                          label={`${pHistory.transactionType === 'USED' ? '-' : '+'}${Math.abs(pHistory.pointsEarned) || pHistory.pointsUsed || 0} điểm`}
                           color={pHistory.transactionType === 'USED' ? 'error' : 'success'}
                           sx={{ fontWeight: 'bold' }}
                         />
@@ -768,31 +987,36 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
 
                       <Box sx={{ mb: 2 }}>
                         <Typography variant="body2" color="text.secondary">
+                          Mã coupon: <strong>{coupon.code}</strong>
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
                           Loại giảm giá:
-                          {coupon.type === 'PERCENTAGE' && ` ${coupon.value}%`}
-                          {coupon.type === 'FIXED_AMOUNT' && ` ${coupon.value?.toLocaleString()} VNĐ`}
-                          {coupon.type === 'FREE_SHIPPING' && ' Miễn phí vận chuyển'}
+                          {coupon.type === 'PERCENTAGE' && ` ${coupon.discountValue}%`}
+                          {coupon.type === 'FIXED_AMOUNT' && ` ${coupon.discountValue?.toLocaleString()} VNĐ`}
                         </Typography>
 
-                        {coupon.minOrderValue && (
+                        {coupon.minimumOrderValue && (
                           <Typography variant="body2" color="text.secondary">
-                            Đơn hàng tối thiểu: {coupon.minOrderValue?.toLocaleString()} VNĐ
+                            Đơn hàng tối thiểu: {coupon.minimumOrderValue?.toLocaleString()} VNĐ
                           </Typography>
                         )}
 
-                        {coupon.maxDiscountAmount && (
+                        {coupon.maximumDiscountAmount && (
                           <Typography variant="body2" color="text.secondary">
-                            Giảm tối đa: {coupon.maxDiscountAmount?.toLocaleString()} VNĐ
+                            Giảm tối đa: {coupon.maximumDiscountAmount?.toLocaleString()} VNĐ
                           </Typography>
                         )}
 
                         <Typography variant="body2" color="text.secondary">
-                          Hạn sử dụng: {new Date(coupon.endDate).toLocaleDateString('vi-VN')}
+                          Hạn sử dụng: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
                         </Typography>
 
-                        <Typography variant="body2" color="text.secondary">
-                          Còn lại: {coupon.totalQuantity - coupon.usedQuantity} coupon
-                        </Typography>
+                        {coupon.exchangeLimit && (
+                          <Typography variant="body2" color="text.secondary">
+                            Còn lại: {coupon.exchangeLimit - coupon.exchangeCount} coupon
+                          </Typography>
+                        )}
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
@@ -805,6 +1029,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
                         <Button
                           variant="contained"
                           size="small"
+                          onClick={() => handleExchangeCoupon(coupon.id)}
                           disabled={
                             (membership?.availablePoints || 0) < coupon.pointsRequired ||
                             exchangeLoading === coupon.id
