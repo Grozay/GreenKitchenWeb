@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
-import MessageBubble from './MessageBubble'
-import ProductMessageBubble from './ProductMessageBubble'
+import MessageBubble from '~/components/AIChat/chatCustomer/MessageBubble'
+import ProductMessageBubble from '~/components/AIChat/chatCustomer/ProductMessageBubble'
 import ChatInputBox from './ChatInputBox'
 
 function ChatPanel({ messages, onSend }) {
