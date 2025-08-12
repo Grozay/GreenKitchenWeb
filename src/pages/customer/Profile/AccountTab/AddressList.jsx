@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -14,6 +14,7 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
+import Autocomplete from '@mui/material/Autocomplete'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -38,7 +39,48 @@ export default function AddressList({ addressList, setAddressList, customerDetai
   const [editingAddress, setEditingAddress] = useState(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
+  
+  // State cho quận/huyện và phường/xã
+  const [districts, setDistricts] = useState([])
+  const [wards, setWards] = useState([])
+  const [selectedDistrict, setSelectedDistrict] = useState(null)
+  const [selectedWard, setSelectedWard] = useState(null)
+  const [loadingDistricts, setLoadingDistricts] = useState(false)
+  const [loadingWards, setLoadingWards] = useState(false)
+  
   const confirm = useConfirm()
+
+  // Gọi API để lấy danh sách quận/huyện khi component mount
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      setLoadingDistricts(true)
+      try {
+        const response = await fetch('https://provinces.open-api.vn/api/p/79?depth=2')
+        const data = await response.json()
+        setDistricts(data.districts || [])
+      } catch (error) {
+        setDistricts([])
+      } finally {
+        setLoadingDistricts(false)
+      }
+    }
+
+    fetchDistricts()
+  }, [])
+
+  // Fetch phường/xã dựa trên quận/huyện
+  const fetchWards = async (districtCode) => {
+    setLoadingWards(true)
+    try {
+      const response = await fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+      const data = await response.json()
+      setWards(data.wards || [])
+    } catch (error) {
+      setWards([])
+    } finally {
+      setLoadingWards(false)
+    }
+  }
 
   const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
     defaultValues: {
@@ -78,6 +120,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
     setShowAddForm(true)
     setShowEditForm(false)
     setEditingAddress(null)
+    // Reset address selection state
+    setSelectedDistrict(null)
+    setSelectedWard(null)
+    setWards([])
     reset()
   }
 
@@ -85,6 +131,21 @@ export default function AddressList({ addressList, setAddressList, customerDetai
     setShowEditForm(true)
     setShowAddForm(false)
     setEditingAddress(address)
+    // Reset address selection state and set current values
+    setSelectedDistrict(districts.find(d => d.name === address.district) || null)
+    setSelectedWard(null)
+    setWards([])
+    // Fetch wards for current district
+    const currentDistrict = districts.find(d => d.name === address.district)
+    if (currentDistrict) {
+      fetchWards(currentDistrict.code).then(() => {
+        // Set ward after wards are loaded
+        setTimeout(() => {
+          setSelectedWard(wards.find(w => w.name === address.ward) || null)
+        }, 100)
+      })
+    }
+    
     setValue('recipientName', address.recipientName || '')
     setValue('recipientPhone', address.recipientPhone || '')
     setValue('street', address.street)
@@ -98,6 +159,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
     setShowAddForm(false)
     setShowEditForm(false)
     setEditingAddress(null)
+    // Reset address selection state
+    setSelectedDistrict(null)
+    setSelectedWard(null)
+    setWards([])
     reset()
   }
 
@@ -131,7 +196,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
       return
     }
 
-    const fullAddress = `${data.street}, Phường ${data.ward}, Quận ${data.district}, ${data.city}`
+    const fullAddress = `${data.street}, ${data.ward}, ${data.district}, ${data.city}`
     // Chuẩn bị payload cho API
     const addressPayload = {
       customerId: customerDetails?.id,
@@ -198,7 +263,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
       }).then(res => {
         if (!res.error) {
           toast.success('Địa chỉ đã được thêm thành công!')
-          const fullAddress = `${data.street}, Phường ${data.ward}, Quận ${data.district}, ${data.city}`
+          const fullAddress = `${data.street}, ${data.ward}, ${data.district}, ${data.city}`
           // Cập nhật state frontend
           let updatedAddressList = [...(addressList || [])]
 
@@ -283,7 +348,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
-        maxWidth="lg"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle sx={{
@@ -398,7 +463,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                     borderRadius: 1
                   }}>
                     <LocationOnIcon sx={{
-                      fontSize: 48,
+                      fontSize: 32,
                       color: '#FF6B6B',
                       mb: 2,
                       filter: 'drop-shadow(0 2px 4px rgba(255,107,107,0.3))'
@@ -483,24 +548,59 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                         <FieldErrorAlert errors={errors} fieldName='street' />
                       </Grid>
                       <Grid size={6}>
-                        <TextField
-                          {...register('ward', { required: 'Vui lòng nhập phường/xã' })}
-                          label="Phường/Xã"
-                          fullWidth
-                          size="small"
-                          error={!!errors.ward}
-                        />
-                        <FieldErrorAlert errors={errors} fieldName='ward' />
-                      </Grid>
-                      <Grid size={6}>
-                        <TextField
-                          {...register('district', { required: 'Vui lòng nhập quận/huyện' })}
-                          label="Quận/Huyện"
-                          fullWidth
-                          size="small"
-                          error={!!errors.district}
+                        <Autocomplete
+                          options={districts}
+                          getOptionLabel={(option) => option.name}
+                          value={selectedDistrict}
+                          loading={loadingDistricts}
+                          onChange={(event, newValue) => {
+                            setSelectedDistrict(newValue)
+                            setValue('district', newValue ? newValue.name : '')
+                            if (newValue) {
+                              fetchWards(newValue.code)
+                              setSelectedWard(null)
+                              setValue('ward', '')
+                            } else {
+                              setWards([])
+                              setSelectedWard(null)
+                              setValue('ward', '')
+                            }
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              {...register('district', { required: 'Vui lòng chọn quận/huyện' })}
+                              label="Quận/Huyện"
+                              error={!!errors.district}
+                              size="small"
+                            />
+                          )}
                         />
                         <FieldErrorAlert errors={errors} fieldName='district' />
+                      </Grid>
+                      <Grid size={6}>
+                        <Autocomplete
+                          options={wards}
+                          getOptionLabel={(option) => option.name}
+                          value={selectedWard}
+                          onChange={(event, newValue) => {
+                            setSelectedWard(newValue)
+                            setValue('ward', newValue ? newValue.name : '')
+                          }}
+                          loading={loadingWards}
+                          disabled={!selectedDistrict}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              {...register('ward', { required: 'Vui lòng chọn phường/xã' })}
+                              label="Phường/Xã"
+                              error={!!errors.ward}
+                              size="small"
+                              helperText={!selectedDistrict ? 'Vui lòng chọn quận/huyện trước' : ' '}
+                            />
+                          )}
+                        />
+                        <FieldErrorAlert errors={errors} fieldName='ward' />
                       </Grid>
                       <Grid size={6}>
                         <FormControl fullWidth size="small">
@@ -509,6 +609,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })}
                             label="Tỉnh/Thành phố"
                             error={!!errors.city}
+                            value="HCM"
                           >
                             <MenuItem value="HCM">TP. Hồ Chí Minh</MenuItem>
                           </Select>
@@ -635,24 +736,59 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                         <FieldErrorAlert errors={errors} fieldName='street' />
                       </Grid>
                       <Grid size={6}>
-                        <TextField
-                          {...register('ward', { required: 'Vui lòng nhập phường/xã' })}
-                          label="Phường/Xã"
-                          fullWidth
-                          size="small"
-                          error={!!errors.ward}
-                        />
-                        <FieldErrorAlert errors={errors} fieldName='ward' />
-                      </Grid>
-                      <Grid size={6}>
-                        <TextField
-                          {...register('district', { required: 'Vui lòng nhập quận/huyện' })}
-                          label="Quận/Huyện"
-                          fullWidth
-                          size="small"
-                          error={!!errors.district}
+                        <Autocomplete
+                          options={districts}
+                          getOptionLabel={(option) => option.name}
+                          value={selectedDistrict}
+                          loading={loadingDistricts}
+                          onChange={(event, newValue) => {
+                            setSelectedDistrict(newValue)
+                            setValue('district', newValue ? newValue.name : '')
+                            if (newValue) {
+                              fetchWards(newValue.code)
+                              setSelectedWard(null)
+                              setValue('ward', '')
+                            } else {
+                              setWards([])
+                              setSelectedWard(null)
+                              setValue('ward', '')
+                            }
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              {...register('district', { required: 'Vui lòng chọn quận/huyện' })}
+                              label="Quận/Huyện"
+                              error={!!errors.district}
+                              size="small"
+                            />
+                          )}
                         />
                         <FieldErrorAlert errors={errors} fieldName='district' />
+                      </Grid>
+                      <Grid size={6}>
+                        <Autocomplete
+                          options={wards}
+                          getOptionLabel={(option) => option.name}
+                          value={selectedWard}
+                          onChange={(event, newValue) => {
+                            setSelectedWard(newValue)
+                            setValue('ward', newValue ? newValue.name : '')
+                          }}
+                          loading={loadingWards}
+                          disabled={!selectedDistrict}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              {...register('ward', { required: 'Vui lòng chọn phường/xã' })}
+                              label="Phường/Xã"
+                              error={!!errors.ward}
+                              size="small"
+                              helperText={!selectedDistrict ? 'Vui lòng chọn quận/huyện trước' : ''}
+                            />
+                          )}
+                        />
+                        <FieldErrorAlert errors={errors} fieldName='ward' />
                       </Grid>
                       <Grid size={6}>
                         <FormControl fullWidth size="small">
@@ -663,10 +799,6 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             error={!!errors.city}
                           >
                             <MenuItem value="HCM">TP. Hồ Chí Minh</MenuItem>
-                            <MenuItem value="HN">Hà Nội</MenuItem>
-                            <MenuItem value="DN">Đà Nẵng</MenuItem>
-                            <MenuItem value="HP">Hải Phòng</MenuItem>
-                            <MenuItem value="CT">Cần Thơ</MenuItem>
                           </Select>
                         </FormControl>
                         <FieldErrorAlert errors={errors} fieldName='city' />

@@ -17,10 +17,10 @@ import DeliveryInfoForm from './components/DeliveryInfoForm'
 import PaymentMethodForm from './components/PaymentMethodForm'
 import OrderSummary from './components/OrderSummary'
 import OrderConfirmDialog from './components/OrderConfirmDialog'
+import PayPalPaymentForm from './components/PayPalPaymentForm'
 
 // Import API
-import { createOrder } from '~/apis'
-import { fetchCustomerDetails } from '~/apis'
+import { createOrder, customerUseCouponAPI, fetchCustomerDetails } from '~/apis'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { selectCartItems, clearCart } from '~/redux/cart/cartSlice'
 
@@ -29,11 +29,13 @@ const Checkout = () => {
   const dispatch = useDispatch()
   const orderItems = useSelector(selectCartItems)
   const currentCustomer = useSelector(selectCurrentCustomer)
-  const [paymentMethod, setPaymentMethod] = useState('COD')
+  const [paymentMethod, setPaymentMethod] = useState('cod')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [customerDetails, setCustomerDetails] = useState(null)
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [showPayPalForm, setShowPayPalForm] = useState(false)
 
   // Calculate order summary
   const [orderSummary, setOrderSummary] = useState({
@@ -58,14 +60,15 @@ const Checkout = () => {
   // Fetch customer details and set default address
   useEffect(() => {
     const fetch = async () => {
+
       setLoading(true)
       try {
         const data = await fetchCustomerDetails(currentCustomer.email)
         setCustomerDetails(data)
-        
+
         // Set default delivery time (current time + 30 minutes)
         const defaultDeliveryTime = dayjs().add(30, 'minute')
-        
+
         // Set default address if available
         const defaultAddress = data?.addresses?.find(addr => addr.isDefault === true)
         if (defaultAddress) {
@@ -88,18 +91,20 @@ const Checkout = () => {
             deliveryTime: defaultDeliveryTime
           }))
         }
-      } catch {
-        // Error handling
+      } catch (error) {
+        // console.error('Error fetching customer details:', error)
+        toast.error('❌ Không thể tải thông tin khách hàng!')
       } finally {
         setLoading(false)
       }
     }
     fetch()
-  }, [currentCustomer.email])
+  }, [currentCustomer])
 
   useEffect(() => {
     // Calculate order summary based on cart items
-    const subtotal = orderItems.reduce((total, item) => {
+    const cartItems = orderItems?.cartItems || orderItems?.items || []
+    const subtotal = cartItems.reduce((total, item) => {
       return total + (item.totalPrice || item.basePrice || 0)
     }, 0)
 
@@ -114,51 +119,92 @@ const Checkout = () => {
       membershipDiscount = subtotal * 0.05
     }
 
+    // Calculate coupon discount
+    let couponDiscount = 0
+    if (appliedCoupon) {
+      if (appliedCoupon.couponType === 'PERCENTAGE') {
+        couponDiscount = (subtotal * appliedCoupon.couponDiscountValue) / 100
+      } else if (appliedCoupon.couponType === 'FIXED_AMOUNT') {
+        couponDiscount = appliedCoupon.couponDiscountValue
+      }
+
+      // Apply maximum discount limit if exists
+      if (appliedCoupon.maximumDiscountAmount && couponDiscount > appliedCoupon.maximumDiscountAmount) {
+        couponDiscount = appliedCoupon.maximumDiscountAmount
+      }
+
+      // Discount cannot exceed order subtotal
+      couponDiscount = Math.min(couponDiscount, subtotal)
+    }
+
     // Calculate total amount
-    const totalAmount = subtotal + shippingFee - membershipDiscount
+    const totalAmount = subtotal + shippingFee - membershipDiscount - couponDiscount
 
     setOrderSummary({
       subtotal,
       shippingFee,
       membershipDiscount,
-      couponDiscount: 0, // TODO: implement coupon system
+      couponDiscount,
       totalAmount
     })
-  }, [orderItems, customerDetails])
+  }, [orderItems, customerDetails, appliedCoupon])
+
+  // Handle apply coupon
+  const handleApplyCoupon = (coupon, discountAmount) => {
+    setAppliedCoupon(coupon)
+    toast.success(`✅ Đã áp dụng coupon "${coupon.couponName}"!`)
+  }
+
+  // Handle remove coupon
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    toast.info('🗑️ Đã bỏ coupon')
+  }
+
+  // Handle coupons updated after exchange
+  const handleCouponsUpdated = async () => {
+    try {
+      // Refresh customer details để lấy danh sách coupon mới
+      const data = await fetchCustomerDetails(currentCustomer.email)
+      setCustomerDetails(data)
+    } catch {
+      // Ignore error, UI sẽ được cập nhật sau
+    }
+  }
 
   // Handle place order validation
   const handlePlaceOrder = () => {
     const newErrors = {}
-    
+
     // Validate delivery information
     if (!deliveryInfo.recipientName.trim()) {
       newErrors.recipientName = 'Vui lòng nhập tên người nhận'
     }
-    
+
     if (!deliveryInfo.recipientPhone.trim()) {
       newErrors.recipientPhone = 'Vui lòng nhập số điện thoại'
     }
-    
+
     if (!deliveryInfo.street.trim()) {
       newErrors.street = 'Vui lòng nhập địa chỉ'
     }
-    
+
     if (!deliveryInfo.ward.trim()) {
       newErrors.ward = 'Vui lòng nhập phường/xã'
     }
-    
+
     if (!deliveryInfo.district.trim()) {
       newErrors.district = 'Vui lòng nhập quận/huyện'
     }
-    
+
     if (!deliveryInfo.city.trim()) {
       newErrors.city = 'Vui lòng nhập thành phố'
     }
-    
+
     if (!deliveryInfo.deliveryTime) {
       newErrors.deliveryTime = 'Vui lòng chọn thời gian giao hàng'
     }
-    
+
     if (!paymentMethod) {
       newErrors.paymentMethod = 'Vui lòng chọn phương thức thanh toán'
     }
@@ -176,15 +222,92 @@ const Checkout = () => {
   // Confirm and create order
   const handleConfirmOrder = async () => {
     setLoading(true)
-    
+
     try {
+      // Kiểm tra phương thức thanh toán
+      if (paymentMethod?.toLowerCase() === 'cod') {
+        // Xử lý thanh toán COD
+        const cartItems = orderItems?.cartItems || orderItems?.items || []
+        const orderData = {
+          customerId: currentCustomer?.id,
+          ...deliveryInfo,
+          subtotal: orderSummary.subtotal,
+          shippingFee: orderSummary.shippingFee,
+          membershipDiscount: orderSummary.membershipDiscount,
+          couponDiscount: orderSummary.couponDiscount,
+          totalAmount: orderSummary.totalAmount,
+          paymentMethod: 'COD',
+          notes: '',
+          orderItems: cartItems.map(item => ({
+            itemType: item.isCustom ? 'CUSTOM_MEAL' : 'MENU_MEAL',
+            menuMealId: !item.isCustom ? item.id : null,
+            customMealId: item.isCustom ? item.id : null,
+            quantity: item.quantity || 1,
+            unitPrice: item.basePrice || 0,
+            notes: ''
+          }))
+        }
+
+        // Tạo order
+        const response = await createOrder(orderData)
+
+        if (response) {
+          // Cập nhật customer coupon nếu có sử dụng
+          if (appliedCoupon) {
+            try {
+              await customerUseCouponAPI({
+                id: appliedCoupon.id,
+                usedAt: new Date().toISOString(),
+                orderId: response.id,
+                status: 'USED'
+              })
+            } catch {
+              // Không fail toàn bộ order nếu update coupon lỗi
+            }
+          }
+
+          // Xử lý thành công
+          // setConfirmDialogOpen(false)
+          dispatch(clearCart())
+          // Hiển thị thông báo thành công
+          toast.success('Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.')
+          // Chuyển đến trang order history
+          navigate('/profile/order-history')
+        }
+      } else if (paymentMethod?.toLowerCase() === 'paypal') {
+        // Xử lý thanh toán PayPal
+        setShowPayPalForm(true)
+        setConfirmDialogOpen(false)
+        setLoading(false)
+        return
+      }
+    } catch {
+      // console.log('Error placing order:', error)
+      toast.error('❌ Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Handle PayPal payment success
+  const handlePayPalSuccess = async (paymentResult) => {
+    try {
+      setLoading(true)
+
+      // Create order with PAID status
+      const cartItems = orderItems?.cartItems || orderItems?.items || []
       const orderData = {
         customerId: currentCustomer?.id,
         ...deliveryInfo,
-        ...orderSummary,
-        paymentMethod: paymentMethod,
+        subtotal: orderSummary.subtotal,
+        shippingFee: orderSummary.shippingFee,
+        membershipDiscount: orderSummary.membershipDiscount,
+        couponDiscount: orderSummary.couponDiscount,
+        totalAmount: orderSummary.totalAmount,
+        paymentMethod: 'PAYPAL',
+        paypalOrderId: paymentResult.id,
         notes: '',
-        orderItems: orderItems.map(item => ({
+        orderItems: cartItems.map(item => ({
           itemType: item.isCustom ? 'CUSTOM_MEAL' : 'MENU_MEAL',
           menuMealId: !item.isCustom ? item.id : null,
           customMealId: item.isCustom ? item.id : null,
@@ -197,31 +320,36 @@ const Checkout = () => {
       const response = await createOrder(orderData)
 
       if (response) {
-        // Close dialog and clear cart
-        setConfirmDialogOpen(false)
-        dispatch(clearCart())
-        
-        // Navigate to order history
-        navigate('/profile/order-history')
-        
-        // Show success message
-        if (paymentMethod?.toLowerCase() == 'cod') {
-          toast.success('🎉 Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.', {
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true
-          })
-        } else {
-          toast.info('Chuyển hướng đến trang thanh toán CARD...')
+        // Handle coupon usage
+        if (appliedCoupon) {
+          try {
+            await customerUseCouponAPI({
+              id: appliedCoupon.id,
+              usedAt: new Date().toISOString(),
+              orderId: response.id,
+              status: 'USED'
+            })
+          } catch {
+            // Ignore coupon error
+          }
         }
+
+        dispatch(clearCart())
+        toast.success('🎉 Đặt hàng và thanh toán PayPal thành công!')
+        navigate('/profile/order-history')
       }
-    } catch {
-      toast.error('❌ Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
+    } catch (error) {
+      toast.error('❌ Có lỗi xảy ra sau khi thanh toán PayPal')
     } finally {
+      setShowPayPalForm(false)
       setLoading(false)
     }
+  }
+
+  const handlePayPalError = (error) => {
+    setShowPayPalForm(false)
+    setLoading(false)
+    // Error đã được handle trong PayPalPaymentForm
   }
 
   return (
@@ -306,7 +434,14 @@ const Checkout = () => {
 
           {/* Right Column - Order Summary */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <OrderSummary {...orderSummary} orderItems={orderItems} />
+            <OrderSummary
+              {...orderSummary}
+              appliedCoupon={appliedCoupon}
+              onApplyCoupon={handleApplyCoupon}
+              onRemoveCoupon={handleRemoveCoupon}
+              onCouponsUpdated={handleCouponsUpdated}
+              customerDetails={customerDetails}
+            />
 
             {/* Place Order Button */}
             <Button
@@ -314,7 +449,7 @@ const Checkout = () => {
               variant="contained"
               size="large"
               onClick={handlePlaceOrder}
-              disabled={loading || orderItems.length === 0}
+              disabled={loading || (orderItems?.cartItems?.length || orderItems?.items?.length || 0) === 0}
               sx={{
                 py: 2,
                 borderRadius: 4,
@@ -344,6 +479,45 @@ const Checkout = () => {
           orderSummary={orderSummary}
           loading={loading}
         />
+
+        {/* PayPal Payment Modal */}
+        {showPayPalForm && (
+          <Box sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            p: 3
+          }}>
+            <Box sx={{ width: '100%', maxWidth: 500, position: 'relative' }}>
+              <PayPalPaymentForm
+                orderData={{
+                  ...deliveryInfo,
+                  totalAmount: orderSummary.totalAmount,
+                  orderId: `temp_${Date.now()}`
+                }}
+                onSuccess={handlePayPalSuccess}
+                onError={handlePayPalError}
+                loading={loading}
+              />
+
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={() => setShowPayPalForm(false)}
+                sx={{ mt: 2, bgcolor: 'white' }}
+              >
+                Hủy thanh toán
+              </Button>
+            </Box>
+          </Box>
+        )}
       </Container>
     </Box>
   )

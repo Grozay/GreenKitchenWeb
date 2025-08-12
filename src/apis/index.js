@@ -156,14 +156,20 @@ export const deleteCustomerTDEEAPI = async (id) => {
   return response.data
 }
 
-// Chinh lai sau
+// Coupon APIs - Updated endpoints
 export const exchangeCouponAPI = async (data) => {
-  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-coupons/exchange`, data)
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/coupons/exchange`, data)
   return response.data
 }
 
-export const getExchangeableCouponsAPI = async (customerId) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-coupons/exchangeable/${customerId}`)
+export const getExchangeableCouponsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/available`)
+  return response.data
+}
+
+// Customer Coupon APIs
+export const customerUseCouponAPI = async (data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-coupons/use-coupon`, data)
   return response.data
 }
 
@@ -211,6 +217,17 @@ export const createOrder = async (data) => {
 
 export const getOrderByIdAPI = async (orderId) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/orders/${orderId}`)
+  return response.data
+}
+
+// PayPal APIs
+export const getExchangeRateAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/paypal/exchange-rate`)
+  return response.data
+}
+
+export const capturePayPalOrderAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/paypal/capture-order`, data)
   return response.data
 }
 

@@ -5,8 +5,8 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import RadioGroup from '@mui/material/RadioGroup'
 import Radio from '@mui/material/Radio'
 import Paper from '@mui/material/Paper'
-import CreditCardIcon from '@mui/icons-material/CreditCard'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
+import PaymentIcon from '@mui/icons-material/Payment'
 
 const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
   const handlePaymentChange = (event) => {
@@ -21,10 +21,10 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
       icon: <LocalShippingIcon sx={{ color: '#4C082A', fontSize: 28 }} />
     },
     {
-      value: 'card',
-      label: 'Thanh toán bằng thẻ',
-      description: 'Thanh toán online bằng thẻ tín dụng/ghi nợ',
-      icon: <CreditCardIcon sx={{ color: '#4C082A', fontSize: 28 }} />
+      value: 'paypal',
+      label: 'Thanh toán qua PayPal',
+      description: 'Thanh toán an toàn qua PayPal với thẻ hoặc tài khoản PayPal',
+      icon: <PaymentIcon sx={{ color: '#0070ba', fontSize: 28 }} />
     }
   ]
 
@@ -111,17 +111,17 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
           </RadioGroup>
         </FormControl>
 
-        {/* Thông tin bổ sung cho thanh toán thẻ */}
-        {paymentMethod === 'card' && (
+        {/* Thông tin bổ sung cho PayPal */}
+        {paymentMethod === 'paypal' && (
           <Box sx={{
             mt: 3,
             p: 2,
-            bgcolor: '#f8f9fa',
+            bgcolor: '#f0f8ff',
             borderRadius: 2,
-            border: '1px solid #e0e0e0'
+            border: '1px solid #0070ba'
           }}>
-            <Typography variant="body2" sx={{ color: '#666', textAlign: 'center' }}>
-              💳 Bạn sẽ được chuyển đến trang thanh toán an toàn để hoàn tất giao dịch
+            <Typography variant="body2" sx={{ color: '#0070ba', textAlign: 'center' }}>
+              💰 Thanh toán an toàn qua PayPal. Hỗ trợ thẻ Visa, Mastercard và tài khoản PayPal
             </Typography>
           </Box>
         )}
