@@ -119,9 +119,9 @@ function ProductMessageBubble({ message }) {
             sx={{
               display: 'grid',
               gridTemplateColumns: {
-                xs: '1fr', // Mobile: 1 cột dọc
-                sm: 'repeat(2, 1fr)', // Tablet: 2 cột
-                md: 'repeat(2, 1fr)' // Desktop: 2 cột (vì bubble không quá rộng)
+                xs: '1fr',
+                sm: 'repeat(auto-fit, minmax(160px, 1fr))',
+                md: 'repeat(auto-fit, minmax(180px, 1fr))'
               },
               gap: { xs: 1.5, sm: 2 },
               mt: 1
@@ -161,6 +161,12 @@ function ProductMessageBubble({ message }) {
                     }}
                   >
                     <CardMedia
+                      key={product.id}
+                      onClick={() => {
+                        if (product.slug) {
+                          navigate(`/menu/${product.slug}`)
+                        }
+                      }}
                       component="img"
                       height="120"
                       image={product.image || 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400'}
