@@ -4,21 +4,85 @@ import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
+import Autocomplete from '@mui/material/Autocomplete'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import FormHelperText from '@mui/material/FormHelperText'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import dayjs from 'dayjs'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const DeliveryInfoForm = ({ 
-  deliveryInfo, 
-  setDeliveryInfo, 
-  errors, 
-  customerDetails 
+const DeliveryInfoForm = ({
+  deliveryInfo,
+  setDeliveryInfo,
+  errors,
+  customerDetails
 }) => {
   const [showCustomForm, setShowCustomForm] = useState(false)
   
+  // State cho quận/huyện và phường/xã
+  const [districts, setDistricts] = useState([])
+  const [wards, setWards] = useState([])
+  const [selectedDistrict, setSelectedDistrict] = useState(null)
+  const [selectedWard, setSelectedWard] = useState(null)
+  const [loadingDistricts, setLoadingDistricts] = useState(false)
+  const [loadingWards, setLoadingWards] = useState(false)
+
+  // Fetch quận/huyện của TP.HCM (code: 79)
+  const fetchDistricts = async () => {
+    setLoadingDistricts(true)
+    try {
+      const response = await fetch('https://provinces.open-api.vn/api/p/79?depth=2')
+      const data = await response.json()
+      setDistricts(data.districts || [])
+    } catch (error) {
+      setDistricts([])
+    } finally {
+      setLoadingDistricts(false)
+    }
+  }
+
+  // Fetch phường/xã dựa trên quận/huyện
+  const fetchWards = async (districtCode) => {
+    setLoadingWards(true)
+    try {
+      const response = await fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+      const data = await response.json()
+      setWards(data.wards || [])
+    } catch (error) {
+      setWards([])
+    } finally {
+      setLoadingWards(false)
+    }
+  }
+
+  // Gọi API khi component mount
+  useEffect(() => {
+    fetchDistricts()
+    // Set default city to TP. Hồ Chí Minh if not set
+    if (!deliveryInfo.city) {
+      setDeliveryInfo(prev => ({
+        ...prev,
+        city: 'TP. Hồ Chí Minh'
+      }))
+    }
+  }, [])
+
+  // Đồng bộ selectedWard khi wards data thay đổi
+  useEffect(() => {
+    if (wards.length > 0 && deliveryInfo.ward) {
+      const selectedWardOption = wards.find(w => w.name === deliveryInfo.ward)
+      if (selectedWardOption && !selectedWard) {
+        setSelectedWard(selectedWardOption)
+      }
+    }
+  }, [wards, deliveryInfo.ward, selectedWard])
+
   const handleChange = (field) => (event) => {
     setDeliveryInfo(prev => ({
       ...prev,
@@ -89,13 +153,13 @@ const DeliveryInfoForm = ({
 
   const handleDifferentAddress = () => {
     setShowCustomForm(true)
-    // Clear address fields but keep name and phone
+    // Clear address fields but keep name and phone, set default city
     setDeliveryInfo(prev => ({
       ...prev,
       street: '',
       ward: '',
       district: '',
-      city: ''
+      city: 'TP. Hồ Chí Minh'
     }))
   }
 
@@ -110,8 +174,21 @@ const DeliveryInfoForm = ({
         street: defaultAddress.street || '',
         ward: defaultAddress.ward || '',
         district: defaultAddress.district || '',
-        city: defaultAddress.city || ''
+        city: defaultAddress.city || 'TP. Hồ Chí Minh'
       }))
+      
+      // Set selected values for autocomplete
+      const selectedDist = districts.find(d => d.name === defaultAddress.district)
+      setSelectedDistrict(selectedDist || null)
+      
+      if (selectedDist) {
+        fetchWards(selectedDist.code).then(() => {
+          setTimeout(() => {
+            const selectedWardOption = wards.find(w => w.name === defaultAddress.ward)
+            setSelectedWard(selectedWardOption || null)
+          }, 100)
+        })
+      }
     }
   }
 
@@ -264,47 +341,100 @@ const DeliveryInfoForm = ({
               />
               
               <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                <TextField
+                <Autocomplete
                   fullWidth
-                  label="Phường/Xã"
-                  value={deliveryInfo.ward || ''}
-                  onChange={handleChange('ward')}
-                  error={!!errors.ward}
-                  helperText={errors.ward}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                  options={districts}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedDistrict}
+                  loading={loadingDistricts}
+                  onChange={(event, newValue) => {
+                    setSelectedDistrict(newValue)
+                    setDeliveryInfo(prev => ({
+                      ...prev,
+                      district: newValue ? newValue.name : ''
+                    }))
+                    if (newValue) {
+                      fetchWards(newValue.code)
+                      setSelectedWard(null)
+                      setDeliveryInfo(prev => ({
+                        ...prev,
+                        ward: ''
+                      }))
+                    } else {
+                      setWards([])
+                      setSelectedWard(null)
+                      setDeliveryInfo(prev => ({
+                        ...prev,
+                        ward: ''
+                      }))
                     }
                   }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Quận/Huyện"
+                      error={!!errors.district}
+                      helperText={errors.district}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 2
+                        }
+                      }}
+                    />
+                  )}
                 />
-                <TextField
+
+                <Autocomplete
                   fullWidth
-                  label="Quận/Huyện"
-                  value={deliveryInfo.district || ''}
-                  onChange={handleChange('district')}
-                  error={!!errors.district}
-                  helperText={errors.district}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
-                    }
+                  options={wards}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedWard}
+                  loading={loadingWards}
+                  disabled={!selectedDistrict}
+                  onChange={(event, newValue) => {
+                    setSelectedWard(newValue)
+                    setDeliveryInfo(prev => ({
+                      ...prev,
+                      ward: newValue ? newValue.name : ''
+                    }))
                   }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Phường/Xã"
+                      error={!!errors.ward}
+                      helperText={errors.ward || (!selectedDistrict ? 'Vui lòng chọn quận/huyện trước' : '')}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 2
+                        }
+                      }}
+                    />
+                  )}
                 />
               </Box>
               
-              <TextField
+              <FormControl 
                 fullWidth
-                label="Tỉnh/Thành phố"
-                value={deliveryInfo.city || ''}
-                onChange={handleChange('city')}
                 error={!!errors.city}
-                helperText={errors.city}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2
                   }
                 }}
-              />
+              >
+                <InputLabel>Tỉnh/Thành phố</InputLabel>
+                <Select
+                  value={deliveryInfo.city || 'TP. Hồ Chí Minh'}
+                  onChange={handleChange('city')}
+                  label="Tỉnh/Thành phố"
+                >
+                  <MenuItem value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</MenuItem>
+                </Select>
+                {errors.city && (
+                  <FormHelperText>{errors.city}</FormHelperText>
+                )}
+              </FormControl>
             </Box>
           </>
         )}

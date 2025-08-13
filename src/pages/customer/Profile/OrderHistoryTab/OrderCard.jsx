@@ -40,9 +40,9 @@ export default function OrderCard({ order, onViewDetails }) {
   }
 
   return (
-    <Card sx={{ 
-      mb: 2, 
-      borderRadius: 2, 
+    <Card sx={{
+      mb: 2,
+      borderRadius: 2,
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
       '&:hover': {
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -52,9 +52,9 @@ export default function OrderCard({ order, onViewDetails }) {
     }}>
       <CardContent sx={{ p: 3 }}>
         {/* Header - Order Info */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
           mb: 2,
           flexWrap: 'wrap',
@@ -90,9 +90,9 @@ export default function OrderCard({ order, onViewDetails }) {
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {order.orderItems?.slice(0, 3).map((item, idx) => (
-              <Box key={idx} sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              <Box key={idx} sx={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: 2,
                 p: 1,
                 backgroundColor: '#f9f9f9',
@@ -168,9 +168,9 @@ export default function OrderCard({ order, onViewDetails }) {
         </Box>
 
         {/* Price Breakdown */}
-        <Box sx={{ 
-          backgroundColor: '#f5f5f5', 
-          p: 2, 
+        <Box sx={{
+          backgroundColor: '#f5f5f5',
+          p: 2,
           borderRadius: 1,
           mb: 2
         }}>
@@ -181,7 +181,7 @@ export default function OrderCard({ order, onViewDetails }) {
             <Grid size={{ xs: 6 }} sx={{ textAlign: 'right' }}>
               <Typography variant="body2">{formatPrice(order.subtotal)}</Typography>
             </Grid>
-            
+
             <Grid size={{ xs: 6 }}>
               <Typography variant="body2">Phí vận chuyển:</Typography>
             </Grid>
@@ -212,7 +212,7 @@ export default function OrderCard({ order, onViewDetails }) {
             )}
 
             <Divider sx={{ width: '100%', my: 1 }} />
-            
+
             <Grid size={{ xs: 6 }}>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>Tổng cộng:</Typography>
             </Grid>
@@ -253,8 +253,8 @@ export default function OrderCard({ order, onViewDetails }) {
         )}
 
         {/* Actions */}
-        <Box sx={{ 
-          display: 'flex', 
+        <Box sx={{
+          display: 'flex',
           justifyContent: 'flex-end',
           gap: 1,
           flexWrap: 'wrap'
@@ -275,7 +275,7 @@ export default function OrderCard({ order, onViewDetails }) {
               Đánh giá
             </Button>
           )}
-          
+
           {order.status === 'PENDING' && (
             <Button
               variant="outlined"
@@ -285,7 +285,7 @@ export default function OrderCard({ order, onViewDetails }) {
               Hủy đơn
             </Button>
           )}
-          
+
           <Button
             variant="outlined"
             size="small"
