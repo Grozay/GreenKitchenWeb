@@ -137,3 +137,21 @@ export const getNutritionalAdvice = (customTotal) => {
 
   return 'Hãy tiếp tục lựa chọn để cân bằng bữa ăn nhé.'
 }
+
+// Định nghĩa các cặp protein-sauce phù hợp
+const PROTEIN_SAUCE_PAIRINGS = {
+  'chicken': ['Teriyaki Sauce', 'Sriracha Mayo'],
+  'beef': ['Basil Pesto', 'Teriyaki Sauce'],
+  'salmon': ['Cilantro Lime Sauce'],
+  'tofu': ['Sriracha Mayo', 'Cilantro Lime Sauce']
+}
+
+export const getSuggestedSauces = (protein, allSauces) => {
+  if (!protein || !allSauces) return []
+  // Tìm key phù hợp theo từ khóa
+  const key = Object.keys(PROTEIN_SAUCE_PAIRINGS).find(k =>
+    protein.title.toLowerCase().includes(k)
+  )
+  const suggestedSauceNames = key ? PROTEIN_SAUCE_PAIRINGS[key] : []
+  return allSauces.filter(sauce => suggestedSauceNames.includes(sauce.title))
+}

@@ -15,7 +15,6 @@ export const fetchCart = createAsyncThunk(
   }
 )
 
-
 export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
   async ({ customerId, itemId }) => {
@@ -60,7 +59,6 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch cart
       .addCase(fetchCart.pending, (state) => {
         state.loading = true
       })
@@ -75,7 +73,6 @@ const cartSlice = createSlice({
         state.loading = false
         state.error = action.error.message
       })
-      // Remove from cart
       .addCase(removeFromCart.pending, (state) => {
         state.loading = true
       })
@@ -91,14 +88,26 @@ const cartSlice = createSlice({
         state.loading = false
         state.error = action.error.message
       })
-      // Increase quantity
       .addCase(increaseQuantity.pending, (state) => {
         state.loading = true
       })
       .addCase(increaseQuantity.fulfilled, (state, action) => {
         state.loading = false
-        // Fetch lại cart data sau khi tăng quantity thành công
-        // Hoặc có thể update local state nếu API trả về data mới
+        const itemId = action.meta.arg.itemId
+        state.items = state.items.map(item =>
+          item.id === itemId
+            ? { ...item, quantity: item.quantity + 1, totalPrice: (item.quantity + 1) * item.price }
+            : item
+        )
+        if (state.cartItems.cartItems) {
+          state.cartItems.cartItems = state.cartItems.cartItems.map(item =>
+            item.id === itemId
+              ? { ...item, quantity: item.quantity + 1, totalPrice: (item.quantity + 1) * item.price }
+              : item
+          )
+        }
+        state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0)
+        state.totalAmount = state.items.reduce((sum, item) => sum + item.totalPrice, 0)
       })
       .addCase(increaseQuantity.rejected, (state, action) => {
         state.loading = false
@@ -110,8 +119,21 @@ const cartSlice = createSlice({
       })
       .addCase(decreaseQuantity.fulfilled, (state, action) => {
         state.loading = false
-        // Fetch lại cart data sau khi giảm quantity thành công
-        // Hoặc có thể update local state nếu API trả về data mới
+        const itemId = action.meta.arg.itemId
+        state.items = state.items.map(item =>
+          item.id === itemId && item.quantity > 1
+            ? { ...item, quantity: item.quantity - 1, totalPrice: (item.quantity - 1) * item.price }
+            : item
+        )
+        if (state.cartItems.cartItems) {
+          state.cartItems.cartItems = state.cartItems.cartItems.map(item =>
+            item.id === itemId && item.quantity > 1
+              ? { ...item, quantity: item.quantity - 1, totalPrice: (item.quantity - 1) * item.price }
+              : item
+          )
+        }
+        state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0)
+        state.totalAmount = state.items.reduce((sum, item) => sum + item.totalPrice, 0)
       })
       .addCase(decreaseQuantity.rejected, (state, action) => {
         state.loading = false
@@ -122,7 +144,6 @@ const cartSlice = createSlice({
 
 export const { clearCart } = cartSlice.actions
 
-// Selectors
 export const selectCartItems = (state) => state.cart.cartItems
 export const selectTotalItems = (state) => state.cart.totalItems
 export const selectItems = (state) => state.cart.items

@@ -6,7 +6,7 @@ import EmptyBowl from './EmptyBowl/EmptyBowl'
 import ListCardChoice from './ListCardChoice/ListCardChoice'
 import InfoDetail from './InfoDetail/InfoDetail'
 
-const HealthyChoice = () => {
+const HealthyChoice = ({ itemHealthy }) => {
   const selectedItems = useSelector(selectCurrentMeal)
 
   return (
@@ -107,7 +107,7 @@ const HealthyChoice = () => {
         selectedItems.sauce.length === 0 ? (
           <Box></Box>
         ) : (
-          <InfoDetail />
+          <InfoDetail itemHealthy={itemHealthy} />
         )}
     </Box>
   )

@@ -4,6 +4,7 @@ import { employeeReducer } from './user/employeeSlice.js'
 import { customerReducer } from './user/customerSlice.js'
 import { mealReducer } from './meal/mealSlice.js'
 import { cartReducer } from './cart/cartSlice.js'
+import suggestSauceReducer from './meal/suggestSauceSlice'
 //config redux-persist
 import { combineReducers } from 'redux'
 import { persistReducer } from 'redux-persist'
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
   employee: employeeReducer,
   customer: customerReducer,
   meal: mealReducer,
-  cart: cartReducer
+  cart: cartReducer,
+  suggestSauce: suggestSauceReducer
 })
 
 const persistedReducer = persistReducer(rootPersistConfig, rootReducer)
