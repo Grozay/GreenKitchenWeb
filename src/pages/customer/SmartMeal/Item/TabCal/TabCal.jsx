@@ -1,12 +1,37 @@
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import theme from '~/theme'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectShowSauceHint, setShowSauceHint } from '~/redux/meal/suggestSauceSlice'
+import { keyframes } from '@mui/system'
+
+const pulseAnimation = keyframes`
+  0% {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+  50% {
+    background-color: rgba(255, 0, 0, 0.5);
+  }
+  100% {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+`
 
 const TabCal = ({ value, handleChange }) => {
+  const dispatch = useDispatch()
+  // const showSauceHint = useSelector(selectShowSauceHint) || false
+
+  const handleTabChange = (event, newValue) => {
+    // if (newValue === 3) {
+    //   dispatch(setShowSauceHint(false))
+    // }
+    handleChange(event, newValue)
+  }
+
   return (
     <Tabs
       value={value}
-      onChange={handleChange}
+      onChange={handleTabChange}
       variant="scrollable"
       scrollButtons
       allowScrollButtonsMobile
@@ -41,6 +66,10 @@ const TabCal = ({ value, handleChange }) => {
             backgroundColor: theme.colorSchemes.light.palette.background.default,
             color: theme.colorSchemes.light.palette.text.secondary
           }
+        },
+        '& .MuiTab-root:last-child': {
+          // animation: showSauceHint ? `${pulseAnimation} 1.5s infinite` : 'none',
+          position: 'relative',
         }
       }}
     >

@@ -18,8 +18,11 @@ import {
   selectItems,
   selectTotalAmount
 } from '~/redux/cart/cartSlice'
-import { Typography, Button, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 import CloseIcon from '@mui/icons-material/Close'
+import Divider from '@mui/material/Divider'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -293,7 +296,7 @@ const Cart = () => {
               TỔNG TIỀN:
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {totalAmount?.toLocaleString()} $
+              {totalAmount?.toLocaleString()} VNĐ
             </Typography>
           </Box>
         )}
@@ -324,38 +327,14 @@ const Cart = () => {
       </Menu>
 
       {/* Confirmation Dialog */}
-      <Dialog
+      <ConfirmModal
         open={confirmDialogOpen}
         onClose={handleCancelRemove}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle sx={{ textAlign: 'center', fontWeight: 600 }}>
-          Xác nhận xóa sản phẩm
-        </DialogTitle>
-        <DialogContent sx={{ textAlign: 'center', py: 2 }}>
-          <Typography>
-            Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 3 }}>
-          <Button
-            onClick={handleCancelRemove}
-            variant="outlined"
-            sx={{ minWidth: 100 }}
-          >
-            Hủy
-          </Button>
-          <Button
-            onClick={handleConfirmRemove}
-            variant="contained"
-            color="error"
-            sx={{ minWidth: 100 }}
-          >
-            Xóa
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleConfirmRemove}
+        title="Confirm Remove Item"
+        description="Are you sure you want to remove this item from the cart?"
+        btnName="Remove"
+      />
     </>
   )
 }

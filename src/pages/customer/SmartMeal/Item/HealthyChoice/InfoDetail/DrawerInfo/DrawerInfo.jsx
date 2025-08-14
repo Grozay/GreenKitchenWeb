@@ -11,182 +11,154 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import SaveIcon from '@mui/icons-material/Save'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import { useTheme } from '@mui/material'
-import { ItemHealthy } from '~/apis/mockData'
+// import { ItemHealthy } from '~/apis/mockData'
 import { selectCurrentMeal, clearCart } from '~/redux/meal/mealSlice'
 import { fetchCart } from '~/redux/cart/cartSlice' // Import từ cart slice
 import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice } from '~/utils/nutrition'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import PageviewIcon from '@mui/icons-material/Pageview'
 import SuggestFood from './SuggestFood'
-import SelectedFood from './SelectedFood'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { createCustomMealAPI, addMealToCartAPI } from '~/apis/index' // Import API functions
 import { toast } from 'react-toastify'
+import Grid from '@mui/material/Grid'
+import FoodCard from '~/components/FoodCard/FoodCard'
+import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 
-const DrawerInfo = ({ onClose }) => {
-  const [isReviewing, setIsReviewing] = useState(false)
+const DrawerInfo = ({ onClose, itemHealthy }) => {
+  const [openInfoModal, setOpenInfoModal] = useState(false)
+
+  const [isReviewing, setIsReviewing] = useState(true)
   const [addingToCart, setAddingToCart] = useState(false)
   const [savingMeal, setSavingMeal] = useState(false)
+  const [orderMode, setOrderMode] = useState(false)
   const theme = useTheme()
   const dispatch = useDispatch()
   const selected = useSelector(selectCurrentMeal)
   const customTotal = calcCustomTotal(selected)
-  const suggestedMeals = getSuggestedMeals(customTotal, ItemHealthy, selected)
+  const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
   const nutritionalAdvice = getNutritionalAdvice(customTotal)
   const allSelectedItems = Object.values(selected).flat()
 
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
   const customerId = 1 // Hoặc lấy từ auth state
 
-  const handleOrderCustom = async () => {
-    if (addingToCart) return
+  const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
 
-    try {
-      setAddingToCart(true)
-
-      // Bước 1: Save custom meal trước để lấy ID
-      const customMealData = {
-        customerId: customerId,
-        name: 'My Custom Bowl',
-        calories: Math.round(customTotal.calories),
-        protein: Math.round(customTotal.protein),
-        carb: Math.round(customTotal.carbs), // Backend expects 'carb'
-        fat: Math.round(customTotal.fat)
-      }
-
-      // Thêm ingredients data
-      if (selected.protein.length > 0) {
-        customMealData.proteins = selected.protein.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.proteins = []
-      }
-
-      if (selected.carbs.length > 0) {
-        customMealData.carbs = selected.carbs.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.carbs = []
-      }
-
-      if (selected.side.length > 0) {
-        customMealData.sides = selected.side.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.sides = []
-      }
-
-      if (selected.sauce.length > 0) {
-        customMealData.sauces = selected.sauce.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.sauces = []
-      }
-
-      // Save custom meal và lấy response
-      const savedCustomMeal = await createCustomMealAPI(customMealData)
-
-      // Bước 2: Add to cart với customMealId từ response
-      const cartRequestData = {
-        isCustom: true,
-        customMealId: savedCustomMeal.id, // Sử dụng ID từ saved custom meal
-        quantity: 1,
-        basePrice: 22.50, // Có thể tính giá dựa trên ingredients hoặc lấy từ response
-        title: savedCustomMeal.name || 'My Custom Bowl',
-        description: 'Custom meal with selected ingredients',
-        calories: Math.round(customTotal.calories),
-        protein: Math.round(customTotal.protein),
-        carbs: Math.round(customTotal.carbs), // Note: 'carbs' for cart API
-        fat: Math.round(customTotal.fat)
-      }
-
-      // Add to cart via API
-      await addMealToCartAPI(customerId, cartRequestData)
-
-      // Refresh cart data
-      await dispatch(fetchCart(customerId))
-
-      // Clear the meal builder
-      dispatch(clearCart())
-
-      toast.success('Custom meal added to cart successfully!')
-      onClose()
-    } catch (error) {
-      toast.error('Failed to add custom meal to cart. Please try again.' + error.message)
-    } finally {
-      setAddingToCart(false)
-    }
+  const handleOrderCustom = () => {
+    setOrderMode(true)
+    setOpenInfoModal(true)
   }
 
-  const handleSaveCustom = async () => {
-    if (savingMeal) return
+  const handleSaveCustom = () => {
+    setOpenInfoModal(true)
+  }
 
-    try {
+  const mainProtein = selected.protein?.[0]
+  const defaultImage = mainProtein?.image || ''
+  const handleModalSave = async ({ title, desc }) => {
+    setOpenInfoModal(false)
+    if (orderMode) {
+      // ORDER FLOW
+      setAddingToCart(true)
+      try {
+        const customMealData = {
+          customerId: customerId,
+          title: title || 'My favorite mix with quantities',
+          description: desc || 'your custom Meal',
+          calories: Math.round(customTotal.calories),
+          protein: Math.round(customTotal.protein),
+          carb: Math.round(customTotal.carbs),
+          fat: Math.round(customTotal.fat),
+          price: totalPrice,
+          image: defaultImage,
+          proteins: selected.protein?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || [],
+          carbs: selected.carbs?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || [],
+          sides: selected.side?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || [],
+          sauces: selected.sauce?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || []
+        }
+
+        // Save custom meal và lấy response
+        const savedCustomMeal = await createCustomMealAPI(customMealData)
+
+        // Add to cart
+        const cartRequestData = {
+          isCustom: true,
+          customMealId: savedCustomMeal.id,
+          quantity: 1,
+          basePrice: totalPrice,
+          title: savedCustomMeal.name || 'My Custom Bowl',
+          description: 'Custom meal with selected ingredients',
+          calories: Math.round(customTotal.calories),
+          protein: Math.round(customTotal.protein),
+          carbs: Math.round(customTotal.carbs),
+          fat: Math.round(customTotal.fat)
+        }
+
+        await addMealToCartAPI(customerId, cartRequestData)
+        await dispatch(fetchCart(customerId))
+        dispatch(clearCart())
+        onClose()
+        toast.success('Custom meal added to cart successfully!')
+      } catch (error) {
+        toast.error('Failed to add custom meal to cart. Please try again.' + error.message)
+      } finally {
+        setAddingToCart(false)
+        setOrderMode(false)
+      }
+    } else {
+      // SAVE FLOW
       setSavingMeal(true)
+      try {
+        const customMealData = {
+          customerId: customerId,
+          title: title || 'My favorite mix with quantities',
+          description: desc || 'your custom Meal',
+          calories: Math.round(customTotal.calories),
+          protein: Math.round(customTotal.protein),
+          carb: Math.round(customTotal.carbs),
+          fat: Math.round(customTotal.fat),
+          price: totalPrice,
+          image: defaultImage,
+          proteins: selected.protein?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || [],
+          carbs: selected.carbs?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || [],
+          sides: selected.side?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || [],
+          sauces: selected.sauce?.map(item => ({
+            ingredientId: item.id,
+            quantity: item.quantity
+          })) || []
+        }
 
-      const customMealData = {
-        customerId: customerId,
-        name: 'My Custom Bowl',
-        calories: Math.round(customTotal.calories),
-        protein: Math.round(customTotal.protein),
-        carb: Math.round(customTotal.carbs), // Backend expects 'carb'
-        fat: Math.round(customTotal.fat)
+        const savedCustomMeal = await createCustomMealAPI(customMealData)
+        dispatch(clearCart())
+        onClose()
+        toast.success(`Custom meal "${savedCustomMeal.name}" saved successfully!`)
+      } catch (error) {
+        toast.error('Failed to save custom meal. Please try again.')
+      } finally {
+        setSavingMeal(false)
       }
-
-      // Thêm ingredients data
-      if (selected.protein.length > 0) {
-        customMealData.proteins = selected.protein.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.proteins = []
-      }
-
-      if (selected.carbs.length > 0) {
-        customMealData.carbs = selected.carbs.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.carbs = []
-      }
-
-      if (selected.side.length > 0) {
-        customMealData.sides = selected.side.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.sides = []
-      }
-
-      if (selected.sauce.length > 0) {
-        customMealData.sauces = selected.sauce.map(item => ({
-          ingredientId: item.id,
-          quantity: item.quantity
-        }))
-      } else {
-        customMealData.sauces = []
-      }
-
-      const savedCustomMeal = await createCustomMealAPI(customMealData)
-
-      dispatch(clearCart())
-      onClose()
-      toast.success(`Custom meal "${savedCustomMeal.name}" saved successfully!`)
-    } catch (error) {
-      toast.error('Failed to save custom meal. Please try again.' + error.message)
-    } finally {
-      setSavingMeal(false)
     }
   }
 
@@ -207,6 +179,16 @@ const DrawerInfo = ({ onClose }) => {
       role="dialog"
       aria-labelledby="drawer-title"
     >
+      <CustomMealInfoModal
+        open={openInfoModal}
+        onClose={() => {
+          setOpenInfoModal(false)
+          setOrderMode(false)
+        }}
+        onSave={handleModalSave}
+        defaultTitle={mainProtein ? 'My Custom Bowl' : ''}
+        defaultDesc="Custom meal with selected ingredients"
+      />
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
@@ -247,18 +229,15 @@ const DrawerInfo = ({ onClose }) => {
         {isReviewing ? (
           // --- REVIEW VIEW ---
           <>
-            {selected.protein.length > 0 && (
-              <SelectedFood allSelectedItems={selected.protein} title="Protein" />
-            )}
-            {selected.carbs.length > 0 && (
-              <SelectedFood allSelectedItems={selected.carbs} title="Carbs" />
-            )}
-            {selected.side.length > 0 && (
-              <SelectedFood allSelectedItems={selected.side} title="Side" />
-            )}
-            {selected.sauce.length > 0 && (
-              <SelectedFood allSelectedItems={selected.sauce} title="Sauce" />
-            )}
+            <Box sx={{ mb: 2 }}>
+              <Grid container spacing={2}>
+                {allSelectedItems.map(item => (
+                  <Grid size={{ xs: 6, sm: 4, md: 2 }} key={item.id}>
+                    <FoodCard card={item} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
           </>
         ) : (
           // --- BUILDER VIEW ---
@@ -322,7 +301,7 @@ const DrawerInfo = ({ onClose }) => {
               sx={{ borderRadius: 5, color: theme.palette.text.primary, p: 1 }}
               aria-label="Back to Builder"
             >
-              Back to Builder
+              Go to Builder
             </Button>
           )}
         </Box>
@@ -342,11 +321,17 @@ const DrawerInfo = ({ onClose }) => {
             Or order your custom meal
           </Typography>
         </Box>
+
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
           <TrendingUpIcon sx={{ color: theme.palette.primary.secondary }} />
           <Typography variant="body1" sx={{ textAlign: 'center' }}>
             Calories: {Math.round(customTotal.calories)} kcal | Protein: {Math.round(customTotal.protein)}g | Carbs:{' '}
             {Math.round(customTotal.carbs)}g | Fat: {Math.round(customTotal.fat)}g
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.primary.secondary }}>
+            Total Price: {totalPrice.toLocaleString()} VNĐ
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>

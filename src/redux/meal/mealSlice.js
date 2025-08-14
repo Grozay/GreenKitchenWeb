@@ -8,6 +8,9 @@ const initialState = {
     side: [],
     sauce: []
   },
+  title: '',
+  description: '',
+  image: 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
   totalCalories: 0,
   totalProtein: 0,
   totalCarbs: 0,
@@ -106,6 +109,9 @@ const mealSlice = createSlice({
         side: [],
         sauce: []
       }
+      state.title = '',
+      state.description = '',
+      state.image = 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png',
       state.totalCalories = 0
       state.totalProtein = 0
       state.totalCarbs = 0

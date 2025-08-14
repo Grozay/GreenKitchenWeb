@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
@@ -7,14 +8,22 @@ import { useDispatch } from 'react-redux'
 import { clearCart } from '~/redux/meal/mealSlice'
 import theme from '~/theme'
 import { Drawer } from '@mui/material'
-import { useState } from 'react'
 import DrawerInfo from './DrawerInfo/DrawerInfo'
+import { selectSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
+import SauceSuggestionDialog from '../DialogSauces/SauceSuggestionDialog'
+import { getSuggestedSauces } from '~/utils/nutrition'
+import { setSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
+import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 
-
-const InfoDetail = () => {
+const InfoDetail = ({ itemHealthy }) => {
   const dispatch = useDispatch()
+  const suggestedSauces = useSelector(selectSuggestedSauces)
+  const [openSauceDialog, setOpenSauceDialog] = useState(false)
+  const [hasSuggestedSauce, setHasSuggestedSauce] = useState(false)
   const { totalCalories, totalProtein, totalCarbs, totalFat } = useSelector(selectMealTotals)
   const [openDrawer, setOpenDrawer] = useState(false)
+  const selectedItems = useSelector(selectCurrentMeal)
+  const allSauces = itemHealthy.sauce
 
   const items = [
     { label: 'Calories', value: `${Math.round(totalCalories)}` },
@@ -35,8 +44,44 @@ const InfoDetail = () => {
     setOpenDrawer(false)
   }
 
+  useEffect(() => {
+    setHasSuggestedSauce(false)
+  }, [selectedItems.protein])
+
+  const handleSuggestSauce = () => {
+    let sauces = []
+    if (selectedItems.protein.length > 0) {
+      selectedItems.protein.forEach(protein => {
+        sauces = [
+          ...sauces,
+          ...getSuggestedSauces(protein, allSauces)
+        ]
+      })
+      sauces = sauces.filter((s, i, arr) => arr.findIndex(x => x.id === s.id) === i)
+      dispatch(setSuggestedSauces(sauces))
+    } else {
+      dispatch(setSuggestedSauces([]))
+    }
+    setOpenSauceDialog(true)
+  }
+
   return (
     <Box>
+      <SauceSuggestionDialog
+        open={openSauceDialog}
+        sauces={suggestedSauces}
+        selectedSauceIds={[]}
+        onOk={() => {
+          setHasSuggestedSauce(true)
+          setOpenSauceDialog(false)
+        }}
+        onOrderNow={() => {
+          setHasSuggestedSauce(true)
+          setOpenSauceDialog(false)
+          handleNutritionClick()
+        }}
+        onClose={() => setOpenSauceDialog(false)}
+      />
       <Grid
         container
         spacing={2}
@@ -84,23 +129,28 @@ const InfoDetail = () => {
         }}>
           Clear Selections
         </Box>
-        <Box onClick={handleNutritionClick} sx={{
-          py: 1,
-          px: 4,
-          borderRadius: 5,
-          maxWidth: 'fit-content',
-          cursor: 'pointer',
-          textAlign: 'center',
-          color: 'white',
-          bgcolor: theme.palette.primary.secondary,
-          fontWeight: 400,
-          fontSize: '1rem',
-          '&:hover': {
-            bgcolor: 'rgba(0, 99, 76, 0.8)'
-          }
-        }}
+        <Box
+          onClick={() => {
+            if (!hasSuggestedSauce) handleSuggestSauce()
+            else handleNutritionClick()
+          }}
+          sx={{
+            py: 1,
+            px: 4,
+            borderRadius: 5,
+            maxWidth: 'fit-content',
+            cursor: 'pointer',
+            textAlign: 'center',
+            color: 'white',
+            bgcolor: theme.palette.primary.secondary,
+            fontWeight: 400,
+            fontSize: '1rem',
+            '&:hover': {
+              bgcolor: 'rgba(0, 99, 76, 0.8)'
+            }
+          }}
         >
-          Order Now
+          {hasSuggestedSauce ? 'Order Now' : 'Suggest Sauce'}
         </Box>
       </Box>
       <Drawer
@@ -116,7 +166,7 @@ const InfoDetail = () => {
           sx: { overflow: 'auto' }
         }}
       >
-        <DrawerInfo selectedItems={items} onClose={handleCloseDrawer} />
+        <DrawerInfo selectedItems={items} onClose={handleCloseDrawer} itemHealthy={itemHealthy} />
       </Drawer>
     </Box>
   )
