@@ -153,7 +153,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
         const savedCustomMeal = await createCustomMealAPI(customMealData)
         dispatch(clearCart())
         onClose()
-        toast.success(`Custom meal "${savedCustomMeal.name}" saved successfully!`)
+        toast.success(`Custom meal "${savedCustomMeal.title}" saved successfully!`)
       } catch (error) {
         toast.error('Failed to save custom meal. Please try again.')
       } finally {
