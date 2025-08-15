@@ -17,43 +17,62 @@ import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ClearIcon from '@mui/icons-material/Clear'
+import SearchIcon from '@mui/icons-material/Search'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
+import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
+import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
+import Collapse from '@mui/material/Collapse'
 
-// Component đơn giản để hiển thị menu products
-function MenuGrid({ products }) {
+// Component hiển thị grid sản phẩm tối ưu cho 40% width
+function ProductGrid({ products }) {
   if (!products || products.length === 0) return null
 
   return (
     <Box sx={{
       display: 'grid',
       gridTemplateColumns: {
-        xs: '1fr',
-        sm: 'repeat(2, 1fr)',
-        md: 'repeat(2, 1fr)',
-        lg: 'repeat(3, 1fr)'
+        xs: '1fr', // Mobile: 1 cột (full width)
+        sm: '1fr', // Small tablet: 1 cột
+        md: '1fr', // Medium: 1 cột (40% width - tối ưu với 1 cột)
+        lg: 'repeat(2, 1fr)', // Large: 2 cột (40% có thể fit 2 cột nhỏ)
+        xl: 'repeat(2, 1fr)' // XL: 2 cột
       },
-      gap: { xs: 1, sm: 2, md: 3 },
+      gap: {
+        xs: 1.5, // Giảm gap trên mobile
+        sm: 2,
+        md: 1.5, // Gap nhỏ hơn cho 40% width
+        lg: 2
+      },
       width: '100%',
-      alignItems: 'stretch'
+      p: {
+        xs: 1,
+        sm: 1.5,
+        md: 1, // Padding nhỏ hơn cho 40% width
+        lg: 1.5
+      }
     }}>
       {products.map((product, idx) => (
         <Box
-          key={product.id || idx}
+          key={product.id || `product-${idx}`}
           sx={{
             width: '100%',
-            height: '100%',
+            height: 'auto',
+            minHeight: { xs: 180, md: 160, lg: 180 }, // Chiều cao tối thiểu linh hoạt
             display: 'flex',
-            minWidth: 0,
-            minHeight: 0
+            flexDirection: 'column'
           }}
         >
           <ProductCard
             product={product}
             showActions
-            variant="default"
-            onAddToCart={() => {}}
-            onToggleFavorite={() => {}}
+            variant="compact" // Sử dụng variant compact cho không gian nhỏ
+            onAddToCart={() => console.log('Add to cart:', product)}
+            onToggleFavorite={() => console.log('Toggle favorite:', product)}
             isFavorited={false}
           />
         </Box>
@@ -62,552 +81,563 @@ function MenuGrid({ products }) {
   )
 }
 
-export default function MenuPanel({ menuProducts }) {
+// Component Filter compact cho 40% width
+function CompactFilter({
+  label,
+  icon,
+  color,
+  minValue,
+  maxValue,
+  sliderValue,
+  onMinChange,
+  onMaxChange,
+  onSliderChange,
+  sliderMin = 0,
+  sliderMax = 100,
+  sliderStep = 1,
+  unit = '',
+  disabled = false
+}) {
+  return (
+    <Box sx={{
+      p: { xs: 1, sm: 1.5 }, // Padding nhỏ hơn
+      border: '1px solid',
+      borderColor: disabled ? 'action.disabled' : 'divider',
+      borderRadius: 2,
+      bgcolor: disabled ? 'action.hover' : 'background.paper',
+      opacity: disabled ? 0.6 : 1,
+      transition: 'all 0.2s ease',
+      '&:hover': disabled ? {} : {
+        borderColor: color,
+        transform: 'translateY(-1px)',
+        boxShadow: `0 2px 8px ${color}15` // Shadow nhẹ hơn
+      }
+    }}>
+      <Typography
+        variant="caption"
+        fontWeight={600}
+        color={disabled ? 'text.disabled' : color}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mb: 1,
+          fontSize: { xs: '0.7rem', sm: '0.75rem' } // Font size nhỏ hơn
+        }}
+      >
+        {icon} {label}
+      </Typography>
+
+      <Stack spacing={1}>
+        <Stack direction="row" spacing={0.5}> {/* Spacing nhỏ hơn */}
+          <TextField
+            size="small"
+            placeholder="Min"
+            type="number"
+            value={minValue}
+            onChange={(e) => onMinChange(e.target.value)}
+            disabled={disabled}
+            sx={{
+              flex: 1,
+              '& .MuiOutlinedInput-root': {
+                fontSize: '0.7rem',
+                height: '28px' // Chiều cao nhỏ hơn
+              },
+              '& .MuiOutlinedInput-input': {
+                padding: '2px 6px' // Padding nhỏ hơn
+              }
+            }}
+          />
+          <TextField
+            size="small"
+            placeholder="Max"
+            type="number"
+            value={maxValue}
+            onChange={(e) => onMaxChange(e.target.value)}
+            disabled={disabled}
+            sx={{
+              flex: 1,
+              '& .MuiOutlinedInput-root': {
+                fontSize: '0.7rem',
+                height: '28px'
+              },
+              '& .MuiOutlinedInput-input': {
+                padding: '2px 6px'
+              }
+            }}
+          />
+        </Stack>
+
+        <Slider
+          value={sliderValue}
+          min={sliderMin}
+          max={sliderMax}
+          step={sliderStep}
+          onChange={(_, v) => onSliderChange(v)}
+          valueLabelDisplay="auto"
+          valueLabelFormat={(value) => `${value}${unit}`}
+          disabled={disabled}
+          sx={{
+            color: color,
+            height: 3, // Slider mỏng hơn
+            '& .MuiSlider-thumb': {
+              width: 14,
+              height: 14
+            },
+            '& .MuiSlider-track': {
+              height: 3
+            },
+            '& .MuiSlider-rail': {
+              height: 3,
+              opacity: 0.3
+            }
+          }}
+        />
+      </Stack>
+    </Box>
+  )
+}
+
+export default function MenuPanel({ menuProducts, chatMessages }) {
   const [search, setSearch] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
+
+  // Price filter
   const [priceMin, setPriceMin] = useState('')
   const [priceMax, setPriceMax] = useState('')
   const [priceSlider, setPriceSlider] = useState([0, 1000000])
+
+  // Nutrition filters
   const [fatMin, setFatMin] = useState('')
   const [fatMax, setFatMax] = useState('')
   const [fatSlider, setFatSlider] = useState([0, 100])
+
   const [carbMin, setCarbMin] = useState('')
   const [carbMax, setCarbMax] = useState('')
   const [carbSlider, setCarbSlider] = useState([0, 100])
+
   const [proteinMin, setProteinMin] = useState('')
   const [proteinMax, setProteinMax] = useState('')
   const [proteinSlider, setProteinSlider] = useState([0, 100])
+
   const [caloMin, setCaloMin] = useState('')
   const [caloMax, setCaloMax] = useState('')
   const [caloSlider, setCaloSlider] = useState([0, 1000])
+
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const [filterOpen, setFilterOpen] = useState(false)
+  const isSmallPanel = useMediaQuery(theme.breakpoints.down('lg')) // Detect nhỏ hơn lg (40% width context)
+
+  // Đếm số filter đang active
+  const activeFilters = useMemo(() => {
+    let count = 0
+    if (search) count++
+    if (priceMin || priceMax || priceSlider[0] > 0 || priceSlider[1] < 1000000) count++
+    if (fatMin || fatMax || fatSlider[0] > 0 || fatSlider[1] < 100) count++
+    if (carbMin || carbMax || carbSlider[0] > 0 || carbSlider[1] < 100) count++
+    if (proteinMin || proteinMax || proteinSlider[0] > 0 || proteinSlider[1] < 100) count++
+    if (caloMin || caloMax || caloSlider[0] > 0 || caloSlider[1] < 1000) count++
+    return count
+  }, [search, priceMin, priceMax, priceSlider, fatMin, fatMax, fatSlider, carbMin, carbMax, carbSlider, proteinMin, proteinMax, proteinSlider, caloMin, caloMax, caloSlider])
+
+  // Reset filters
+  const resetFilters = () => {
+    setSearch('')
+    setPriceMin('')
+    setPriceMax('')
+    setPriceSlider([0, 1000000])
+    setFatMin('')
+    setFatMax('')
+    setFatSlider([0, 100])
+    setCarbMin('')
+    setCarbMax('')
+    setCarbSlider([0, 100])
+    setProteinMin('')
+    setProteinMax('')
+    setProteinSlider([0, 100])
+    setCaloMin('')
+    setCaloMax('')
+    setCaloSlider([0, 1000])
+  }
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    if (!menuProducts) return []
-    return menuProducts.filter(p => {
-      const matchesName = p.title?.toLowerCase().includes(search.toLowerCase())
+    if (!menuProducts || menuProducts.length === 0) return []
+
+    return menuProducts.filter(product => {
+      // Name filter
+      const matchesName = !search ||
+        product.title?.toLowerCase().includes(search.toLowerCase()) ||
+        product.description?.toLowerCase().includes(search.toLowerCase())
+
+      // Price filter
       const matchesPrice =
-        (priceMin === '' || p.price >= Number(priceMin)) &&
-        (priceMax === '' || p.price <= Number(priceMax)) &&
-        (typeof p.price === 'number' ? (p.price >= priceSlider[0] && p.price <= priceSlider[1]) : true)
+        (priceMin === '' || (typeof product.price === 'number' && product.price >= Number(priceMin))) &&
+        (priceMax === '' || (typeof product.price === 'number' && product.price <= Number(priceMax))) &&
+        (typeof product.price === 'number' ? (product.price >= priceSlider[0] && product.price <= priceSlider[1]) : true)
+
+      // Nutrition filters
       const matchesFat =
-        (fatMin === '' || (typeof p.fat === 'number' && p.fat >= Number(fatMin))) &&
-        (fatMax === '' || (typeof p.fat === 'number' && p.fat <= Number(fatMax))) &&
-        (typeof p.fat === 'number' ? (p.fat >= fatSlider[0] && p.fat <= fatSlider[1]) : true)
+        (fatMin === '' || (typeof product.fat === 'number' && product.fat >= Number(fatMin))) &&
+        (fatMax === '' || (typeof product.fat === 'number' && product.fat <= Number(fatMax))) &&
+        (typeof product.fat === 'number' ? (product.fat >= fatSlider[0] && product.fat <= fatSlider[1]) : true)
+
       const matchesCarb =
-        (carbMin === '' || (typeof p.carb === 'number' && p.carb >= Number(carbMin))) &&
-        (carbMax === '' || (typeof p.carb === 'number' && p.carb <= Number(carbMax))) &&
-        (typeof p.carb === 'number' ? (p.carb >= carbSlider[0] && p.carb <= carbSlider[1]) : true)
+        (carbMin === '' || (typeof product.carb === 'number' && product.carb >= Number(carbMin))) &&
+        (carbMax === '' || (typeof product.carb === 'number' && product.carb <= Number(carbMax))) &&
+        (typeof product.carb === 'number' ? (product.carb >= carbSlider[0] && product.carb <= carbSlider[1]) : true)
+
       const matchesProtein =
-        (proteinMin === '' || (typeof p.protein === 'number' && p.protein >= Number(proteinMin))) &&
-        (proteinMax === '' || (typeof p.protein === 'number' && p.protein <= Number(proteinMax))) &&
-        (typeof p.protein === 'number' ? (p.protein >= proteinSlider[0] && p.protein <= proteinSlider[1]) : true)
+        (proteinMin === '' || (typeof product.protein === 'number' && product.protein >= Number(proteinMin))) &&
+        (proteinMax === '' || (typeof product.protein === 'number' && product.protein <= Number(proteinMax))) &&
+        (typeof product.protein === 'number' ? (product.protein >= proteinSlider[0] && product.protein <= proteinSlider[1]) : true)
+
       const matchesCalo =
-        (caloMin === '' || (typeof p.calo === 'number' && p.calo >= Number(caloMin))) &&
-        (caloMax === '' || (typeof p.calo === 'number' && p.calo <= Number(caloMax))) &&
-        (typeof p.calo === 'number' ? (p.calo >= caloSlider[0] && p.calo <= caloSlider[1]) : true)
+        (caloMin === '' || (typeof product.calo === 'number' && product.calo >= Number(caloMin))) &&
+        (caloMax === '' || (typeof product.calo === 'number' && product.calo <= Number(caloMax))) &&
+        (typeof product.calo === 'number' ? (product.calo >= caloSlider[0] && product.calo <= caloSlider[1]) : true)
+
       return matchesName && matchesPrice && matchesFat && matchesCarb && matchesProtein && matchesCalo
     })
-  }, [
-    menuProducts, search,
-    priceMin, priceMax, priceSlider,
-    fatMin, fatMax, fatSlider,
-    carbMin, carbMax, carbSlider,
-    proteinMin, proteinMax, proteinSlider,
-    caloMin, caloMax, caloSlider
-  ])
+  }, [menuProducts, search, priceMin, priceMax, priceSlider, fatMin, fatMax, fatSlider, carbMin, carbMax, carbSlider, proteinMin, proteinMax, proteinSlider, caloMin, caloMax, caloSlider])
 
-  const noMenu = !filteredProducts || filteredProducts.length === 0
+  const hasProducts = filteredProducts && filteredProducts.length > 0
+  const hasMenuProducts = menuProducts && menuProducts.length > 0
 
   return (
     <Box sx={{
-      p: { xs: 1, sm: 2, md: 2.5, lg: 3 },
       height: '100%',
-      overflow: 'hidden',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      bgcolor: '#fafafa',
+      overflow: 'hidden',
+      // Tối ưu cho 40% width
+      minWidth: { xs: '100%', md: 320, lg: 360 }, // Đảm bảo width tối thiểu
+      maxWidth: '100%'
     }}>
-      <Typography
-        variant="h6"
-        fontWeight={700}
-        mb={2}
-        sx={{
-          fontSize: { xs: '1rem', sm: '1.05rem', md: '1.1rem', lg: '1.15rem' },
+      {/* Header - Tối ưu cho 40% width */}
+      <Box sx={{
+        p: { xs: 2, sm: 2, md: 1.5, lg: 2 }, // Padding linh hoạt
+        bgcolor: 'white',
+        borderBottom: '1px solid #e0e0e0',
+        flexShrink: 0
+      }}>
+        <Typography
+          variant="h5"
+          fontWeight={700}
+          sx={{
+            fontSize: { xs: '1.25rem', sm: '1.3rem', md: '1.1rem', lg: '1.25rem' }, // Font size linh hoạt
+            color: 'primary.main',
+            mb: { xs: 1, md: 0.5, lg: 1 },
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}
+        >
+          🍽️ Gợi ý món ăn
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ fontSize: { xs: '0.875rem', md: '0.8rem', lg: '0.875rem' } }}
+        >
+          {hasProducts ? `${filteredProducts.length} món được tìm thấy` :
+            hasMenuProducts ? 'Sử dụng bộ lọc để tìm món phù hợp' :
+              'Hãy chat để nhận gợi ý món ăn'}
+        </Typography>
+      </Box>
+
+      {/* Search & Filters - Tối ưu cho không gian hẹp */}
+      {hasMenuProducts && (
+        <Box sx={{
+          p: { xs: 2, sm: 2, md: 1.5, lg: 2 },
+          bgcolor: 'white',
+          borderBottom: '1px solid #e0e0e0',
           flexShrink: 0
-        }}
-      >
-        Danh sách món gợi ý
-      </Typography>
-      <Paper
-        elevation={2}
-        sx={{
-          p: { xs: 1, sm: 1.5, md: 2, lg: 2.5 },
-          mb: { xs: 1, sm: 2 },
-          borderRadius: 3,
-          bgcolor: '#f9fbe7',
-          flexShrink: 0
-        }}
-      >
-        {isMobile ? (
-          <>
-            <Stack direction="row" spacing={1}>
-              <TextField
-                label="🔍 Tìm theo tên món"
-                variant="outlined"
-                size="small"
-                fullWidth
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                sx={{ bgcolor: 'white', borderRadius: 2, fontWeight: 500, fontSize: '0.85rem' }}
-                InputProps={{ style: { fontSize: '0.85rem' } }}
-                InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-              />
+        }}>
+          {/* Search */}
+          <TextField
+            fullWidth
+            placeholder="Tìm kiếm món ăn..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            size="small" // Size nhỏ hơn cho 40% width
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" fontSize="small" />
+                </InputAdornment>
+              ),
+              endAdornment: search && (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    onClick={() => setSearch('')}
+                    edge="end"
+                  >
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+            sx={{
+              mb: 1.5,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 3,
+                fontSize: { xs: '0.875rem', md: '0.8rem', lg: '0.875rem' }
+              }
+            }}
+          />
+
+          {/* Filter Toggle */}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: showFilters ? 1.5 : 0,
+            flexWrap: 'wrap',
+            gap: 1
+          }}>
+            <Button
+              startIcon={<FilterListIcon fontSize="small" />}
+              endIcon={<ExpandMoreIcon fontSize="small" sx={{
+                transform: showFilters ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.3s ease'
+              }} />}
+              onClick={() => setShowFilters(!showFilters)}
+              variant="outlined"
+              size="small"
+              sx={{
+                borderRadius: 2,
+                fontSize: { xs: '0.75rem', md: '0.7rem', lg: '0.75rem' },
+                minWidth: 'auto'
+              }}
+            >
+              Bộ lọc {activeFilters > 0 && `(${activeFilters})`}
+            </Button>
+
+            {activeFilters > 0 && (
               <Button
-                variant="outlined"
-                startIcon={<FilterListIcon />}
-                onClick={() => setFilterOpen(v => !v)}
-                sx={{ minWidth: 40, px: 1, borderRadius: 2 }}
-              >
-                Bộ lọc
-              </Button>
-            </Stack>
-            <Accordion expanded={filterOpen} onChange={() => setFilterOpen(v => !v)} sx={{ mt: 1 }}>
-              <AccordionSummary>
-                <Typography variant="subtitle2" fontWeight={600}>Bộ lọc nâng cao</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Grid container spacing={2}>
-                  {/* Giá */}
-                  <Grid item xs={12}>
-                    <Typography variant="caption" fontWeight={600} color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                      <AttachMoneyIcon fontSize="small" sx={{ mr: 0.5 }} /> Giá (VNĐ)
-                    </Typography>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                      <TextField
-                        label="Từ"
-                        type="number"
-                        size="small"
-                        value={priceMin}
-                        onChange={e => setPriceMin(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 70 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <TextField
-                        label="Đến"
-                        type="number"
-                        size="small"
-                        value={priceMax}
-                        onChange={e => setPriceMax(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 70 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <Slider
-                        value={priceSlider}
-                        min={0}
-                        max={1000000}
-                        step={10000}
-                        onChange={(_, v) => setPriceSlider(v)}
-                        valueLabelDisplay="auto"
-                        sx={{ width: { xs: '100%', sm: 120 }, ml: { xs: 0, sm: 1 } }}
-                      />
-                    </Stack>
-                  </Grid>
-                  {/* Carb */}
-                  <Grid item xs={12}>
-                    <Typography variant="caption" fontWeight={600} color="info.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                      <GrainIcon fontSize="small" sx={{ mr: 0.5 }} /> Carb (g)
-                    </Typography>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                      <TextField
-                        label="Từ"
-                        type="number"
-                        size="small"
-                        value={carbMin}
-                        onChange={e => setCarbMin(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <TextField
-                        label="Đến"
-                        type="number"
-                        size="small"
-                        value={carbMax}
-                        onChange={e => setCarbMax(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <Slider
-                        value={carbSlider}
-                        min={0}
-                        max={100}
-                        step={1}
-                        onChange={(_, v) => setCarbSlider(v)}
-                        valueLabelDisplay="auto"
-                        sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'info.main' }}
-                      />
-                    </Stack>
-                  </Grid>
-                  {/* Fat */}
-                  <Grid item xs={12}>
-                    <Typography variant="caption" fontWeight={600} color="warning.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                      <LocalPizzaIcon fontSize="small" sx={{ mr: 0.5 }} /> Fat (g)
-                    </Typography>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                      <TextField
-                        label="Từ"
-                        type="number"
-                        size="small"
-                        value={fatMin}
-                        onChange={e => setFatMin(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <TextField
-                        label="Đến"
-                        type="number"
-                        size="small"
-                        value={fatMax}
-                        onChange={e => setFatMax(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <Slider
-                        value={fatSlider}
-                        min={0}
-                        max={100}
-                        step={1}
-                        onChange={(_, v) => setFatSlider(v)}
-                        valueLabelDisplay="auto"
-                        sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'warning.main' }}
-                      />
-                    </Stack>
-                  </Grid>
-                  {/* Protein */}
-                  <Grid item xs={12}>
-                    <Typography variant="caption" fontWeight={600} color="success.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                      <FitnessCenterIcon fontSize="small" sx={{ mr: 0.5 }} /> Protein (g)
-                    </Typography>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                      <TextField
-                        label="Từ"
-                        type="number"
-                        size="small"
-                        value={proteinMin}
-                        onChange={e => setProteinMin(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <TextField
-                        label="Đến"
-                        type="number"
-                        size="small"
-                        value={proteinMax}
-                        onChange={e => setProteinMax(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <Slider
-                        value={proteinSlider}
-                        min={0}
-                        max={100}
-                        step={1}
-                        onChange={(_, v) => setProteinSlider(v)}
-                        valueLabelDisplay="auto"
-                        sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'success.main' }}
-                      />
-                    </Stack>
-                  </Grid>
-                  {/* Calo */}
-                  <Grid item xs={12}>
-                    <Typography variant="caption" fontWeight={600} color="error.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                      <WhatshotIcon fontSize="small" sx={{ mr: 0.5 }} /> Calo
-                    </Typography>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                      <TextField
-                        label="Từ"
-                        type="number"
-                        size="small"
-                        value={caloMin}
-                        onChange={e => setCaloMin(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <TextField
-                        label="Đến"
-                        type="number"
-                        size="small"
-                        value={caloMax}
-                        onChange={e => setCaloMax(e.target.value)}
-                        sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                        InputProps={{ style: { fontSize: '0.8rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                      />
-                      <Slider
-                        value={caloSlider}
-                        min={0}
-                        max={1000}
-                        step={10}
-                        onChange={(_, v) => setCaloSlider(v)}
-                        valueLabelDisplay="auto"
-                        sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'error.main' }}
-                      />
-                    </Stack>
-                  </Grid>
-                </Grid>
-              </AccordionDetails>
-            </Accordion>
-          </>
-        ) : (
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={3}>
-              <TextField
-                label="🔍 Tìm theo tên món"
-                variant="outlined"
+                startIcon={<ClearIcon fontSize="small" />}
+                onClick={resetFilters}
                 size="small"
-                fullWidth
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                sx={{
-                  bgcolor: 'white',
-                  borderRadius: 2,
-                  fontWeight: 500,
-                  fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' }
-                }}
-                InputProps={{ style: { fontSize: '0.85rem' } }}
-                InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={9}>
-              <Grid container spacing={2}>
-                {/* Giá */}
-                <Grid item xs={12} sm={6} md={4} lg={2}>
-                  <Typography variant="caption" fontWeight={600} color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                    <AttachMoneyIcon fontSize="small" sx={{ mr: 0.5 }} /> Giá (VNĐ)
-                  </Typography>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                    <TextField
-                      label="Từ"
-                      type="number"
-                      size="small"
-                      value={priceMin}
-                      onChange={e => setPriceMin(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 70 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <TextField
-                      label="Đến"
-                      type="number"
-                      size="small"
-                      value={priceMax}
-                      onChange={e => setPriceMax(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 70 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <Slider
-                      value={priceSlider}
-                      min={0}
-                      max={1000000}
-                      step={10000}
-                      onChange={(_, v) => setPriceSlider(v)}
-                      valueLabelDisplay="auto"
-                      sx={{ width: { xs: '100%', sm: 120 }, ml: { xs: 0, sm: 1 } }}
-                    />
-                  </Stack>
+                color="error"
+                variant="text"
+                sx={{ fontSize: { xs: '0.75rem', md: '0.7rem', lg: '0.75rem' } }}
+              >
+                Xóa
+              </Button>
+            )}
+          </Box>
+
+          {/* Filters - 2 bộ lọc mỗi hàng */}
+          <Collapse in={showFilters} timeout="auto">
+            <Box sx={{ pt: 1.5 }}>
+              <Grid container spacing={{ xs: 1.5, sm: 2, md: 1, lg: 1.5 }}>
+                {/* Hàng 1: Price & Calories */}
+                <Grid item xs={12} sm={6}>
+                  <CompactFilter
+                    label="Giá tiền"
+                    icon={<AttachMoneyIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
+                    color="primary.main"
+                    minValue={priceMin}
+                    maxValue={priceMax}
+                    sliderValue={priceSlider}
+                    onMinChange={setPriceMin}
+                    onMaxChange={setPriceMax}
+                    onSliderChange={setPriceSlider}
+                    sliderMin={0}
+                    sliderMax={1000000}
+                    sliderStep={10000}
+                    unit="đ"
+                  />
                 </Grid>
-                {/* Carb */}
-                <Grid item xs={12} sm={6} md={4} lg={2}>
-                  <Typography variant="caption" fontWeight={600} color="info.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                    <GrainIcon fontSize="small" sx={{ mr: 0.5 }} /> Carb (g)
-                  </Typography>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                    <TextField
-                      label="Từ"
-                      type="number"
-                      size="small"
-                      value={carbMin}
-                      onChange={e => setCarbMin(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <TextField
-                      label="Đến"
-                      type="number"
-                      size="small"
-                      value={carbMax}
-                      onChange={e => setCarbMax(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <Slider
-                      value={carbSlider}
-                      min={0}
-                      max={100}
-                      step={1}
-                      onChange={(_, v) => setCarbSlider(v)}
-                      valueLabelDisplay="auto"
-                      sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'info.main' }}
-                    />
-                  </Stack>
+
+                <Grid item xs={12} sm={6}>
+                  <CompactFilter
+                    label="Calo"
+                    icon={<WhatshotIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
+                    color="error.main"
+                    minValue={caloMin}
+                    maxValue={caloMax}
+                    sliderValue={caloSlider}
+                    onMinChange={setCaloMin}
+                    onMaxChange={setCaloMax}
+                    onSliderChange={setCaloSlider}
+                    sliderMin={0}
+                    sliderMax={1000}
+                    sliderStep={10}
+                    unit="kcal"
+                  />
                 </Grid>
-                {/* Fat */}
-                <Grid item xs={12} sm={6} md={4} lg={2}>
-                  <Typography variant="caption" fontWeight={600} color="warning.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                    <LocalPizzaIcon fontSize="small" sx={{ mr: 0.5 }} /> Fat (g)
-                  </Typography>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                    <TextField
-                      label="Từ"
-                      type="number"
-                      size="small"
-                      value={fatMin}
-                      onChange={e => setFatMin(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <TextField
-                      label="Đến"
-                      type="number"
-                      size="small"
-                      value={fatMax}
-                      onChange={e => setFatMax(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <Slider
-                      value={fatSlider}
-                      min={0}
-                      max={100}
-                      step={1}
-                      onChange={(_, v) => setFatSlider(v)}
-                      valueLabelDisplay="auto"
-                      sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'warning.main' }}
-                    />
-                  </Stack>
+
+                {/* Hàng 2: Carb & Protein */}
+                <Grid item xs={12} sm={6}>
+                  <CompactFilter
+                    label="Carb"
+                    icon={<GrainIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
+                    color="info.main"
+                    minValue={carbMin}
+                    maxValue={carbMax}
+                    sliderValue={carbSlider}
+                    onMinChange={setCarbMin}
+                    onMaxChange={setCarbMax}
+                    onSliderChange={setCarbSlider}
+                    unit="g"
+                  />
                 </Grid>
-                {/* Protein */}
-                <Grid item xs={12} sm={6} md={4} lg={2}>
-                  <Typography variant="caption" fontWeight={600} color="success.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                    <FitnessCenterIcon fontSize="small" sx={{ mr: 0.5 }} /> Protein (g)
-                  </Typography>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                    <TextField
-                      label="Từ"
-                      type="number"
-                      size="small"
-                      value={proteinMin}
-                      onChange={e => setProteinMin(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <TextField
-                      label="Đến"
-                      type="number"
-                      size="small"
-                      value={proteinMax}
-                      onChange={e => setProteinMax(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <Slider
-                      value={proteinSlider}
-                      min={0}
-                      max={100}
-                      step={1}
-                      onChange={(_, v) => setProteinSlider(v)}
-                      valueLabelDisplay="auto"
-                      sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'success.main' }}
-                    />
-                  </Stack>
+
+                <Grid item xs={12} sm={6}>
+                  <CompactFilter
+                    label="Protein"
+                    icon={<FitnessCenterIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
+                    color="success.main"
+                    minValue={proteinMin}
+                    maxValue={proteinMax}
+                    sliderValue={proteinSlider}
+                    onMinChange={setProteinMin}
+                    onMaxChange={setProteinMax}
+                    onSliderChange={setProteinSlider}
+                    unit="g"
+                  />
                 </Grid>
-                {/* Calo */}
-                <Grid item xs={12} sm={6} md={4} lg={2}>
-                  <Typography variant="caption" fontWeight={600} color="error.main" sx={{ display: 'flex', alignItems: 'center', mb: 0.5, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                    <WhatshotIcon fontSize="small" sx={{ mr: 0.5 }} /> Calo
-                  </Typography>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-                    <TextField
-                      label="Từ"
-                      type="number"
-                      size="small"
-                      value={caloMin}
-                      onChange={e => setCaloMin(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <TextField
-                      label="Đến"
-                      type="number"
-                      size="small"
-                      value={caloMax}
-                      onChange={e => setCaloMax(e.target.value)}
-                      sx={{ width: { xs: '100%', sm: 60 }, bgcolor: 'white', borderRadius: 2 }}
-                      InputProps={{ style: { fontSize: '0.8rem' } }}
-                      InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                    />
-                    <Slider
-                      value={caloSlider}
-                      min={0}
-                      max={1000}
-                      step={10}
-                      onChange={(_, v) => setCaloSlider(v)}
-                      valueLabelDisplay="auto"
-                      sx={{ width: { xs: '100%', sm: 90 }, ml: { xs: 0, sm: 1 }, color: 'error.main' }}
-                    />
-                  </Stack>
+
+                {/* Hàng 3: Fat (chiếm 1 cột, cột còn lại để trống để cân bằng) */}
+                <Grid item xs={12} sm={6}>
+                  <CompactFilter
+                    label="Chất béo"
+                    icon={<LocalPizzaIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
+                    color="warning.main"
+                    minValue={fatMin}
+                    maxValue={fatMax}
+                    sliderValue={fatSlider}
+                    onMinChange={setFatMin}
+                    onMaxChange={setFatMax}
+                    onSliderChange={setFatSlider}
+                    unit="g"
+                  />
+                </Grid>
+
+                {/* Cột trống để cân bằng layout */}
+                <Grid item xs={12} sm={6} sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  {/* Có thể thêm filter mới ở đây sau này */}
                 </Grid>
               </Grid>
-            </Grid>
-          </Grid>
-        )}
-      </Paper>
+            </Box>
+          </Collapse>
+        </Box>
+      )}
+
+      {/* Product Grid */}
       <Box sx={{
         flex: 1,
         overflow: 'auto',
         minHeight: 0
       }}>
-        {noMenu ? (
+        {!hasMenuProducts ? (
+          // Empty state - no products from chat (tối ưu cho 40% width)
           <Box sx={{
-            p: { xs: 2, sm: 3 },
+            p: { xs: 3, sm: 4, md: 2, lg: 3 },
             textAlign: 'center',
-            bgcolor: '#e8f5e9',
-            borderRadius: 2
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            <Typography
-              variant="body1"
-              color="primary"
-              sx={{
-                fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
-                lineHeight: 1.4
-              }}
-            >
-              Bạn hãy nhập yêu cầu vào khung chat (ví dụ: &quot;cần món bò&quot;, &quot;cơm gà&quot;, &quot;salad chay&quot;...) để AI gợi ý các món phù hợp!
-            </Typography>
+            <Box sx={{ maxWidth: { xs: 300, md: 250, lg: 280 } }}>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                fontWeight={500}
+                sx={{
+                  mb: 2,
+                  fontSize: { xs: '1.125rem', md: '1rem', lg: '1.125rem' }
+                }}
+              >
+                🤖 Chưa có gợi ý món ăn
+              </Typography>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{
+                  mb: 3,
+                  fontSize: { xs: '0.875rem', md: '0.8rem', lg: '0.875rem' },
+                  lineHeight: 1.4
+                }}
+              >
+                Hãy chat với AI để nhận gợi ý những món ăn phù hợp với nhu cầu của bạn
+              </Typography>
+              <Box sx={{
+                p: { xs: 2, md: 1.5, lg: 2 },
+                bgcolor: 'primary.50',
+                borderRadius: 2,
+                border: '1px dashed',
+                borderColor: 'primary.200'
+              }}>
+                <Typography
+                  variant="body2"
+                  color="primary.main"
+                  sx={{
+                    fontStyle: 'italic',
+                    fontSize: { xs: '0.75rem', md: '0.7rem', lg: '0.75rem' }
+                  }}
+                >
+                  Ví dụ: "Tôi muốn món ăn ít calo", "Gợi ý món Việt Nam"
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        ) : !hasProducts ? (
+          // Empty state - no results after filtering (tối ưu cho 40% width)
+          <Box sx={{
+            p: { xs: 3, sm: 4, md: 2, lg: 3 },
+            textAlign: 'center',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Box sx={{ maxWidth: { xs: 280, md: 240, lg: 280 } }}>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                fontWeight={500}
+                sx={{
+                  mb: 2,
+                  fontSize: { xs: '1.125rem', md: '1rem', lg: '1.125rem' }
+                }}
+              >
+                🔍 Không tìm thấy món ăn
+              </Typography>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{
+                  mb: 2,
+                  fontSize: { xs: '0.875rem', md: '0.8rem', lg: '0.875rem' },
+                  lineHeight: 1.4
+                }}
+              >
+                Không có món ăn nào phù hợp với bộ lọc hiện tại
+              </Typography>
+              <Button
+                variant="outlined"
+                onClick={resetFilters}
+                startIcon={<ClearIcon fontSize="small" />}
+                size="small"
+                sx={{
+                  fontSize: { xs: '0.75rem', md: '0.7rem', lg: '0.75rem' },
+                  borderRadius: 2
+                }}
+              >
+                Xóa bộ lọc
+              </Button>
+            </Box>
           </Box>
         ) : (
-          <MenuGrid products={filteredProducts} />
+          // Product grid
+          <ProductGrid products={filteredProducts} />
         )}
       </Box>
     </Box>
   )
 }
-
