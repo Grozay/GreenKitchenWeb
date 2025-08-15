@@ -27,11 +27,11 @@ export default function ChatPage() {
       <Paper
         elevation={3}
         sx={{
-          flex: { xs: 'none', lg: '0 0 40%' },
-          width: { xs: '100%', lg: '40%' },
+          flex: { xs: 'none', lg: '0 0 60%' },
+          width: { xs: '100%', lg: '60%' },
           height: { xs: '50vh', md: '50vh', lg: '100vh' }, // Responsive height
           minWidth: { xs: '100%', lg: 320 },
-          maxWidth: { xs: '100%', lg: '40%' },
+          maxWidth: { xs: '100%', lg: '60%' },
           overflow: 'hidden', // Ngăn scroll không cần thiết
           borderRadius: 0,
           borderRight: { xs: 'none', lg: '1px solid #e0e0e0' },
@@ -45,8 +45,8 @@ export default function ChatPage() {
       <Paper
         elevation={4}
         sx={{
-          flex: { xs: '1 1 auto', lg: '1 1 60%' },
-          width: { xs: '100%', lg: '60%' },
+          flex: { xs: '1 1 auto', lg: '1 1 40%' },
+          width: { xs: '100%', lg: '40%' },
           minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
