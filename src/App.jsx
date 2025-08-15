@@ -19,6 +19,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import Cart from './pages/customer/Cart/CartLayout'
 import Checkout from './pages/customer/Checkout/Checkout'
 import { toast } from 'react-toastify'
+import ChatAi from './pages/customer/ChatPage/ChatPage'
 
 
 const ProtectedRoute = ({ user }) => {
@@ -70,6 +71,9 @@ function App() {
 
       {/* Test Employee Inbox */}
       <Route path="/employee/inbox" element={<Chat />} />
+
+      {/* AI Chat Page */}
+      <Route path="/ai-chat" element={<ChatAi />} />
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />

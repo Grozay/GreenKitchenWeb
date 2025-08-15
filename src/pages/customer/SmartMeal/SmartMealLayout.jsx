@@ -8,13 +8,16 @@ import { useState, useRef, useEffect } from 'react'
 import Footer from '~/components/Footer/Footer'
 // import { ItemHealthy } from '~/apis/mockData'
 import TabCalMobile from './Item/TabCal/TabCalMobile'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 import HealthyChoiceMobile from './Item/HealthyChoice/HealthyChoiceMobile'
 import { getIngredientsAPI } from '~/apis'
-import { t } from 'i18next'
+import { setSuggestedSauces, setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
+import { getSuggestedSauces } from '~/utils/nutrition'
+// import { t } from 'i18next'
 
 const SmartMealLayout = () => {
+  const dispatch = useDispatch()
   const [itemHealthy, setItemHealthy] = useState({})
   const [value, setValue] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -57,6 +60,17 @@ const SmartMealLayout = () => {
       setLoading(false)
     })
   }, [])
+
+  useEffect(() => {
+    const selectedProtein = selectedItems.protein[selectedItems.protein.length - 1]
+
+    if (selectedProtein && itemHealthy?.sauce) {
+      const suggestions = getSuggestedSauces(selectedProtein, itemHealthy.sauce)
+      dispatch(setSuggestedSauces(suggestions))
+      dispatch(setShowSauceHint(true))
+      // Xóa phần setTimeout và cleanup
+    }
+  }, [selectedItems.protein, itemHealthy, dispatch])
 
   return (
     <Box>
@@ -123,16 +137,16 @@ const SmartMealLayout = () => {
             </Box>
             <Box sx={{ mx: '15px' }}>
               <Box ref={proteinRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title="SELECT PROTEIN" index={1} type="PROTEIN" cards={itemHealthy?.protein} loading={loading}/>
+                <ListCard title="SELECT PROTEIN" index={1} type="PROTEIN" cards={itemHealthy?.protein} loading={loading} />
               </Box>
               <Box ref={carbsRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
                 <ListCard title="SELECT CARBS" index={2} type="CARDS" cards={itemHealthy?.carbs} loading={loading} />
               </Box>
               <Box ref={sideRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title="SELECT SIDE" index={3} type="SIDE" cards={itemHealthy?.side} loading={loading}/>
+                <ListCard title="SELECT SIDE" index={3} type="SIDE" cards={itemHealthy?.side} loading={loading} />
               </Box>
               <Box ref={sauceRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title="SELECT SAUCE" index={4} type="SAUCE" cards={itemHealthy?.sauce} loading={loading}/>
+                <ListCard title="SELECT SAUCE" index={4} type="SAUCE" cards={itemHealthy?.sauce} loading={loading} />
               </Box>
             </Box>
 
@@ -155,7 +169,7 @@ const SmartMealLayout = () => {
               background: theme.colorSchemes.light.palette.background.default
             }}
           >
-            <ChoiceCal />
+            <ChoiceCal itemHealthy={itemHealthy} />
           </Box>
         </Box>
         <Box sx={{
@@ -174,7 +188,7 @@ const SmartMealLayout = () => {
             selectedItems.sauce.length === 0 ? (
               <Box></Box>
             ) : (
-              <HealthyChoiceMobile />
+              <HealthyChoiceMobile itemHealthy={itemHealthy} />
             )}
         </Box>
       </Box>
