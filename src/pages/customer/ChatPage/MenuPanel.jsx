@@ -577,11 +577,11 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                   variant="body2"
                   color="primary.main"
                   sx={{
-                    fontStyle: 'italic',
+                    fontStyle: 'italic',  
                     fontSize: { xs: '0.75rem', md: '0.7rem', lg: '0.75rem' }
                   }}
                 >
-                  Ví dụ: "Tôi muốn món ăn ít calo", "Gợi ý món Việt Nam"
+                  Ví dụ: &quot;Tôi muốn món ăn ít calo&quot;, &quot;Gợi ý món Việt Nam&quot;
                 </Typography>
               </Box>
             </Box>
