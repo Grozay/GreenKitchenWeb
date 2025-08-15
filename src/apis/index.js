@@ -205,7 +205,17 @@ export const getCustomerReferencesByCustomerIdAPI = async (customerId) => {
 }
 
 export const createCustomerReferenceAPI = async (data) => {
-  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-references`, data)
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-references/create`, data)
+  return response.data
+}
+
+export const updateCustomerReferenceAPI = async (data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-references`, data)
+  return response.data
+}
+
+export const createOrUpdateCustomerReferenceAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-references/upsert`, data)
   return response.data
 }
 
@@ -215,8 +225,8 @@ export const createOrder = async (data) => {
   return response.data
 }
 
-export const getOrderByIdAPI = async (orderId) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/orders/${orderId}`)
+export const getOrderByCodeAPI = async (orderCode) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/orders/search/${orderCode}`)
   return response.data
 }
 

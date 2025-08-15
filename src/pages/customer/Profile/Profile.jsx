@@ -82,7 +82,13 @@ function Profile() {
   const handleChangeTab = (event, selectedTab) => { setActiveTab(selectedTab) }
 
   return (
-    <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+    <Container
+      maxWidth={false}
+      sx={{
+        maxWidth: { lg: '1300px', xl: '1500px' },
+        px: { xs: 1, sm: 2, md: 3, lg: 4, xl: 6 }
+      }}
+    >
       <ProfileNavBar />
       <Box sx={{ display: 'flex', width: '100%', minHeight: 400, pt: { xs: 2, sm: 3, md: 4 } }}>
         <TabContext value={activeTab}>

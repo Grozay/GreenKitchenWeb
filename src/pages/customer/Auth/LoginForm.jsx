@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -36,6 +36,7 @@ import theme from '~/theme'
 function LoginForm() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { register, handleSubmit, formState: { errors } } = useForm()
 
   let [searchParams] = useSearchParams()
@@ -46,6 +47,9 @@ function LoginForm() {
   const [openResendVerifyPanel, setOpenResendVerifyPanel] = useState(false)
   const [resendEmail, setResendEmail] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
+
+  // Lấy location mà user muốn truy cập trước khi bị redirect đến login
+  const from = location.state?.from?.pathname || '/profile/overview'
 
   const submitLogIn = (data) => {
     const { email, password } = data
@@ -60,7 +64,8 @@ function LoginForm() {
       }
       if (!res.error) {
         toast.success('Login successful!')
-        navigate('/profile')
+        // Redirect về trang user muốn truy cập trước đó
+        navigate(from, { replace: true })
       }
     })
   }
@@ -88,8 +93,8 @@ function LoginForm() {
       }
     ).then(response => {
       if (!response.error) {
-        // Update Redux state with user information
-        navigate('/profile')
+        // Redirect về trang user muốn truy cập trước đó
+        navigate(from, { replace: true })
       }
     })
   }

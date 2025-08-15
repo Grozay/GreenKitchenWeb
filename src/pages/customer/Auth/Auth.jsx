@@ -1,4 +1,4 @@
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
@@ -8,6 +8,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useConfirm } from 'material-ui-confirm'
 import { useSelector } from 'react-redux'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
+import { useEffect } from 'react'
 
 function Auth() {
   const location = useLocation()
@@ -19,9 +20,14 @@ function Auth() {
   const navigate = useNavigate()
 
   const currentCustomer = useSelector(selectCurrentCustomer)
-  if (currentCustomer) {
-    return <Navigate to="/" replace />
-  }
+  // Lấy location mà user muốn truy cập trước khi bị redirect đến login
+  const from = location.state?.from?.pathname || '/profile/overview'
+  useEffect(() => {
+    // Nếu user đã đăng nhập, redirect về trang họ muốn truy cập
+    if (currentCustomer) {
+      navigate(from, { replace: true })
+    }
+  }, [currentCustomer, navigate, from])
 
   const confirmBack = async (e) => {
     e.preventDefault()
@@ -36,7 +42,7 @@ function Auth() {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       minHeight: '100vh',
       bgcolor: '#FAF5E8' // Match background color with other forms
     }}>

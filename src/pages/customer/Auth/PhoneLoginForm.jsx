@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -23,13 +23,17 @@ import theme from '~/theme'
 function PhoneLoginForm() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { register, handleSubmit, formState: { errors } } = useForm()
 
-  const [step, setStep] = useState('phone') // 'phone' or 'otp'
+  const [step, setStep] = useState('phone')
   const [loading, setLoading] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [otpCode, setOtpCode] = useState('')
   const [error, setError] = useState('')
+
+  // Lấy location mà user muốn truy cập trước khi bị redirect đến login
+  const from = location.state?.from?.pathname || '/profile/overview'
 
   const submitPhoneNumber = async (data) => {
     setLoading(true)
@@ -38,16 +42,9 @@ function PhoneLoginForm() {
 
     try {
       const result = await phoneAuthService.sendOTP(data.phoneNumber)
-      
       if (result.success) {
         toast.success(result.message)
         setStep('otp')
-        
-        // If it's a test phone, show the OTP code in console and alert
-        if (result.isTestPhone) {
-          // console.log('🔥 TEST PHONE DETECTED: OTP Code is 444888')
-          toast.info('Số test phone! OTP: 444888')
-        }
       } else {
         setError(result.message)
         toast.error(result.message)
@@ -95,7 +92,8 @@ function PhoneLoginForm() {
       
       if (phoneLoginAPI.fulfilled.match(result)) {
         toast.success('Đăng nhập thành công!')
-        navigate('/')
+        // Redirect về trang user muốn truy cập trước đó
+        navigate(from, { replace: true })
       } else {
         // Handle API error
         const errorMessage = result.payload?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
