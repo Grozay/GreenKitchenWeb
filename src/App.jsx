@@ -11,18 +11,27 @@ import Auth from './pages/customer/Auth/Auth'
 import AccountVerification from './pages/customer/Auth/AccountVerification'
 import NotFound from './pages/customer/NotFound/NotFound'
 import Profile from './pages/customer/Profile/Profile'
-import CaloCalculatorLayout from './pages/customer/CaloCalculator/CaloCalculatorLayout'
+import TrackingOrder from './pages/customer/TrackingOrder/TrackingOrder'
 import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { useSelector } from 'react-redux'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Cart from './pages/customer/Cart/CartLayout'
 import Checkout from './pages/customer/Checkout/Checkout'
+import { toast } from 'react-toastify'
 import ChatAi from './pages/customer/ChatPage/ChatPage'
 
 
 const ProtectedRoute = ({ user }) => {
-  if (!user) return <Navigate to='/login' replace={true} />
+  const location = useLocation()
+  
+  if (!user) {
+    // Hiển thị thông báo cho user biết họ cần đăng nhập
+    toast.info('Vui lòng đăng nhập để tiếp tục')
+    
+    // Lưu location hiện tại để redirect sau khi login
+    return <Navigate to='/login' state={{ from: location }} replace={true} />
+  }
   return <Outlet />
 }
 
@@ -57,6 +66,7 @@ function App() {
         <Route path="/profile/order-history" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/tracking-order" element={<TrackingOrder />} />
       </Route>
 
       {/* Test Employee Inbox */}

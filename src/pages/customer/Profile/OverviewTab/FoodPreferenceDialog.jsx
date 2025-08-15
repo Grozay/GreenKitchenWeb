@@ -20,7 +20,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import { toast } from 'react-toastify'
-import { createCustomerReferenceAPI } from '~/apis'
+import { createOrUpdateCustomerReferenceAPI } from '~/apis'
 
 export default function FoodPreferenceDialog({
   open,
@@ -129,7 +129,7 @@ export default function FoodPreferenceDialog({
         allergies: formData.allergies.map(name => ({ allergyName: name }))
       }
 
-      const createdReference = await createCustomerReferenceAPI(referenceData)
+      const createdReference = await createOrUpdateCustomerReferenceAPI(referenceData)
 
       // Update customer details with new reference
       setCustomerDetails(prev => ({

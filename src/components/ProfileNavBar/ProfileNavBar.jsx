@@ -50,7 +50,7 @@ function ProfileNavBar() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      p: 3,
+      py: 3,
       position: 'relative',
       zIndex: 10
     }}>
@@ -90,7 +90,7 @@ function ProfileNavBar() {
           open={open}
           onClose={handleClose}
           onClick={handleClose}
-          MenuListProps={{
+          slotProps={{
             'aria-labelledby': 'account-button'
           }}
         >
