@@ -7,9 +7,12 @@ import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
 import Tooltip from '@mui/material/Tooltip'
 import SupportAgentIcon from '@mui/icons-material/SupportAgent'
+import { useNavigate } from 'react-router-dom'
+
 
 function ProductMessageBubble({ message }) {
   const senderName = 'Nhân viên GreenKitchen'
+  const navigate = useNavigate()
 
 
   return (
@@ -128,6 +131,11 @@ function ProductMessageBubble({ message }) {
             {message.menu.map((product, index) => (
               <Card
                 key={product.id}
+                onClick={() => {
+                  if (product.slug) {
+                    navigate(`/menu/${product.slug}`)
+                  }
+                }}
                 sx={{
                   maxWidth: { xs: '100%', sm: 180, md: 200 },
                   cursor: 'pointer',
