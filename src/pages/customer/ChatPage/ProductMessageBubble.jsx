@@ -1,111 +1,93 @@
 import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
-import Paper from '@mui/material/Paper'
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
-import Tooltip from '@mui/material/Tooltip'
-import SupportAgentIcon from '@mui/icons-material/SupportAgent'
-import { useNavigate } from 'react-router-dom'
+import Grid from '@mui/material/Grid'
+import Chip from '@mui/material/Chip'
+import HeadsetIcon from '@mui/icons-material/Headset'
 
 function ProductMessageBubble({ message }) {
-  const navigate = useNavigate()
   const senderName = 'Nhân viên GreenKitchen'
 
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: { xs: 1, sm: 1.5 },
-        mb: 1.5,
-        px: { xs: 2, sm: 2.5 },
-        animation: 'slideInMessage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        '@keyframes slideInMessage': {
-          '0%': {
-            opacity: 0,
-            transform: 'translateY(20px) scale(0.95)'
-          },
-          '100%': {
-            opacity: 1,
-            transform: 'translateY(0) scale(1)'
-          }
-        }
-      }}
-    >
+    <Box sx={{
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 1.5,
+      mb: 2,
+      px: 2,
+      animation: 'fadeIn 0.4s ease-out'
+    }}>
       {/* Avatar */}
-      <Avatar
-        sx={{
-          width: { xs: 32, sm: 36 },
-          height: { xs: 32, sm: 36 },
-          bgcolor: 'grey.600', // Màu mặc định
-          flexShrink: 0,
-          boxShadow: 1,
-          mt: 0.5,
-          transition: 'transform 0.2s ease',
-          '&:hover': {
-            transform: 'scale(1.1)'
-          }
-        }}
-      >
-        <SupportAgentIcon fontSize="small" />
+      <Avatar sx={{
+        width: 36,
+        height: 36,
+        bgcolor: 'grey.600',
+        boxShadow: 2,
+        flexShrink: 0,
+        mt: 0.5,
+        transition: 'transform 0.2s',
+        '&:hover': {
+          transform: 'scale(1.1)'
+        }
+      }}>
+        <HeadsetIcon />
       </Avatar>
 
       {/* Message Bubble */}
       <Paper
-        elevation={2}
+        elevation={3}
         sx={{
-          p: { xs: '12px 14px', sm: '14px 16px' },
-          bgcolor: 'grey.100',
-          borderRadius: 2.5,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
           borderTopLeftRadius: 0.5,
-          maxWidth: { xs: '85%', sm: '80%' },
+          px: 2,
+          py: 1.5,
+          maxWidth: '85%',
           position: 'relative',
-          transition: 'all 0.2s ease',
-          transform: 'translateZ(0)',
+          transition: 'all 0.3s ease',
           '&:hover': {
-            transform: 'translateY(-1px) translateZ(0)',
-            boxShadow: 3
+            elevation: 6,
+            transform: 'translateY(-2px)'
           },
           '&::before': {
             content: '""',
             position: 'absolute',
             top: 0,
-            left: -6,
+            left: -8,
             width: 0,
             height: 0,
-            borderTop: '6px solid',
-            borderTopColor: 'grey.100',
-            borderRight: '6px solid transparent'
+            borderTop: '8px solid white',
+            borderRight: '8px solid transparent'
           }
         }}
       >
+
         {/* Sender name */}
-        <Typography
-          variant="caption"
+        <Chip
+          label={senderName}
+          size="small"
+          variant="outlined"
           sx={{
-            display: 'block',
-            fontWeight: 600,
             mb: 1,
-            opacity: 0.85,
-            fontSize: { xs: '11px', sm: '12px' },
-            letterSpacing: '0.3px'
+            fontSize: '0.75rem',
+            height: 24
           }}
-        >
-          {senderName}
-        </Typography>
+        />
 
 
         {/* Message text */}
         {message.content && (
           <Typography
-            variant="body1"
+            variant="body2"
             sx={{
-              fontSize: { xs: '16px', sm: '16px' },
               lineHeight: 1.5,
               mb: 2,
+              color: 'text.primary',
               wordBreak: 'break-word'
             }}
           >
@@ -115,18 +97,7 @@ function ProductMessageBubble({ message }) {
 
         {/* Products Grid - Responsive layout */}
         {message.menu && Array.isArray(message.menu) && message.menu.length > 0 && (
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(auto-fit, minmax(160px, 1fr))',
-                md: 'repeat(auto-fit, minmax(180px, 1fr))'
-              },
-              gap: { xs: 1.5, sm: 2 },
-              mt: 1
-            }}
-          >
+          <Grid container spacing={1.5} sx={{ mt: 1 }}>
             {message.menu.map((product, index) => {
               const slugify = (text) =>
                 (text || '')
@@ -140,105 +111,110 @@ function ProductMessageBubble({ message }) {
                   .replace(/-+/g, '-')
               const finalSlug = product?.slug || slugify(product?.title)
               return finalSlug ? (
-                <a key={product.id} href={`/menu/${finalSlug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Grid item xs={12} sm={6} md={4} key={product.id}>
                   <Card
+                    component="a"
+                    href={`/menu/${finalSlug}`}
                     sx={{
-                      maxWidth: { xs: '100%', sm: 180, md: 200 },
+                      textDecoration: 'none',
+                      color: 'inherit',
                       cursor: 'pointer',
-                      transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      borderRadius: 2,
-                      overflow: 'hidden',
-                      animation: `slideInProduct 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 0.1}s both`,
-                      '@keyframes slideInProduct': {
-                        '0%': { opacity: 0, transform: 'translateY(30px) scale(0.9)' },
-                        '100%': { opacity: 1, transform: 'translateY(0) scale(1)' }
-                      },
+                      transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'translateY(-6px) scale(1.02)',
-                        boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
-                        '& .product-image': { transform: 'scale(1.08)' }
+                        transform: 'translateY(-4px)',
+                        boxShadow: 4
                       }
                     }}
                   >
                     <CardMedia
-                      key={product.id}
-                      onClick={() => {
-                        if (product.slug) {
-                          navigate(`/menu/${product.slug}`)
-                        }
-                      }}
                       component="img"
-                      height="120"
+                      height="112"
                       image={product.image || 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400'}
                       alt={product.title}
-                      className="product-image"
-                      sx={{
-                        objectFit: 'cover',
-                        transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        cursor: 'pointer'
-                      }}
                       onError={(e) => { e.target.src = 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400' }}
+                      sx={{
+                        transition: 'transform 0.3s ease',
+                        '&:hover': {
+                          transform: 'scale(1.05)'
+                        }
+                      }}
                     />
-                    <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-                      <Tooltip title={product.title} placement="top" arrow>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: { xs: '13px', sm: '14px' }, cursor: 'pointer' }}>
-                          {product.title}
-                        </Typography>
-                      </Tooltip>
+                    <CardContent sx={{ p: 1.5 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 0.5,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                        title={product.title}
+                      >
+                        {product.title}
+                      </Typography>
                       {product.price && (
-                        <Typography variant="body2" color="primary" sx={{ fontWeight: 600, fontSize: { xs: '13px', sm: '14px' } }}>
+                        <Typography
+                          variant="body2"
+                          color="primary"
+                          sx={{ fontWeight: 600 }}
+                        >
                           {product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                         </Typography>
                       )}
                     </CardContent>
                   </Card>
-                </a>
+                </Grid>
               ) : (
-                <Card
-                  key={product.id}
-                  sx={{
-                    maxWidth: { xs: '100%', sm: 180, md: 200 },
-                    transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    animation: `slideInProduct 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 0.1}s both`
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="120"
-                    image={product.image || 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400'}
-                    alt={product.title}
-                    className="product-image"
-                    sx={{ objectFit: 'cover' }}
-                    onError={(e) => { e.target.src = 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400' }}
-                  />
-                  <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-                    <Tooltip title={product.title} placement="top" arrow>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: { xs: '13px', sm: '14px' } }}>
+                <Grid item xs={12} sm={6} md={4} key={product.id}>
+                  <Card sx={{
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <CardMedia
+                      component="img"
+                      height="112"
+                      image={product.image || 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400'}
+                      alt={product.title}
+                      onError={(e) => { e.target.src = 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400' }}
+                    />
+                    <CardContent sx={{ p: 1.5 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 0.5,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                        title={product.title}
+                      >
                         {product.title}
                       </Typography>
-                    </Tooltip>
-                    {product.price && (
-                      <Typography variant="body2" color="primary" sx={{ fontWeight: 600, fontSize: { xs: '13px', sm: '14px' } }}>
-                        {product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                      </Typography>
-                    )}
-                  </CardContent>
-                </Card>
+                      {product.price && (
+                        <Typography
+                          variant="body2"
+                          color="primary"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </Typography>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
               )
             })}
-          </Box>
+          </Grid>
         )}
 
         {/* Timestamp */}
         <Typography
           variant="caption"
           sx={{
-            display: 'block',
+            color: 'text.secondary',
             mt: 1.5,
-            opacity: 0.65,
-            fontSize: { xs: '10px', sm: '11px' }
+            display: 'block'
           }}
         >
           {new Date(message.timestamp).toLocaleTimeString('vi-VN', {

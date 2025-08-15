@@ -1,10 +1,11 @@
 import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
-import Paper from '@mui/material/Paper'
+import Chip from '@mui/material/Chip'
 import PersonIcon from '@mui/icons-material/Person'
-import SupportAgentIcon from '@mui/icons-material/SupportAgent'
-import InfoIcon from '@mui/icons-material/Info' // icon SYSTEM
+import HeadsetIcon from '@mui/icons-material/Headset'
+import InfoIcon from '@mui/icons-material/Info'
 
 function MessageBubble({ message, customerName, isOwn }) {
   // Xác định loại sender và avatar
@@ -20,30 +21,44 @@ function MessageBubble({ message, customerName, isOwn }) {
 
   // Avatar cho từng loại
   let avatar = null
-  if (message.senderRole === 'CUSTOMER') avatar = <PersonIcon fontSize="small" />
-  else if (message.senderRole === 'EMP' || message.senderRole === 'AI') avatar = <SupportAgentIcon fontSize="small" />
-  else if (message.senderRole === 'SYSTEM') avatar = <InfoIcon fontSize="small" />
+  if (message.senderRole === 'CUSTOMER') avatar = <PersonIcon />
+  else if (message.senderRole === 'EMP' || message.senderRole === 'AI') avatar = <HeadsetIcon />
+  else if (message.senderRole === 'SYSTEM') avatar = <InfoIcon />
 
 
   // SYSTEM message (welcome/notify): khác biệt bubble & bỏ avatar
   if (message.senderRole === 'SYSTEM') {
     return (
-      <Box sx={{ width: '100%', my: 2, textAlign: 'center' }}>
-        <Paper elevation={0}
+      <Box sx={{ width: '100%', my: 3, textAlign: 'center' }}>
+        <Paper
+          elevation={2}
           sx={{
-            p: { xs: 2, sm: 2.5 },
-            bgcolor: '#e8f5e9',
-            borderRadius: 2.5,
-            mx: 'auto',
             display: 'inline-block',
-            maxWidth: { xs: '96%', sm: 400 }
+            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+            border: '1px solid #2196f3',
+            borderRadius: 3,
+            px: 3,
+            py: 2,
+            maxWidth: 400,
+            mx: 'auto'
           }}
         >
-          <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 700, mb: 1 }}>
-            <InfoIcon sx={{ verticalAlign: 'middle', mr: 0.5 }} fontSize="small" />
-            Hệ thống
-          </Typography>
-          <Typography variant="body2" sx={{ fontSize: { xs: 15, sm: 16 }, color: 'text.secondary', whiteSpace: 'pre-line' }}>
+          <Chip
+            icon={<InfoIcon />}
+            label="Hệ thống"
+            color="primary"
+            variant="outlined"
+            size="small"
+            sx={{ mb: 1 }}
+          />
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              whiteSpace: 'pre-line',
+              lineHeight: 1.6
+            }}
+          >
             {message.content}
           </Typography>
         </Paper>
@@ -53,41 +68,38 @@ function MessageBubble({ message, customerName, isOwn }) {
 
   // Bubble cho user/EMP/AI
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'flex-end',
-        flexDirection: isOwn ? 'row-reverse' : 'row',
-        mb: 1.5,
-        px: { xs: 1, sm: 2 }
-      }}
-    >
-      <Avatar
-        sx={{
-          width: { xs: 32, sm: 36 },
-          height: { xs: 32, sm: 36 },
-          bgcolor: isOwn ? 'primary.main' : 'grey.600',
-          color: '#fff',
-          boxShadow: 1
-        }}
-      >
+    <Box sx={{
+      display: 'flex',
+      alignItems: 'flex-end',
+      mb: 2,
+      px: 2,
+      flexDirection: isOwn ? 'row-reverse' : 'row'
+    }}>
+      <Avatar sx={{
+        width: 36,
+        height: 36,
+        bgcolor: isOwn ? 'primary.main' : 'grey.600',
+        boxShadow: 2
+      }}>
         {avatar}
       </Avatar>
+
       <Paper
-        elevation={2}
+        elevation={3}
         sx={{
-          p: { xs: 1.2, sm: 1.4 },
-          bgcolor: isOwn ? 'primary.main' : 'grey.100',
+          maxWidth: '75%',
+          px: 2,
+          py: 1.5,
+          mx: 1.5,
+          position: 'relative',
+          bgcolor: isOwn ? 'primary.main' : 'background.paper',
           color: isOwn ? 'primary.contrastText' : 'text.primary',
-          borderRadius: 2.5,
-          borderTopLeftRadius: isOwn ? 3 : 0.5,
-          borderTopRightRadius: isOwn ? 0.5 : 3,
-          maxWidth: { xs: '80%', sm: '65%' },
-          ml: isOwn ? 0 : 1.3,
-          mr: isOwn ? 1.3 : 0,
-          wordBreak: 'break-word',
-          whiteSpace: 'pre-line',
-          position: 'relative'
+          borderRadius: 2,
+          ...(isOwn ? {
+            borderTopRightRadius: 4
+          } : {
+            borderTopLeftRadius: 4
+          })
         }}
       >
         {/* Hiện tên cho tất cả message trừ SYSTEM */}
@@ -97,9 +109,8 @@ function MessageBubble({ message, customerName, isOwn }) {
             sx={{
               fontWeight: 600,
               mb: 0.5,
-              opacity: 0.85,
-              fontSize: { xs: '11px', sm: '12px' },
-              letterSpacing: '0.2px'
+              color: isOwn ? 'primary.contrastText' : 'text.secondary',
+              opacity: 0.8
             }}
           >
             {senderName}
@@ -108,24 +119,24 @@ function MessageBubble({ message, customerName, isOwn }) {
         )}
 
         <Typography
-          variant="body1"
+          variant="body2"
           sx={{
-            fontSize: { xs: 15, sm: 16 },
-            lineHeight: 1.55,
-            fontWeight: 400
+            lineHeight: 1.5,
+            whiteSpace: 'pre-line'
           }}
         >
           {message.content}
         </Typography>
+
         {message.timestamp && (
           <Typography
             variant="caption"
             sx={{
+              mt: 1,
               display: 'block',
-              mt: 0.5,
-              opacity: 0.65,
-              fontSize: { xs: '10px', sm: '11px' },
-              textAlign: isOwn ? 'right' : 'left'
+              textAlign: isOwn ? 'right' : 'left',
+              color: isOwn ? 'primary.contrastText' : 'text.secondary',
+              opacity: 0.7
             }}
           >
             {new Date(message.timestamp).toLocaleTimeString('vi-VN', {

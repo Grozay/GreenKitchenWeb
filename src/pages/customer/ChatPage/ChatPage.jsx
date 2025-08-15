@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box'
+import { Box, Paper, Container } from '@mui/material'
 import ChatPanel from './ChatPanel'
 import MenuPanel from './MenuPanel'
 import { useState } from 'react'
@@ -15,15 +15,49 @@ export default function ChatPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'grey.50' }}>
+    <Box sx={{
+      display: 'flex',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      fontFamily: 'Roboto, sans-serif',
+      flexDirection: { xs: 'column', lg: 'row' }, // Mobile/Tablet: dọc, Desktop: ngang
+      overflow: 'hidden' // Ngăn scroll không cần thiết
+    }}>
       {/* Left panel: sản phẩm gợi ý */}
-      <Box sx={{ flex: 2, minWidth: 320, maxWidth: 420, bgcolor: 'background.paper', borderRight: '1px solid #e0e0e0', overflowY: 'auto' }}>
+      <Paper
+        elevation={3}
+        sx={{
+          flex: { xs: 'none', lg: '0 0 40%' },
+          width: { xs: '100%', lg: '40%' },
+          height: { xs: '50vh', md: '50vh', lg: '100vh' }, // Responsive height
+          minWidth: { xs: '100%', lg: 320 },
+          maxWidth: { xs: '100%', lg: '40%' },
+          overflow: 'hidden', // Ngăn scroll không cần thiết
+          borderRadius: 0,
+          borderRight: { xs: 'none', lg: '1px solid #e0e0e0' },
+          borderBottom: { xs: '1px solid #e0e0e0', lg: 'none' },
+          order: { xs: 1, lg: 1 } // Đảm bảo thứ tự hiển thị
+        }}
+      >
         <MenuPanel menuProducts={menuProducts} chatMessages={messages} />
-      </Box>
+      </Paper>
       {/* Right panel: chat */}
-      <Box sx={{ flex: 3, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Paper
+        elevation={4}
+        sx={{
+          flex: { xs: '1 1 auto', lg: '1 1 60%' },
+          width: { xs: '100%', lg: '60%' },
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          height: { xs: '50vh', md: '50vh', lg: '100vh' }, // Responsive height
+          borderRadius: 0,
+          overflow: 'hidden', // Ngăn scroll không cần thiết
+          order: { xs: 2, lg: 2 } // Đảm bảo thứ tự hiển thị
+        }}
+      >
         <ChatPanel onMessagesUpdate={handleMessagesUpdate} />
-      </Box>
+      </Paper>
     </Box>
   )
 }

@@ -171,7 +171,9 @@ export default function ChatPanel({ onMessagesUpdate }) {
         setConversationStatus(status)
         setChatMode(status === 'EMP' ? 'EMP' : 'AI')
       } catch (e) {
-        // noop
+        console.error('[WebSocket] Error fetching conversation status:', e)
+        setConversationStatus('AI') // Fallback to AI mode on error
+        setChatMode('AI')
       }
     }
   })

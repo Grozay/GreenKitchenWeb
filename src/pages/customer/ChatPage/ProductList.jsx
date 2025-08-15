@@ -1,14 +1,45 @@
-import Grid from '@mui/material/Grid'
+import { Box } from '@mui/material'
 import ProductCard from './ProductCard'
 
-export default function ProductList({ products }) {
+export default function ProductList({ products, cardHeight = 220 }) {
+  // Xử lý cardHeight có thể là object responsive hoặc number
+  const getCardHeight = () => {
+    if (typeof cardHeight === 'object') {
+      return cardHeight
+    }
+    return cardHeight
+  }
+
   return (
-    <Grid container spacing={2}>
-      {products.map(product => (
-        <Grid item xs={12} sm={6} key={product.id}>
-          <ProductCard product={product} />
-        </Grid>
+    <Box sx={{
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0
+    }}>
+      {products.map((product, idx) => (
+        <Box
+          key={product.id || idx}
+          sx={{
+            width: '100%',
+            height: '100%',
+            flex: 1,
+            display: 'flex',
+            minWidth: 0,
+            minHeight: 0
+          }}
+        >
+          <ProductCard
+            product={product}
+            showActions
+            variant="default"
+            onAddToCart={() => {}}
+            onToggleFavorite={() => {}}
+            isFavorited={false}
+          />
+        </Box>
       ))}
-    </Grid>
+    </Box>
   )
 }
