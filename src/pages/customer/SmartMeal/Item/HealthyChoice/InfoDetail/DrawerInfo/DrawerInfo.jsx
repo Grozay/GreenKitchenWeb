@@ -98,13 +98,16 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
           isCustom: true,
           customMealId: savedCustomMeal.id,
           quantity: 1,
-          basePrice: totalPrice,
+          unitPrice: totalPrice,
+          totalPrice: totalPrice,
           title: savedCustomMeal.name || 'My Custom Bowl',
-          description: 'Custom meal with selected ingredients',
+          description: savedCustomMeal.description || 'Custom meal with selected ingredients',
           calories: Math.round(customTotal.calories),
           protein: Math.round(customTotal.protein),
           carbs: Math.round(customTotal.carbs),
-          fat: Math.round(customTotal.fat)
+          fat: Math.round(customTotal.fat),
+          itemType: 'CUSTOM_MEAL',
+          image: savedCustomMeal.image || defaultImage
         }
 
         await addMealToCartAPI(customerId, cartRequestData)

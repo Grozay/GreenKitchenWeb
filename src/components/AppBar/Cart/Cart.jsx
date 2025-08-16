@@ -9,14 +9,14 @@ import theme from '~/theme'
 import Badge from '@mui/material/Badge'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   fetchCart,
   removeFromCart,
   selectTotalItems,
-  selectItems,
-  selectTotalAmount
+  selectCartItems,
+  selectCurrentCart
 } from '~/redux/cart/cartSlice'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -43,17 +43,14 @@ const Cart = () => {
   const dispatch = useDispatch()
 
   // Redux selectors
+  const cartItem = useSelector(selectCurrentCart)
   const totalItems = useSelector(selectTotalItems)
-  const items = useSelector(selectItems)
-  const totalAmount = useSelector(selectTotalAmount)
-  const status = useSelector((s) => s.cart.status)
 
-  // Fetch only when opening the cart menu (with simple TTL guard)
   const lastFetchRef = useRef(0)
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
     const now = Date.now()
-    if (status !== 'loading' && now - lastFetchRef.current > 3000) {
+    if (now - lastFetchRef.current > 3000) {
       lastFetchRef.current = now
       dispatch(fetchCart(customerId))
     }
@@ -213,7 +210,7 @@ const Cart = () => {
               }
             }
           }}>
-            {items?.map((item) => (
+            {cartItem?.cartItems?.map((item) => (
               <MenuItem
                 key={item.id}
                 onClick={handleItemClick}
@@ -296,7 +293,7 @@ const Cart = () => {
               TỔNG TIỀN:
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {totalAmount?.toLocaleString()} VNĐ
+              {cartItem?.totalAmount?.toLocaleString()} VNĐ
             </Typography>
           </Box>
         )}
