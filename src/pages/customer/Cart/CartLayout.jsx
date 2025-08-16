@@ -8,7 +8,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
-  selectItems,
+  selectCurrentCart,
   removeFromCart,
   increaseQuantity,
   decreaseQuantity
@@ -23,7 +23,8 @@ const Cart = () => {
   const customerId = 1 // Hoặc lấy từ auth state
 
   // Redux selectors - cập nhật selectors
-  const items = useSelector(selectItems)
+  const items = useSelector(selectCurrentCart)
+  console.log('🚀 ~ Cart ~ items:', items)
 
 
   const handleBackToMenu = () => {
@@ -86,7 +87,7 @@ const Cart = () => {
 
   // Tính tổng nutrition
   const calculateTotalNutrition = () => {
-    return items?.reduce((total, item) => {
+    return items?.cartItems?.reduce((total, item) => {
       const itemNutrition = calculateItemNutrition(item)
       return {
         calories: total.calories + itemNutrition.calories,
@@ -132,13 +133,13 @@ const Cart = () => {
             </Button>
           </Box>
 
-          {!items || items.length === 0 ? (
+          {!items || !items?.cartItems || items?.cartItems?.length === 0 ? (
             <CartEmpty handleBackToMenu={handleBackToMenu} />
           ) : (
             <ListItemCart
-              cartItems={items}
-              increaseQuantity={increaseItemQuantity} // Pass hàm tăng
-              decreaseQuantity={decreaseItemQuantity} // Pass hàm giảm
+              cartItems={items?.cartItems}
+              increaseQuantity={increaseItemQuantity}
+              decreaseQuantity={decreaseItemQuantity}
               removeItem={removeItem}
               totalNutrition={totalNutrition}
               calculateItemNutrition={calculateItemNutrition}

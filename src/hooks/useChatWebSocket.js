@@ -21,23 +21,23 @@ export function useChatWebSocket(topic, onMessage) {
         (Array.isArray(topic) ? topic : [topic]).forEach((t) => {
           client.subscribe(t, (msg) => {
             const data = JSON.parse(msg.body)
-            console.log('[WebSocket]', t, data)
+            // console.log('[WebSocket]', t, data)
             onMessage(data)
           })
         })
       },
       onStompError: (frame) => {
-        console.error('[WebSocket] STOMP error:', frame)
+        // console.error('[WebSocket] STOMP error:', frame)
       },
       onWebSocketError: (event) => {
-        console.error('[WebSocket] Native WebSocket error:', event)
+        // console.error('[WebSocket] Native WebSocket error:', event)
       },
       onDisconnect: (frame) => {
-        console.warn('[WebSocket] Disconnected:', frame)
+        // console.warn('[WebSocket] Disconnected:', frame)
       },
       debug: (str) => {
         // Muốn debug tất cả, mở dòng này!
-        console.debug('[WebSocket DEBUG]', str)
+        // console.debug('[WebSocket DEBUG]', str)
       }
     })
 
@@ -46,7 +46,7 @@ export function useChatWebSocket(topic, onMessage) {
 
     return () => {
       if (clientRef.current) {
-        console.log('[WebSocket] Deactivate previous connection!')
+        // console.log('[WebSocket] Deactivate previous connection!')
         clientRef.current.deactivate()
         clientRef.current = null
       }
