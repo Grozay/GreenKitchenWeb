@@ -13,7 +13,7 @@ import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import { useTheme } from '@mui/material'
 // import { ItemHealthy } from '~/apis/mockData'
 import { selectCurrentMeal, clearCart } from '~/redux/meal/mealSlice'
-import { fetchCart } from '~/redux/cart/cartSlice' // Import từ cart slice
+import { fetchCart, createCartItem } from '~/redux/cart/cartSlice' // Sửa: import createCartItem
 import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice } from '~/utils/nutrition'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import PageviewIcon from '@mui/icons-material/Pageview'
@@ -24,6 +24,7 @@ import { toast } from 'react-toastify'
 import Grid from '@mui/material/Grid'
 import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
+import { useNavigate } from 'react-router-dom'
 
 const DrawerInfo = ({ onClose, itemHealthy }) => {
   const [openInfoModal, setOpenInfoModal] = useState(false)
@@ -35,13 +36,16 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
   const theme = useTheme()
   const dispatch = useDispatch()
   const selected = useSelector(selectCurrentMeal)
+  const currentCustomer = useSelector(state => state.customer.currentCustomer)
+  const customerId = currentCustomer?.id || null
+  const navigate = useNavigate()
+
   const customTotal = calcCustomTotal(selected)
   const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
   const nutritionalAdvice = getNutritionalAdvice(customTotal)
   const allSelectedItems = Object.values(selected).flat()
 
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
-  const customerId = 1 // Hoặc lấy từ auth state
 
   const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
 
@@ -60,6 +64,13 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
     setOpenInfoModal(false)
     if (orderMode) {
       // ORDER FLOW
+      if (!customerId) {
+        toast.error('Bạn cần đăng nhập để đặt món!')
+        setAddingToCart(false)
+        setOrderMode(false)
+        navigate('/login')
+        return
+      }
       setAddingToCart(true)
       try {
         const customMealData = {
@@ -89,11 +100,8 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
             quantity: item.quantity
           })) || []
         }
-
-        // Save custom meal và lấy response
         const savedCustomMeal = await createCustomMealAPI(customMealData)
 
-        // Add to cart
         const cartRequestData = {
           isCustom: true,
           customMealId: savedCustomMeal.id,
@@ -110,9 +118,8 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
           image: savedCustomMeal.image || defaultImage
         }
 
-        await addMealToCartAPI(customerId, cartRequestData)
+        await dispatch(createCartItem({ customerId, itemData: cartRequestData }))
         await dispatch(fetchCart(customerId))
-        dispatch(clearCart())
         onClose()
         toast.success('Custom meal added to cart successfully!')
       } catch (error) {
@@ -122,8 +129,15 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
         setOrderMode(false)
       }
     } else {
-      // SAVE FLOW
+      // SAVE FLOW giữ nguyên
       setSavingMeal(true)
+      if (!customerId) {
+        toast.error('Bạn cần đăng nhập để lưu món!')
+        setAddingToCart(false)
+        setOrderMode(false)
+        navigate('/login')
+        return
+      }
       try {
         const customMealData = {
           customerId: customerId,
@@ -154,7 +168,6 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
         }
 
         const savedCustomMeal = await createCustomMealAPI(customMealData)
-        dispatch(clearCart())
         onClose()
         toast.success(`Custom meal "${savedCustomMeal.title}" saved successfully!`)
       } catch (error) {

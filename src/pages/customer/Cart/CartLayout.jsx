@@ -11,50 +11,51 @@ import {
   selectCurrentCart,
   removeFromCart,
   increaseQuantity,
-  decreaseQuantity
+  decreaseQuantity,
+  fetchCart
 } from '~/redux/cart/cartSlice'
 import CartEmpty from './CartEmpty/CartEmpty'
 import ListItemCart from './ListItemCart/ListItemCart'
-import { useEffect } from 'react'
 
 const Cart = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const customerId = 1 // Hoặc lấy từ auth state
+  const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
 
-  // Redux selectors - cập nhật selectors
-  const items = useSelector(selectCurrentCart)
-  console.log('🚀 ~ Cart ~ items:', items)
 
+  // Lấy currentCart từ Redux
+  const currentCart = useSelector(selectCurrentCart)
+  console.log('🚀 ~ Cart ~ currentCart:', currentCart)
+  const cartItems = currentCart?.cartItems || []
 
   const handleBackToMenu = () => {
     navigate('/menu')
   }
 
-  // Tách thành 2 hàm riêng biệt
   const increaseItemQuantity = async (cartItemId) => {
     try {
       await dispatch(increaseQuantity({ customerId, itemId: cartItemId }))
-      // Refresh cart data sau khi update
     } catch (error) {
-      console.error('Error increasing quantity:', error)
+      // Xử lý lỗi nếu cần
     }
   }
 
   const decreaseItemQuantity = async (cartItemId) => {
     try {
       await dispatch(decreaseQuantity({ customerId, itemId: cartItemId }))
-      // Refresh cart data sau khi update
     } catch (error) {
-      console.error('Error decreasing quantity:', error)
+      // Xử lý lỗi nếu cần
     }
   }
 
   const removeItem = async (cartItemId) => {
     try {
       await dispatch(removeFromCart({ customerId, itemId: cartItemId }))
+      if (customerId) {
+        await dispatch(fetchCart(customerId))
+      }
     } catch (error) {
-      console.error('Error removing item:', error)
+      // Xử lý lỗi nếu cần
     }
   }
 
@@ -62,7 +63,6 @@ const Cart = () => {
     let totalCalories = 0, totalProtein = 0, totalCarbs = 0, totalFat = 0
 
     if (item.isCustom && item.details) {
-      // Tính toán nutrition cho custom meal
       item.details.forEach(detail => {
         totalCalories += (detail.calories || 0) * (detail.quantity || 1)
         totalProtein += (detail.protein || 0) * (detail.quantity || 1)
@@ -70,7 +70,6 @@ const Cart = () => {
         totalFat += (detail.fat || 0) * (detail.quantity || 1)
       })
     } else {
-      // Tính toán nutrition cho menu meal
       totalCalories = item.calories || 0
       totalProtein = item.protein || 0
       totalCarbs = item.carbs || 0
@@ -85,9 +84,8 @@ const Cart = () => {
     }
   }
 
-  // Tính tổng nutrition
   const calculateTotalNutrition = () => {
-    return items?.cartItems?.reduce((total, item) => {
+    return cartItems.reduce((total, item) => {
       const itemNutrition = calculateItemNutrition(item)
       return {
         calories: total.calories + itemNutrition.calories,
@@ -99,23 +97,6 @@ const Cart = () => {
   }
 
   const totalNutrition = calculateTotalNutrition()
-
-  // if (loading) {
-  //   return (
-  //     <Box>
-  //       <AppBar />
-  //       <Box sx={{
-  //         mt: theme.fitbowl.appBarHeight,
-  //         display: 'flex',
-  //         justifyContent: 'center',
-  //         alignItems: 'center',
-  //         minHeight: '50vh'
-  //       }}>
-  //         <Typography>Loading cart...</Typography>
-  //       </Box>
-  //     </Box>
-  //   )
-  // }
 
   return (
     <Box>
@@ -133,11 +114,11 @@ const Cart = () => {
             </Button>
           </Box>
 
-          {!items || !items?.cartItems || items?.cartItems?.length === 0 ? (
+          {cartItems.length === 0 ? (
             <CartEmpty handleBackToMenu={handleBackToMenu} />
           ) : (
             <ListItemCart
-              cartItems={items?.cartItems}
+              cartItems={cartItems}
               increaseQuantity={increaseItemQuantity}
               decreaseQuantity={decreaseItemQuantity}
               removeItem={removeItem}

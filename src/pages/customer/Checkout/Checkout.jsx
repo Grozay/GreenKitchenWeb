@@ -22,12 +22,12 @@ import PayPalPaymentForm from './components/PayPalPaymentForm'
 // Import API
 import { createOrder, customerUseCouponAPI, fetchCustomerDetails } from '~/apis'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
-import { selectCartItems, clearCart } from '~/redux/cart/cartSlice'
+import { selectCurrentCart, clearCart } from '~/redux/cart/cartSlice'
 
 const Checkout = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const orderItems = useSelector(selectCartItems)
+  const currentCart = useSelector(selectCurrentCart)
   const currentCustomer = useSelector(selectCurrentCustomer)
   const [paymentMethod, setPaymentMethod] = useState('cod')
   const [errors, setErrors] = useState({})
@@ -60,7 +60,6 @@ const Checkout = () => {
   // Fetch customer details and set default address
   useEffect(() => {
     const fetch = async () => {
-
       setLoading(true)
       try {
         const data = await fetchCustomerDetails(currentCustomer.email)
@@ -92,7 +91,6 @@ const Checkout = () => {
           }))
         }
       } catch (error) {
-        // console.error('Error fetching customer details:', error)
         toast.error('❌ Không thể tải thông tin khách hàng!')
       } finally {
         setLoading(false)
@@ -103,7 +101,7 @@ const Checkout = () => {
 
   useEffect(() => {
     // Calculate order summary based on cart items
-    const cartItems = orderItems?.cartItems || orderItems?.items || []
+    const cartItems = currentCart?.cartItems || []
     const subtotal = cartItems.reduce((total, item) => {
       return total + (item.totalPrice || item.basePrice || 0)
     }, 0)
@@ -147,7 +145,7 @@ const Checkout = () => {
       couponDiscount,
       totalAmount
     })
-  }, [orderItems, customerDetails, appliedCoupon])
+  }, [currentCart, customerDetails, appliedCoupon])
 
   // Handle apply coupon
   const handleApplyCoupon = (coupon, discountAmount) => {
@@ -227,7 +225,7 @@ const Checkout = () => {
       // Kiểm tra phương thức thanh toán
       if (paymentMethod?.toLowerCase() === 'cod') {
         // Xử lý thanh toán COD
-        const cartItems = orderItems?.cartItems || orderItems?.items || []
+        const cartItems = currentCart?.cartItems || []
         const orderData = {
           customerId: currentCustomer?.id,
           ...deliveryInfo,
@@ -266,23 +264,17 @@ const Checkout = () => {
             }
           }
 
-          // Xử lý thành công
-          // setConfirmDialogOpen(false)
           dispatch(clearCart())
-          // Hiển thị thông báo thành công
           toast.success('Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.')
-          // Chuyển đến trang order history
           navigate('/profile/order-history')
         }
       } else if (paymentMethod?.toLowerCase() === 'paypal') {
-        // Xử lý thanh toán PayPal
         setShowPayPalForm(true)
         setConfirmDialogOpen(false)
         setLoading(false)
         return
       }
     } catch {
-      // console.log('Error placing order:', error)
       toast.error('❌ Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
     } finally {
       setLoading(false)
@@ -295,7 +287,7 @@ const Checkout = () => {
       setLoading(true)
 
       // Create order with PAID status
-      const cartItems = orderItems?.cartItems || orderItems?.items || []
+      const cartItems = currentCart?.cartItems || []
       const orderData = {
         customerId: currentCustomer?.id,
         ...deliveryInfo,
@@ -409,7 +401,7 @@ const Checkout = () => {
 
         <Grid container spacing={4}>
           {/* Left Column - Forms */}
-          <Grid size={{ xs: 12, md: 8 }}>
+          <Grid item xs={12} md={8}>
             {/* Delivery Info Form */}
             <DeliveryInfoForm
               deliveryInfo={deliveryInfo}
@@ -433,7 +425,7 @@ const Checkout = () => {
           </Grid>
 
           {/* Right Column - Order Summary */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid item xs={12} md={4}>
             <OrderSummary
               {...orderSummary}
               appliedCoupon={appliedCoupon}
@@ -449,7 +441,7 @@ const Checkout = () => {
               variant="contained"
               size="large"
               onClick={handlePlaceOrder}
-              disabled={loading || (orderItems?.cartItems?.length || orderItems?.items?.length || 0) === 0}
+              disabled={loading || (currentCart?.cartItems?.length || 0) === 0}
               sx={{
                 py: 2,
                 borderRadius: 4,

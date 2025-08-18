@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
 import Grid from '@mui/material/Grid'
 import { useState } from 'react'
@@ -16,7 +16,8 @@ const CardMenu = ({ item, typeBasedIndex }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [addingToCart, setAddingToCart] = useState(false)
-  const customerId = 1
+  const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
+  // const customerId = 1
 
   const handleNavigateToDetail = (slug) => {
     navigate(`/menu/${slug}`)
@@ -49,7 +50,14 @@ const CardMenu = ({ item, typeBasedIndex }) => {
 
       // Gọi redux thunk để add vào cart
       await dispatch(createCartItem({ customerId, itemData: requestData }))
-      await dispatch(fetchCart(customerId))
+      if (customerId) {
+        await dispatch(fetchCart(customerId))
+      } else {
+        // Nếu chưa đăng nhập, đảm bảo currentCart luôn có dữ liệu (nếu null thì gán rỗng)
+        // (Không cần fetch lại, vì reducer đã tự thêm vào currentCart)
+        // Nếu muốn chắc chắn, có thể kiểm tra và gán rỗng nếu currentCart là null
+        // Nhưng reducer đã xử lý rồi, nên không cần làm gì thêm ở đây
+      }
       toast.success('Added to cart successfully!')
       // eslint-disable-next-line no-unused-vars
     } catch (error) {
