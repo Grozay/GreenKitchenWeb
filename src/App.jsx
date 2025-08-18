@@ -25,7 +25,6 @@ import WeekMealLayout from './pages/customer/WeekMeal/WeekMealLayout'
 
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
-  
   if (!user) {
     // Hiển thị thông báo cho user biết họ cần đăng nhập
     toast.info('Vui lòng đăng nhập để tiếp tục')

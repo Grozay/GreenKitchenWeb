@@ -265,7 +265,7 @@ const Checkout = () => {
           }
 
           dispatch(clearCart())
-          toast.success('Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.')
+          toast.success('Đặt hàng thành công!')
           navigate('/profile/order-history')
         }
       } else if (paymentMethod?.toLowerCase() === 'paypal') {
@@ -327,11 +327,11 @@ const Checkout = () => {
         }
 
         dispatch(clearCart())
-        toast.success('🎉 Đặt hàng và thanh toán PayPal thành công!')
+        toast.success('Đặt hàng và thanh toán thành công!')
         navigate('/profile/order-history')
       }
     } catch (error) {
-      toast.error('❌ Có lỗi xảy ra sau khi thanh toán PayPal')
+      toast.error('Có lỗi xảy ra sau khi thanh toán PayPal')
     } finally {
       setShowPayPalForm(false)
       setLoading(false)
@@ -503,7 +503,19 @@ const Checkout = () => {
                 fullWidth
                 variant="outlined"
                 onClick={() => setShowPayPalForm(false)}
-                sx={{ mt: 2, bgcolor: 'white' }}
+                sx={{ 
+                  mt: 2,
+                  height: 42,
+                  bgcolor: 'white',
+                  color: 'primary.main',
+                  borderColor: 'primary.main',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    borderColor: 'primary.main'
+                  }
+                }}
               >
                 Hủy thanh toán
               </Button>

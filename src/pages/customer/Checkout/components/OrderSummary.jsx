@@ -223,8 +223,8 @@ const OrderSummary = ({
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box
                   component="img"
-                  src={item.mealItem?.image || item.image}
-                  alt={item.mealItem?.name || item.title || item.name}
+                  src={item.cartItems?.image || item.image}
+                  alt={item.cartItems?.name || item.title || item.name}
                   sx={{
                     width: 40,
                     height: 40,
@@ -234,7 +234,7 @@ const OrderSummary = ({
                 />
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 500, color: '#2c2c2c' }}>
-                    {item.mealItem?.name || item.title || item.name}
+                    {item.cartItems?.name || item.title || item.name}
                     {item.isCustom && <span style={{ color: '#666', fontSize: '0.8em' }}> (Custom)</span>}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#666' }}>
