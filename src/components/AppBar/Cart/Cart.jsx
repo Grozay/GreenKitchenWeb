@@ -14,8 +14,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import {
   fetchCart,
   removeFromCart,
-  selectTotalItems,
-  selectCartItems,
   selectCurrentCart
 } from '~/redux/cart/cartSlice'
 import Typography from '@mui/material/Typography'
@@ -38,19 +36,31 @@ const Cart = () => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [itemToRemove, setItemToRemove] = useState(null)
-  const customerId = 1
+  const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
+  // const customerId = 1
+
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
   // Redux selectors
-  const cartItem = useSelector(selectCurrentCart)
-  const totalItems = useSelector(selectTotalItems)
+  const currentCart = useSelector(selectCurrentCart)
+
+  useEffect(() => {
+    if (customerId) {
+      dispatch(fetchCart(customerId))
+    }
+  }, [customerId, dispatch])
+
+  // Lấy các giá trị từ currentCart
+  const totalItems = currentCart?.totalItems || 0
+  const cartItems = currentCart?.cartItems || []
+  const totalAmount = currentCart?.totalAmount || 0
 
   const lastFetchRef = useRef(0)
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
     const now = Date.now()
-    if (now - lastFetchRef.current > 3000) {
+    if (customerId && now - lastFetchRef.current > 3000) {
       lastFetchRef.current = now
       dispatch(fetchCart(customerId))
     }
@@ -79,6 +89,9 @@ const Cart = () => {
     if (itemToRemove) {
       await dispatch(removeFromCart({ customerId, itemId: itemToRemove }))
     }
+    if (customerId) {
+      await dispatch(fetchCart(customerId))
+    }
     setConfirmDialogOpen(false)
     setItemToRemove(null)
   }
@@ -88,23 +101,9 @@ const Cart = () => {
     setItemToRemove(null)
   }
 
-  const getProductTitle = (item) => {
-    if (item.isCustom) {
-      return item.customMealName || item.title || 'Custom Meal'
-    } else {
-      return item.menuMealTitle || item.title || 'Menu Meal'
-    }
-  }
-
-  const getProductImage = (item) => {
-    if (item.isCustom) {
-      if (item.details && item.details.length > 0) {
-        return item.details[0].image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
-      }
-      return 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
-    }
-    return item.menuMealImage || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
-  }
+  // Sửa lại hàm lấy title, image cho giống CartItem
+  const getProductTitle = (item) => item.title
+  const getProductImage = (item) => item.image
 
   return (
     <>
@@ -210,9 +209,9 @@ const Cart = () => {
               }
             }
           }}>
-            {cartItem?.cartItems?.map((item) => (
+            {cartItems.map((item) => (
               <MenuItem
-                key={item.id}
+                key={item.menuMealId || item.customMealId}
                 onClick={handleItemClick}
                 sx={{
                   px: 2,
@@ -229,7 +228,7 @@ const Cart = () => {
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleRemoveItem(item.id)
+                      handleRemoveItem(item.menuMealId || item.customMealId || item.id)
                     }}
                     sx={{
                       position: 'absolute',
@@ -293,7 +292,7 @@ const Cart = () => {
               TỔNG TIỀN:
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {cartItem?.totalAmount?.toLocaleString()} VNĐ
+              {totalAmount.toLocaleString()} VNĐ
             </Typography>
           </Box>
         )}
