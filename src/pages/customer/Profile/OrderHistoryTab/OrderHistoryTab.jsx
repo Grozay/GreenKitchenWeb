@@ -60,18 +60,14 @@ export default function OrderHistoryTab({ customerDetails }) {
       maxWidth: '1200px',
       margin: '0 auto'
     }}>
-      {/* Phần 1 & 2: Filter gộp chung */}
+      {/* Filter*/}
       <Card sx={{ mb: 3, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         <CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2e7d32' }}>
-            Bộ lọc tìm kiếm
-          </Typography>
-
           <Grid container spacing={3}>
             {/* Filter theo trạng thái */}
-            <Grid size={{ xs: 12, md: 7 }}>
+            <Grid size={12}>
               <Typography variant="body1" sx={{ mb: 2, fontWeight: 600, color: '#666' }}>
-                Lọc theo trạng thái
+                Trạng thái đơn hàng
               </Typography>
               <Box sx={{
                 display: 'flex',
@@ -99,9 +95,9 @@ export default function OrderHistoryTab({ customerDetails }) {
             </Grid>
 
             {/* Filter theo ngày tháng */}
-            <Grid size={{ xs: 12, md: 5 }}>
+            <Grid size={12}>
               <Typography variant="body1" sx={{ mb: 2, fontWeight: 600, color: '#666' }}>
-                Lọc theo khoảng thời gian
+                Thời gian đặt hàng
               </Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>

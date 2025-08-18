@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -20,14 +20,17 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import { toast } from 'react-toastify'
-import { createOrUpdateCustomerReferenceAPI } from '~/apis'
+import { createCustomerReferenceAPI } from '~/apis'
 
-export default function FoodPreferenceDialog({
+export default function FoodReferenceDialog({
   open,
   onClose,
   onCancel,
   customerDetails,
-  setCustomerDetails
+  setCustomerDetails,
+  editMode = false,
+  prefill = null,
+  onSubmit
 }) {
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -44,6 +47,38 @@ export default function FoodPreferenceDialog({
     customVegetable: '',
     customAllergy: ''
   })
+
+  // Prefill when edit mode opens
+  useEffect(() => {
+    if (open) {
+      if (editMode && prefill) {
+        setFormData(prev => ({
+          ...prev,
+          vegetarianType: prefill.vegetarianType || '',
+          canEatEggs: !!prefill.canEatEggs,
+          canEatDairy: !!prefill.canEatDairy,
+          note: prefill.note || '',
+          favoriteProteins: prefill.favoriteProteins || [],
+          favoriteCarbs: prefill.favoriteCarbs || [],
+          favoriteVegetables: prefill.favoriteVegetables || [],
+          allergies: prefill.allergies || []
+        }))
+      } else {
+        // reset on create
+        setFormData(prev => ({
+          ...prev,
+          vegetarianType: '',
+          canEatEggs: false,
+          canEatDairy: false,
+          note: '',
+          favoriteProteins: [],
+          favoriteCarbs: [],
+          favoriteVegetables: [],
+          allergies: []
+        }))
+      }
+    }
+  }, [open, editMode, prefill])
 
   // Options for food preferences
   const proteinOptions = [
@@ -114,31 +149,35 @@ export default function FoodPreferenceDialog({
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      // Prepare data for API
-      const referenceData = {
-        customer: {
-          id: customerDetails.id
-        },
-        vegetarianType: formData.vegetarianType || 'NEVER',
-        canEatEggs: formData.canEatEggs,
-        canEatDairy: formData.canEatDairy,
-        note: formData.note,
-        favoriteProteins: formData.favoriteProteins.map(name => ({ proteinName: name })),
-        favoriteCarbs: formData.favoriteCarbs.map(name => ({ carbName: name })),
-        favoriteVegetables: formData.favoriteVegetables.map(name => ({ vegetableName: name })),
-        allergies: formData.allergies.map(name => ({ allergyName: name }))
+      if (editMode && onSubmit) {
+        await onSubmit(formData)
+        onClose()
+        toast.success('Đã cập nhật thông tin sở thích!')
+      } else {
+        // Prepare data for API
+        const referenceData = {
+          customerId: customerDetails.id,
+          vegetarianType: formData.vegetarianType || 'NEVER',
+          canEatEggs: formData.canEatEggs,
+          canEatDairy: formData.canEatDairy,
+          note: formData.note,
+          favoriteProteins: formData.favoriteProteins.map(name => ({ proteinName: name })),
+          favoriteCarbs: formData.favoriteCarbs.map(name => ({ carbName: name })),
+          favoriteVegetables: formData.favoriteVegetables.map(name => ({ vegetableName: name })),
+          allergies: formData.allergies.map(name => ({ allergyName: name }))
+        }
+
+        const createdReference = await createCustomerReferenceAPI(referenceData)
+
+        // Update customer details with new reference
+        setCustomerDetails(prev => ({
+          ...prev,
+          customerReference: createdReference
+        }))
+
+        onClose()
+        toast.success('Đã lưu thông tin sở thích thành công!')
       }
-
-      const createdReference = await createOrUpdateCustomerReferenceAPI(referenceData)
-
-      // Update customer details with new reference
-      setCustomerDetails(prev => ({
-        ...prev,
-        customerReference: createdReference
-      }))
-
-      onClose()
-      toast.success('Đã lưu thông tin sở thích thành công!')
     } catch {
       toast.error('Có lỗi xảy ra khi lưu thông tin!')
     } finally {
@@ -156,7 +195,7 @@ export default function FoodPreferenceDialog({
     >
       <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-          🌟 Thiết lập sở thích ẩm thực
+          {editMode ? '✏️ Chỉnh sửa sở thích ẩm thực' : '🌟 Thiết lập sở thích ẩm thực'}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Chia sẻ với chúng tôi về sở thích ẩm thực để nhận được đề xuất phù hợp nhất

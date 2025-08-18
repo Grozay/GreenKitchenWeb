@@ -81,7 +81,7 @@ const PayPalPaymentForm = ({
       })
 
       // Thành công
-      toast.success('Thanh toán PayPal thành công!')
+      toast.success('Thanh toán thành công!')
       onSuccess({
         id: data.orderID,
         status: 'COMPLETED',
@@ -126,9 +126,9 @@ const PayPalPaymentForm = ({
   }
 
   return (
-    <Paper sx={{ p: 3, borderRadius: 2, position: 'relative' }}>
+    <Paper sx={{ p: 3, borderRadius: 2, position: 'relative', height: '100%' }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-        💰 Thanh toán qua PayPal
+        💰 Thanh toán qua cổng thanh toán PayPal
       </Typography>
 
       <Alert severity="info" sx={{ mb: 3 }}>
@@ -143,30 +143,8 @@ const PayPalPaymentForm = ({
         </Typography>
       </Alert>
 
-      <Alert severity="success" sx={{ mb: 2 }}>
-        <Typography variant="body2">
-          <strong>🧪 SANDBOX MODE - Chỉ để test!</strong>
-          <br />
-          • Đăng nhập PayPal với test account
-          <br />
-          • Hoặc test card: 4111111111111111, 12/25, 123
-          <br />
-          • <strong>Lưu ý:</strong> Không đóng popup cho đến khi hoàn thành!
-        </Typography>
-      </Alert>
 
       <Box sx={{ minHeight: 200 }}>
-        {/* Debug info */}
-        {import.meta.env.DEV && (
-          <Alert severity="info" sx={{ mb: 2, fontSize: '0.8rem' }}>
-            PayPal Client ID: {paypalClientId?.slice(0, 10)}...
-            <br />
-            Exchange Rate: {exchangeRate}
-            <br />
-            Amount: {orderData.totalAmount} VND = ${convertToUSD(orderData.totalAmount)} USD
-          </Alert>
-        )}
-
         <PayPalButtons
           style={{
             layout: 'vertical',

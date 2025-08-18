@@ -129,10 +129,10 @@ const TrackingOrder = () => {
               }}
             />
             <Button
+              className='interceptor-loading'
               variant="contained"
               onClick={handleSearch}
               disabled={loading || !orderId.trim()}
-              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />}
               sx={{
                 minWidth: 120,
                 borderRadius: 2,

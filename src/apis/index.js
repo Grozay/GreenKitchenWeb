@@ -210,12 +210,7 @@ export const createCustomerReferenceAPI = async (data) => {
 }
 
 export const updateCustomerReferenceAPI = async (data) => {
-  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-references`, data)
-  return response.data
-}
-
-export const createOrUpdateCustomerReferenceAPI = async (data) => {
-  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-references/upsert`, data)
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-references/update`, data)
   return response.data
 }
 
