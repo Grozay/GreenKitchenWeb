@@ -117,7 +117,7 @@ function ResponsiveAppBar() {
             {/* <CaloCalculator label="Calculator" t={t} /> */}
             <NavItem to="/smart-meal-planner" label="customMeal" handleCloseNavMenu={handleCloseNavMenu} t={t} />
             <NavItem to="/about-us" label="aboutUs" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/#" label="weekMeal" handleCloseNavMenu={handleCloseNavMenu} t={t} />
+            <NavItem to="/week-meal-planner" label="weekMeal" handleCloseNavMenu={handleCloseNavMenu} t={t} />
             <NavItem to="/blogs" label="blog" handleCloseNavMenu={handleCloseNavMenu} t={t} />
           </Box>
           {/* cart */}
