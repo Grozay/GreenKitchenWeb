@@ -255,10 +255,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
         )}
 
         {messages.map((message, idx) => {
-          const hasProducts = message.menu && Array.isArray(message.menu) && message.menu.length > 0
-          if (hasProducts) {
-            return <ProductMessageBubble key={`${message.id}-${idx}`} message={message} />
-          }
+         
           return (
             <MessageBubble
               key={`${message.id}-${idx}`}

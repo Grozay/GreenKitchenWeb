@@ -3,11 +3,12 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import { useSelector } from 'react-redux'
-import { selectTotalAmount } from '~/redux/cart/cartSlice' // Import từ cart slice
+import { selectCurrentCart } from '~/redux/cart/cartSlice' // Import selector lấy currentCart
 import theme from '~/theme'
 
 const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
-  const totalPrice = useSelector(selectTotalAmount)
+  const currentCart = useSelector(selectCurrentCart)
+  const totalPrice = currentCart?.totalAmount || 0
 
   const handleCheckout = () => {
     navigate('/checkout')

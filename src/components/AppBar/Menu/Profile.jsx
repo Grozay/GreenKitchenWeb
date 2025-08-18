@@ -13,6 +13,7 @@ import PersonAdd from '@mui/icons-material/PersonAdd'
 import Person from '@mui/icons-material/Person'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentCustomer, logoutCustomerApi } from '~/redux/user/customerSlice'
+import { clearCart } from '~/redux/cart/cartSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -40,6 +41,7 @@ const Profile = () => {
     if (confirmed) {
       dispatch(logoutCustomerApi())
         .then(() => {
+          dispatch(clearCart())
           navigate('/login')
         })
     }

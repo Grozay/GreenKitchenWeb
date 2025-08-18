@@ -636,3 +636,152 @@ export const itemCart = [
     totalPrice: 1100
   }
 ]
+
+export const weekMenus = {
+  low: {
+    start: '25.08',
+    end: '29.08',
+    days: [
+      {
+        day: 'T2',
+        date: '25.08',
+        meal1: { title: 'ỨC GÀ ÁP CHẢO + RAU CỦ', desc: 'Grilled chicken breast + vegetables' },
+        meal2: { title: 'CÁ HỒI HẤP + BÔNG CẢI', desc: 'Steamed salmon + broccoli' }
+      },
+      {
+        day: 'T3',
+        date: '26.08',
+        meal1: { title: 'THỊT BÒ XÀO MĂNG TÂY', desc: 'Beef stir-fried with asparagus' },
+        meal2: { title: 'CANH BÍ ĐỎ + ĐẬU PHỤ', desc: 'Pumpkin soup + tofu' }
+      },
+      {
+        day: 'T4',
+        date: '27.08',
+        meal1: { title: 'CÁ THU NƯỚNG + RAU LUỘC', desc: 'Grilled mackerel + boiled veggies' },
+        meal2: { title: 'ỨC GÀ LÁ CHANH + SALAD', desc: 'Chicken breast with lime leaves + salad' }
+      },
+      {
+        day: 'T5',
+        date: '28.08',
+        meal1: { title: 'THỊT HEO LUỘC + CẢI THÌA', desc: 'Boiled pork + bok choy' },
+        meal2: { title: 'CÁ NGỪ ÁP CHẢO + RAU CỦ', desc: 'Seared tuna + vegetables' }
+      },
+      {
+        day: 'T6',
+        date: '29.08',
+        meal1: { title: 'TRỨNG HẤP + RAU CỦ', desc: 'Steamed egg + vegetables' },
+        meal2: { title: 'THỊT GÀ XÉ + SALAD', desc: 'Shredded chicken + salad' }
+      }
+    ]
+  },
+  balance: {
+    start: '25.08',
+    end: '29.08',
+    days: [
+      {
+        day: 'T2',
+        date: '25.08',
+        meal1: { title: 'CƠM GÀ XỐI MỠ', desc: 'Fried chicken rice' },
+        meal2: { title: 'THỊT KHO TRỨNG + RAU', desc: 'Braised pork with egg + veggies' }
+      },
+      {
+        day: 'T3',
+        date: '26.08',
+        meal1: { title: 'CÁ KHO TỘ + CẢI NGỌT', desc: 'Braised fish + choy sum' },
+        meal2: { title: 'THỊT BÒ XÀO BÔNG CẢI', desc: 'Beef stir-fried with broccoli' }
+      },
+      {
+        day: 'T4',
+        date: '27.08',
+        meal1: { title: 'GÀ NƯỚNG MẬT ONG', desc: 'Honey grilled chicken' },
+        meal2: { title: 'CANH CHUA CÁ + RAU', desc: 'Sour fish soup + veggies' }
+      },
+      {
+        day: 'T5',
+        date: '28.08',
+        meal1: { title: 'CƠM SƯỜN NƯỚNG', desc: 'Grilled pork rib rice' },
+        meal2: { title: 'TÔM XÀO RAU CỦ', desc: 'Shrimp stir-fried with vegetables' }
+      },
+      {
+        day: 'T6',
+        date: '29.08',
+        meal1: { title: 'BÒ LÚC LẮC + KHOAI TÂY', desc: 'Shaking beef + potatoes' },
+        meal2: { title: 'CANH RAU NGÓT THỊT BẰM', desc: 'Malabar spinach soup with minced pork' }
+      }
+    ]
+  },
+  high: {
+    start: '25.08',
+    end: '29.08',
+    days: [
+      {
+        day: 'T2',
+        date: '25.08',
+        meal1: { title: 'CƠM TẤM SƯỜN BÌ CHẢ', desc: 'Broken rice with pork chop, shredded pork, egg cake' },
+        meal2: { title: 'BÒ KHO + BÁNH MÌ', desc: 'Beef stew + bread' }
+      },
+      {
+        day: 'T3',
+        date: '26.08',
+        meal1: { title: 'MÌ Ý BÒ BẰM', desc: 'Spaghetti with minced beef' },
+        meal2: { title: 'GÀ CHIÊN GIÒN + KHOAI TÂY', desc: 'Fried chicken + fries' }
+      },
+      {
+        day: 'T4',
+        date: '27.08',
+        meal1: { title: 'CƠM CHIÊN DƯƠNG CHÂU', desc: 'Yangzhou fried rice' },
+        meal2: { title: 'THỊT KHO TÀU + TRỨNG', desc: 'Caramelized pork and eggs' }
+      },
+      {
+        day: 'T5',
+        date: '28.08',
+        meal1: { title: 'BÚN BÒ HUẾ', desc: 'Hue beef noodle soup' },
+        meal2: { title: 'CƠM GÀ HẢI NAM', desc: 'Hainanese chicken rice' }
+      },
+      {
+        day: 'T6',
+        date: '29.08',
+        meal1: { title: 'PHỞ BÒ', desc: 'Beef noodle soup' },
+        meal2: { title: 'CƠM SƯỜN NƯỚNG', desc: 'Grilled pork rib rice' }
+      }
+    ]
+  },
+  vegetarian: {
+    start: '25.08',
+    end: '29.08',
+    days: [
+      {
+        day: 'T2',
+        date: '25.08',
+        meal1: { title: 'BÚN CHẢ CHAY + RAU CỦ', desc: 'Vegetarian noodles + vegetables' },
+        meal2: { title: 'ĐÙI GÀ NƯỚNG MẬT ONG + BÚN RAU CỦ', desc: 'Vegetarian roasted chicken w veggie noodles' }
+      },
+      {
+        day: 'T3',
+        date: '26.08',
+        meal1: { title: 'HEO NẤU CAM GẠO LỨC', desc: 'Vegetarian Pork With Oranges + Brown Rice' },
+        meal2: { title: 'MÌ Ý CHAY SỐT RƯỢU VANG', desc: 'Vegetarian spaghetti with wine sauce' }
+      },
+      {
+        day: 'T4',
+        date: '27.08',
+        meal1: { title: 'CƠM CHIÊN DƯA GÀ CHAY', desc: 'Vegetarian chicken fried rice with pickles' },
+        meal2: { title: 'BÁNH MÌ CHẢ CHAY', desc: 'Vegetarian Vietnamese sandwich' }
+      },
+      {
+        day: 'T5',
+        date: '28.08',
+        meal1: { title: 'PHỞ CHAY', desc: 'Vegetarian pho noodles' },
+        meal2: { title: 'CƠM TẤM CHAY', desc: 'Vegetarian broken rice' }
+      },
+      {
+        day: 'T6',
+        date: '29.08',
+        meal1: { title: 'BÁNH CUỐN CHAY', desc: 'Vegetarian steamed rice rolls' },
+        meal2: { title: 'BÚN RIÊU CHAY', desc: 'Vegetarian crab noodle soup' }
+      }
+    ]
+  }
+}
+
+

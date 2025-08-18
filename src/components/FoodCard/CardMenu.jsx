@@ -6,9 +6,8 @@ import IconButton from '@mui/material/IconButton'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { fetchCart } from '~/redux/cart/cartSlice' // Import từ cart slice thay vì order slice
-import { addMealToCartAPI } from '~/apis' // Import API add to cart
+import { useDispatch, useSelector } from 'react-redux'
+import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
 import Grid from '@mui/material/Grid'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -17,14 +16,15 @@ const CardMenu = ({ item, typeBasedIndex }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [addingToCart, setAddingToCart] = useState(false)
-  const customerId = 1 // Hoặc lấy từ Redux auth state
+  const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
+  // const customerId = 1
 
   const handleNavigateToDetail = (slug) => {
     navigate(`/menu/${slug}`)
   }
 
   const handleAddToCart = async (e) => {
-    e.stopPropagation() // Prevent navigation when clicking add to cart
+    e.stopPropagation()
 
     if (addingToCart) return
 
@@ -36,23 +36,30 @@ const CardMenu = ({ item, typeBasedIndex }) => {
         isCustom: false,
         menuMealId: item.id,
         quantity: 1,
-        basePrice: item.price,
+        unitPrice: item.price,
+        totalPrice: item.price * 1,
         title: item.title,
         description: item.description,
+        image: item.image,
+        itemType: 'MENU_MEAL',
         calories: item.calories,
         protein: item.protein,
         carbs: item.carbs,
         fat: item.fat
       }
 
-      // Gọi API add to cart
-      await addMealToCartAPI(customerId, requestData)
-
-      // Refresh cart data sau khi add thành công
-      await dispatch(fetchCart(customerId))
-
+      // Gọi redux thunk để add vào cart
+      await dispatch(createCartItem({ customerId, itemData: requestData }))
+      if (customerId) {
+        await dispatch(fetchCart(customerId))
+      } else {
+        // Nếu chưa đăng nhập, đảm bảo currentCart luôn có dữ liệu (nếu null thì gán rỗng)
+        // (Không cần fetch lại, vì reducer đã tự thêm vào currentCart)
+        // Nếu muốn chắc chắn, có thể kiểm tra và gán rỗng nếu currentCart là null
+        // Nhưng reducer đã xử lý rồi, nên không cần làm gì thêm ở đây
+      }
       toast.success('Added to cart successfully!')
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error('Failed to add to cart')
     } finally {
@@ -62,11 +69,11 @@ const CardMenu = ({ item, typeBasedIndex }) => {
 
   const getSizeShort = (type) => {
     switch (type) {
-    case 'HIGH': return 'H'
-    case 'LOW': return 'L'
-    case 'BALANCE': return 'B'
-    case 'VEGETARIAN': return 'V'
-    default: return ''
+      case 'HIGH': return 'H'
+      case 'LOW': return 'L'
+      case 'BALANCE': return 'B'
+      case 'VEGETARIAN': return 'V'
+      default: return ''
     }
   }
 

@@ -236,4 +236,9 @@ export const capturePayPalOrderAPI = async (data) => {
   return response.data
 }
 
+//WeekMeal APIs
+export const getWeekMealPlanAPI = async (type, date) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/week-meals?type=${type}&date=${date}`)
+  return response.data
+}
 
