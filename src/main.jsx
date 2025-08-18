@@ -16,11 +16,11 @@ import 'react-toastify/dist/ReactToastify.css'
 import ScrollToTop from '~/components/ScrollToTop/ScrollToTop.jsx'
 import { injectStore } from '~/utils/authorizeAxios'
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
-
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 // Inject store để sử dụng trong axios interceptor
 injectStore(store)
 const persistor = persistStore(store)
-
+const queryClient = new QueryClient()
 // PayPal configuration
 const paypalOptions = {
   clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID || '',
@@ -46,7 +46,9 @@ createRoot(document.getElementById('root')).render(
                 cancellationButtonProps: { color: 'inherit' }
               }}>
                 <CssBaseline />
-                <App />
+                <QueryClientProvider client={queryClient}>
+                  <App />
+                </QueryClientProvider>
                 <ToastContainer
                   position="top-center"
                   hideProgressBar

@@ -159,7 +159,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
             navItemStyle={navItemStyle}
             t={t}
             label="weekMeal"
-            path="/#"
+            path="/week-meal-planner"
           />
 
           <DrawerAppBarItem

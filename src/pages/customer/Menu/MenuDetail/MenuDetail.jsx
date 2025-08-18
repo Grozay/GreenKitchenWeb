@@ -60,7 +60,7 @@ const MenuDetail = () => {
 
 
       setSnackbarOpen(true)
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error('Failed to add to cart')
       // Có thể hiển thị error message
@@ -127,7 +127,7 @@ const MenuDetail = () => {
           </Typography>
           <Button
             variant="contained"
-            sx={{ mt: 4, mx: 'auto', display: 'block', bgcolor: theme.palette.primary.secondary, color: 'white' }}
+            sx={{ mt: 4, mx: 'auto', display: 'block', bgcolor: theme.palette.primary.main, color: 'white' }}
             onClick={() => navigate('/menu')}
           >
             Back to menu list
@@ -151,9 +151,10 @@ const MenuDetail = () => {
           sx={{
             mb: 4,
             color: theme.palette.text.primary,
-            '&:hover': { bgcolor: theme.palette.primary.secondary, color: 'white' }
+            borderRadius: 5,
+            '&:hover': { bgcolor: theme.palette.primary.main, color: 'white' }
           }}
-          onClick={() => navigate('/menu')}
+          onClick={() => navigate(-1)}
         >
           Back to menu list
         </Button>
