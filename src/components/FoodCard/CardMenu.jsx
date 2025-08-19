@@ -28,6 +28,12 @@ const CardMenu = ({ item, typeBasedIndex }) => {
 
     if (addingToCart) return
 
+    // Kiểm tra hết hàng
+    if (item.stock === 0) {
+      toast.error('Sản phẩm đã hết hàng!')
+      return
+    }
+
     try {
       setAddingToCart(true)
 
@@ -52,14 +58,9 @@ const CardMenu = ({ item, typeBasedIndex }) => {
       await dispatch(createCartItem({ customerId, itemData: requestData }))
       if (customerId) {
         await dispatch(fetchCart(customerId))
-      } else {
-        // Nếu chưa đăng nhập, đảm bảo currentCart luôn có dữ liệu (nếu null thì gán rỗng)
-        // (Không cần fetch lại, vì reducer đã tự thêm vào currentCart)
-        // Nếu muốn chắc chắn, có thể kiểm tra và gán rỗng nếu currentCart là null
-        // Nhưng reducer đã xử lý rồi, nên không cần làm gì thêm ở đây
       }
       toast.success('Added to cart successfully!')
-      // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error('Failed to add to cart')
     } finally {
@@ -69,11 +70,11 @@ const CardMenu = ({ item, typeBasedIndex }) => {
 
   const getSizeShort = (type) => {
     switch (type) {
-      case 'HIGH': return 'H'
-      case 'LOW': return 'L'
-      case 'BALANCE': return 'B'
-      case 'VEGETARIAN': return 'V'
-      default: return ''
+    case 'HIGH': return 'H'
+    case 'LOW': return 'L'
+    case 'BALANCE': return 'B'
+    case 'VEGETARIAN': return 'V'
+    default: return ''
     }
   }
 
