@@ -88,16 +88,6 @@ export const getIngredientsAPI = async () => {
   return response.data
 }
 
-export const createIngredientActHistoryAPI = async (data) => {
-  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/ingredient-act-his/customers`, data)
-  return response.data
-}
-
-export const getIngredientActHistoryByCustomerIdAPI = async (id) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/ingredient-act-his/customer/${id}`)
-  return response.data
-}
-
 export const createCustomMealAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/custom-meals`, data)
   return response.data

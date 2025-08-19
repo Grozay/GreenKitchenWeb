@@ -6,10 +6,9 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import theme from '~/theme'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectCurrentMeal } from '~/redux/meal/mealSlice'
-import { createIngredientActHistory, removeIngredientActHistory } from '~/redux/meal/mealSlice'
-import { selectSuggestedSauces, setShowSauceHint, clearSuggestions, setSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
-
+import { selectCurrentMeal, addItem, removeItem } from '~/redux/meal/mealSlice'
+import { setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
+import { toast } from 'react-toastify'
 
 const FoodCard = ({ card }) => {
   const [count, setCount] = useState(0)
@@ -24,10 +23,6 @@ const FoodCard = ({ card }) => {
   }, [selectedItems, card.id, card.type])
 
   const handleCardClick = (e) => {
-    // if (card.type === 'SAUCE' && isSuggested) {
-    //   dispatch(setShowSauceHint(false))
-    //   dispatch(clearSuggestions())
-    // }
     if (e.target.closest('button')) {
       return
     }
@@ -37,53 +32,38 @@ const FoodCard = ({ card }) => {
   const handleDecrease = (e) => {
     e.stopPropagation()
     if (count > 0) {
-      const customerId = 1 // Lấy từ user state hoặc localStorage
-
       if (card.type === 'PROTEIN' && count === 1) {
         dispatch(setShowSauceHint(false))
         dispatch(clearSuggestions())
       }
-      dispatch(removeIngredientActHistory({
-        item: {
-          id: card.id,
-          calories: card.calories,
-          protein: card.protein,
-          carbs: card.carbs,
-          fat: card.fat,
-          type: card.type
-        },
-        customerId
-      }))
-    }
-  }
-
-  // console.log('🚀 ~ handleIncrease ~ isSuggested:', isSuggested)
-  const handleIncrease = (e) => {
-    e.stopPropagation()
-    const customerId = 1
-    // if (card.type === 'SAUCE' && isSuggested) {
-    //   dispatch(setShowSauceHint(false))
-    //   dispatch(clearSuggestions())
-    // }
-    // if (card.type === 'PROTEIN') {
-    //   dispatch(setSuggestedSauces(sauceSuggestions || []))
-    //   dispatch(setShowSauceHint(true))
-    // }
-
-    dispatch(createIngredientActHistory({
-      item: {
+      dispatch(removeItem({
         id: card.id,
-        title: card.title,
-        image: card.image,
         calories: card.calories,
         protein: card.protein,
         carbs: card.carbs,
         fat: card.fat,
-        type: card.type,
-        price: card.price,
-        stock: card.stock
-      },
-      customerId
+        type: card.type
+      }))
+    }
+  }
+
+  const handleIncrease = (e) => {
+    e.stopPropagation()
+    if (card.stock === 0) {
+      toast.error('Sản phẩm đã hết hàng!')
+      return
+    }
+    dispatch(addItem({
+      id: card.id,
+      title: card.title,
+      image: card.image,
+      calories: card.calories,
+      protein: card.protein,
+      carbs: card.carbs,
+      fat: card.fat,
+      type: card.type,
+      price: card.price,
+      stock: card.stock
     }))
   }
 
@@ -247,10 +227,6 @@ const FoodCard = ({ card }) => {
             justifyContent: 'center'
           }}
         >
-          {/* <Typography variant="h7" fontWeight="bold" textAlign="center" mb={1}>
-            {card?.title}
-          </Typography> */}
-
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
             <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant='body2' >Calories:</Typography>
