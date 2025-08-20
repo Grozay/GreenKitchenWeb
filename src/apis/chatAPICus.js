@@ -65,7 +65,11 @@ export async function sendMessage({
 }) {
   try {
     const url = new URL(`${CHAT_URL}/send`)
-    if (senderRole === 'CUSTOMER' && customerId) url.searchParams.append('customerId', customerId)
+    if (senderRole === 'CUSTOMER' && customerId) {
+      url.searchParams.append('customerId', customerId)
+      // Đồng bộ với backend log actorId
+      url.searchParams.append('actorId', customerId)
+    }
     if (senderRole === 'EMP' && employeeId) url.searchParams.append('employeeId', employeeId)
     const body = {
       conversationId,
@@ -153,7 +157,13 @@ export const chatApis = {
   // Customer chat
   sendCustomerMessage: async ({ conversationId, content, customerId, senderRole = 'CUSTOMER', lang = 'vi' }) => {
     try {
-      const response = await authorizedAxiosInstance.post(`${CHAT_URL}/send`, {
+      const url = new URL(`${CHAT_URL}/send`)
+      if (customerId) {
+        url.searchParams.append('customerId', customerId)
+        // Đồng bộ với backend log actorId
+        url.searchParams.append('actorId', customerId)
+      }
+      const response = await authorizedAxiosInstance.post(url.toString(), {
         conversationId,
         content,
         customerId,

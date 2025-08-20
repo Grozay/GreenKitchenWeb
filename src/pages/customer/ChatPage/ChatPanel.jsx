@@ -167,7 +167,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
     })
   }, [animationConvId, isCustomerLoggedIn])
 
-  useChatWebSocket(`/topic/conversations/${animationConvId}`, handleIncoming)
+  useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
   useChatWebSocket('/topic/emp-notify', async (convId) => {
     const cid = typeof convId === 'object' ? convId.conversationId : convId
     if (Number(cid) === Number(animationConvId)) {
@@ -192,13 +192,13 @@ export default function ChatPanel({ onMessagesUpdate }) {
     )))
   }, [customerName])
 
-  // Tính awaitingAI dựa trên trạng thái PENDING thực tế (CUSTOMER hoặc AI)
+  // Tính awaitingAI chỉ dựa trên tin nhắn cuối cùng
   useEffect(() => {
     const isPending = (st) => st === 'PENDING' || st === 'pending'
-    const hasAiPending = messages.some(m => m.senderRole === 'AI' && isPending(m.status))
     const lastMsg = messages[messages.length - 1]
+    const lastIsAiPending = lastMsg && lastMsg.senderRole === 'AI' && isPending(lastMsg.status)
     const lastCustomerPending = lastMsg && lastMsg.senderRole === 'CUSTOMER' && isPending(lastMsg.status)
-    const nextAwaiting = hasAiPending || (chatMode === 'AI' && lastCustomerPending)
+    const nextAwaiting = lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
     if (nextAwaiting !== awaitingAI) setAwaitingAI(nextAwaiting)
   }, [messages, chatMode, awaitingAI])
 

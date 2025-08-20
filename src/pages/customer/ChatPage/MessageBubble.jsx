@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 import PersonIcon from '@mui/icons-material/Person'
-import HeadsetIcon from '@mui/icons-material/Headset'
+import HeadsetIcon from '@mui/icons-material/SupportAgent'
 import InfoIcon from '@mui/icons-material/Info'
 
 function MessageBubble({ message, customerName, isOwn }) {
@@ -114,7 +114,6 @@ function MessageBubble({ message, customerName, isOwn }) {
             }}
           >
             {senderName}
-            {console.log('MessageBubble rendered with sender:', senderName)}
           </Typography>
         )}
 

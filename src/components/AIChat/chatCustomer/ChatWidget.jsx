@@ -188,7 +188,7 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
   }, [animationConvId, isCustomerLoggedIn])
 
 
-  useChatWebSocket(`/topic/conversations/${animationConvId}`, handleIncoming)
+  useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
   useChatWebSocket('/topic/emp-notify', async (convId) => {
     const conversationId = typeof convId === 'object' ? convId.conversationId : convId
     if (Number(conversationId) === Number(animationConvId)) {
@@ -272,13 +272,13 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
     isCustomerLoggedIn, customerId, customerName, chatAPI
   ])
 
-  // Tính awaitingAI dựa trên trạng thái PENDING thực tế
+  // Tính awaitingAI dựa trên trạng thái của tin nhắn cuối cùng
   useEffect(() => {
     const isPending = (st) => st === 'PENDING' || st === 'pending'
-    const hasAiPending = messages.some(m => m.senderRole === 'AI' && isPending(m.status))
     const lastMsg = messages[messages.length - 1]
+    const lastIsAiPending = lastMsg && lastMsg.senderRole === 'AI' && isPending(lastMsg.status)
     const lastCustomerPending = lastMsg && lastMsg.senderRole === 'CUSTOMER' && isPending(lastMsg.status)
-    const nextAwaiting = hasAiPending || (chatMode === 'AI' && lastCustomerPending)
+    const nextAwaiting = lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
     if (nextAwaiting !== awaitingAI) setAwaitingAI(nextAwaiting)
   }, [messages, chatMode, awaitingAI])
 

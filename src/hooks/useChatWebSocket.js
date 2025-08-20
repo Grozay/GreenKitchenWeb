@@ -20,12 +20,17 @@ export function useChatWebSocket(topic, onMessage) {
     const client = new Client({
       webSocketFactory: () => sock,
       onConnect: () => {
-        (Array.isArray(topic) ? topic : [topic]).forEach((t) => {
-          client.subscribe(t, (msg) => {
+        if (Array.isArray(topic)) {
+          topic.forEach((t) => client.subscribe(t, (msg) => {
+            const data = JSON.parse(msg.body)
+            onMessage(data)
+          }))
+        } else {
+          client.subscribe(topic, (msg) => {
             const data = JSON.parse(msg.body)
             onMessage(data)
           })
-        })
+        }
       },
       onStompError: (frame) => {
       },
@@ -35,14 +40,11 @@ export function useChatWebSocket(topic, onMessage) {
       },
       debug: (str) => {
 
-            onMessage(data)
-          })
-        })
       }
     })
 
-    client.activate()
     clientRef.current = client
+    client.activate()
 
     return () => {
       if (clientRef.current) {
