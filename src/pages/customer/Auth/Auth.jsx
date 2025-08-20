@@ -44,7 +44,7 @@ function Auth() {
   return (
     <Box sx={{
       minHeight: '100vh',
-      bgcolor: '#FAF5E8' // Match background color with other forms
+      bgcolor: '#FAF5E8'
     }}>
       <Box sx={{
         overflow: 'hidden',

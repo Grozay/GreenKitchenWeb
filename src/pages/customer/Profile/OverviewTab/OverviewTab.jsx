@@ -7,6 +7,7 @@ import FavoriteProducts from './components/FavoriteProducts'
 import CouponsSummaryCard from './components/CouponsSummaryCard'
 import RecentOrdersCard from './components/RecentOrdersCard'
 import MembershipSummaryCard from './components/MembershipSummaryCard'
+import TopBanner from '~/components/Banners/TopBanner'
 
 export default function OverviewTab({ customerDetails, setCustomerDetails }) {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -131,7 +132,6 @@ export default function OverviewTab({ customerDetails, setCustomerDetails }) {
   return (
     <>
       <Grid container spacing={2}>
-
         <Grid size={12}>
           <FoodReferenceList
             customerDetails={customerDetails}

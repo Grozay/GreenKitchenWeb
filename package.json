@@ -25,6 +25,8 @@
     "@reduxjs/toolkit": "^2.0.1",
     "@stomp/stompjs": "^7.1.1",
     "@tanstack/react-query": "^5.85.3",
+    "@toolpad/core": "^0.16.0",
+    "@uiw/react-md-editor": "^4.0.8",
     "aos": "^2.3.4",
     "axios": "^1.9.0",
     "dayjs": "^1.11.13",

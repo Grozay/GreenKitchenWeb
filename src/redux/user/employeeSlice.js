@@ -13,7 +13,7 @@ const initialState = {
 export const loginEmployeeApi = createAsyncThunk(
   'employee/loginEmployeeApi',
   async (data) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/employees/login`, data)
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/auth/employee-login`, data)
     return response.data
   }
 )
@@ -21,7 +21,7 @@ export const loginEmployeeApi = createAsyncThunk(
 export const logoutEmployeeApi = createAsyncThunk(
   'employee/logoutEmployeeApi',
   async (showSuccessMessage = true) => {
-    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/employees/logout`)
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/auth/employee-logout`)
     if (showSuccessMessage) {
       toast.success('Logout successfully')
     }
@@ -39,11 +39,11 @@ export const employeeSlice = createSlice({
       //action.payload là dữ liệu trả về từ axios call api
       const user = action.payload
 
-      //update lại dữ liệu của currentUser
-      state.currentUser = user
+      //update lại dữ liệu của currentEmployee
+      state.currentEmployee = user
     })
     builder.addCase(logoutEmployeeApi.fulfilled, (state) => {
-      state.currentUser = null
+      state.currentEmployee = null
     })
   }
 })
