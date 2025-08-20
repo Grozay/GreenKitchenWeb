@@ -20,6 +20,7 @@ import Cart from './pages/customer/Cart/CartLayout'
 import Checkout from './pages/customer/Checkout/Checkout'
 import { toast } from 'react-toastify'
 import ChatAi from './pages/customer/ChatPage/ChatPage'
+import HistoryChatLayout from './pages/HistoryChat/HistoryChatLayout'
 
 
 const ProtectedRoute = ({ user }) => {
@@ -74,6 +75,10 @@ function App() {
 
       {/* AI Chat Page */}
       <Route path="/ai-chat" element={<ChatAi />} />
+
+      {/* History Chat */}
+      <Route path="/historyChat" element={<HistoryChatLayout />} />
+      <Route path="/historyChat/:conversationId" element={<HistoryChatLayout />} />
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />
