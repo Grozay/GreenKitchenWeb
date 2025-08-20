@@ -277,12 +277,13 @@ export default function HistoryChatDetail() {
         gap: 1, mb: 1, flexShrink: 0,
         px: 1, py: 1,
         borderBottom: '1px solid', borderColor: 'divider',
-        bgcolor: 'background.paper',
+        bgcolor: (t) => t.palette.mode === 'light' ? 'rgba(255,255,255,0.75)' : 'rgba(17,24,39,0.5)',
+        backdropFilter: 'saturate(180%) blur(10px)',
         position: 'sticky', top: 0, zIndex: 1
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Tooltip title="Quay lại danh sách">
-            <IconButton onClick={() => navigate('/historyChat')}>
+            <IconButton onClick={() => navigate('/historyChat')} sx={{ transition: 'transform .15s ease', '&:hover': { transform: 'translateX(-2px)' } }}>
               <ArrowBackIcon />
             </IconButton>
           </Tooltip>
@@ -318,6 +319,8 @@ export default function HistoryChatDetail() {
             px: 1,
             borderRadius: 2,
             scrollBehavior: 'smooth',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 3 }
           }}
         >
           {isLoading && hasMore && (
@@ -359,7 +362,7 @@ export default function HistoryChatDetail() {
             bottom: 0,
             zIndex: 2,
             bgcolor: 'background.paper',
-            boxShadow: '0 -2px 8px rgba(0,0,0,0.05)',
+            boxShadow: '0 -6px 20px rgba(0,0,0,0.06)',
             borderTop: '1px solid',
             borderColor: 'divider',
           }}

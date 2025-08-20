@@ -52,8 +52,8 @@ export default function HistoryChatLayout() {
         borderRight: { md: '1px solid' },
         borderColor: 'divider',
         display: 'flex', flexDirection: 'column', minHeight: 0,
-        bgcolor: 'rgba(255,255,255,0.75)',
-        backdropFilter: 'saturate(180%) blur(8px)'
+        bgcolor: (t) => t.palette.mode === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(17,24,39,0.6)',
+        backdropFilter: 'saturate(180%) blur(12px)'
       }}>
         {/* Sidebar header */}
         <Box sx={{
@@ -78,8 +78,10 @@ export default function HistoryChatLayout() {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
-                transition: 'box-shadow .2s ease',
-                '&:hover': { boxShadow: 2 }
+                backgroundColor: 'background.paper',
+                transition: 'box-shadow .2s ease, transform .15s ease',
+                '&:hover': { boxShadow: 2 },
+                '&.Mui-focused': { boxShadow: 4, transform: 'translateY(-1px)' }
               }
             }}
           />
@@ -97,9 +99,12 @@ export default function HistoryChatLayout() {
                       onClick={() => navigate(`/historyChat/${cid}`)}
                       sx={{
                         py: 1.2,
-                        borderRadius: 1,
+                        my: 0.5,
+                        borderRadius: 2,
                         mx: 1,
-                        transition: 'transform .15s ease, box-shadow .15s ease',
+                        border: '1px solid',
+                        borderColor: (t) => (Number(conversationId) === Number(cid)) ? 'primary.200' : 'transparent',
+                        transition: 'transform .15s ease, box-shadow .15s ease, background-color .15s ease',
                         '&.Mui-selected': {
                           bgcolor: 'primary.50',
                           boxShadow: 2
@@ -134,7 +139,7 @@ export default function HistoryChatLayout() {
       </Box>
 
       {/* Detail panel */}
-      <Box sx={{ flex: 1, minWidth: 0, display: { xs: conversationId ? 'block' : 'none', md: 'block' }, background: 'radial-gradient(1200px 400px at 80% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%), linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%)' }}>
+      <Box sx={{ flex: 1, minWidth: 0, display: { xs: conversationId ? 'block' : 'none', md: 'block' }, background: 'radial-gradient(1200px 400px at 80% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%), linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%)', borderLeft: { md: '1px solid' }, borderColor: 'divider' }}>
         {conversationId ? (
           <Fade in={true} timeout={400}>
             <Paper elevation={4} sx={{ height: '100%', borderRadius: 0 }}>
