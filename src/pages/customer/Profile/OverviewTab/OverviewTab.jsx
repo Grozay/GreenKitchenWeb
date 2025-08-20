@@ -1,14 +1,19 @@
-
-import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
-import FoodPreferenceDialog from './FoodPreferenceDialog'
+import { useEffect, useMemo, useState } from 'react'
+import Grid from '@mui/material/Grid'
+import FoodReferenceDialog from './components/FoodReferenceDialog'
+import FoodReferenceList from './components/FoodReferenceList'
+import { updateCustomerReferenceAPI } from '~/apis'
+import FavoriteProducts from './components/FavoriteProducts'
+import CouponsSummaryCard from './components/CouponsSummaryCard'
+import RecentOrdersCard from './components/RecentOrdersCard'
+import MembershipSummaryCard from './components/MembershipSummaryCard'
 
 export default function OverviewTab({ customerDetails, setCustomerDetails }) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [prefill, setPrefill] = useState(null)
   const [userDeclined, setUserDeclined] = useState(false)
+  // theme available if needed by children
 
   const vegetarianTypes = [
     { value: 'NEVER', label: 'Ăn mặn' },
@@ -22,149 +27,164 @@ export default function OverviewTab({ customerDetails, setCustomerDetails }) {
     setUserDeclined(true)
   }
 
-  // Handle dialog close after successful submission
-  const handleDialogClose = () => {
+  const handleCloseDialog = () => {
     setDialogOpen(false)
+    setEditMode(false)
+    setPrefill(null)
   }
 
-  // Open dialog if no customer reference
-  if (!customerDetails?.customerReference && !dialogOpen && !userDeclined) {
-    setDialogOpen(true)
+  const handleSubmitReference = async (formVals) => {
+    // Adapter for create vs update
+    const payload = {
+      customerId: customerDetails.id,
+      vegetarianType: formVals.vegetarianType || 'NEVER',
+      canEatEggs: !!formVals.canEatEggs,
+      canEatDairy: !!formVals.canEatDairy,
+      note: formVals.note || '',
+      favoriteProteins: (formVals.favoriteProteins || []).map(name => ({ proteinName: name })),
+      favoriteCarbs: (formVals.favoriteCarbs || []).map(name => ({ carbName: name })),
+      favoriteVegetables: (formVals.favoriteVegetables || []).map(name => ({ vegetableName: name })),
+      allergies: (formVals.allergies || []).map(name => ({ allergyName: name }))
+    }
+    if (editMode) {
+      const updated = await updateCustomerReferenceAPI(payload)
+      setCustomerDetails(prev => ({ ...prev, customerReference: updated }))
+    }
   }
 
-  const reference = customerDetails?.customerReference
-  // Helper để lấy label chế độ ăn
-  const vegetarianLabel =
-    vegetarianTypes.find(v => v.value === reference?.vegetarianType)?.label || 'Không xác định'
+  // Derived data for summary widgets
+  const {
+    totalSixMonthSpend,
+    sixMonthOrderCount,
+    recentOrders,
+    availableCoupons
+  } = useMemo(() => {
+    const orders = Array.isArray(customerDetails?.orders) ? customerDetails.orders : []
+    const coupons = Array.isArray(customerDetails?.customerCoupons) ? customerDetails.customerCoupons : []
+    const now = new Date()
+    const sixMonthsAgo = new Date()
+    sixMonthsAgo.setMonth(now.getMonth() - 6)
 
-  // Helper để lấy danh sách tên từ mảng object
-  const getNames = (arr, key) =>
-    Array.isArray(arr) && arr.length > 0
-      ? arr.map(item => item[key]).join(', ')
-      : 'Chưa có thông tin'
+    const deliveredLast6M = orders.filter(o => {
+      const d = o.deliveryTime ? new Date(o.deliveryTime) : (o.createdAt ? new Date(o.createdAt) : null)
+      const inRange = d ? d >= sixMonthsAgo && d <= now : false
+      // Count only delivered orders for spend; if no status, still count
+      return inRange && (!o.status || o.status === 'DELIVERED')
+    })
+    // Prefer server-provided metric if available
+    const membershipSixMonth = Number(customerDetails?.membership?.totalSpentLast6Months)
+    const sum = Number.isFinite(membershipSixMonth) && membershipSixMonth >= 0
+      ? membershipSixMonth
+      : deliveredLast6M.reduce((acc, o) => acc + (o.totalAmount || 0), 0)
+
+    const sortedRecent = [...orders].sort((a, b) => {
+      const da = new Date(a.createdAt || a.deliveryTime || 0).getTime()
+      const db = new Date(b.createdAt || b.deliveryTime || 0).getTime()
+      return db - da
+    }).slice(0, 3)
+
+    const availCoupons = coupons
+      .filter(c => c.status === 'AVAILABLE')
+      .sort((a, b) => new Date(b.expiresAt || 0) - new Date(a.expiresAt || 0))
+      .slice(0, 6)
+
+    return {
+      totalSixMonthSpend: sum,
+      sixMonthOrderCount: deliveredLast6M.length,
+      recentOrders: sortedRecent,
+      availableCoupons: availCoupons
+    }
+  }, [customerDetails])
+
+  const formatVND = (value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)
+
+  const statusColorMap = {
+    PENDING: 'warning',
+    CONFIRMED: 'info',
+    SHIPPING: 'primary',
+    DELIVERED: 'success',
+    CANCELLED: 'error'
+  }
+
+  const getStatusColor = (status) => statusColorMap[status] || 'default'
+
+  const statusLabelMap = {
+    PENDING: 'Chờ xác nhận',
+    CONFIRMED: 'Đã xác nhận',
+    SHIPPING: 'Đang giao hàng',
+    DELIVERED: 'Đã giao hàng',
+    CANCELLED: 'Đã hủy'
+  }
+
+  const getStatusLabel = (status) => statusLabelMap[status] || status || 'Không xác định'
+
+
+  // Auto open form on first visit if no reference yet
+  // useEffect(() => {
+  //   if (!customerDetails?.customerReference && !dialogOpen && !userDeclined) {
+  //     setDialogOpen(true)
+  //     setEditMode(false)
+  //     setPrefill(null)
+  //   }
+  // }, [customerDetails, dialogOpen, userDeclined])
 
   return (
     <>
-      {/* Main Content */}
-      <Box sx={{
-        p: { xs: 2, sm: 3, md: 4 },
-        maxWidth: '900px',
-        mx: 'auto'
-      }}>
-        {customerDetails?.customerReference ? (
-          <>
-            <Box sx={{
-              textAlign: 'center',
-              mb: 4,
-              p: 3,
-              backgroundColor: 'primary.main',
-              borderRadius: 2,
-              color: 'white'
-            }}>
-              <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-                🌟 Hồ sơ ẩm thực của bạn
-              </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9 }}>
-                Thông tin sở thích và chế độ ăn uống đã được lưu
-              </Typography>
-            </Box>
+      <Grid container spacing={2}>
 
-            <Box sx={{
-              backgroundColor: 'white',
-              borderRadius: 2,
-              p: { xs: 2, sm: 3 },
-              boxShadow: 1
-            }}>
-              {/* Chế độ ăn uống */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥗 Chế độ ăn uống:</Typography>
-                <Typography sx={{ ml: 1 }}>{vegetarianLabel}</Typography>
-                {(reference.canEatEggs || reference.canEatDairy) && (
-                  <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
-                    {reference.canEatEggs && (
-                      <Chip label="Ăn được trứng" color="success" size="small" icon={<span>🥚</span>} />
-                    )}
-                    {reference.canEatDairy && (
-                      <Chip label="Ăn được sữa" color="success" size="small" icon={<span>🥛</span>} />
-                    )}
-                  </Box>
-                )}
-              </Box>
+        <Grid size={12}>
+          <FoodReferenceList
+            customerDetails={customerDetails}
+            vegetarianTypes={vegetarianTypes}
+            setPrefill={setPrefill}
+            setEditMode={setEditMode}
+            setDialogOpen={setDialogOpen}
+            setUserDeclined={setUserDeclined}
+          />
+        </Grid>
 
-              {/* Ghi chú */}
-              {reference.note && (
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                  <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>💭 Ghi chú:</Typography>
-                  <Typography sx={{ ml: 1 }}>{reference.note}</Typography>
-                </Box>
-              )}
+        <Grid
+          size={{ xs: 12, sm: 8, md: 8 }}
+          sx = {{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2
+          }}
+        >
 
-              {/* Dị ứng thực phẩm */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140, color: 'error.main' }}>
-                  ⚠️ Dị ứng thực phẩm:
-                </Typography>
-                <Typography sx={{ ml: 1 }}>
-                  {getNames(reference.allergies, 'allergyName') === 'Chưa có thông tin'
-                    ? <span style={{ color: '#43a047', fontWeight: 500 }}>Không có dị ứng nào</span>
-                    : getNames(reference.allergies, 'allergyName')}
-                </Typography>
-              </Box>
+          <RecentOrdersCard
+            recentOrders={recentOrders}
+            getStatusLabel={getStatusLabel}
+            getStatusColor={getStatusColor}
+            formatVND={formatVND}
+          />
 
-              {/* Protein yêu thích */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥩 Protein yêu thích:</Typography>
-                <Typography sx={{ ml: 1 }}>
-                  {getNames(reference.favoriteProteins, 'proteinName')}
-                </Typography>
-              </Box>
+          <MembershipSummaryCard
+            membership={customerDetails?.membership}
+            formatVND={formatVND}
+          />
+        </Grid>
 
-              {/* Carbs yêu thích */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🍚 Carbs yêu thích:</Typography>
-                <Typography sx={{ ml: 1 }}>
-                  {getNames(reference.favoriteCarbs, 'carbName')}
-                </Typography>
-              </Box>
+        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+          <CouponsSummaryCard availableCoupons={availableCoupons} />
+        </Grid>
 
-              {/* Rau củ yêu thích */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥬 Rau củ yêu thích:</Typography>
-                <Typography sx={{ ml: 1 }}>
-                  {getNames(reference.favoriteVegetables, 'vegetableName')}
-                </Typography>
-              </Box>
-            </Box>
-          </>
-        ) : (
-          <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h5" gutterBottom>
-              👋 Chào mừng bạn đến với Green Kitchen!
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-              Hãy chia sẻ sở thích ẩm thực để chúng tôi có thể phục vụ bạn tốt hơp
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setDialogOpen(true)
-                setUserDeclined(false)
-              }}
-              sx={{ px: 4, py: 1.5 }}
-            >
-              📝 Thiết lập sở thích ẩm thực
-            </Button>
-          </Box>
-        )}
-      </Box>
+        <Grid size={12}>
+          <FavoriteProducts favoriteProducts={customerDetails?.favoriteProducts} />
+        </Grid>
+
+      </Grid>
 
       {/* Food Preference Dialog */}
-      <FoodPreferenceDialog
+      <FoodReferenceDialog
         open={dialogOpen}
-        onClose={handleDialogClose}
+        onClose={handleCloseDialog}
         onCancel={handleCancelDialog}
         customerDetails={customerDetails}
         setCustomerDetails={setCustomerDetails}
+        editMode={editMode}
+        prefill={prefill}
+        onSubmit={handleSubmitReference}
       />
     </>
   )

@@ -16,7 +16,7 @@ import WarningIcon from '@mui/icons-material/Warning'
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useConfirm } from 'material-ui-confirm'
-import { selectCartItems } from '~/redux/cart/cartSlice'
+import { selectCurrentCart } from '~/redux/cart/cartSlice'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
 import { toast } from 'react-toastify'
@@ -38,7 +38,8 @@ const OrderSummary = ({
   const [exchangeableCoupons, setExchangeableCoupons] = useState([])
   const [availableCoupons, setAvailableCoupons] = useState([])
   const [isLoadingCoupons, setIsLoadingCoupons] = useState(false)
-  const items = useSelector(selectCartItems)
+  const currentCart = useSelector(selectCurrentCart)
+  const items = currentCart?.cartItems || []
   const currentCustomer = useSelector(selectCurrentCustomer)
   const confirm = useConfirm()
 
@@ -208,22 +209,22 @@ const OrderSummary = ({
         {/* Danh sách món ăn */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-            Món ăn đã chọn ({items?.cartItems?.length || 0} món)
+            Món ăn đã chọn ({items.length} món)
           </Typography>
 
-          {items?.cartItems?.map((item, index) => (
+          {items.map((item, index) => (
             <Box key={index} sx={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               py: 1,
-              borderBottom: index < (items?.cartItems?.length || 0) - 1 ? '1px solid #f0f0f0' : 'none'
+              borderBottom: index < items.length - 1 ? '1px solid #f0f0f0' : 'none'
             }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box
                   component="img"
-                  src={item.mealItem?.image || item.image}
-                  alt={item.mealItem?.name || item.title || item.name}
+                  src={item.cartItems?.image || item.image}
+                  alt={item.cartItems?.name || item.title || item.name}
                   sx={{
                     width: 40,
                     height: 40,
@@ -233,7 +234,7 @@ const OrderSummary = ({
                 />
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 500, color: '#2c2c2c' }}>
-                    {item.mealItem?.name || item.title || item.name}
+                    {item.cartItems?.name || item.title || item.name}
                     {item.isCustom && <span style={{ color: '#666', fontSize: '0.8em' }}> (Custom)</span>}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#666' }}>

@@ -7,7 +7,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid'
 import { useState } from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 
 const CartItem = ({
   item,
@@ -19,31 +19,34 @@ const CartItem = ({
   const [confirmDialog, setConfirmDialog] = useState(false)
   const nutrition = calculateItemNutrition(item)
 
+  // Lấy title đúng chuẩn (ưu tiên menuMeal, customMeal)
   const getProductTitle = () => {
     if (item.isCustom) {
-      return item.customMealName || item.title || 'Custom Meal'
+      return item.customMeal?.title || item.title || 'Custom Meal'
     } else {
-      return item.menuMealTitle || item.title || 'Menu Meal'
+      return item.menuMeal?.title || item.title || 'Menu Meal'
     }
   }
 
+  // Lấy image đúng chuẩn
   const getProductImage = () => {
     if (item.isCustom) {
-      // For custom meals, use first ingredient image or default
+      if (item.customMeal?.image) return item.customMeal.image
       if (item.details && item.details.length > 0) {
         return item.details[0].image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
       }
       return 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
     } else {
-      return item.menuMealImage || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+      return item.menuMeal?.image || item.image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
     }
   }
 
+  // Lấy description đúng chuẩn
   const getProductDescription = () => {
     if (item.isCustom) {
-      return item.description || 'Custom meal với các nguyên liệu được lựa chọn'
+      return item.customMeal?.description || item.description || 'Custom meal với các nguyên liệu được lựa chọn'
     } else {
-      return item.menuMealDescription || item.description || ''
+      return item.menuMeal?.description || item.description || ''
     }
   }
 
@@ -51,20 +54,21 @@ const CartItem = ({
     setConfirmDialog(true)
   }
 
+  // Sửa lại hàm xác nhận xóa để truyền đúng id (ưu tiên menuMealId hoặc id)
   const confirmRemove = () => {
-    onRemove(item.id)
+    onRemove(item.menuMealId || item.customMealId || item.id)
     setConfirmDialog(false)
   }
 
   const handleIncreaseQuantity = () => {
-    onIncreaseQuantity(item.id) // Chỉ cần pass itemId
+    onIncreaseQuantity(item.id)
   }
 
   const handleDecreaseQuantity = () => {
     if (item.quantity > 1) {
-      onDecreaseQuantity(item.id) // Chỉ cần pass itemId
+      onDecreaseQuantity(item.id)
     } else {
-      handleRemove() // Nếu quantity = 1, xóa item
+      handleRemove()
     }
   }
 
@@ -292,39 +296,15 @@ const CartItem = ({
         </Box>
       </Box>
 
-      {/* Confirmation Dialog */}
-      <Dialog
+      {/* Confirmation Modal dùng modal bạn đã làm sẵn */}
+      <ConfirmModal
         open={confirmDialog}
         onClose={() => setConfirmDialog(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle sx={{ textAlign: 'center', fontWeight: 600 }}>
-          Xác nhận xóa sản phẩm
-        </DialogTitle>
-        <DialogContent sx={{ textAlign: 'center', py: 2 }}>
-          <Typography>
-            Bạn có chắc chắn muốn xóa {getProductTitle()} khỏi giỏ hàng?
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 3 }}>
-          <Button
-            onClick={() => setConfirmDialog(false)}
-            variant="outlined"
-            sx={{ minWidth: 100 }}
-          >
-            Hủy
-          </Button>
-          <Button
-            onClick={confirmRemove}
-            variant="contained"
-            color="error"
-            sx={{ minWidth: 100 }}
-          >
-            Xóa
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={confirmRemove}
+        title="Xác nhận xóa sản phẩm"
+        description={`Bạn có chắc chắn muốn xóa ${getProductTitle()} khỏi giỏ hàng?`}
+        btnName="Xóa"
+      />
     </>
   )
 }

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
+import Divider from '@mui/material/Divider'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
@@ -12,10 +13,19 @@ import OverviewTab from './OverviewTab/OverviewTab'
 import ProfileNavBar from '~/components/ProfileNavBar/ProfileNavBar'
 import OrderHistoryTab from './OrderHistoryTab/OrderHistoryTab'
 import CustomerTDEETab from './CustomerTDEETab/CustomerTDEETab'
+import FeedbackTab from './FeedbackTab/FeedbackTab'
 import { useSelector } from 'react-redux'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { fetchCustomerDetails } from '~/apis'
-import { CircularProgress } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
+import AssessmentIcon from '@mui/icons-material/Assessment'
+import LoyaltyIcon from '@mui/icons-material/Loyalty'
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter'
+import RateReviewIcon from '@mui/icons-material/RateReview'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import PolicyIcon from '@mui/icons-material/Policy'
 
 // Khai báo đống tabs ra biến const để dùng lại cho gọn
 const TABS = {
@@ -23,7 +33,10 @@ const TABS = {
   MEMBERSHIP: 'membership',
   OVERVIEW: 'overview',
   ORDERHISTORY: 'order-history',
-  TDEEPROFILE: 'tdee-profile'
+  TDEEPROFILE: 'tdee-profile',
+  STORELOCATION: 'store-location',
+  FEEDBACK: 'feedback',
+  POLICY: 'policy'
 }
 
 function Profile() {
@@ -33,15 +46,21 @@ function Profile() {
   const currentCustomer = useSelector(selectCurrentCustomer)
 
   // Function đơn giản có nhiệm vụ lấy ra cái tab mặc định dựa theo url.
-  const getDefaultTab = () => {
+  const getDefaultTab = useCallback(() => {
     if (location.pathname.includes(TABS.MEMBERSHIP)) return TABS.MEMBERSHIP
     if (location.pathname.includes(TABS.ACCOUNT)) return TABS.ACCOUNT
     if (location.pathname.includes(TABS.TDEEPROFILE)) return TABS.TDEEPROFILE
     if (location.pathname.includes(TABS.ORDERHISTORY)) return TABS.ORDERHISTORY
+    if (location.pathname.includes(TABS.FEEDBACK)) return TABS.FEEDBACK
     return TABS.OVERVIEW
-  }
+  }, [location.pathname])
   // State lưu trữ giá trị tab nào đang active
   const [activeTab, setActiveTab] = useState(getDefaultTab())
+
+  // Đồng bộ tab đang hiển thị với URL khi người dùng điều hướng bằng Link bên ngoài TabList
+  useEffect(() => {
+    setActiveTab(getDefaultTab())
+  }, [getDefaultTab])
 
   useEffect(() => {
     const fetch = async () => {
@@ -85,7 +104,7 @@ function Profile() {
     <Container
       maxWidth={false}
       sx={{
-        maxWidth: { lg: '1300px', xl: '1500px' },
+        maxWidth: { lg: '1350px', xl: '1500px' },
         px: { xs: 1, sm: 2, md: 3, lg: 4, xl: 6 }
       }}
     >
@@ -97,6 +116,7 @@ function Profile() {
             onChange={handleChangeTab}
             sx={{
               display: { xs: 'none', sm: 'none', md: 'flex' },
+              gap: 2,
               borderRight: 1,
               height: '100%',
               borderColor: 'divider',
@@ -106,12 +126,21 @@ function Profile() {
               '& .MuiTab-root': {
                 justifyContent: 'flex-start',
                 textAlign: 'left',
-                alignItems: 'flex-start',
+                alignItems: 'center',
+                minHeight: 44,
+                py: 1,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
                 '&.Mui-selected': {
                   backgroundColor: 'primary.main',
                   color: 'white'
                 },
                 transition: 'background-color 0.3s, color 0.3s'
+              },
+              '& .MuiTab-iconWrapper': {
+                marginRight: 2,
+                '& svg': { fontSize: 18 }
               },
               '& .MuiTabs-indicator': {
                 display: 'none'
@@ -120,45 +149,76 @@ function Profile() {
           >
             <Tab
               disabled
-              sx={{ minHeight: 80, justifyContent: 'flex-start', textAlign: 'left', cursor: 'default', opacity: 1 }}
+              sx={{ minHeight: 80, justifyContent: 'flex-start', textAlign: 'left', cursor: 'default', mb: 2 }}
               label={
                 <Box>
-                  {/* Hiển thị tên và email khách hàng ở đây */}
                   <Box fontWeight={700} fontSize={16}>{currentCustomer.fullName}</Box>
                   <Box fontSize={14} color="text.secondary">{currentCustomer.email}</Box>
                 </Box>
               }
             />
+            <Divider />
+            <Box sx={{ height: 16 }} />
             <Tab
               label="Tổng Quan"
               value={TABS.OVERVIEW}
+              icon={<AssessmentIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
-              to="/profile/overview" />
+              to="/profile/overview"/>
             <Tab
               label="Thông Tin Tài Khoản"
               value={TABS.ACCOUNT}
-              iconPosition="start"
+              icon={<ManageAccountsIcon fontSize='medium'/>}
+              iconPosition='start'
               component={Link}
               to="/profile/account" />
             <Tab
               label="Hạng Thành Viên"
               value={TABS.MEMBERSHIP}
+              icon={<LoyaltyIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/membership" />
             <Tab
               label="Lịch Sử Đặt Hàng"
               value={TABS.ORDERHISTORY}
+              icon={<LocalShippingIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/order-history" />
             <Tab
               label="Thông tin TDEE"
               value={TABS.TDEEPROFILE}
+              icon={<FitnessCenterIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
-              to="/profile/Tdee-profile" />
+              to="/profile/tdee-profile" />
+            {/* Group separator before the last three tabs */}
+            <Box sx={{ height: 16 }} />
+            <Divider />
+            <Box sx={{ height: 16 }} />
+            <Tab
+              label="Hỗ trợ và Phản hồi"
+              value={TABS.FEEDBACK}
+              icon={<RateReviewIcon fontSize='medium'/>}
+              iconPosition="start"
+              component={Link}
+              to="/profile/feedback" />
+            <Tab
+              label="Tìm kiếm cửa hàng"
+              value={TABS.STORELOCATION}
+              icon={<StorefrontIcon fontSize='medium'/>}
+              iconPosition="start"
+              component={Link}
+              to="/store-location" />
+            <Tab
+              label="Chính sách sử dụng"
+              value={TABS.POLICY}
+              icon={<PolicyIcon fontSize='medium'/>}
+              iconPosition="start"
+              component={Link}
+              to="/policy" />
           </TabList>
           <Box sx={{ flex: 1 }}>
             <TabPanel value={TABS.OVERVIEW}><OverviewTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
@@ -166,6 +226,7 @@ function Profile() {
             <TabPanel value={TABS.MEMBERSHIP}><MembershipTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.ORDERHISTORY}><OrderHistoryTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.TDEEPROFILE}><CustomerTDEETab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            <TabPanel value={TABS.FEEDBACK}><FeedbackTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
           </Box>
         </TabContext>
       </Box>

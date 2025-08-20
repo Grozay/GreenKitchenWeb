@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
@@ -15,10 +15,11 @@ import Rating from '@mui/material/Rating'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import { ShoppingCart, Add, Remove, ArrowBack } from '@mui/icons-material'
 import theme from '~/theme'
-import { getDetailMenuMealAPI, getMenuMealAPI, addMealToCartAPI } from '~/apis' // Import API add to cart
+import { getDetailMenuMealAPI, getMenuMealAPI } from '~/apis' // Import API add to cart
 import CardContent from '@mui/material/CardContent'
 import AppBar from '~/components/AppBar/AppBar'
 import { toast } from 'react-toastify'
+import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
 
 const MenuDetail = () => {
   const { slug } = useParams()
@@ -33,7 +34,7 @@ const MenuDetail = () => {
   const [loading, setLoading] = useState(true)
   const [addingToCart, setAddingToCart] = useState(false) // State để handle loading khi add to cart
 
-  const customerId = 1 // Hoặc lấy từ Redux auth state
+  const customerId = useSelector(state => state.auth?.customerId ?? null)
 
   const handleAddToCart = async () => {
     if (!menuMeal || addingToCart) return
@@ -41,29 +42,34 @@ const MenuDetail = () => {
     try {
       setAddingToCart(true)
 
-      // Tạo request data theo format API
+      // Tạo request data đúng format reducer/cartSlice
       const requestData = {
         isCustom: false,
         menuMealId: menuMeal.id,
         quantity: quantity,
-        basePrice: menuMeal.price,
+        unitPrice: menuMeal.price,
+        totalPrice: menuMeal.price * quantity,
         title: menuMeal.title,
         description: menuMeal.description,
+        image: menuMeal.image,
+        itemType: 'MENU_MEAL',
         calories: menuMeal.calories,
         protein: menuMeal.protein,
         carbs: menuMeal.carbs,
         fat: menuMeal.fat
       }
 
-      // Gọi API add to cart
-      await addMealToCartAPI(customerId, requestData)
+      // Gọi redux thunk để add vào cart
+      await dispatch(createCartItem({ customerId, itemData: requestData }))
 
+      // Nếu đã đăng nhập thì fetch lại cart từ BE, chưa đăng nhập thì giữ nguyên Redux
+      if (customerId) {
+        await dispatch(fetchCart(customerId))
+      }
 
       setSnackbarOpen(true)
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error('Failed to add to cart')
-      // Có thể hiển thị error message
     } finally {
       setAddingToCart(false)
     }
@@ -127,7 +133,7 @@ const MenuDetail = () => {
           </Typography>
           <Button
             variant="contained"
-            sx={{ mt: 4, mx: 'auto', display: 'block', bgcolor: theme.palette.primary.secondary, color: 'white' }}
+            sx={{ mt: 4, mx: 'auto', display: 'block', bgcolor: theme.palette.primary.main, color: 'white' }}
             onClick={() => navigate('/menu')}
           >
             Back to menu list
@@ -151,9 +157,10 @@ const MenuDetail = () => {
           sx={{
             mb: 4,
             color: theme.palette.text.primary,
-            '&:hover': { bgcolor: theme.palette.primary.secondary, color: 'white' }
+            borderRadius: 5,
+            '&:hover': { bgcolor: theme.palette.primary.main, color: 'white' }
           }}
-          onClick={() => navigate('/menu')}
+          onClick={() => navigate(-1)}
         >
           Back to menu list
         </Button>

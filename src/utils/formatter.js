@@ -10,7 +10,7 @@ export const interceptorLoadingElements = async (calling) => {
       loadingStartTime = Date.now()
 
       // Nếu đang trong thời gian chờ gọi API (calling === true) thì sẽ làm mờ phần tử và chặn click
-      elements[i].style.opacity = '0.6'
+      elements[i].style.opacity = '0.8'
       elements[i].style.pointerEvents = 'none'
       elements[i].style.position = 'relative'
 
@@ -56,7 +56,7 @@ export const interceptorLoadingElements = async (calling) => {
     } else {
       // Tính thời gian đã trôi qua
       const elapsedTime = loadingStartTime ? Date.now() - loadingStartTime : 0
-      const remainingTime = Math.max(0, 1000 - elapsedTime) // 1 giây tối thiểu
+      const remainingTime = Math.max(0, 500 - elapsedTime) // 500ms tối thiểu
 
       // Đợi đủ thời gian tối thiểu trước khi tắt loading
       if (remainingTime > 0) {

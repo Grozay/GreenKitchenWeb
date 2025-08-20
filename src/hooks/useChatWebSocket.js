@@ -23,6 +23,17 @@ export function useChatWebSocket(topic, onMessage) {
         (Array.isArray(topic) ? topic : [topic]).forEach((t) => {
           client.subscribe(t, (msg) => {
             const data = JSON.parse(msg.body)
+            onMessage(data)
+          })
+        })
+      },
+      onStompError: (frame) => {
+      },
+      onWebSocketError: (event) => {
+      },
+      onDisconnect: (frame) => {
+      },
+      debug: (str) => {
 
             onMessage(data)
           })

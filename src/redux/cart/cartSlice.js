@@ -3,14 +3,36 @@ import {
   getCartByCustomerIdAPI,
   removeMealFromCartAPI,
   increaseMealQuantityInCartAPI,
-  decreaseMealQuantityInCartAPI
+  decreaseMealQuantityInCartAPI,
+  addMealToCartAPI
 } from '~/apis/index'
 
-// Async thunks
+
+const initialState = {
+  currentCart: null
+}
+
+// Async thunks: chỉ gọi API khi có customerId
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async (customerId) => {
+    if (!customerId) {
+      // Chưa đăng nhập, trả về cart rỗng
+      return { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
+    }
     const response = await getCartByCustomerIdAPI(customerId)
+    return response
+  }
+)
+
+export const createCartItem = createAsyncThunk(
+  'cart/createCartItem',
+  async ({ customerId, itemData }) => {
+    if (!customerId) {
+      // Chưa đăng nhập, trả về itemData để reducer tự thêm vào cart
+      return itemData
+    }
+    const response = await addMealToCartAPI(customerId, itemData)
     return response
   }
 )
@@ -18,6 +40,10 @@ export const fetchCart = createAsyncThunk(
 export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
   async ({ customerId, itemId }) => {
+    if (!customerId) {
+      // Chưa đăng nhập, trả về itemId để reducer tự xoá khỏi cart
+      return itemId
+    }
     await removeMealFromCartAPI(customerId, itemId)
     return itemId
   }
@@ -26,6 +52,9 @@ export const removeFromCart = createAsyncThunk(
 export const increaseQuantity = createAsyncThunk(
   'cart/increaseQuantity',
   async ({ customerId, itemId }) => {
+    if (!customerId) {
+      return itemId
+    }
     await increaseMealQuantityInCartAPI(customerId, itemId)
     return itemId
   }
@@ -34,6 +63,9 @@ export const increaseQuantity = createAsyncThunk(
 export const decreaseQuantity = createAsyncThunk(
   'cart/decreaseQuantity',
   async ({ customerId, itemId }) => {
+    if (!customerId) {
+      return itemId
+    }
     await decreaseMealQuantityInCartAPI(customerId, itemId)
     return itemId
   }
@@ -41,113 +73,104 @@ export const decreaseQuantity = createAsyncThunk(
 
 const cartSlice = createSlice({
   name: 'cart',
-  initialState: {
-    cartItems: [],
-    totalItems: 0,
-    items: [],
-    totalAmount: 0,
-    loading: false,
-    error: null
-  },
+  initialState,
   reducers: {
     clearCart: (state) => {
-      state.cartItems = []
-      state.totalItems = 0
-      state.items = []
-      state.totalAmount = 0
+      state.currentCart = null
     }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCart.pending, (state) => {
-        state.loading = true
-      })
       .addCase(fetchCart.fulfilled, (state, action) => {
-        state.loading = false
-        state.cartItems = action.payload
-        state.totalItems = action.payload.totalItems
-        state.items = action.payload.cartItems || []
-        state.totalAmount = action.payload.totalAmount
+        if (action.payload && Array.isArray(action.payload.cartItems)) {
+          state.currentCart = action.payload
+        } else if (action.payload && (action.payload.menuMealId || action.payload.id)) {
+          // Nếu payload là 1 item, wrap lại thành cart chuẩn
+          state.currentCart = {
+            cartItems: [action.payload],
+            totalAmount: action.payload.totalPrice || 0,
+            totalItems: 1,
+            totalQuantity: action.payload.quantity || 1
+          }
+        } else {
+          state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
+        }
       })
-      .addCase(fetchCart.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.error.message
-      })
-      .addCase(removeFromCart.pending, (state) => {
-        state.loading = true
+      .addCase(createCartItem.fulfilled, (state, action) => {
+        // Nếu payload là cart object (có cartItems), gán luôn
+        if (action.payload && Array.isArray(action.payload.cartItems)) {
+          state.currentCart = action.payload
+        } else {
+          // Luôn đảm bảo currentCart là object có cartItems là mảng
+          if (!state.currentCart || !Array.isArray(state.currentCart.cartItems)) {
+            state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
+          }
+          const newItem = action.payload
+          const existIndex = state.currentCart.cartItems.findIndex(
+            item => String(item.menuMealId || item.id) === String(newItem.menuMealId || newItem.id)
+          )
+          if (existIndex !== -1) {
+            // Nếu đã có, tăng quantity và cập nhật totalPrice
+            const existItem = state.currentCart.cartItems[existIndex]
+            const updatedQuantity = existItem.quantity + newItem.quantity
+            state.currentCart.cartItems[existIndex] = {
+              ...existItem,
+              quantity: updatedQuantity,
+              totalPrice: updatedQuantity * existItem.unitPrice
+            }
+          } else {
+            // Nếu chưa có, thêm mới
+            state.currentCart.cartItems.push(newItem)
+          }
+          state.currentCart.totalItems = state.currentCart.cartItems.length
+          state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
+          state.currentCart.totalQuantity = state.currentCart.cartItems.reduce((sum, item) => sum + item.quantity, 0)
+        }
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
-        state.loading = false
-        const itemId = action.payload
-        state.items = state.items.filter(item => item.id !== itemId)
-        state.cartItems.cartItems = state.cartItems.cartItems?.filter(item => item.id !== itemId)
-        state.totalItems = state.items.length
-        state.totalAmount = state.items.reduce((sum, item) => sum + item.totalPrice, 0)
-      })
-      .addCase(removeFromCart.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.error.message
-      })
-      .addCase(increaseQuantity.pending, (state) => {
-        state.loading = true
+        const itemId = String(action.meta.arg.itemId)
+        state.currentCart.cartItems = state.currentCart.cartItems.filter(
+          item =>
+            String(item.menuMealId || item.customMealId) !== itemId
+        )
+        state.currentCart.totalItems = state.currentCart.cartItems.length
+        state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
+        state.currentCart.totalQuantity = state.currentCart.cartItems.reduce((sum, item) => sum + item.quantity, 0)
       })
       .addCase(increaseQuantity.fulfilled, (state, action) => {
-        state.loading = false
-        const itemId = action.meta.arg.itemId
-        state.items = state.items.map(item =>
-          item.id === itemId
-            ? { ...item, quantity: item.quantity + 1, totalPrice: (item.quantity + 1) * item.price }
+        const itemId = String(action.meta.arg.itemId)
+        if (!state.currentCart) {
+          state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
+        }
+        state.currentCart.cartItems = state.currentCart.cartItems.map(item =>
+          String(item.id) === String(itemId)
+            ? { ...item, quantity: item.quantity + 1, totalPrice: (item.quantity + 1) * item.unitPrice }
             : item
         )
-        if (state.cartItems.cartItems) {
-          state.cartItems.cartItems = state.cartItems.cartItems.map(item =>
-            item.id === itemId
-              ? { ...item, quantity: item.quantity + 1, totalPrice: (item.quantity + 1) * item.price }
-              : item
-          )
-        }
-        state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0)
-        state.totalAmount = state.items.reduce((sum, item) => sum + item.totalPrice, 0)
-      })
-      .addCase(increaseQuantity.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.error.message
-      })
-      // Decrease quantity
-      .addCase(decreaseQuantity.pending, (state) => {
-        state.loading = true
+        state.currentCart.totalItems = state.currentCart.cartItems.length
+        state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
+        state.currentCart.totalQuantity = state.currentCart.cartItems.reduce((sum, item) => sum + item.quantity, 0)
       })
       .addCase(decreaseQuantity.fulfilled, (state, action) => {
-        state.loading = false
-        const itemId = action.meta.arg.itemId
-        state.items = state.items.map(item =>
-          item.id === itemId && item.quantity > 1
-            ? { ...item, quantity: item.quantity - 1, totalPrice: (item.quantity - 1) * item.price }
+        const itemId = String(action.meta.arg.itemId)
+        if (!state.currentCart) {
+          state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
+        }
+        state.currentCart.cartItems = state.currentCart.cartItems.map(item =>
+          String(item.id) === String(itemId) && item.quantity > 1
+            ? { ...item, quantity: item.quantity - 1, totalPrice: (item.quantity - 1) * item.unitPrice }
             : item
         )
-        if (state.cartItems.cartItems) {
-          state.cartItems.cartItems = state.cartItems.cartItems.map(item =>
-            item.id === itemId && item.quantity > 1
-              ? { ...item, quantity: item.quantity - 1, totalPrice: (item.quantity - 1) * item.price }
-              : item
-          )
-        }
-        state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0)
-        state.totalAmount = state.items.reduce((sum, item) => sum + item.totalPrice, 0)
-      })
-      .addCase(decreaseQuantity.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.error.message
+        state.currentCart.totalItems = state.currentCart.cartItems.length
+        state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
+        state.currentCart.totalQuantity = state.currentCart.cartItems.reduce((sum, item) => sum + item.quantity, 0)
       })
   }
 })
 
-export const { clearCart } = cartSlice.actions
+// Selectors
+export const selectCurrentCart = (state) => state.cart.currentCart
 
-export const selectCartItems = (state) => state.cart.cartItems
-export const selectTotalItems = (state) => state.cart.totalItems
-export const selectItems = (state) => state.cart.items
-export const selectTotalAmount = (state) => state.cart.totalAmount
-export const selectCartLoading = (state) => state.cart.loading
+export const { clearCart } = cartSlice.actions
 
 export const cartReducer = cartSlice.reducer

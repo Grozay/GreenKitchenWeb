@@ -21,11 +21,11 @@ import Checkout from './pages/customer/Checkout/Checkout'
 import { toast } from 'react-toastify'
 import ChatAi from './pages/customer/ChatPage/ChatPage'
 import HistoryChatLayout from './pages/HistoryChat/HistoryChatLayout'
+import WeekMealLayout from './pages/customer/WeekMeal/WeekMealLayout'
 
 
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
-  
   if (!user) {
     // Hiển thị thông báo cho user biết họ cần đăng nhập
     toast.info('Vui lòng đăng nhập để tiếp tục')
@@ -48,6 +48,7 @@ function App() {
       <Route path="/menu/:slug" element={<MenuDetail />} />
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/smart-meal-planner" element={<SmartMealLayout />} />
+      <Route path="/week-meal-planner" element={<WeekMealLayout />} />
       {/* <Route path="/calo-calculator" element={<CaloCalculatorLayout />} /> */}
       <Route path="/cart" element={<Cart />} />
 

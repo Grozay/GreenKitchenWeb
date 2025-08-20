@@ -12,23 +12,23 @@ import dayjs from 'dayjs'
 export default function OrderCard({ order, onViewDetails }) {
   const getStatusColor = (status) => {
     switch (status) {
-      case 'PENDING': return 'warning'
-      case 'CONFIRMED': return 'info'
-      case 'SHIPPING': return 'primary'
-      case 'DELIVERED': return 'success'
-      case 'CANCELLED': return 'error'
-      default: return 'default'
+    case 'PENDING': return 'warning'
+    case 'CONFIRMED': return 'info'
+    case 'SHIPPING': return 'primary'
+    case 'DELIVERED': return 'success'
+    case 'CANCELLED': return 'error'
+    default: return 'default'
     }
   }
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'PENDING': return 'Chờ xác nhận'
-      case 'CONFIRMED': return 'Đã xác nhận'
-      case 'SHIPPING': return 'Đang giao hàng'
-      case 'DELIVERED': return 'Đã giao hàng'
-      case 'CANCELLED': return 'Đã hủy'
-      default: return status
+    case 'PENDING': return 'Chờ xác nhận'
+    case 'CONFIRMED': return 'Đã xác nhận'
+    case 'SHIPPING': return 'Đang giao hàng'
+    case 'DELIVERED': return 'Đã giao hàng'
+    case 'CANCELLED': return 'Đã hủy'
+    default: return status
     }
   }
 
