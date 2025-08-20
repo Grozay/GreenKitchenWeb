@@ -14,6 +14,7 @@ import Profile from './pages/customer/Profile/Profile'
 import TrackingOrder from './pages/customer/TrackingOrder/TrackingOrder'
 import Chat from './pages/Employee/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
+import { selectCurrentEmployee } from './redux/user/employeeSlice'
 import { useSelector } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
 import Cart from './pages/customer/Cart/CartLayout'
@@ -21,22 +22,31 @@ import Checkout from './pages/customer/Checkout/Checkout'
 import { toast } from 'react-toastify'
 import ChatAi from './pages/customer/ChatPage/ChatPage'
 import WeekMealLayout from './pages/customer/WeekMeal/WeekMealLayout'
-
+import AuthAdmin from './pages/admin/AuthAdmin/Auth'
+import Layout from './pages/admin/Layout'
 
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
   if (!user) {
     // Hiển thị thông báo cho user biết họ cần đăng nhập
     toast.info('Vui lòng đăng nhập để tiếp tục')
-    
+
     // Lưu location hiện tại để redirect sau khi login
     return <Navigate to='/login' state={{ from: location }} replace={true} />
   }
   return <Outlet />
 }
 
+const ProtectedAdminRoute = ({ user }) => {
+  if (!user) {
+    return <Navigate to='/management/login' replace={true} />
+  }
+  return <Outlet />
+}
+
 function App() {
   const currentCustomer = useSelector(selectCurrentCustomer)
+  const currentEmployee = useSelector(selectCurrentEmployee)
 
   return (
     <Routes>
@@ -78,6 +88,13 @@ function App() {
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />
+
+      {/* Protect Admin Route */}
+      <Route path='/management/login' element={<AuthAdmin />} />
+      <Route path='/management/*' element={<ProtectedAdminRoute user={currentEmployee} />}>
+        <Route path='*' element={<Layout />} />
+      </Route>
+
     </Routes>
 
   )
