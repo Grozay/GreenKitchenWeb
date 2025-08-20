@@ -112,10 +112,30 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
     setAnchorEl2(null)
   }
 
-  // Lấy ngày hôm nay (định dạng YYYY-MM-DD)
   const today = new Date()
   const todayStr = today.toISOString().slice(0, 10)
-  const isToday = d.date === todayStr
+
+  const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay() // Chủ nhật là 7
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - (dayOfWeek - 1))
+  const mondayStr = monday.toISOString().slice(0, 10)
+
+  const isDisabled = d.date >= mondayStr && d.date <= todayStr
+
+  const todayInfo = {
+    year: today.getFullYear(),
+    month: today.getMonth() + 1,
+    day: today.getDate()
+  }
+
+  const dateParts = d.date.split('-')
+  const dateInfo = {
+    year: parseInt(dateParts[0], 10),
+    month: parseInt(dateParts[1], 10),
+    day: parseInt(dateParts[2], 10)
+  }
+
+  const isToday = todayInfo.year === dateInfo.year && todayInfo.month === dateInfo.month && todayInfo.day === dateInfo.day
 
   return (
     <Box
@@ -127,7 +147,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
         borderRadius: 2,
         mb: 2,
         boxShadow: 1,
-        opacity: isToday ? 0.5 : 1
+        opacity: isDisabled ? 0.5 : 1
       }}
     >
       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', py: 3 }}>
@@ -147,15 +167,15 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
       {/* MEAL 1 */}
       <Box sx={{ flex: 2, py: 3, px: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <Box
-          onMouseEnter={isToday ? undefined : handlePopoverOpen1}
-          onMouseLeave={isToday ? undefined : handlePopoverClose1}
+          onMouseEnter={isDisabled ? undefined : handlePopoverOpen1}
+          onMouseLeave={isDisabled ? undefined : handlePopoverClose1}
           aria-owns={open1 ? 'meal1-popover' : undefined}
           aria-haspopup="true"
-          sx={{ cursor: isToday ? 'not-allowed' : 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+          sx={{ cursor: isDisabled ? 'not-allowed' : 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
         >
-          {isToday && (
+          {isDisabled && (
             <Typography sx={{ color: 'red', fontSize: '0.95rem', mb: 1 }}>
-              Không thể đặt hôm nay
+              Không thể đặt ngày này
             </Typography>
           )}
           <Typography sx={{ fontWeight: 700, fontSize: '1.1rem', mb: 1 }}>{d.meal1.title}</Typography>
@@ -171,7 +191,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
         <Popover
           id="meal1-popover"
           sx={{ pointerEvents: 'none' }}
-          open={!isToday && open1}
+          open={!isDisabled && open1}
           anchorEl={anchorEl1}
           anchorOrigin={{
             vertical: 'bottom',
@@ -191,9 +211,9 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
             <IOSSwitch
               sx={{ mt: 1 }}
-              checked={isToday ? false : !!d.mealOrder1}
+              checked={isDisabled ? false : !!d.mealOrder1}
               onChange={e => onSwitchChange && onSwitchChange('mealOrder1', e.target.checked)}
-              disabled={isToday}
+              disabled={isDisabled}
             />
             <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>Chọn</Typography>
           </Box>
@@ -202,15 +222,15 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
       {/* MEAL 2 */}
       <Box sx={{ flex: 2, py: 3, px: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <Box
-          onMouseEnter={isToday ? undefined : handlePopoverOpen2}
-          onMouseLeave={isToday ? undefined : handlePopoverClose2}
+          onMouseEnter={isDisabled ? undefined : handlePopoverOpen2}
+          onMouseLeave={isDisabled ? undefined : handlePopoverClose2}
           aria-owns={open2 ? 'meal2-popover' : undefined}
           aria-haspopup="true"
-          sx={{ cursor: isToday ? 'not-allowed' : 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+          sx={{ cursor: isDisabled ? 'not-allowed' : 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
         >
-          {isToday && (
+          {isDisabled && (
             <Typography sx={{ color: 'red', fontSize: '0.95rem', mb: 1 }}>
-              Không thể đặt hôm nay
+              Không thể đặt ngày này
             </Typography>
           )}
           <Typography sx={{ fontWeight: 700, fontSize: '1.1rem', mb: 1 }}>{d.meal2.title}</Typography>
@@ -225,7 +245,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
         <Popover
           id="meal2-popover"
           sx={{ pointerEvents: 'none' }}
-          open={!isToday && open2}
+          open={!isDisabled && open2}
           anchorEl={anchorEl2}
           anchorOrigin={{
             vertical: 'bottom',
@@ -245,9 +265,9 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
             <IOSSwitch
               sx={{ mt: 1 }}
-              checked={isToday ? false : !!d.mealOrder2}
+              checked={isDisabled ? false : !!d.mealOrder2}
               onChange={e => onSwitchChange && onSwitchChange('mealOrder2', e.target.checked)}
-              disabled={isToday}
+              disabled={isDisabled}
             />
             <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>Chọn</Typography>
           </Box>

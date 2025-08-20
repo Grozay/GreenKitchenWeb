@@ -48,6 +48,12 @@ export const MEMBERSHIP_TIERS = {
   RADIANCE: 'RADIANCE'
 }
 
+//Employee Roles
+export const EMPLOYEE_ROLES = {
+  EMPLOYEE: 'EMPLOYEE',
+  ADMIN: 'ADMIN'
+}
+
 // Error Messages
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Lỗi kết nối mạng. Vui lòng thử lại.',

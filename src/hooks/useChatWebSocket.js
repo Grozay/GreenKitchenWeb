@@ -1,46 +1,39 @@
-import {
-  useEffect,
-  useRef
-} from 'react'
+import { useEffect, useRef } from 'react'
 import SockJS from 'sockjs-client'
-import {
-  Client
-} from '@stomp/stompjs'
-import {
-  API_ROOT
-} from '~/utils/constants'
+import { Client } from '@stomp/stompjs'
+import { API_ROOT } from '~/utils/constants'
 
 export function useChatWebSocket(topic, onMessage) {
   const clientRef = useRef(null)
+  const onMessageRef = useRef(onMessage)
+  useEffect(() => { onMessageRef.current = onMessage }, [onMessage])
 
   useEffect(() => {
-    if (!topic) return
+    if (!topic || (Array.isArray(topic) && topic.length === 0)) return
 
     const sock = new SockJS(`${API_ROOT}/apis/v1/ws`)
     const client = new Client({
       webSocketFactory: () => sock,
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+      debug: () => {},
       onConnect: () => {
-        if (Array.isArray(topic)) {
-          topic.forEach((t) => client.subscribe(t, (msg) => {
-            const data = JSON.parse(msg.body)
-            onMessage(data)
-          }))
-        } else {
-          client.subscribe(topic, (msg) => {
-            const data = JSON.parse(msg.body)
-            onMessage(data)
+        const topics = Array.isArray(topic) ? topic : [topic]
+        topics.forEach((t) => {
+          client.subscribe(t, (msg) => {
+            try {
+              const data = JSON.parse(msg.body)
+              onMessageRef.current && onMessageRef.current(data)
+            } catch {
+              // Silently ignore malformed messages
+            }
           })
-        }
+        })
       },
-      onStompError: (frame) => {
-      },
-      onWebSocketError: (event) => {
-      },
-      onDisconnect: (frame) => {
-      },
-      debug: (str) => {
-
-      }
+      onStompError: () => {},
+      onWebSocketError: () => {},
+      onDisconnect: () => {}
     })
 
     clientRef.current = client
@@ -52,5 +45,6 @@ export function useChatWebSocket(topic, onMessage) {
         clientRef.current = null
       }
     }
-  }, [topic, onMessage])
+  }, [topic])
 }
+

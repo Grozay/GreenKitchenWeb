@@ -46,34 +46,36 @@ function ProfileNavBar() {
 
   return (
     <Box sx={{
-      width: '100%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       py: 3,
-      position: 'relative',
       zIndex: 10
     }}>
       {/* Left: Website name */}
-      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Typography
-          variant="h4"
           component={Link}
           to="/"
-          sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 700 }}
+          sx={{ 
+            textDecoration: 'none',
+            color: 'inherit',
+            fontWeight: 700,
+            fontSize: '2rem'
+          }}
         >
           Green Kitchen
         </Typography>
       </Box>
 
       {/* Center: Agent & Profile buttons */}
-      <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', gap: 2 }}>
+      <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: 'center', gap: 2 }}>
         <Button component={Link} to="/agent" color="primary" variant="outlined">Agent</Button>
         <Button component={Link} to="/profile" color="primary" variant="contained">Profile</Button>
       </Box>
 
       {/* Right: Account icon with dropdown */}
-      <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
         <IconButton
           color="primary"
           onClick={handleClick}

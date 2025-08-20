@@ -26,6 +26,7 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter'
 import RateReviewIcon from '@mui/icons-material/RateReview'
 import StorefrontIcon from '@mui/icons-material/Storefront'
 import PolicyIcon from '@mui/icons-material/Policy'
+import BottomProfileNav from '~/components/BottomProfileNav/BottomProfileNav'
 
 // Khai báo đống tabs ra biến const để dùng lại cho gọn
 const TABS = {
@@ -104,12 +105,19 @@ function Profile() {
     <Container
       maxWidth={false}
       sx={{
-        maxWidth: { lg: '1350px', xl: '1500px' },
-        px: { xs: 1, sm: 2, md: 3, lg: 4, xl: 6 }
+        maxWidth: { lg: '1350px', xl: '1500px' }
       }}
     >
       <ProfileNavBar />
-      <Box sx={{ display: 'flex', width: '100%', minHeight: 400, pt: { xs: 2, sm: 3, md: 4 } }}>
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',
+          minHeight: 400,
+          pt: { xs: 2, sm: 3, md: 4 },
+          pb: { xs: 9, sm: 9, md: 0 }
+        }}
+      >
         <TabContext value={activeTab}>
           <TabList
             orientation='vertical'
@@ -220,7 +228,14 @@ function Profile() {
               component={Link}
               to="/policy" />
           </TabList>
-          <Box sx={{ flex: 1 }}>
+          <Box
+            sx={{
+              flex: 1,
+              '& .MuiTabPanel-root': {
+                p: { xs: 0, sm: 2 }
+              }
+            }}
+          >
             <TabPanel value={TABS.OVERVIEW}><OverviewTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.ACCOUNT}><AccountTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.MEMBERSHIP}><MembershipTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
@@ -229,6 +244,10 @@ function Profile() {
             <TabPanel value={TABS.FEEDBACK}><FeedbackTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
           </Box>
         </TabContext>
+      </Box>
+      {/* mobile bottom nav for xs / sm */}
+      <Box sx={{ display: { xs: 'block', sm: 'block', md: 'none' } }}>
+        <BottomProfileNav />
       </Box>
     </Container>
   )

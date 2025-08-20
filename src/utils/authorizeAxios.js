@@ -3,6 +3,7 @@ import { toast } from 'react-toastify'
 import { interceptorLoadingElements } from '~/utils/formatter'
 import { refreshTokenCustomerAPI } from '~/apis'
 import { logoutCustomerApi } from '~/redux/user/customerSlice.js'
+import { logoutEmployeeApi } from '~/redux/user/employeeSlice.js'
 
 //Không thể import {store } from '~/redux/store.js' theo cách thông thường
 //giải pháp: Inject store : là kỹ thuật khi cần sửa dụng biến redux store ở các file ngoài phạm vi component như file này

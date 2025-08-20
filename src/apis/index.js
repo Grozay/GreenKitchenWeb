@@ -232,3 +232,29 @@ export const getWeekMealPlanAPI = async (type, date) => {
   return response.data
 }
 
+// Posts
+export const createPostAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts`, data)
+  return response.data
+}
+
+export const getPostsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts`)
+  return response.data
+}
+
+export const getPostByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts/${id}`)
+  return response.data
+}
+
+export const updatePostAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/posts/${id}`, data)
+  return response.data
+}
+
+export const getPostCategoriesAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/post-categories`)
+  return response.data
+}
+
