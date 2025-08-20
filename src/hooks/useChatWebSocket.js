@@ -36,8 +36,8 @@ export function useChatWebSocket(topic, onMessage) {
       onDisconnect: () => {}
     })
 
-    client.activate()
     clientRef.current = client
+    client.activate()
 
     return () => {
       if (clientRef.current) {
@@ -47,3 +47,4 @@ export function useChatWebSocket(topic, onMessage) {
     }
   }, [topic])
 }
+

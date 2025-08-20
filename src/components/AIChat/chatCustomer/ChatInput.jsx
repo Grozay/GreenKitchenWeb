@@ -23,7 +23,8 @@ function ChatInput({
         minHeight: { xs: 64, sm: 68 },
         borderTop: '1px solid',
         borderColor: 'divider',
-        boxShadow: '0 -2px 8px rgba(0,0,0,0.05)'
+        boxShadow: '0 -2px 8px rgba(0,0,0,0.05)',
+        flexShrink: 0
       }}
     >
       {/* Text Input với cải thiện UX */}

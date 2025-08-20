@@ -281,20 +281,40 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
         (fatMax === '' || (typeof product.fat === 'number' && product.fat <= Number(fatMax))) &&
         (typeof product.fat === 'number' ? (product.fat >= fatSlider[0] && product.fat <= fatSlider[1]) : true)
 
+      const carb = typeof product.carb === 'number'
+        ? product.carb
+        : (
+          typeof product.calories === 'number' &&
+          typeof product.protein === 'number' &&
+          typeof product.fat === 'number'
+            ? Math.max(0, Math.round((product.calories - (product.protein * 4 + product.fat * 9)) / 4))
+            : null
+        )
+
       const matchesCarb =
-        (carbMin === '' || (typeof product.carb === 'number' && product.carb >= Number(carbMin))) &&
-        (carbMax === '' || (typeof product.carb === 'number' && product.carb <= Number(carbMax))) &&
-        (typeof product.carb === 'number' ? (product.carb >= carbSlider[0] && product.carb <= carbSlider[1]) : true)
+        (carbMin === '' || (typeof carb === 'number' && carb >= Number(carbMin))) &&
+        (carbMax === '' || (typeof carb === 'number' && carb <= Number(carbMax))) &&
+        (typeof carb === 'number' ? (carb >= carbSlider[0] && carb <= carbSlider[1]) : true)
 
       const matchesProtein =
         (proteinMin === '' || (typeof product.protein === 'number' && product.protein >= Number(proteinMin))) &&
         (proteinMax === '' || (typeof product.protein === 'number' && product.protein <= Number(proteinMax))) &&
         (typeof product.protein === 'number' ? (product.protein >= proteinSlider[0] && product.protein <= proteinSlider[1]) : true)
 
+      const calories = typeof product.calories === 'number'
+        ? product.calories
+        : (
+          typeof product.carb === 'number' &&
+          typeof product.protein === 'number' &&
+          typeof product.fat === 'number'
+            ? Math.round(product.carb * 4 + product.protein * 4 + product.fat * 9)
+            : null
+        )
+
       const matchesCalo =
-        (caloMin === '' || (typeof product.calo === 'number' && product.calo >= Number(caloMin))) &&
-        (caloMax === '' || (typeof product.calo === 'number' && product.calo <= Number(caloMax))) &&
-        (typeof product.calo === 'number' ? (product.calo >= caloSlider[0] && product.calo <= caloSlider[1]) : true)
+        (caloMin === '' || (typeof calories === 'number' && calories >= Number(caloMin))) &&
+        (caloMax === '' || (typeof calories === 'number' && calories <= Number(caloMax))) &&
+        (typeof calories === 'number' ? (calories >= caloSlider[0] && calories <= caloSlider[1]) : true)
 
       return matchesName && matchesPrice && matchesFat && matchesCarb && matchesProtein && matchesCalo
     })

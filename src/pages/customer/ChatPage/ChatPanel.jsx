@@ -153,16 +153,21 @@ export default function ChatPanel({ onMessagesUpdate }) {
       }
     }
     setMessages(prev => {
-      const filtered = prev.filter(m =>
-        !(m.status === 'pending' && m.content === msg.content && m.senderRole === msg.senderRole)
-      )
-      if (filtered.some(m => m.id === msg.id)) return filtered
-      return [...filtered, msg]
+      // Xoá pending tạm (client) của CUSTOMER nếu server đã trả về bản thật
+      let next = prev.filter(m => !(m.status === 'pending' && m.content === msg.content && m.senderRole === msg.senderRole && msg.senderRole === 'CUSTOMER'))
+
+      // Upsert theo id: nếu đã tồn tại -> replace, chưa có -> append
+      const idx = next.findIndex(m => m.id === msg.id)
+      if (idx >= 0) {
+        next = next.map((m, i) => i === idx ? { ...m, ...msg } : m)
+      } else {
+        next = [...next, msg]
+      }
+      return next
     })
-    if (msg.senderRole === 'AI') setAwaitingAI(false)
   }, [animationConvId, isCustomerLoggedIn])
 
-  useChatWebSocket(`/topic/conversations/${animationConvId}`, handleIncoming)
+  useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
   useChatWebSocket('/topic/emp-notify', async (convId) => {
     const cid = typeof convId === 'object' ? convId.conversationId : convId
     if (Number(cid) === Number(animationConvId)) {
@@ -187,6 +192,16 @@ export default function ChatPanel({ onMessagesUpdate }) {
     )))
   }, [customerName])
 
+  // Tính awaitingAI chỉ dựa trên tin nhắn cuối cùng
+  useEffect(() => {
+    const isPending = (st) => st === 'PENDING' || st === 'pending'
+    const lastMsg = messages[messages.length - 1]
+    const lastIsAiPending = lastMsg && lastMsg.senderRole === 'AI' && isPending(lastMsg.status)
+    const lastCustomerPending = lastMsg && lastMsg.senderRole === 'CUSTOMER' && isPending(lastMsg.status)
+    const nextAwaiting = lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
+    if (nextAwaiting !== awaitingAI) setAwaitingAI(nextAwaiting)
+  }, [messages, chatMode, awaitingAI])
+
   // Send message
   const handleSend = useCallback(async () => {
     const text = input.trim()
@@ -194,7 +209,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
     if (chatMode === 'AI' && awaitingAI) return
 
     setInput('')
-    if (chatMode === 'AI') setAwaitingAI(true)
+    // awaitingAI sẽ được tính lại dựa trên message PENDING và AI PENDING từ server
     const tempId = `temp-${Date.now()}`
     setMessages(prev => ([
       ...prev,
@@ -254,17 +269,18 @@ export default function ChatPanel({ onMessagesUpdate }) {
           </Box>
         )}
 
-        {messages.map((message, idx) => {
-         
-          return (
-            <MessageBubble
-              key={`${message.id}-${idx}`}
-              message={message}
-              customerName={customerName}
-              isOwn={message.senderRole === 'CUSTOMER'}
-            />
-          )
-        })}
+        {messages
+          .filter(m => !(m.senderRole === 'AI' && (m.status === 'PENDING' || m.status === 'pending')))
+          .map((message, idx) => {
+            return (
+              <MessageBubble
+                key={`${message.id}-${idx}`}
+                message={message}
+                customerName={customerName}
+                isOwn={message.senderRole === 'CUSTOMER'}
+              />
+            )
+          })}
         {awaitingAI && <TypingIndicator />}
       </Box>
       <ChatInput
