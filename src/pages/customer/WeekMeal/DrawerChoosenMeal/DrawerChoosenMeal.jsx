@@ -7,7 +7,14 @@ import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
 import Button from '@mui/material/Button'
 import ItemWeekPlan from '../ItemWeekPlan/ItemWeekPlan'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 
+
+const healthyMessages = {
+  mealOrder1: 'Bữa sáng là khởi đầu hoàn hảo cho ngày mới, đừng bỏ lỡ để nạp năng lượng nhé!',
+  mealOrder2: 'Bữa trưa giúp bạn tiếp tục bứt phá, hãy chọn món để nạp năng lượng!',
+  mealOrder3: 'Ăn uống đúng giờ giúp cơ thể khỏe mạnh, đừng quên chăm sóc bản thân nhé!'
+}
 
 const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   // Mặc định check hết khi mở Drawer
@@ -15,7 +22,8 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     weekData.days.map(d => ({
       ...d,
       mealOrder1: d.mealOrder1 !== undefined ? d.mealOrder1 : true,
-      mealOrder2: d.mealOrder2 !== undefined ? d.mealOrder2 : true
+      mealOrder2: d.mealOrder2 !== undefined ? d.mealOrder2 : true,
+      mealOrder3: d.mealOrder3 !== undefined ? d.mealOrder3 : true
     }))
   )
 
@@ -24,10 +32,29 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
       weekData.days.map(d => ({
         ...d,
         mealOrder1: d.mealOrder1 !== undefined ? d.mealOrder1 : true,
-        mealOrder2: d.mealOrder2 !== undefined ? d.mealOrder2 : true
+        mealOrder2: d.mealOrder2 !== undefined ? d.mealOrder2 : true,
+        mealOrder3: d.mealOrder3 !== undefined ? d.mealOrder3 : true
       }))
     )
   }, [weekData])
+
+  const [openHealthy, setOpenHealthy] = useState(false)
+  const [healthyMsg, setHealthyMsg] = useState('')
+  // Thêm state để nhớ đã cảnh báo healthy cho từng buổi
+  const [shownHealthy, setShownHealthy] = useState({
+    mealOrder1: false,
+    mealOrder2: false,
+    mealOrder3: false
+  })
+
+  // Reset lại khi mở drawer mới
+  useEffect(() => {
+    setShownHealthy({
+      mealOrder1: false,
+      mealOrder2: false,
+      mealOrder3: false
+    })
+  }, [open])
 
   const handleSwitchChange = (idx, mealKey, checked) => {
     setDays(prev =>
@@ -35,6 +62,12 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
         i === idx ? { ...d, [mealKey]: checked } : d
       )
     )
+    // Nếu tắt switch và chưa cảnh báo healthy cho buổi này thì cảnh báo
+    if (!checked && healthyMessages[mealKey] && !shownHealthy[mealKey]) {
+      setHealthyMsg(healthyMessages[mealKey])
+      setOpenHealthy(true)
+      setShownHealthy(prev => ({ ...prev, [mealKey]: true }))
+    }
   }
 
   // Tính filteredDays và totalAmount để dùng cho cả render và khi đặt hàng
@@ -43,7 +76,8 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
       const result = { day: d.day, date: d.date }
       if (d.mealOrder1) result.meal1 = d.meal1
       if (d.mealOrder2) result.meal2 = d.meal2
-      if (!d.mealOrder1 && !d.mealOrder2) return null
+      if (d.mealOrder3) result.meal3 = d.meal3
+      if (!d.mealOrder1 && !d.mealOrder2 && !d.mealOrder3) return null
       return result
     })
     .filter(Boolean)
@@ -52,6 +86,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     let dayTotal = 0
     if (d.meal1 && d.meal1.price) dayTotal += d.meal1.price
     if (d.meal2 && d.meal2.price) dayTotal += d.meal2.price
+    if (d.meal3 && d.meal3.price) dayTotal += d.meal3.price
     return sum + dayTotal
   }, 0)
 
@@ -147,7 +182,29 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
                 }
               }}
             >
-              MEAL 1 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(7:00 - 11:30)</Box>
+              MEAL 1 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(6:00 - 10:00)</Box>
+            </Box>
+            <Box
+              sx={{
+                flex: 2,
+                color: '#fff',
+                fontWeight: 700,
+                py: 2,
+                textAlign: 'center',
+                fontSize: '1.2rem',
+                position: 'relative',
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '25%',
+                  right: 0,
+                  height: '50%',
+                  width: '1.5px',
+                  bgcolor: '#fff'
+                }
+              }}
+            >
+              MEAL 2 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(11:00 - 14:00)</Box>
             </Box>
             <Box
               sx={{
@@ -159,7 +216,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
                 fontSize: '1.2rem'
               }}
             >
-              MEAL 2 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(12:30 - 18:30)</Box>
+              MEAL 3<Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(17:00 - 20:00)</Box>
             </Box>
           </Box>
           {days.map((d, idx) => (
@@ -181,6 +238,14 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
             </Button>
           </Box>
         </Box>
+        <ConfirmModal
+          open={openHealthy}
+          onClose={() => setOpenHealthy(false)}
+          onConfirm={() => setOpenHealthy(false)}
+          title="Cảnh báo sức khỏe"
+          description={healthyMsg}
+          btnName="Đã hiểu"
+        />
       </Box>
     </Drawer>
   )

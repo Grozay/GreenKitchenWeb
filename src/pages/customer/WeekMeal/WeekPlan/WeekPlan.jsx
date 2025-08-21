@@ -85,20 +85,13 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             }}
           >
             <ArrowBackIosNewIcon fontSize='small' className='prev-week-icon' sx={{ mb: 0.3 }} />
-            <Typography
-              className="prev-week-text"
-              sx={{
-                color: theme.palette.text.textSub,
-                fontWeight: 500,
-                transition: 'color 0.2s'
-              }}
-            >
+            <Typography className="prev-week-text" sx={{ color: theme.palette.text.textSub, fontWeight: 500, transition: 'color 0.2s' }}>
               TUẦN TRƯỚC
             </Typography>
           </IconButton>
-          <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', mx: { xs: 0, sm: 1 } }}>{weekData.start}</Typography>
-          <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', mx: { xs: 0, sm: 1 }, mb: 1.2 }}>→</Typography>
-          <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', mx: { xs: 0, sm: 1 } }}>{weekData.end}</Typography>
+          <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', mx: 1 }}>
+            {moment(weekData.weekStart, 'YYYY-MM-DD').format('DD/MM')} - {moment(weekData.weekEnd, 'YYYY-MM-DD').format('DD/MM')}
+          </Typography>
           <IconButton
             onClick={onNextWeek}
             disabled={!canNext}
@@ -119,15 +112,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
               }
             }}
           >
-            <Typography
-              className="next-week-text"
-              sx={{
-                color: theme.palette.text.textSub,
-                fontWeight: 500,
-                ml: 1,
-                transition: 'color 0.2s'
-              }}
-            >
+            <Typography className="next-week-text" sx={{ color: theme.palette.text.textSub, fontWeight: 500, ml: 1, transition: 'color 0.2s' }}>
               TUẦN SAU
             </Typography>
             <ArrowForwardIosIcon fontSize='small' className='next-week-icon' sx={{ mb: 0.3 }} />
@@ -197,7 +182,29 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             }
           }}
         >
-          MEAL 1 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(7:00 - 11:30)</Box>
+          MEAL 1 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(6:00 - 10:00)</Box>
+        </Box>
+        <Box
+          sx={{
+            flex: 2,
+            color: '#fff',
+            fontWeight: 700,
+            py: 2,
+            textAlign: 'center',
+            fontSize: '1.2rem',
+            position: 'relative',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              top: '25%',
+              right: 0,
+              height: '50%',
+              width: '1.5px',
+              bgcolor: '#fff'
+            }
+          }}
+        >
+          MEAL 2 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(11:00 - 14:00)</Box>
         </Box>
         <Box
           sx={{
@@ -209,7 +216,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             fontSize: '1.2rem'
           }}
         >
-          MEAL 2 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(12:30 - 18:30)</Box>
+          MEAL 3<Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(17:00 - 20:00)</Box>
         </Box>
       </Box>
       {weekData.days.map((d, idx) => (

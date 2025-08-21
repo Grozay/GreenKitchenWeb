@@ -36,17 +36,45 @@ const WeekMealLayout = () => {
     vegetarian: false
   })
 
-  // Fetch API cho từng loại thực đơn
+  // LOW CALORIES
   useEffect(() => {
-    mealTypes.forEach(({ key }) => {
-      setLoading(prev => ({ ...prev, [key]: true }))
-      getWeekMealPlanAPI(key, dates[key].format('YYYY-MM-DD'))
-        .then(res => setWeekData(prev => ({ ...prev, [key]: res })))
-        .catch(() => setWeekData(prev => ({ ...prev, [key]: null })))
-        .finally(() => setLoading(prev => ({ ...prev, [key]: false })))
-    })
+    setLoading(prev => ({ ...prev, low: true }))
+    getWeekMealPlanAPI('low', dates.low.format('YYYY-MM-DD'))
+      .then(res => setWeekData(prev => ({ ...prev, low: res })))
+      .catch(() => setWeekData(prev => ({ ...prev, low: null })))
+      .finally(() => setLoading(prev => ({ ...prev, low: false })))
     // eslint-disable-next-line
-  }, [dates.low, dates.balance, dates.high, dates.vegetarian])
+  }, [dates.low])
+
+  // BALANCE CALORIES
+  useEffect(() => {
+    setLoading(prev => ({ ...prev, balance: true }))
+    getWeekMealPlanAPI('balance', dates.balance.format('YYYY-MM-DD'))
+      .then(res => setWeekData(prev => ({ ...prev, balance: res })))
+      .catch(() => setWeekData(prev => ({ ...prev, balance: null })))
+      .finally(() => setLoading(prev => ({ ...prev, balance: false })))
+    // eslint-disable-next-line
+  }, [dates.balance])
+
+  // HIGH CALORIES
+  useEffect(() => {
+    setLoading(prev => ({ ...prev, high: true }))
+    getWeekMealPlanAPI('high', dates.high.format('YYYY-MM-DD'))
+      .then(res => setWeekData(prev => ({ ...prev, high: res })))
+      .catch(() => setWeekData(prev => ({ ...prev, high: null })))
+      .finally(() => setLoading(prev => ({ ...prev, high: false })))
+    // eslint-disable-next-line
+  }, [dates.high])
+
+  // VEGETARIAN
+  useEffect(() => {
+    setLoading(prev => ({ ...prev, vegetarian: true }))
+    getWeekMealPlanAPI('vegetarian', dates.vegetarian.format('YYYY-MM-DD'))
+      .then(res => setWeekData(prev => ({ ...prev, vegetarian: res })))
+      .catch(() => setWeekData(prev => ({ ...prev, vegetarian: null })))
+      .finally(() => setLoading(prev => ({ ...prev, vegetarian: false })))
+    // eslint-disable-next-line
+  }, [dates.vegetarian])
 
   // Hàm đổi tuần
   const handleChangeWeek = (key, diff) => {
@@ -54,24 +82,19 @@ const WeekMealLayout = () => {
       const current = moment()
       const prevDate = moment(prev[key])
 
-      // Kiểm tra tuần mới có hợp lệ không (không được lùi quá 1 tuần, không được tiến quá 1 tuần)
       const currentWeek = current.week()
       const currentYear = current.year()
 
-      // Tính tuần sau khi thay đổi
       const newDate = moment(prevDate).add(diff, 'days')
       const newWeek = newDate.week()
       const newYear = newDate.year()
 
       const weekDiff = (newYear - currentYear) * 52 + (newWeek - currentWeek)
 
-      // Chỉ cho phép trong phạm vi -1 đến +1 tuần
       if (weekDiff < -1 || weekDiff > 1) {
-        console.log('Không thể đổi tuần: nằm ngoài phạm vi cho phép')
         return prev
       }
 
-      console.log('Đổi tuần:', key, newDate.format('YYYY-MM-DD'))
       return { ...prev, [key]: newDate }
     })
   }
@@ -104,7 +127,7 @@ const WeekMealLayout = () => {
           </Typography>
         </Box>
 
-        {mealTypes.map(({ key, title, type }) => (
+        {mealTypes.map(({ key, title }) => (
           <Box sx={{ pt: 6 }} key={key}>
             {loading[key] ? (
               <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3, mb: 4 }} />
