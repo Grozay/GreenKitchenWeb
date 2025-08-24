@@ -14,6 +14,8 @@ import ProfileNavBar from '~/components/ProfileNavBar/ProfileNavBar'
 import OrderHistoryTab from './OrderHistoryTab/OrderHistoryTab'
 import CustomerTDEETab from './CustomerTDEETab/CustomerTDEETab'
 import FeedbackTab from './FeedbackTab/FeedbackTab'
+import StoreLocationTab from './StoreLocationTab/StoreLocationTab'
+import PolicyTab from './PolicyTab/PolicyTab'
 import { useSelector } from 'react-redux'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { fetchCustomerDetails } from '~/apis'
@@ -53,6 +55,8 @@ function Profile() {
     if (location.pathname.includes(TABS.TDEEPROFILE)) return TABS.TDEEPROFILE
     if (location.pathname.includes(TABS.ORDERHISTORY)) return TABS.ORDERHISTORY
     if (location.pathname.includes(TABS.FEEDBACK)) return TABS.FEEDBACK
+    if (location.pathname.includes(TABS.STORELOCATION)) return TABS.STORELOCATION
+    if (location.pathname.includes(TABS.POLICY)) return TABS.POLICY
     return TABS.OVERVIEW
   }, [location.pathname])
   // State lưu trữ giá trị tab nào đang active
@@ -213,20 +217,20 @@ function Profile() {
               iconPosition="start"
               component={Link}
               to="/profile/feedback" />
-            <Tab
-              label="Tìm kiếm cửa hàng"
-              value={TABS.STORELOCATION}
-              icon={<StorefrontIcon fontSize='medium'/>}
-              iconPosition="start"
-              component={Link}
-              to="/store-location" />
-            <Tab
-              label="Chính sách sử dụng"
-              value={TABS.POLICY}
-              icon={<PolicyIcon fontSize='medium'/>}
-              iconPosition="start"
-              component={Link}
-              to="/policy" />
+                         <Tab
+               label="Tìm kiếm cửa hàng"
+               value={TABS.STORELOCATION}
+               icon={<StorefrontIcon fontSize='medium'/>}
+               iconPosition="start"
+               component={Link}
+               to="/profile/store-location" />
+             <Tab
+               label="Chính sách sử dụng"
+               value={TABS.POLICY}
+               icon={<PolicyIcon fontSize='medium'/>}
+               iconPosition="start"
+               component={Link}
+               to="/profile/policy" />
           </TabList>
           <Box
             sx={{
@@ -242,6 +246,8 @@ function Profile() {
             <TabPanel value={TABS.ORDERHISTORY}><OrderHistoryTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.TDEEPROFILE}><CustomerTDEETab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.FEEDBACK}><FeedbackTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            <TabPanel value={TABS.STORELOCATION}><StoreLocationTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            <TabPanel value={TABS.POLICY}><PolicyTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
           </Box>
         </TabContext>
       </Box>

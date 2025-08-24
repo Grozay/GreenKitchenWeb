@@ -12,7 +12,7 @@ import AccountVerification from './pages/customer/Auth/AccountVerification'
 import NotFound from './pages/customer/NotFound/NotFound'
 import Profile from './pages/customer/Profile/Profile'
 import TrackingOrder from './pages/customer/TrackingOrder/TrackingOrder'
-import Chat from './pages/Employee/Chat/Chat'
+import Chat from './pages/admin/Chat/Chat'
 import { selectCurrentCustomer } from './redux/user/customerSlice'
 import { selectCurrentEmployee } from './redux/user/employeeSlice'
 import { useSelector } from 'react-redux'
@@ -21,7 +21,7 @@ import Cart from './pages/customer/Cart/CartLayout'
 import Checkout from './pages/customer/Checkout/Checkout'
 import { toast } from 'react-toastify'
 import ChatAi from './pages/customer/ChatPage/ChatPage'
-import HistoryChatLayout from './pages/HistoryChat/HistoryChatLayout'
+import HistoryChatLayout from './pages/customer/HistoryChat/HistoryChatLayout'
 import WeekMealLayout from './pages/customer/WeekMeal/WeekMealLayout'
 import AuthAdmin from './pages/admin/AuthAdmin/Auth'
 import Layout from './pages/admin/Layout'
@@ -77,6 +77,9 @@ function App() {
         <Route path="/profile/membership" element={<Profile />} />
         <Route path="/profile/order-history" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
+        <Route path="/profile/feedback" element={<Profile />} />
+        <Route path="/profile/store-location" element={<Profile />} />
+        <Route path="/profile/policy" element={<Profile />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/tracking-order" element={<TrackingOrder />} />
       </Route>
