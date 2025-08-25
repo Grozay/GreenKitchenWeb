@@ -1,8 +1,6 @@
 
-import BlogLayout from '~/pages/customer/Blogs/BlogLayout'
 import HomeLayout from '~/pages/customer/Home/HomeLayout'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import BlogDetail from './pages/customer/Blogs/BlogDetail/BlogDetail'
 import MenuLayout from './pages/customer/Menu/MenuLayout'
 import MenuDetail from './pages/customer/Menu/MenuDetail/MenuDetail'
 import AboutUs from './pages/customer/AboutUs/AboutUs'
@@ -25,6 +23,8 @@ import HistoryChatLayout from './pages/HistoryChat/HistoryChatLayout'
 import WeekMealLayout from './pages/customer/WeekMeal/WeekMealLayout'
 import AuthAdmin from './pages/admin/AuthAdmin/Auth'
 import Layout from './pages/admin/Layout'
+import PostLayout from './pages/customer/Posts/PostLayout'
+import PostDetails from './pages/customer/Posts/PostDetails'
 
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
@@ -52,8 +52,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomeLayout />} />
-      <Route path="/blogs" element={<BlogLayout />} />
-      <Route path="/blogs/:id" element={<BlogDetail />} />
+      <Route path="/forum" element={<PostLayout />} />
+      <Route path="/forum/:slug" element={<PostDetails />} />
       <Route path="/menu" element={<MenuLayout />} />
       <Route path="/menu/:slug" element={<MenuDetail />} />
       <Route path="/about-us" element={<AboutUs />} />
@@ -76,6 +76,7 @@ function App() {
         <Route path="/profile/account" element={<Profile />} />
         <Route path="/profile/membership" element={<Profile />} />
         <Route path="/profile/order-history" element={<Profile />} />
+        <Route path="/profile/order-history/:orderCode" element={<Profile />} />
         <Route path="/profile/tdee-profile" element={<Profile />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/tracking-order" element={<TrackingOrder />} />

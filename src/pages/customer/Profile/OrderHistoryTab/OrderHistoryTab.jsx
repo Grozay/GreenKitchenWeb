@@ -20,6 +20,21 @@ export default function OrderHistoryTab({ customerDetails }) {
   const [startDate, setStartDate] = useState(dayjs().subtract(30, 'day'))
   const [endDate, setEndDate] = useState(dayjs())
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(true)
+  const [visibleCount, setVisibleCount] = useState(5)
+
+  // Reset visibleCount về 5 mỗi khi filter thay đổi
+  const handleStatusChange = (status) => {
+    setSelectedStatus(status)
+    setVisibleCount(5)
+  }
+  const handleStartDateChange = (date) => {
+    setStartDate(date)
+    setVisibleCount(5)
+  }
+  const handleEndDateChange = (date) => {
+    setEndDate(date)
+    setVisibleCount(5)
+  }
 
   const statusOptions = [
     { key: 'all', label: 'Tất cả', color: 'default' },
@@ -37,7 +52,7 @@ export default function OrderHistoryTab({ customerDetails }) {
   const filteredOrders = orders.filter(order => {
     // Filter theo status
     const statusMatch = selectedStatus === 'all' || order.status === selectedStatus
-    
+
     // Filter theo date range
     const orderDate = dayjs(order.deliveryTime)
     const dateMatch = orderDate.isAfter(startDate.startOf('day')) &&
@@ -80,7 +95,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                     label={status.label}
                     variant={selectedStatus === status.key ? 'filled' : 'outlined'}
                     color={selectedStatus === status.key ? 'primary' : 'default'}
-                    onClick={() => setSelectedStatus(status.key)}
+                    onClick={() => handleStatusChange(status.key)}
                     sx={{
                       cursor: 'pointer',
                       '&:hover': {
@@ -104,7 +119,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                   <DatePicker
                     label="Từ ngày"
                     value={startDate}
-                    onChange={(newValue) => setStartDate(newValue)}
+                    onChange={handleStartDateChange}
                     sx={{
                       flex: 1,
                       '& .MuiOutlinedInput-root': {
@@ -120,7 +135,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                   <DatePicker
                     label="Đến ngày"
                     value={endDate}
-                    onChange={(newValue) => setEndDate(newValue)}
+                    onChange={handleEndDateChange}
                     minDate={startDate}
                     sx={{
                       flex: 1,
@@ -170,15 +185,28 @@ export default function OrderHistoryTab({ customerDetails }) {
                 </Typography>
               </Box>
             ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {filteredOrders.map((order) => (
-                  <OrderCard
-                    key={order.id}
-                    order={order}
-                    onViewDetails={handleViewOrderDetails}
-                  />
-                ))}
-              </Box>
+              <>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {filteredOrders.slice(0, visibleCount).map((order) => (
+                    <OrderCard
+                      key={order.id}
+                      order={order}
+                      onViewDetails={handleViewOrderDetails}
+                    />
+                  ))}
+                </Box>
+                {visibleCount < filteredOrders.length && (
+                  <Box sx={{ textAlign: 'center', mt: 3 }}>
+                    <Chip
+                      label="Xem thêm"
+                      color="primary"
+                      clickable
+                      onClick={() => setVisibleCount((prev) => prev + 5)}
+                      sx={{ fontWeight: 600, px: 3, py: 1, fontSize: '1rem' }}
+                    />
+                  </Box>
+                )}
+              </>
             )}
           </Collapse>
         </CardContent>
