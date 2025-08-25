@@ -306,8 +306,27 @@ export const getPostsAPI = async () => {
   return response.data
 }
 
+export const getPostsPagedAPI = async (page = 1, size = 10) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts?page=${page}&size=${size}`)
+  return response.data
+}
+
+export const getPostsFilteredAPI = async (page = 1, size = 10, status, categoryId, q) => {
+  let url = `${API_ROOT}/apis/v1/posts/filter?page=${page}&size=${size}`
+  if (status) url += `&status=${encodeURIComponent(status)}`
+  if (categoryId) url += `&categoryId=${encodeURIComponent(categoryId)}`
+  if (q) url += `&q=${encodeURIComponent(q)}`
+  const response = await authorizedAxiosInstance.get(url)
+  return response.data
+}
+
 export const getPostByIdAPI = async (id) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts/${id}`)
+  return response.data
+}
+
+export const getPostBySlugAPI = async (slug) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts/slug/${slug}`)
   return response.data
 }
 
@@ -321,3 +340,11 @@ export const getPostCategoriesAPI = async () => {
   return response.data
 }
 
+export const uploadPostImageAPI = async (file) => {
+  const formData = new FormData()
+  formData.append('imageFile', file)
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/upload`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}

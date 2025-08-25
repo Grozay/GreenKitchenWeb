@@ -17,6 +17,7 @@ import {
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter'
 import GrainIcon from '@mui/icons-material/Grain'
 import LocalPizzaIcon from '@mui/icons-material/LocalPizza'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
 import { useState, useMemo } from 'react'
 
 export default function ProductCard({
@@ -74,6 +75,31 @@ export default function ProductCard({
   }
 
   const config = variantConfig[variant] || variantConfig.default
+
+  const caloriesValue = useMemo(() => {
+    if (typeof product?.calories === 'number') return product.calories
+    const carb = product?.carb
+    const fat = product?.fat
+    const protein = product?.protein
+    if ([carb, fat, protein].every((v) => typeof v === 'number')) {
+      return Math.round(carb * 4 + protein * 4 + fat * 9)
+    }
+    return null
+  }, [product?.calories, product?.carb, product?.fat, product?.protein])
+
+  const carbValue = useMemo(() => {
+    if (typeof product?.carb === 'number') return product.carb
+    if (
+      typeof product?.calories === 'number' &&
+      typeof product?.protein === 'number' &&
+      typeof product?.fat === 'number'
+    ) {
+      const remaining = product.calories - (product.protein * 4 + product.fat * 9)
+      const grams = remaining / 4
+      return Math.max(0, Math.round(grams))
+    }
+    return null
+  }, [product?.carb, product?.calories, product?.protein, product?.fat])
 
   if (loading) {
     return (
@@ -270,10 +296,24 @@ export default function ProductCard({
 
         {/* Nutrition info */}
         <Stack direction="row" spacing={1} mb={1}>
-          {typeof product?.carb === 'number' && (
+          {typeof caloriesValue === 'number' && (
+            <Chip
+              icon={<WhatshotIcon color="error" />}
+              label={`${caloriesValue} kcal`}
+              size="small"
+              sx={{
+                bgcolor: '#ffebee',
+                fontWeight: 500,
+                borderRadius: 2,
+                fontSize: { xs: '0.6rem', md: '0.7rem', lg: '0.75rem' },
+                height: { xs: 20, md: 24, lg: 28 }
+              }}
+            />
+          )}
+          {typeof carbValue === 'number' && (
             <Chip
               icon={<GrainIcon color="info" />}
-              label={`${product.carb}g Carb`}
+              label={`${carbValue}g Carb`}
               size="small"
               sx={{ 
                 bgcolor: '#e3f2fd', 

@@ -173,18 +173,22 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
       }
     }
     setMessages(prev => {
-      const filtered = prev.filter(m =>
-        !(m.status === 'pending' && m.content === msg.content && m.senderRole === msg.senderRole)
-      )
-      if (filtered.some(m => m.id === msg.id)) return filtered
-      return [...filtered, msg]
+      // Xoá pending tạm (client) của CUSTOMER nếu server đã trả về bản thật
+      let next = prev.filter(m => !(m.status === 'pending' && m.content === msg.content && m.senderRole === msg.senderRole && msg.senderRole === 'CUSTOMER'))
+      // Upsert theo id: nếu đã tồn tại -> replace, chưa có -> append
+      const idx = next.findIndex(m => m.id === msg.id)
+      if (idx >= 0) {
+        next = next.map((m, i) => i === idx ? { ...m, ...msg } : m)
+      } else {
+        next = [...next, msg]
+      }
+      return next
     })
-    if (msg.senderRole === 'AI') setAwaitingAI(false)
     console.log('>>> handleIncoming:', msg)
   }, [animationConvId, isCustomerLoggedIn])
 
 
-  useChatWebSocket(`/topic/conversations/${animationConvId}`, handleIncoming)
+  useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
   useChatWebSocket('/topic/emp-notify', async (convId) => {
     const conversationId = typeof convId === 'object' ? convId.conversationId : convId
     if (Number(conversationId) === Number(animationConvId)) {
@@ -224,7 +228,7 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
     if (chatMode === 'AI' && awaitingAI) return
 
     setInput('')
-    if (chatMode === 'AI') setAwaitingAI(true)
+    // awaitingAI sẽ được tính lại dựa trên message PENDING và AI PENDING từ server
     const tempId = `temp-${Date.now()}`
     setMessages(prev => [
       ...prev,
@@ -268,26 +272,30 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
     isCustomerLoggedIn, customerId, customerName, chatAPI
   ])
 
+  // Tính awaitingAI dựa trên trạng thái của tin nhắn cuối cùng
+  useEffect(() => {
+    const isPending = (st) => st === 'PENDING' || st === 'pending'
+    const lastMsg = messages[messages.length - 1]
+    const lastIsAiPending = lastMsg && lastMsg.senderRole === 'AI' && isPending(lastMsg.status)
+    const lastCustomerPending = lastMsg && lastMsg.senderRole === 'CUSTOMER' && isPending(lastMsg.status)
+    const nextAwaiting = lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
+    if (nextAwaiting !== awaitingAI) setAwaitingAI(nextAwaiting)
+  }, [messages, chatMode, awaitingAI])
+
   return (
-    <ChatContainer chatMode={chatMode}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Messages Area */}
       <Box
         ref={listRef}
         sx={{
           flex: 1,
+          minHeight: 0,
           overflowY: 'auto',
           bgcolor: 'grey.50',
           py: 2,
-          '&::-webkit-scrollbar': {
-            width: 6
-          },
-          '&::-webkit-scrollbar-track': {
-            bgcolor: 'transparent'
-          },
-          '&::-webkit-scrollbar-thumb': {
-            bgcolor: 'grey.400',
-            borderRadius: 3
-          }
+          '&::-webkit-scrollbar': { width: 6 },
+          '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
+          '&::-webkit-scrollbar-thumb': { bgcolor: 'grey.400', borderRadius: 3 }
         }}
       >
         {isLoading && hasMore && (
@@ -296,29 +304,28 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
           </Box>
         )}
 
-        {messages.map((message, idx) => {
-          // Check if message has product menu
-          const hasProducts = message.menu && Array.isArray(message.menu) && message.menu.length > 0
-
-          if (hasProducts) {
+        {messages
+          .filter(m => !(m.senderRole === 'AI' && (m.status === 'PENDING' || m.status === 'pending')))
+          .map((message, idx) => {
+            const hasProducts = message.menu && Array.isArray(message.menu) && message.menu.length > 0
+            if (hasProducts) {
+              return (
+                <ProductMessageBubble
+                  key={`${message.id}-${idx}`}
+                  message={message}
+                  customerName={customerName}
+                />
+              )
+            }
             return (
-              <ProductMessageBubble
+              <MessageBubble
                 key={`${message.id}-${idx}`}
                 message={message}
                 customerName={customerName}
+                isOwn={message.senderRole === 'CUSTOMER'}
               />
             )
-          }
-
-          return (
-            <MessageBubble
-              key={`${message.id}-${idx}`}
-              message={message}
-              customerName={customerName}
-              isOwn={message.senderRole === 'CUSTOMER'}
-            />
-          )
-        })}
+          })}
 
         {awaitingAI && <TypingIndicator />}
       </Box>
@@ -333,7 +340,7 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
         awaitingAI={awaitingAI}
         isCustomerLoggedIn={isCustomerLoggedIn}
       />
-    </ChatContainer>
+    </Box>
   )
 }
 

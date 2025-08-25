@@ -3,6 +3,8 @@ import { AppProvider } from '@toolpad/core/AppProvider'
 import { DashboardLayout } from '@toolpad/core/DashboardLayout'
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { useState, useMemo } from 'react'
+import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople'
 import AssignmentIcon from '@mui/icons-material/Assignment'
@@ -39,7 +41,7 @@ import Payments from './Payments/Payments'
 import Delivery from './Delivery/Delivery'
 import Marketing from './Marketing/Marketing'
 import Posts from './Posts/Posts'
-import PostCreate from './Posts/PostCreate'
+import PostCreate from './Posts/PostCreateOrUpdateForm'
 import Reports from './Reports/Reports'
 import SecurityLogs from './Security/SecurityLogs'
 import SupportTickets from './Support/SupportTickets'
@@ -54,6 +56,7 @@ import IngredientCreate from './Ingredient/IngredientCreate'
 import IngredientDetail from './Ingredient/IngredientDetail'
 import IngredientEdit from './Ingredient/IngredientEdit'
 // duplicate/wrong imports removed
+import Typography from '@mui/material/Typography'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -65,7 +68,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
 }
 
 
-//Custom Navigation
+//Custom Navigation (se tach ra 1 file rieng)
 const NAVIGATION = (currentEmployee) => {
   const baseNav = []
   if (currentEmployee?.role === EMPLOYEE_ROLES.ADMIN) {
@@ -169,7 +172,8 @@ const NAVIGATION = (currentEmployee) => {
       {
         segment: 'management/support',
         title: 'Support',
-        icon: <SupportAgentIcon />
+        icon: <SupportAgentIcon />,
+        action: <Chip label={7} color="primary" size="small" />
       },
       // Stores / Locations
       {
@@ -190,11 +194,7 @@ const NAVIGATION = (currentEmployee) => {
       {
         segment: 'management/posts',
         title: 'Posts',
-        icon: <ArticleIcon />,
-        children: [
-          { segment: 'list', title: 'Post List' },
-          { segment: 'create', title: 'Create Post' }
-        ]
+        icon: <ArticleIcon />
       },
       // Settings
       {
@@ -339,7 +339,7 @@ function Layout(props) {
           />
 
           <Route
-            path='/not-authorized'
+            path='not-authorized'
             element={<NotAuthorized />}
           />
 
@@ -428,6 +428,8 @@ function Layout(props) {
 
           {/* Marketing & Posts */}
           <Route path="marketing" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Marketing /></ProtectedRoute>} />
+
+          {/*Blog Posts */}
           <Route path="posts">
             <Route index element={
               <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
@@ -444,6 +446,11 @@ function Layout(props) {
                 <PostCreate />
               </ProtectedRoute>
             } />
+            <Route path="edit/:id" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <PostCreate />
+              </ProtectedRoute>
+            } />
           </Route>
 
           {/* Reports */}
@@ -453,7 +460,10 @@ function Layout(props) {
           <Route path="security" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><SecurityLogs /></ProtectedRoute>} />
 
           {/* Support / Tickets */}
-          <Route path="support" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}><SupportTickets /></ProtectedRoute>} />
+          <Route path="support" element={
+            <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
+              <SupportTickets />
+            </ProtectedRoute>} />
 
           {/* Locations / Stores */}
           <Route path="stores" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Stores /></ProtectedRoute>} />

@@ -7,7 +7,7 @@ function ChatContainer({
   children,
   open = true,
   width = { xs: '100vw', sm: 400, md: 450 },
-  height = { xs: '100vh', sm: '85vh', md: 650 },
+  height = { xs: '100dvh', sm: '85vh', md: 650 },
   marginBottom = 80,
   onEntered,
   onExited
@@ -21,7 +21,6 @@ function ChatContainer({
         width: width,
         maxWidth: '100vw',
         height: height,
-        minHeight: 600,
         minWidth: 350,
         marginBottom: { xs: 0, sm: `${marginBottom}px` },
         zIndex: 1300,
@@ -48,6 +47,7 @@ function ChatContainer({
           sx={{
             width: '100%',
             height: '100%',
+            minHeight: 0,
             bgcolor: 'background.paper',
             borderRadius: { xs: 0, sm: 3, md: 4 },
             boxShadow: {
@@ -73,6 +73,7 @@ function ChatContainer({
               display: 'flex',
               alignItems: 'center',
               minHeight: { xs: 56, sm: 60 },
+              flexShrink: 0,
               background: (theme) =>
                 `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
             }}
@@ -91,9 +92,11 @@ function ChatContainer({
 
           </Box>
 
-          <Divider sx={{ borderColor: 'divider' }} />
+          <Divider sx={{ borderColor: 'divider', flexShrink: 0 }} />
 
-          {children}
+          <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+            {children}
+          </Box>
         </Box>
       </Slide>
     </Box>
