@@ -237,11 +237,11 @@ const Checkout = () => {
           paymentMethod: 'COD',
           notes: '',
           orderItems: cartItems.map(item => ({
-            itemType: item.isCustom ? 'CUSTOM_MEAL' : 'MENU_MEAL',
-            menuMealId: !item.isCustom ? item.id : null,
-            customMealId: item.isCustom ? item.id : null,
+            itemType: item.itemType,
+            menuMealId: item.itemType === 'MENU_MEAL' ? item.menuMeal?.id : null,
+            customMealId: item.itemType === 'CUSTOM_MEAL' ? item.customMeal?.id : null,
             quantity: item.quantity || 1,
-            unitPrice: item.basePrice || 0,
+            unitPrice: item.unitPrice || 0,
             notes: ''
           }))
         }

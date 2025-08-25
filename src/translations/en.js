@@ -6,7 +6,7 @@ const en = {
     orderChecking: 'ORDER CHECKING',
     catering: 'CATERING',
     Calculator: 'CALORIES CALCULATOR',
-    blog: 'BLOG',
+    blog: 'GREEN BLOG',
     cart: 'CART',
     notification: 'NOTIFICATIONS',
     profile: 'Profile',

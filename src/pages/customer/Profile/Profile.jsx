@@ -27,6 +27,7 @@ import RateReviewIcon from '@mui/icons-material/RateReview'
 import StorefrontIcon from '@mui/icons-material/Storefront'
 import PolicyIcon from '@mui/icons-material/Policy'
 import BottomProfileNav from '~/components/BottomProfileNav/BottomProfileNav'
+import OrderDetails from './OrderHistoryTab/OrderDetails'
 
 // Khai báo đống tabs ra biến const để dùng lại cho gọn
 const TABS = {
@@ -37,7 +38,8 @@ const TABS = {
   TDEEPROFILE: 'tdee-profile',
   STORELOCATION: 'store-location',
   FEEDBACK: 'feedback',
-  POLICY: 'policy'
+  POLICY: 'policy',
+  ORDERDETAILS: 'order-details'
 }
 
 function Profile() {
@@ -51,6 +53,8 @@ function Profile() {
     if (location.pathname.includes(TABS.MEMBERSHIP)) return TABS.MEMBERSHIP
     if (location.pathname.includes(TABS.ACCOUNT)) return TABS.ACCOUNT
     if (location.pathname.includes(TABS.TDEEPROFILE)) return TABS.TDEEPROFILE
+    // detect order history details path: /profile/order-history/:orderCode -> show order-details tab
+    if (location.pathname.includes(TABS.ORDERHISTORY) && /\/profile\/order-history\/.+/.test(location.pathname)) return TABS.ORDERDETAILS
     if (location.pathname.includes(TABS.ORDERHISTORY)) return TABS.ORDERHISTORY
     if (location.pathname.includes(TABS.FEEDBACK)) return TABS.FEEDBACK
     return TABS.OVERVIEW
@@ -61,6 +65,8 @@ function Profile() {
   // Đồng bộ tab đang hiển thị với URL khi người dùng điều hướng bằng Link bên ngoài TabList
   useEffect(() => {
     setActiveTab(getDefaultTab())
+    // if URL contains an order code, keep it available for the OrderDetails tab
+    // nothing else required here — OrderDetails will receive the code from location below
   }, [getDefaultTab])
 
   useEffect(() => {
@@ -242,6 +248,14 @@ function Profile() {
             <TabPanel value={TABS.ORDERHISTORY}><OrderHistoryTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.TDEEPROFILE}><CustomerTDEETab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
             <TabPanel value={TABS.FEEDBACK}><FeedbackTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
+            {/* Order details tab: if URL is /profile/order-history/:orderCode we extract the code and pass it in */}
+            <TabPanel value={TABS.ORDERDETAILS}>
+              {(() => {
+                const m = location.pathname.match(/\/profile\/order-history\/([^/]+)/)
+                const orderCode = m ? decodeURIComponent(m[1]) : null
+                return <OrderDetails orderCode={orderCode} customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} />
+              })()}
+            </TabPanel>
           </Box>
         </TabContext>
       </Box>

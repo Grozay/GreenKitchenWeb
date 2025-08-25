@@ -73,7 +73,7 @@ const Profile = () => {
           open={open}
           onClose={handleClose}
           onClick={handleClose}
-          MenuListProps={{
+          slotProps={{
             'aria-labelledby': 'basic-button-profiles'
           }}
         >
@@ -95,7 +95,7 @@ const Profile = () => {
               </MenuItem>
             </Link>
           ]) : ([
-            <Link to='/profile' style={{ color: 'inherit', textDecoration: 'none' }} key="profile">
+            <Link to='/profile/overview' style={{ color: 'inherit', textDecoration: 'none' }} key="profile">
               <MenuItem sx={{ '&:hover': { color: 'success.light' } }}>
                 <ListItemIcon>
                   <Person fontSize="small" />

@@ -166,8 +166,8 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             t={t}
-            label="blog"
-            path="/blog"
+            label="forum"
+            path="/forum"
           />
 
         </List>
