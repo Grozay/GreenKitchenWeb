@@ -88,6 +88,44 @@ export const getIngredientsAPI = async () => {
   return response.data
 }
 
+export const getByIdIngredientsAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/ingredients/${id}`)
+  return response.data
+}
+
+export const createIngredientsAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/ingredients`, data)
+  return response.data
+}
+
+export const updateIngredientImageAPI = async (id, file) => {
+  const formData = new FormData()
+  formData.append('imageFile', file)
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/ingredients/${id}/image`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
+export const updateIngredientsAPI = async (id, data) => {
+  const formData = new FormData()
+  Object.entries(data).forEach(([key, value]) => {
+    if (key !== 'image') {
+      formData.append(key, value)
+    }
+  })
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/ingredients/${id}`, formData)
+  return response.data
+}
+
+
+export const deleteIngredientsAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/ingredients/${id}`)
+  return response.data
+}
+
+//customMeal
+
 export const createCustomMealAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/custom-meals`, data)
   return response.data
@@ -111,6 +149,31 @@ export const getMenuMealAPI = async () => {
 
 export const getDetailMenuMealAPI = async (slug) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers/slug/${slug}`)
+  return response.data
+}
+
+export const createMenuMealAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/menu-meals/customers`, data)
+  return response.data
+}
+
+
+export const updateMenuMealImageAPI = async (id, file) => {
+  const formData = new FormData()
+  formData.append('imageFile', file)
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/menu-meals/customers/${id}/image`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
+export const updateMenuMealAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/menu-meals/customers/${id}`, data)
+  return response.data
+}
+
+export const deleteMenuMealAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/menu-meals/customers/${id}`)
   return response.data
 }
 
@@ -243,8 +306,27 @@ export const getPostsAPI = async () => {
   return response.data
 }
 
+export const getPostsPagedAPI = async (page = 1, size = 10) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts?page=${page}&size=${size}`)
+  return response.data
+}
+
+export const getPostsFilteredAPI = async (page = 1, size = 10, status, categoryId, q) => {
+  let url = `${API_ROOT}/apis/v1/posts/filter?page=${page}&size=${size}`
+  if (status) url += `&status=${encodeURIComponent(status)}`
+  if (categoryId) url += `&categoryId=${encodeURIComponent(categoryId)}`
+  if (q) url += `&q=${encodeURIComponent(q)}`
+  const response = await authorizedAxiosInstance.get(url)
+  return response.data
+}
+
 export const getPostByIdAPI = async (id) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts/${id}`)
+  return response.data
+}
+
+export const getPostBySlugAPI = async (slug) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts/slug/${slug}`)
   return response.data
 }
 
@@ -258,7 +340,8 @@ export const getPostCategoriesAPI = async () => {
   return response.data
 }
 
-// Support/Feedback APIs
+
+
 export const submitFeedbackAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/support/feedback`, data)
   return response.data
@@ -266,6 +349,15 @@ export const submitFeedbackAPI = async (data) => {
 
 export const submitSupportTicketAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/support/ticket`, data)
+  return response.data
+}
+
+export const uploadPostImageAPI = async (file) => {
+  const formData = new FormData()
+  formData.append('imageFile', file)
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/upload`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
   return response.data
 }
 

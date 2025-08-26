@@ -6,7 +6,7 @@ const vi = {
     orderChecking: 'KIỂM TRA ĐƠN HÀNG',
     catering: 'DỊCH VỤ TIỆC',
     Calculator: 'TÍNH CALORIES',
-    blog: 'BÀI VIẾT',
+    blog: 'TIN TỨC XANH',
     cart: 'GIỎ HÀNG',
     notification: 'THÔNG BÁO',
     profile: 'Hồ sơ',

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import Grid from '@mui/material/Grid'
-import FoodReferenceDialog from './components/FoodReferenceDialog'
-import FoodReferenceList from './components/FoodReferenceList'
+import FoodReferenceDialog from './FoodReferenceDialog'
+import FoodReferenceList from './FoodReferenceList'
 import { updateCustomerReferenceAPI } from '~/apis'
-import FavoriteProducts from './components/FavoriteProducts'
-import CouponsSummaryCard from './components/CouponsSummaryCard'
-import RecentOrdersCard from './components/RecentOrdersCard'
-import MembershipSummaryCard from './components/MembershipSummaryCard'
+import FavoriteProducts from './FavoriteProducts'
+import CouponsSummaryCard from './CouponsSummaryCard'
+import RecentOrdersCard from './RecentOrdersCard'
+import MembershipSummaryCard from './MembershipSummaryCard'
 import TopBanner from '~/components/Banners/TopBanner'
 
 export default function OverviewTab({ customerDetails, setCustomerDetails }) {
