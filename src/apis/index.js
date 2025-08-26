@@ -258,3 +258,14 @@ export const getPostCategoriesAPI = async () => {
   return response.data
 }
 
+// Support/Feedback APIs
+export const submitFeedbackAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/support/feedback`, data)
+  return response.data
+}
+
+export const submitSupportTicketAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/support/ticket`, data)
+  return response.data
+}
+

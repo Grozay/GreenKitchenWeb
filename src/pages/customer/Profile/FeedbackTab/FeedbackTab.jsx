@@ -25,6 +25,7 @@ import EmailIcon from '@mui/icons-material/Email'
 import PhoneIcon from '@mui/icons-material/Phone'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import { toast } from 'react-toastify'
+import { submitFeedbackAPI, submitSupportTicketAPI } from '~/apis'
 
 export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
@@ -44,30 +45,53 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
     contactMethod: 'EMAIL'
   })
 
-  const handleFeedbackSubmit = () => {
-    // TODO: Implement feedback submission API
-    toast.success('Phản hồi đã được gửi thành công!')
-    setFeedbackDialogOpen(false)
-    setFeedbackForm({
-      type: 'GENERAL',
-      rating: 5,
-      title: '',
-      description: '',
-      contactEmail: ''
-    })
+  const handleFeedbackSubmit = async () => {
+    try {
+      await submitFeedbackAPI({
+        type: feedbackForm.type,
+        rating: feedbackForm.rating,
+        title: feedbackForm.title,
+        description: feedbackForm.description,
+        contactEmail: feedbackForm.contactEmail || undefined,
+        fromEmail: customerDetails?.email || feedbackForm.contactEmail || undefined
+      })
+      toast.success('Phản hồi đã được gửi thành công!')
+      setFeedbackDialogOpen(false)
+      setFeedbackForm({
+        type: 'GENERAL',
+        rating: 5,
+        title: '',
+        description: '',
+        contactEmail: ''
+      })
+    } catch (e) {
+      toast.error('Gửi phản hồi thất bại!')
+    }
   }
 
-  const handleSupportSubmit = () => {
-    // TODO: Implement support ticket API
-    toast.success('Yêu cầu hỗ trợ đã được gửi thành công!')
-    setSupportDialogOpen(false)
-    setSupportForm({
-      issueType: 'TECHNICAL',
-      priority: 'MEDIUM',
-      subject: '',
-      description: '',
-      contactMethod: 'EMAIL'
-    })
+  const handleSupportSubmit = async () => {
+    try {
+      const contactValue = supportForm.contactMethod === 'EMAIL' ? (customerDetails?.email || '') : ''
+      await submitSupportTicketAPI({
+        issueType: supportForm.issueType,
+        priority: supportForm.priority,
+        subject: supportForm.subject,
+        description: supportForm.description,
+        contactMethod: supportForm.contactMethod,
+        contactValue
+      })
+      toast.success('Yêu cầu hỗ trợ đã được gửi thành công!')
+      setSupportDialogOpen(false)
+      setSupportForm({
+        issueType: 'TECHNICAL',
+        priority: 'MEDIUM',
+        subject: '',
+        description: '',
+        contactMethod: 'EMAIL'
+      })
+    } catch (e) {
+      toast.error('Gửi yêu cầu hỗ trợ thất bại!')
+    }
   }
 
   return (

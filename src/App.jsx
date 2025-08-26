@@ -82,6 +82,10 @@ function App() {
         <Route path="/profile/policy" element={<Profile />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/tracking-order" element={<TrackingOrder />} />
+
+        {/* History Chat - require customer login */}
+        <Route path="/historyChat" element={<HistoryChatLayout />} />
+        <Route path="/historyChat/:conversationId" element={<HistoryChatLayout />} />
       </Route>
 
       {/* Test Employee Inbox */}
@@ -90,9 +94,6 @@ function App() {
       {/* AI Chat Page */}
       <Route path="/ai-chat" element={<ChatAi />} />
 
-      {/* History Chat */}
-      <Route path="/historyChat" element={<HistoryChatLayout />} />
-      <Route path="/historyChat/:conversationId" element={<HistoryChatLayout />} />
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />
