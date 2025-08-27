@@ -2,8 +2,8 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Paper from '@mui/material/Paper'
-import SupportAgentIcon from '@mui/icons-material/SupportAgent'
 import { keyframes } from '@mui/system'
+import { getAvatarInfo, getSenderName } from '~/utils/chatUtils'
 
 // Animation cho dots nảy lên xuống
 const bounce = keyframes`
@@ -24,11 +24,17 @@ const slideIn = keyframes`
     transform: translateY(20px) scale(0.95);
   }
   100% {
-    opacity: 1;
+    opacity: 1,
     transform: translateY(0) scale(1);
   }
 `
+
 function TypingIndicator() {
+  // Sử dụng utility functions
+  const avatarInfo = getAvatarInfo('AI', 'medium')
+  const senderName = getSenderName('AI')
+  const IconComponent = avatarInfo.IconComponent
+
   return (
     <Box
       sx={{
@@ -43,9 +49,9 @@ function TypingIndicator() {
       {/* Avatar */}
       <Avatar
         sx={{
-          width: { xs: 32, sm: 36 },
-          height: { xs: 32, sm: 36 },
-          bgcolor: 'grey.600', // Màu mặc định
+          width: avatarInfo.width,
+          height: avatarInfo.height,
+          bgcolor: avatarInfo.bgcolor,
           flexShrink: 0,
           boxShadow: 1,
           animation: 'pulse 2s infinite',
@@ -65,7 +71,7 @@ function TypingIndicator() {
           }
         }}
       >
-        <SupportAgentIcon fontSize="small" />
+        <IconComponent fontSize={avatarInfo.fontSize} />
       </Avatar>
 
       {/* Typing Bubble */}
@@ -108,7 +114,7 @@ function TypingIndicator() {
             letterSpacing: '0.3px'
           }}
         >
-  Nhân viên GreenKitchen
+          {senderName}
         </Typography>
 
         {/* Animated dots */}

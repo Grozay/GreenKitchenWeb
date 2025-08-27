@@ -1,7 +1,11 @@
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import SendIcon from '@mui/icons-material/Send'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import { canSendMessage } from '~/utils/chatUtils'
+import QuickMessagesPopover from '~/components/QuickMessages/QuickMessagesPopover'
 
 function ChatInput({
   input,
@@ -12,6 +16,25 @@ function ChatInput({
   awaitingAI,
   isCustomerLoggedIn
 }) {
+  const [anchorEl, setAnchorEl] = useState(null)
+  const open = Boolean(anchorEl)
+  
+  // Sử dụng utility function để kiểm tra có thể gửi tin nhắn không
+  const canSend = canSendMessage(chatMode, awaitingAI, isCustomerLoggedIn, input)
+
+  const handleQuickMessageSelect = (message) => {
+    setInput(message.text)
+    setAnchorEl(null) // Đóng popover
+  }
+
+  const handleMoreClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
   return (
     <Box
       sx={{
@@ -26,6 +49,42 @@ function ChatInput({
         boxShadow: '0 -2px 8px rgba(0,0,0,0.05)'
       }}
     >
+      {/* Quick Messages Button */}
+      <IconButton
+        onClick={handleMoreClick}
+        disabled={disabled}
+        sx={{
+          bgcolor: 'grey.100',
+          color: 'text.secondary',
+          width: { xs: 40, sm: 44 },
+          height: { xs: 40, sm: 44 },
+          borderRadius: 2,
+          transition: 'all 0.2s ease',
+          flexShrink: 0,
+          '&:hover': {
+            bgcolor: 'grey.200',
+            transform: 'scale(1.05)'
+          },
+          '&:active': {
+            transform: 'scale(0.95)'
+          },
+          '&:disabled': {
+            bgcolor: 'grey.100',
+            color: 'grey.400'
+          }
+        }}
+      >
+        <MoreHorizIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+      </IconButton>
+
+      {/* Quick Messages Popover */}
+      <QuickMessagesPopover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        onMessageSelect={handleQuickMessageSelect}
+      />
+
       {/* Text Input với cải thiện UX */}
       <TextField
         fullWidth
@@ -78,11 +137,7 @@ function ChatInput({
       {/* Send Button với animation */}
       <IconButton
         onClick={handleSend}
-        disabled={
-          (chatMode === 'AI' && awaitingAI) ||
-          (chatMode === 'EMP' && !isCustomerLoggedIn) ||
-          !input.trim()
-        }
+        disabled={!canSend}
         sx={{
           bgcolor: 'primary.main',
           color: 'primary.contrastText',

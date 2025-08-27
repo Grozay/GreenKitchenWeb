@@ -1,6 +1,11 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Box, CircularProgress, IconButton, Tooltip, Paper, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -9,9 +14,18 @@ import ProductMessageBubble from '~/pages/customer/ChatPage/ProductMessageBubble
 import ChatInput from '~/pages/customer/ChatPage/ChatInput'
 import TypingIndicator from '~/pages/customer/ChatPage/TypingIndicator'
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
+import { useInfiniteScroll } from '~/hooks/useInfiniteScroll'
 import { chatApis, fetchMessagesPaged } from '~/apis/chatAPICus'
 import { Fade } from '@mui/material'
 import { selectCurrentCustomer, selectCustomerName, selectIsCustomerLoggedIn } from '~/redux/user/customerSlice'
+import { 
+  scrollToBottom, 
+  createPendingMessage, 
+  createSystemMessage, 
+  filterPendingMessages,
+  updateMessageStatus,
+  canSendMessage
+} from '~/utils/chatUtils'
 
 export default function HistoryChatDetail() {
   const navigate = useNavigate()
@@ -19,42 +33,15 @@ export default function HistoryChatDetail() {
   const currentCustomer = useSelector(selectCurrentCustomer)
   const isCustomerLoggedIn = useSelector(selectIsCustomerLoggedIn)
   const customerId = currentCustomer?.id
-  const customerName = useSelector(selectCustomerName)
+  const customerName = useSelector(selectCustomerName) // Sử dụng selector từ Redux
 
-  // Fallback: lấy customer info từ localStorage nếu Redux state bị mất
-  const [fallbackCustomerName, setFallbackCustomerName] = useState('')
-  const [fallbackCustomerId, setFallbackCustomerId] = useState(null)
-  
-  useEffect(() => {
-    if ((!customerName && !fallbackCustomerName) || (!customerId && !fallbackCustomerId)) {
-      try {
-        const storedCustomer = localStorage.getItem('customer')
-        if (storedCustomer) {
-          const parsed = JSON.parse(storedCustomer)
-          if (parsed.name) setFallbackCustomerName(parsed.name)
-          if (parsed.id) setFallbackCustomerId(parsed.id)
-        }
-      } catch (e) {
-        // Silent fail
-      }
-    }
-  }, [customerName, fallbackCustomerName, customerId, fallbackCustomerId])
-  
-  // Sử dụng customerName từ Redux hoặc fallback - memoized để tránh re-render
-  const displayCustomerName = useMemo(() => 
-    customerName || fallbackCustomerName || 'Bạn', 
-    [customerName, fallbackCustomerName]
-  )
-
-  const effectiveCustomerId = useMemo(() => customerId || fallbackCustomerId, [customerId, fallbackCustomerId])
+  // Sử dụng customerName trực tiếp từ Redux - đơn giản hóa
+  const displayCustomerName = customerName || 'Bạn'
+  const effectiveCustomerId = customerId
 
   // Utility function để cập nhật trạng thái message thành SENT
   const markMessageAsSent = useCallback((messageId) => {
-    setMessages(prev => prev.map(msg => 
-      msg.id === messageId && (msg.status === 'PENDING' || msg.status === 'pending')
-        ? { ...msg, status: 'SENT' }
-        : msg
-    ))
+    setMessages(prev => updateMessageStatus(prev, messageId, 'SENT'))
     setAwaitingAI(false)
   }, [])
 
@@ -71,7 +58,7 @@ export default function HistoryChatDetail() {
 
   // Memoized filtered messages để tránh re-render không cần thiết
   const filteredMessages = useMemo(() => 
-    messages.filter(m => !(m.senderRole === 'AI' && (m.status === 'PENDING' || m.status === 'pending'))),
+    filterPendingMessages(messages),
     [messages]
   )
 
@@ -97,16 +84,19 @@ export default function HistoryChatDetail() {
     })
   }, [conversationId, displayCustomerName])
 
-  // Auto scroll to bottom when messages change
+  // Auto scroll to bottom when messages change - chỉ khi có messages mới
   useEffect(() => {
-    if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight
-  }, [messages])
+    if (messages.length > 0 && !isLoading) {
+      // Chỉ scroll xuống khi không phải đang load tin nhắn cũ
+      scrollToBottom(listRef)
+    }
+  }, [messages.length, isLoading]) // Thêm isLoading vào dependency
 
-  // Infinite scroll load more - memoized để tránh re-create function
-  const handleLoadMore = useCallback(() => {
-    if (isLoading || !hasMore) return
-    setIsLoading(true)
-    fetchMessagesPaged(conversationId, page + 1, PAGE_SIZE).then(data => {
+  // Callback để load tin nhắn cũ - được sử dụng bởi useInfiniteScroll
+  const loadMoreMessages = useCallback(async () => {
+    try {
+      const data = await fetchMessagesPaged(conversationId, page + 1, PAGE_SIZE)
+      
       // Override senderName cho tất cả CUSTOMER messages khi load thêm
       const messagesWithCorrectNames = data.content.map(msg => {
         if (msg.senderRole === 'CUSTOMER') {
@@ -117,24 +107,35 @@ export default function HistoryChatDetail() {
         }
         return msg
       })
+      
+      // Cập nhật messages trước
       setMessages(prev => [...[...messagesWithCorrectNames].reverse(), ...prev])
       setPage(prev => prev + 1)
       setHasMore(!data.last)
-      setIsLoading(false)
-    })
-  }, [conversationId, page, hasMore, isLoading, displayCustomerName])
-
-  useEffect(() => {
-    const list = listRef.current
-    if (!list) return
-    const onScroll = () => {
-      if (list.scrollTop === 0 && hasMore && !isLoading) handleLoadMore()
+      
+    } catch (error) {
+      console.error('Failed to load more messages:', error)
+      setHasMore(false) // Set false nếu có lỗi
     }
-    list.addEventListener('scroll', onScroll)
-    return () => list.removeEventListener('scroll', onScroll)
-  }, [handleLoadMore, hasMore, isLoading])
+  }, [conversationId, page, displayCustomerName, PAGE_SIZE])
 
-  // WebSocket incoming handler - memoized để tránh re-create function
+  // Sử dụng hook chung để xử lý infinite scroll
+  // Hook phải được gọi ở top level của component
+  const infiniteScrollHook = useInfiniteScroll({
+    hasMore,
+    isLoading,
+    page,
+    pageSize: PAGE_SIZE,
+    onLoadMore: loadMoreMessages,
+    listRef,
+    sleepDelay: 500, // Sleep 0.5s trước khi load
+    scrollRestoreDelay: 50, // Delay 50ms để khôi phục scroll
+    setIsLoading // Truyền callback để set loading state
+  })
+
+  // Scroll dependencies đã được xử lý bởi useInfiniteScroll hook
+
+  // WebSocket incoming handler
   const handleIncoming = useCallback((msg) => {
     if (Number(msg.conversationId) !== Number(conversationId)) return
     
@@ -145,7 +146,12 @@ export default function HistoryChatDetail() {
     
     setMessages(prev => {
       // Xoá pending tạm (client) của CUSTOMER nếu server đã trả về bản thật
-      let next = prev.filter(m => !(m.status === 'pending' && m.content === messageWithCorrectName.content && m.senderRole === messageWithCorrectName.senderRole && messageWithCorrectName.senderRole === 'CUSTOMER'))
+      let next = prev.filter(m => !(
+        m.status === 'pending' && 
+        m.content === messageWithCorrectName.content && 
+        m.senderRole === messageWithCorrectName.senderRole && 
+        messageWithCorrectName.senderRole === 'CUSTOMER'
+      ))
 
       // Upsert theo id: nếu đã tồn tại -> replace, chưa có -> append
       const idx = next.findIndex(m => m.id === messageWithCorrectName.id)
@@ -158,40 +164,17 @@ export default function HistoryChatDetail() {
     })
   }, [conversationId, displayCustomerName])
 
-  // Timeout handler cho AI messages - cập nhật PENDING -> SENT sau 30s
-  useEffect(() => {
-    const timeoutIds = new Map()
-    
-    messages.forEach(msg => {
-      if (msg.senderRole === 'AI' && (msg.status === 'PENDING' || msg.status === 'pending')) {
-        // Nếu đã có timeout cho message này thì không tạo mới
-        if (timeoutIds.has(msg.id)) return
-        
-        const timeoutId = setTimeout(() => {
-          markMessageAsSent(msg.id)
-          console.warn(`AI message ${msg.id} timeout after 30s, marked as SENT`)
-        }, 30000)
-        
-        timeoutIds.set(msg.id, timeoutId)
-      }
-    })
-    
-    // Cleanup timeouts khi component unmount hoặc messages thay đổi
-    return () => {
-      timeoutIds.forEach(timeoutId => clearTimeout(timeoutId))
-      timeoutIds.clear()
-    }
-  }, [messages, markMessageAsSent])
-
   useChatWebSocket(conversationId ? `/topic/conversations/${conversationId}` : null, handleIncoming)
 
   // Fallback senderName for pending - chỉ chạy khi displayCustomerName thay đổi
   useEffect(() => {
-    setMessages(prev => prev.map(m => (
-      m.status === 'pending' && m.senderRole === 'CUSTOMER' && !m.senderName
-        ? { ...m, senderName: displayCustomerName }
-        : m
-    )))
+    if (displayCustomerName) {
+      setMessages(prev => prev.map(m => (
+        m.status === 'pending' && m.senderRole === 'CUSTOMER' && !m.senderName
+          ? { ...m, senderName: displayCustomerName }
+          : m
+      )))
+    }
   }, [displayCustomerName])
 
   // Tính awaitingAI dựa trên trạng thái PENDING thực tế - memoized để tránh tính toán lại
@@ -212,28 +195,15 @@ export default function HistoryChatDetail() {
 
   // Send message - memoized để tránh re-create function
   const handleSend = useCallback(async () => {
-    const text = input.trim()
-    if (!text) return
-    if (chatMode === 'AI' && awaitingAI) return
+    const validation = canSendMessage(chatMode, awaitingAI, isCustomerLoggedIn, input)
+    if (!validation) return
 
+    const text = input.trim()
     setInput('')
-    const tempId = `temp-${Date.now()}`
     
-    // Sử dụng displayCustomerName (đã có fallback logic)
-    const senderName = displayCustomerName
-    
-    setMessages(prev => ([
-      ...prev,
-      {
-        id: tempId,
-        conversationId: conversationId,
-        senderName: senderName,
-        senderRole: 'CUSTOMER',
-        content: text,
-        timestamp: new Date().toISOString(),
-        status: 'pending'
-      }
-    ]))
+    // Sử dụng utility function để tạo pending message
+    const pendingMessage = createPendingMessage(conversationId, text, displayCustomerName, effectiveCustomerId)
+    setMessages(prev => ([...prev, pendingMessage]))
 
     const params = {
       conversationId: conversationId,
@@ -245,7 +215,7 @@ export default function HistoryChatDetail() {
 
     // Timeout 30 giây để cập nhật trạng thái PENDING -> SENT
     const timeoutId = setTimeout(() => {
-      markMessageAsSent(tempId)
+      markMessageAsSent(pendingMessage.id)
       console.warn('AI response timeout after 30s, message marked as SENT')
     }, 30000)
 
@@ -256,22 +226,29 @@ export default function HistoryChatDetail() {
     } catch (error) {
       // Clear timeout nếu có lỗi
       clearTimeout(timeoutId)
+      
+      // Sử dụng utility function để tạo system message lỗi
+      const errorMessage = createSystemMessage(conversationId, error?.message || 'Gửi thất bại')
       setMessages(prev => ([
-        ...prev.filter(m => m.id !== tempId),
-        {
-          id: Date.now() + 1,
-          conversationId: conversationId,
-          senderName: 'SYSTEM',
-          content: error?.message || 'Gửi thất bại',
-          timestamp: new Date().toISOString()
-        }
+        ...prev.filter(m => m.id !== pendingMessage.id),
+        errorMessage
       ]))
       setAwaitingAI(false)
     }
   }, [input, chatMode, awaitingAI, conversationId, effectiveCustomerId, displayCustomerName, markMessageAsSent])
 
   return (
-    <Box sx={{ maxWidth: 1000, mx: 'auto', py: 2, px: { xs: 1, md: 2 }, display: 'flex', flexDirection: 'column', height: '100dvh' }}>
+    <Box sx={{ 
+      maxWidth: 1000, 
+      mx: 'auto', 
+      py: 1, // Giảm padding từ 2 xuống 1
+      px: { xs: 1, md: 2 }, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: 'calc(100vh - 120px)', // Trừ đi chiều cao của ProfileNavBar (khoảng 120px)
+      maxHeight: 'calc(100vh - 120px)',
+      overflow: 'hidden'
+    }}>
       <Box sx={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: 1, mb: 1, flexShrink: 0,
@@ -283,7 +260,7 @@ export default function HistoryChatDetail() {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Tooltip title="Quay lại danh sách">
-            <IconButton onClick={() => navigate('/historyChat')} sx={{ transition: 'transform .15s ease', '&:hover': { transform: 'translateX(-2px)' } }}>
+            <IconButton onClick={() => navigate('/agent')} sx={{ transition: 'transform .15s ease', '&:hover': { transform: 'translateX(-2px)' } }}>
               <ArrowBackIcon />
             </IconButton>
           </Tooltip>
@@ -315,7 +292,7 @@ export default function HistoryChatDetail() {
             minHeight: 0,
             overflowY: 'auto',
             bgcolor: 'grey.50',
-            py: 2,
+            py: 1, // Giảm padding từ 2 xuống 1
             px: 1,
             borderRadius: 2,
             scrollBehavior: 'smooth',

@@ -11,6 +11,8 @@
  */
 
 import React, { useEffect, useState, useRef, useCallback } from 'react'
+import { useSelector } from 'react-redux'
+import { selectCurrentEmployee } from '~/redux/user/employeeSlice'
 import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
@@ -30,6 +32,8 @@ import { useChatWebSocket } from '~/hooks/useChatWebSocket'
 const PAGE_SIZE = 20
 
 export default function EmployeeMessenger() {
+  const employee = useSelector(selectCurrentEmployee)
+  const employeeId = employee?.id
   const [convs, setConvs] = useState([])
   const [selectedConv, setSelectedConv] = useState(null)
   const [messages, setMessages] = useState([])
@@ -72,7 +76,7 @@ export default function EmployeeMessenger() {
     try {
       // If not EMP status, claim first
       if (conv.status !== 'EMP') {
-        await claimConversationAsEmp(conv.conversationId, 1)
+        await claimConversationAsEmp(conv.conversationId, employeeId)
         await loadConvs()
       }
 
@@ -132,7 +136,7 @@ export default function EmployeeMessenger() {
       const resp = await sendMessage({
         conversationId: selectedConv.conversationId,
         senderRole: 'EMP',
-        employeeId: 1,
+        employeeId: employeeId,
         content: text,
         lang: 'vi'
       })

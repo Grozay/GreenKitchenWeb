@@ -2,6 +2,7 @@ import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import SendIcon from '@mui/icons-material/Send'
+import { canSendMessage } from '~/utils/chatUtils'
 
 function ChatInput({
   input,
@@ -12,6 +13,9 @@ function ChatInput({
   awaitingAI,
   isCustomerLoggedIn
 }) {
+  // Sử dụng utility function để kiểm tra có thể gửi tin nhắn không
+  const canSend = canSendMessage(chatMode, awaitingAI, isCustomerLoggedIn, input)
+
   return (
     <Box
       sx={{
@@ -79,11 +83,7 @@ function ChatInput({
       {/* Send Button với animation */}
       <IconButton
         onClick={handleSend}
-        disabled={
-          (chatMode === 'AI' && awaitingAI) ||
-          (chatMode === 'EMP' && !isCustomerLoggedIn) ||
-          !input.trim()
-        }
+        disabled={!canSend}
         sx={{
           bgcolor: 'primary.main',
           color: 'primary.contrastText',

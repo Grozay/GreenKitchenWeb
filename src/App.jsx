@@ -85,8 +85,8 @@ function App() {
         <Route path="/tracking-order" element={<TrackingOrder />} />
 
         {/* History Chat - require customer login */}
-        <Route path="/historyChat" element={<HistoryChatLayout />} />
-        <Route path="/historyChat/:conversationId" element={<HistoryChatLayout />} />
+        <Route path="/agent" element={<HistoryChatLayout />} />
+        <Route path="/agent/:conversationId" element={<HistoryChatLayout />} />
       </Route>
 
       {/* Test Employee Inbox */}

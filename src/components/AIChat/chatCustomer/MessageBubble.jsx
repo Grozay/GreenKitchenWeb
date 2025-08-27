@@ -2,28 +2,13 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Paper from '@mui/material/Paper'
-import PersonIcon from '@mui/icons-material/Person'
-import SupportAgentIcon from '@mui/icons-material/SupportAgent'
-import InfoIcon from '@mui/icons-material/Info' // icon SYSTEM
+import { getAvatarInfo, getSenderName } from '~/utils/chatUtils'
 
 function MessageBubble({ message, customerName, isOwn }) {
-  // Xác định loại sender và avatar
-  let senderName
-  if (message.senderRole === 'CUSTOMER') {
-    senderName = message.senderName || customerName || 'Bạn'
-  } else if (message.senderRole === 'EMP' || message.senderRole === 'AI') {
-    senderName = 'Nhân viên GreenKitchen'
-  } else {
-    senderName = 'Hệ thống'
-  }
-
-
-  // Avatar cho từng loại
-  let avatar = null
-  if (message.senderRole === 'CUSTOMER') avatar = <PersonIcon fontSize="small" />
-  else if (message.senderRole === 'EMP' || message.senderRole === 'AI') avatar = <SupportAgentIcon fontSize="small" />
-  else if (message.senderRole === 'SYSTEM') avatar = <InfoIcon fontSize="small" />
-
+  // Sử dụng utility functions
+  const senderName = getSenderName(message.senderRole, customerName)
+  const avatarInfo = getAvatarInfo(message.senderRole, 'medium')
+  const IconComponent = avatarInfo.IconComponent
 
   // SYSTEM message (welcome/notify): khác biệt bubble & bỏ avatar
   if (message.senderRole === 'SYSTEM') {
@@ -40,7 +25,7 @@ function MessageBubble({ message, customerName, isOwn }) {
           }}
         >
           <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 700, mb: 1 }}>
-            <InfoIcon sx={{ verticalAlign: 'middle', mr: 0.5 }} fontSize="small" />
+            <IconComponent fontSize="small" />
             Hệ thống
           </Typography>
           <Typography variant="body2" sx={{ fontSize: { xs: 15, sm: 16 }, color: 'text.secondary', whiteSpace: 'pre-line' }}>
@@ -64,14 +49,14 @@ function MessageBubble({ message, customerName, isOwn }) {
     >
       <Avatar
         sx={{
-          width: { xs: 32, sm: 36 },
-          height: { xs: 32, sm: 36 },
-          bgcolor: isOwn ? 'primary.main' : 'grey.600',
-          color: '#fff',
+          width: avatarInfo.width,
+          height: avatarInfo.height,
+          bgcolor: isOwn ? 'primary.main' : avatarInfo.bgcolor,
+          color: avatarInfo.color,
           boxShadow: 1
         }}
       >
-        {avatar}
+        <IconComponent fontSize={avatarInfo.fontSize} />
       </Avatar>
       <Paper
         elevation={2}
@@ -103,7 +88,6 @@ function MessageBubble({ message, customerName, isOwn }) {
             }}
           >
             {senderName}
-            {console.log('MessageBubble rendered with sender:', senderName)}
           </Typography>
         )}
 
