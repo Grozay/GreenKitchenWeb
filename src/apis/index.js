@@ -215,6 +215,21 @@ export const getOrderByCodeAPI = async (orderCode) => {
   return response.data
 }
 
+export const updateOrderStatusAPI = async (data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/orders/updateStatus`, data)
+  return response.data
+}
+
+export const getOrdersFilteredAPI = async (page, size, status, q, fromDate, toDate) => {
+  let url = `${API_ROOT}/apis/v1/orders/filter?page=${page}&size=${size}`
+  if (status) url += `&status=${encodeURIComponent(status)}`
+  if (q) url += `&q=${encodeURIComponent(q)}`
+  if (fromDate) url += `&fromDate=${encodeURIComponent(fromDate)}`
+  if (toDate) url += `&toDate=${encodeURIComponent(toDate)}`
+  const response = await authorizedAxiosInstance.get(url)
+  return response.data
+}
+
 // PayPal APIs
 export const getExchangeRateAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/paypal/exchange-rate`)
@@ -243,12 +258,12 @@ export const getPostsAPI = async () => {
   return response.data
 }
 
-export const getPostsPagedAPI = async (page = 1, size = 10) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts?page=${page}&size=${size}`)
-  return response.data
-}
+// export const getPostsPagedAPI = async (page = 1, size = 10) => {
+//   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts?page=${page}&size=${size}`)
+//   return response.data
+// }
 
-export const getPostsFilteredAPI = async (page = 1, size = 10, status, categoryId, q) => {
+export const getPostsFilteredAPI = async (page, size, status, categoryId, q) => {
   let url = `${API_ROOT}/apis/v1/posts/filter?page=${page}&size=${size}`
   if (status) url += `&status=${encodeURIComponent(status)}`
   if (categoryId) url += `&categoryId=${encodeURIComponent(categoryId)}`

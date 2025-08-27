@@ -9,10 +9,11 @@ import { useState } from 'react'
 import DrawerAppBar from '~/components/AppBar/DrawerAppBar/DrawerAppBar'
 import Profile from '~/components/AppBar/Menu/Profile'
 import Cart from '~/components/AppBar/Cart/Cart'
-import LanguageSelect from '~/components/AppBar/LanguageSelect/LanguageSelect'
 import { useTranslation } from 'react-i18next'
 import NavItem from '~/components/AppBar/Menu/NavItem'
 import { Link } from 'react-router-dom'
+import TopAppBar from '../TopAppBar/TopAppBar'
+import { Divider } from '@mui/material'
 // import CaloCalculator from '~/components/AppBar/Menu/CaloCalculator'
 
 function ResponsiveAppBar() {
@@ -39,25 +40,25 @@ function ResponsiveAppBar() {
       alignItems: 'center'
     }}>
       <Container maxWidth="xl">
+        <TopAppBar />
         <Toolbar disableGutters>
           <Typography
-            variant="h5"
             component={Link}
             to="/"
             sx={{
               display: { xs: 'none', md: 'flex' },
               fontWeight: 700,
-              letterSpacing: '.3rem',
-              fontFamily: 'Sacramento, cursive',
-              fontSize: '1.8rem',
+              fontSize: { md: '2rem', lg: '2.5rem' },
               textDecoration: 'none',
-              color: (theme) => theme.palette.primary.secondary
+              color: (theme) => theme.palette.primary.secondary,
+              textWrap: 'nowrap'
             }}
           >
             {t('navBar.nameWebsite')}
           </Typography>
-          {/* drawer */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, justifyContent: 'start', alignItems: 'center' }}>
+
+          {/* Drawer */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', sm:'flex', md: 'none' }, justifyContent: 'start', alignItems: 'center' }}>
 
             <DrawerAppBar
               drawerOpen={drawerOpen}
@@ -83,48 +84,44 @@ function ResponsiveAppBar() {
               sx={{
                 display: { xs: 'flex', md: 'none' },
                 flexGrow: 1,
-                fontFamily: 'Sacramento, cursive',
+                // fontFamily: 'Sacramento, cursive',
                 fontWeight: 700,
-                fontSize: '1.8rem',
-                letterSpacing: '.3rem',
+                fontSize: {xs: '2rem', sm: '2.5rem'},
+                // letterSpacing: '.3rem',
                 color: (theme) => theme.palette.primary.secondary,
                 justifyContent: 'center',
                 alignItems: 'center',
                 textAlign: 'center',
                 textDecoration: 'none',
                 px: 1,
-                lineHeight: '1.4em',
-                height: '2.8em',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                my: 0.5
               }}
             >
               {t('navBar.nameWebsite')}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {/* <Profile /> */}
-              <LanguageSelect />
-              <Cart />
-            </Box>
+            <Cart />
           </Box>
 
           {/* nav items */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center' }}>
-            {/* <NavItem to="/" label="home" handleCloseNavMenu={handleCloseNavMenu} t={t} /> */}
+          <Box sx={{
+            flexGrow: 1,
+            display: { xs: 'none', sm:'none', md: 'flex', lg: 'flex' },
+            justifyContent: 'center',
+            alignItems: 'center',
+            textWrap: 'nowrap',
+            gap: { md: 0, lg: 2 }
+          }}>
             <NavItem to="/menu" label="menu" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            {/* <NavItem to="/calo-calculator" label="caloCalculator" handleCloseNavMenu={handleCloseNavMenu} t={t} /> */}
-            {/* <CaloCalculator label="Calculator" t={t} /> */}
             <NavItem to="/smart-meal-planner" label="customMeal" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/about-us" label="aboutUs" handleCloseNavMenu={handleCloseNavMenu} t={t} />
             <NavItem to="/week-meal-planner" label="weekMeal" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/forum" label="blog" handleCloseNavMenu={handleCloseNavMenu} t={t} />
+            <NavItem to="/about-us" label="aboutUs" handleCloseNavMenu={handleCloseNavMenu} t={t} />
+            <NavItem to="/blog" label="blog" handleCloseNavMenu={handleCloseNavMenu} t={t} />
           </Box>
-          {/* cart */}
-          <Box sx={{ flexGrow: 0, display: { xs: 'none', md: 'flex' } }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.4 }}>
+
+          {/* cart, profile */}
+          <Box sx={{ flexGrow: 0, display: { xs: 'none', sm: 'none', md: 'flex' } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Cart />
-              <LanguageSelect />
+              <Divider orientation="vertical" flexItem sx={{ bgcolor: (theme) => theme.palette.primary.main }} />
               <Profile />
             </Box>
           </Box>

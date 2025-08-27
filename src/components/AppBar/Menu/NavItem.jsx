@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { Link, useLocation } from 'react-router-dom'
 
-const NavItem = ({ to, label, handleCloseNavMenu, t }) => {
+const NavItem = ({ to, label, handleCloseNavMenu, t, fontSize }) => {
   const location = useLocation()
   const isActive = location.pathname === to || location.pathname.startsWith(`${to}/`)
 
@@ -19,10 +19,9 @@ const NavItem = ({ to, label, handleCloseNavMenu, t }) => {
           position: 'relative',
           overflow: 'hidden',
           fontWeight: 500,
-          fontSize: '0.95rem',
+          fontSize: fontSize || '0.95rem',
           fontSmoothing: 'antialiased',
           transition: 'all 0.3s ease-in-out',
-          padding: '5px 10px',
           backgroundColor: isActive ? (theme) => theme.palette.text.hover : 'transparent',
           borderRadius: isActive ? '50px' : '0',
           '&:hover': {
