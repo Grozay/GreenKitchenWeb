@@ -33,8 +33,8 @@ import Settings from './Settings/Settings'
 import NotFound from './NotFound/NotFound'
 import AccountList from './Accounts/AccountList'
 import AccountCreate from './Accounts/AccountCreate'
-import MealsList from './Products/MealsList'
-import MealCreate from './Products/MealCreate'
+import MealsList from './MenuMeal/MenuMealList'
+import MealCreate from './MenuMeal/MenuMealCreate'
 import Inventory from './Inventory/Inventory'
 import Coupons from './Coupons/Coupons'
 import Payments from './Payments/Payments'
@@ -48,6 +48,14 @@ import SupportTickets from './Support/SupportTickets'
 import Stores from './Locations/Stores'
 import NotAuthorized from './NotAuthorized/NotAuthorized'
 import { EMPLOYEE_ROLES } from '~/utils/constants'
+import { Typography } from '@mui/material'
+import MealDetail from './MenuMeal/MenuMealDetail'
+import MealEdit from './MenuMeal/MenuMealEdit'
+import IngredientsList from './Ingredient/IngredientList'
+import IngredientCreate from './Ingredient/IngredientCreate'
+import IngredientDetail from './Ingredient/IngredientDetail'
+import IngredientEdit from './Ingredient/IngredientEdit'
+// duplicate/wrong imports removed
 import Typography from '@mui/material/Typography'
 import { API_ROOT } from '~/utils/constants'
 import { Client } from '@stomp/stompjs'
@@ -99,12 +107,21 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
       },
       // Meals / Products
       {
-        segment: 'management/meals',
-        title: 'Meals',
+        segment: 'management/menu-meals',
+        title: 'Menu Meals',
         icon: <RestaurantMenuIcon />,
         children: [
-          { segment: 'list', title: 'Meals List' },
-          { segment: 'create', title: 'Create Meal' }
+          { segment: 'list', title: 'Menu Meals List' },
+          { segment: 'create', title: 'Create Menu Meal' }
+        ]
+      },
+      {
+        segment: 'management/ingredients',
+        title: 'Ingredients',
+        icon: <RestaurantMenuIcon />,
+        children: [
+          { segment: 'list', title: 'Ingredients List' },
+          { segment: 'create', title: 'Create Ingredient' }
         ]
       },
       {
@@ -480,6 +497,144 @@ function Layout(props) {
         </DashboardLayout>
       </AppProvider >
     </>
+                <OrderList />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path='not-authorized'
+            element={<NotAuthorized />}
+          />
+
+          <Route
+            path='*'
+            element={<NotFound />}
+          />
+
+          {/* Accounts */}
+          <Route path="accounts">
+            <Route index element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <AccountList />
+              </ProtectedRoute>
+            } />
+            <Route path="list" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <AccountList />
+              </ProtectedRoute>
+            } />
+            <Route path="create" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <AccountCreate />
+              </ProtectedRoute>
+            } />
+          </Route>
+
+          {/* Products / Meals */}
+          <Route path="menu-meals">
+            <Route index path="list" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <MealsList />
+              </ProtectedRoute>
+            } />
+            <Route path=":slug" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <MealDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="edit/:slug" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <MealEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="create" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <MealCreate />
+              </ProtectedRoute>
+            } />
+          </Route>
+          {/* Ingredients */}
+          <Route path="ingredients">
+            <Route index path="list" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <IngredientsList />
+              </ProtectedRoute>
+            } />
+            <Route path=":id" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <IngredientDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="edit/:id" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <IngredientEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="create" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <IngredientCreate />
+              </ProtectedRoute>
+            } />
+          </Route>
+
+          {/* Inventory */}
+          <Route path="inventory" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Inventory /></ProtectedRoute>} />
+
+          {/* Coupons / Promotions */}
+          <Route path="coupons" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Coupons /></ProtectedRoute>} />
+
+          {/* Payments */}
+          <Route path="payments" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Payments /></ProtectedRoute>} />
+
+          {/* Delivery / Drivers */}
+          <Route path="delivery" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Delivery /></ProtectedRoute>} />
+
+          {/* Marketing & Posts */}
+          <Route path="marketing" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Marketing /></ProtectedRoute>} />
+
+          {/*Blog Posts */}
+          <Route path="posts">
+            <Route index element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <Posts />
+              </ProtectedRoute>
+            } />
+            <Route path="list" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <Posts />
+              </ProtectedRoute>
+            } />
+            <Route path="create" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <PostCreate />
+              </ProtectedRoute>
+            } />
+            <Route path="edit/:id" element={
+              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <PostCreate />
+              </ProtectedRoute>
+            } />
+          </Route>
+
+          {/* Reports */}
+          <Route path="reports" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Reports /></ProtectedRoute>} />
+
+          {/* Security & Audit */}
+          <Route path="security" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><SecurityLogs /></ProtectedRoute>} />
+
+          {/* Support / Tickets */}
+          <Route path="support" element={
+            <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
+              <SupportTickets />
+            </ProtectedRoute>} />
+
+          {/* Locations / Stores */}
+          <Route path="stores" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Stores /></ProtectedRoute>} />
+
+        </Routes>
+      </DashboardLayout>
+    </AppProvider >
   )
 }
 
