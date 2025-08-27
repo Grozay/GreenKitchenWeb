@@ -54,13 +54,12 @@ const Profile = () => {
           <IconButton
             onClick={handleClick}
             size="small"
-            sx={{ p: 0 }}
             aria-controls={open ? 'basic-menu-profiles' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
           >
             <Avatar
-              sx={{ width: 36, height: 36 }}
+              sx={{ width: 26, height: 26 }}
               alt="profile"
             />
           </IconButton>

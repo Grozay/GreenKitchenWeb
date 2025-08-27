@@ -18,10 +18,11 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { ORDER_STATUS } from '~/utils/constants'
 
-const OrderStatusProgress = ({ currentStatus, createdAt, updatedAt, orientation = 'horizontal' }) => {
+const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
   const theme = useTheme()
   const [activeStep, setActiveStep] = useState(0)
   const [progress, setProgress] = useState(0)
+  const currentStatus = orderData?.status
 
   const statusConfig = {
     [ORDER_STATUS.PENDING]: {
@@ -217,7 +218,12 @@ const OrderStatusProgress = ({ currentStatus, createdAt, updatedAt, orientation 
             const config = statusConfig[status]
             const isActive = index === activeStep
             const isCompleted = index < activeStep
-            
+            let time = null
+            if (status === ORDER_STATUS.PENDING && orderData.createdAt) time = orderData.createdAt
+            if (status === ORDER_STATUS.CONFIRMED && (orderData.confirmedAt || orderData.confirmAt)) time = orderData.confirmedAt || orderData.confirmAt
+            if (status === ORDER_STATUS.PREPARING && orderData.preparingAt) time = orderData.preparingAt
+            if (status === ORDER_STATUS.SHIPPING && orderData.shippingAt) time = orderData.shippingAt
+            if (status === ORDER_STATUS.DELIVERED && orderData.deliveredAt) time = orderData.deliveredAt
             return (
               <Step key={status} completed={isCompleted}>
                 <StepLabel
@@ -249,7 +255,14 @@ const OrderStatusProgress = ({ currentStatus, createdAt, updatedAt, orientation 
                     }
                   }}
                 >
-                  {config.label}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span>{config.label}</span>
+                    {time && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                        {formatDate(time)}
+                      </Typography>
+                    )}
+                  </Box>
                 </StepLabel>
               </Step>
             )
@@ -299,7 +312,7 @@ const OrderStatusProgress = ({ currentStatus, createdAt, updatedAt, orientation 
             Thời gian đặt hàng
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {formatDate(createdAt)}
+            {formatDate(orderData.createdAt)}
           </Typography>
         </Box>
         <Box textAlign={{ xs: 'center', sm: 'right' }}>
@@ -307,7 +320,7 @@ const OrderStatusProgress = ({ currentStatus, createdAt, updatedAt, orientation 
             Cập nhật lần cuối
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {formatDate(updatedAt)}
+            {formatDate(orderData.updatedAt)}
           </Typography>
         </Box>
       </Box>

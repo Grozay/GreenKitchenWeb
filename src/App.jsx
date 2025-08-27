@@ -52,8 +52,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomeLayout />} />
-      <Route path="/forum" element={<PostLayout />} />
-      <Route path="/forum/:slug" element={<PostDetails />} />
+      <Route path="/blog" element={<PostLayout />} />
+      <Route path="/blog/:slug" element={<PostDetails />} />
       <Route path="/menu" element={<MenuLayout />} />
       <Route path="/menu/:slug" element={<MenuDetail />} />
       <Route path="/about-us" element={<AboutUs />} />

@@ -24,11 +24,8 @@ import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
-    right: -3,
-    top: 13,
     backgroundColor: theme.palette.primary.secondary,
-    color: theme.palette.primary.contrastText,
-    padding: '0 4px'
+    color: theme.palette.primary.contrastText
   }
 }))
 

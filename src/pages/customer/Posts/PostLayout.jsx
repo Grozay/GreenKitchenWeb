@@ -90,15 +90,15 @@ export default function PostLayout() {
     setSearchParams(params)
   }, [page, debouncedCategory, debouncedQuery, setSearchParams])
 
-  // debounce query input: update debouncedQuery 1s after user stops typing
+  // debounce query input
   useEffect(() => {
-    const id = setTimeout(() => { setDebouncedQuery(query); setIsSearching(false) }, 1000)
+    const id = setTimeout(() => { setDebouncedQuery(query); setIsSearching(false) }, 500)
     return () => clearTimeout(id)
   }, [query])
 
-  // debounce category selection: update debouncedCategory 1s after user selects
+  // debounce category selection
   useEffect(() => {
-    const id = setTimeout(() => { setDebouncedCategory(category); setIsLoading(false) }, 500)
+    const id = setTimeout(() => { setDebouncedCategory(category); setIsLoading(false) }, 250)
     return () => clearTimeout(id)
   }, [category])
 
@@ -151,7 +151,7 @@ export default function PostLayout() {
           mt: theme.fitbowl.appBarHeight,
           minHeight: `calc(100vh - ${theme.fitbowl.appBarHeight})`,
           py: { xs: 3, sm: 4, md: 5 },
-          px: { xs: 3, sm: 4, md: 10 }
+          px: { xs: 3, sm: 4, md: 5, lg: 7 }
         }}
       >
         <SearchBar
@@ -162,28 +162,29 @@ export default function PostLayout() {
 
         <Grid container spacing={2}>
           <Grid
-            size={{ xs: 12, sm: 4, md: 2.5, lg: 2 }}
-            display={{ xs: 'none', sm: 'block' }}
+            size={{ md: 2.5, lg: 2 }}
+            display={{ xs: 'none', sm: 'none', md: 'block' }}
           >
             <CategoryFilter categories={categories} category={category} setCategory={setCategoryAndReset} />
           </Grid>
 
-          {/* <Grid
-            display={{ xs: 'block', sm: 'none' }}
+          <Grid
+            size={{ xs: 12, sm: 12 }}
+            display={{ xs: 'block', sm: 'block', md: 'none' }}
           >
-            <FilterMobile categories={categories} category={category} setCategory={setCategoryAndReset} setQuery={setQueryAndReset} />
-          </Grid> */}
+            <FilterMobile categories={categories} category={category} setCategory={setCategoryAndReset}/>
+          </Grid>
 
 
-          <Grid size={{ xs: 12, sm: 8, md: 9.5, lg: 10 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 9.5, lg: 10 }}>
             <Grid container spacing={2}>
               {posts.length > 0 && posts.map(p => (
-                <Grid size={{ xs: 6, sm: 12, md: 6, lg: 4 }} key={p.id}>
+                <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }} key={p.id}>
                   <Card
                     sx={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
                     aria-owns={open ? 'mouse-over-popover' : undefined}
                     aria-haspopup="true"
-                    onClick={() => navigate(`/forum/${p.slug || p.id}`)}
+                    onClick={() => navigate(`/blog/${p.slug || p.id}`)}
                     onMouseEnter={(e) => handleMouseEnter(e, p)}
                     onMouseLeave={handleMouseLeave}
                   >
@@ -220,6 +221,14 @@ export default function PostLayout() {
                   </Card>
                 </Grid>
               ))}
+
+              {(!isSearching && posts.length === 0) && (
+                <Grid size={{ xs: 12 }}>
+                  <Box sx={{ textAlign: 'center', color: '#888', fontSize: 18, mt: 4 }}>
+                    No posts found
+                  </Box>
+                </Grid>
+              )}
 
               <Popover
                 id="mouse-over-popover"

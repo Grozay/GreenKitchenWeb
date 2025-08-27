@@ -11,15 +11,11 @@ import Alert from '@mui/material/Alert'
 import LinearProgress from '@mui/material/LinearProgress'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { toast } from 'react-toastify'
-
-// Import components
 import DeliveryInfoForm from './components/DeliveryInfoForm'
 import PaymentMethodForm from './components/PaymentMethodForm'
 import OrderSummary from './components/OrderSummary'
 import OrderConfirmDialog from './components/OrderConfirmDialog'
 import PayPalPaymentForm from './components/PayPalPaymentForm'
-
-// Import API
 import { createOrder, customerUseCouponAPI, fetchCustomerDetails } from '~/apis'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { selectCurrentCart, clearCart } from '~/redux/cart/cartSlice'
