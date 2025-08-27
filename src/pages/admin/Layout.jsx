@@ -2,8 +2,7 @@ import { createTheme } from '@mui/material/styles'
 import { AppProvider } from '@toolpad/core/AppProvider'
 import { DashboardLayout } from '@toolpad/core/DashboardLayout'
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
-import { useState, useMemo } from 'react'
-import Box from '@mui/material/Box'
+import { useState, useMemo, useEffect } from 'react'
 import Chip from '@mui/material/Chip'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople'
@@ -27,6 +26,7 @@ import { useDispatch } from 'react-redux'
 import { logoutEmployeeApi } from '~/redux/user/employeeSlice'
 import { useConfirm } from 'material-ui-confirm'
 import OrderList from './Order/OrderList'
+import OrderDetails from './Order/OrderDetails'
 import CustomerList from './Customer/CustomerList'
 import Dashboard from './Dashboard/Dashboard'
 import Settings from './Settings/Settings'
@@ -57,6 +57,12 @@ import IngredientDetail from './Ingredient/IngredientDetail'
 import IngredientEdit from './Ingredient/IngredientEdit'
 // duplicate/wrong imports removed
 import Typography from '@mui/material/Typography'
+import { API_ROOT } from '~/utils/constants'
+import { Client } from '@stomp/stompjs'
+import SockJS from 'sockjs-client'
+import Alert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
+import { set } from 'lodash'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -69,7 +75,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
 
 
 //Custom Navigation (se tach ra 1 file rieng)
-const NAVIGATION = (currentEmployee) => {
+const NAVIGATION = (currentEmployee, newOrderCount) => {
   const baseNav = []
   if (currentEmployee?.role === EMPLOYEE_ROLES.ADMIN) {
     baseNav.push(
@@ -126,7 +132,9 @@ const NAVIGATION = (currentEmployee) => {
       {
         segment: 'management/orders',
         title: 'Order',
-        icon: <AssignmentIcon />
+        icon: <AssignmentIcon />,
+        action: newOrderCount > 0 ? <Chip label={newOrderCount} color="primary" size="small" /> : null,
+        pattern: 'orders{/:orderCode}*'
       },
       // Coupons / Promotions
       {
@@ -225,6 +233,8 @@ const NAVIGATION = (currentEmployee) => {
   return baseNav
 }
 
+
+
 const customTheme = createTheme({
   cssVariables: { colorSchemeSelector: 'data-toolpad-color-scheme' },
   colorSchemes: { light: true, dark: true }
@@ -237,6 +247,34 @@ function Layout(props) {
   const confirmLogout = useConfirm()
   const navigate = useNavigate()
   const location = useLocation()
+
+  const [newOrderCount, setNewOrderCount] = useState(0)
+  const [showOrderAlert, setShowOrderAlert] = useState(false)
+
+  useEffect(() => {
+    const client = new Client({
+      webSocketFactory: () => new SockJS(`${API_ROOT}/apis/v1/ws`),
+      reconnectDelay: 5000,
+      // debug: str => console.log(str),
+    })
+    client.onConnect = () => {
+      client.subscribe('/topic/order/new', (message) => {
+        console.log('New order received:', message)
+        setNewOrderCount(prev => prev + 1)
+        setShowOrderAlert(true)
+        setTimeout(() => { setShowOrderAlert(false) }, 10000)
+      })
+    }
+    client.activate()
+    return () => client.deactivate()
+  }, [])
+
+  //Tat thong bao khi click vao Orders
+  useEffect(() => {
+    if (location.pathname.startsWith('/management/orders')) {
+      setNewOrderCount(0)
+    }
+  }, [location.pathname])
 
   const handleLogout = async () => {
     const { confirmed } = await confirmLogout({
@@ -283,56 +321,182 @@ function Layout(props) {
   }, [location, navigate])
 
   return (
-    <AppProvider
-      session={session}
-      authentication={authentication}
-      navigation={NAVIGATION(currentEmployee)}
-      theme={customTheme}
-      router={router}
-      window={window}
-      branding={{
-        logo: '',
-        homeUrl: '/management',
-        title: <Typography sx={{
-          fontWeight: 600,
-          fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
-        }}>
-          Green Kitchen Management
-        </Typography>
-      }}
-    >
-      <DashboardLayout>
-        <Routes>
-          <Route
-            index
-            element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='settings'
-            element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.EMPLOYEE]}>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
+    <>
+      <Snackbar
+        open={showOrderAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{ zIndex: 9999 }}
+      >
+        <Alert severity="info" sx={{ fontWeight: 700, fontSize: 18, justifyContent: 'center', alignItems: 'center' }}>
+          You have new Order
+        </Alert>
+      </Snackbar>
 
-          <Route
-            path='customers'
-            element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
-                <CustomerList />
-              </ProtectedRoute>
-            }
-          />
+      <AppProvider
+        session={session}
+        authentication={authentication}
+        navigation={NAVIGATION(currentEmployee, newOrderCount)}
+        theme={customTheme}
+        router={router}
+        window={window}
+        branding={{
+          logo: '',
+          homeUrl: '/management',
+          title: <Typography sx={{
+            fontWeight: 600,
+            fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
+          }}>
+            Green Kitchen Management
+          </Typography>
+        }}
+      >
+        <DashboardLayout>
+          <Routes>
+            <Route
+              index
+              element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='settings'
+              element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.EMPLOYEE]}>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path='orders'
-            element={
+            <Route
+              path='customers'
+              element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
+                  <CustomerList />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path='orders'>
+              <Route index element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <OrderList />
+                </ProtectedRoute>
+              } />
+              <Route path=":orderCode" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <OrderDetails />
+                </ProtectedRoute>
+              } />
+            </Route>
+
+            <Route
+              path='not-authorized'
+              element={<NotAuthorized />}
+            />
+
+            <Route
+              path='*'
+              element={<NotFound />}
+            />
+
+            {/* Accounts */}
+            <Route path="accounts">
+              <Route index element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <AccountList />
+                </ProtectedRoute>
+              } />
+              <Route path="list" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <AccountList />
+                </ProtectedRoute>
+              } />
+              <Route path="create" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <AccountCreate />
+                </ProtectedRoute>
+              } />
+            </Route>
+
+            {/* Products / Meals */}
+            <Route path="meals">
+              <Route index element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <MealsList />
+                </ProtectedRoute>
+              } />
+              <Route path="list" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <MealsList />
+                </ProtectedRoute>
+              } />
+              <Route path="create" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <MealCreate />
+                </ProtectedRoute>
+              } />
+            </Route>
+
+            {/* Inventory */}
+            <Route path="inventory" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Inventory /></ProtectedRoute>} />
+
+            {/* Coupons / Promotions */}
+            <Route path="coupons" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Coupons /></ProtectedRoute>} />
+
+            {/* Payments */}
+            <Route path="payments" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Payments /></ProtectedRoute>} />
+
+            {/* Delivery / Drivers */}
+            <Route path="delivery" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Delivery /></ProtectedRoute>} />
+
+            {/* Marketing & Posts */}
+            <Route path="marketing" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Marketing /></ProtectedRoute>} />
+
+            {/*Blog Posts */}
+            <Route path="posts">
+              <Route index element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <Posts />
+                </ProtectedRoute>
+              } />
+              <Route path="list" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <Posts />
+                </ProtectedRoute>
+              } />
+              <Route path="create" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <PostCreate />
+                </ProtectedRoute>
+              } />
+              <Route path="edit/:id" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <PostCreate />
+                </ProtectedRoute>
+              } />
+            </Route>
+
+            {/* Reports */}
+            <Route path="reports" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Reports /></ProtectedRoute>} />
+
+            {/* Security & Audit */}
+            <Route path="security" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><SecurityLogs /></ProtectedRoute>} />
+
+            {/* Support / Tickets */}
+            <Route path="support" element={
               <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
+                <SupportTickets />
+              </ProtectedRoute>} />
+
+            {/* Locations / Stores */}
+            <Route path="stores" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Stores /></ProtectedRoute>} />
+
+          </Routes>
+        </DashboardLayout>
+      </AppProvider >
+    </>
                 <OrderList />
               </ProtectedRoute>
             }

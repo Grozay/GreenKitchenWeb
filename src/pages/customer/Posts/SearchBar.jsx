@@ -19,7 +19,7 @@ export default function SearchBar({ query, setQuery, isSearching }) {
         variant="h1"
         align="center"
         sx={{
-          fontSize: { xs: '2rem', md: '3rem' },
+          fontSize: { xs: '2.5rem', sm: '3rem', md: '4rem' },
           fontWeight: 300,
           letterSpacing: '0.06em',
           mb: 1,

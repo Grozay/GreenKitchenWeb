@@ -40,8 +40,7 @@ const TABS = {
   TDEEPROFILE: 'tdee-profile',
   STORELOCATION: 'store-location',
   FEEDBACK: 'feedback',
-  POLICY: 'policy',
-  ORDERDETAILS: 'order-details'
+  POLICY: 'policy'
 }
 
 function Profile() {
@@ -257,7 +256,7 @@ function Profile() {
             <TabPanel value={TABS.POLICY}><PolicyTab customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} /></TabPanel>
 
             {/* Order details tab: if URL is /profile/order-history/:orderCode we extract the code and pass it in */}
-            <TabPanel value={TABS.ORDERDETAILS}>
+            <TabPanel>
               {(() => {
                 const m = location.pathname.match(/\/profile\/order-history\/([^/]+)/)
                 const orderCode = m ? decodeURIComponent(m[1]) : null

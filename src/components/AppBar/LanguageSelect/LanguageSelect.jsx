@@ -9,8 +9,8 @@ const LanguageSelect = () => {
   const dispatch = useDispatch()
   const currentLanguageCode = useSelector(selectCurrentLanguage)
   const languages = [
-    { code: 'en', name: 'EN' },
-    { code: 'vi', name: 'VI' }
+    { code: 'en', name: 'English' },
+    { code: 'vi', name: 'Vietnamese' }
   ]
 
   const currentLanguage = languages.find((lang) => lang.code === currentLanguageCode) || languages[1]
@@ -24,21 +24,18 @@ const LanguageSelect = () => {
   return (
     <Box>
       <Box
+        variant="text"
         sx={{
           display: 'flex',
           alignItems: 'center',
           gap: 0.6,
-          border: '1px solid #4C082A',
-          borderRadius: '50px',
-          padding: '4px 8px',
           cursor: 'pointer',
           '&:hover': { backgroundColor: (theme) => theme.palette.action.hover }
-
         }}
         onClick={handleSwitchLanguage}
       >
         <LanguageIcon fontSize="small" sx={{ color: (theme) => theme.palette.text.primary }} />
-        <Typography sx={{ color: (theme) => theme.palette.text.primary }}>
+        <Typography sx={{ fontSize: 13, fontWeight: 500, color: (theme) => theme.palette.text.primary }}>
           {currentLanguage.name}
         </Typography>
       </Box>

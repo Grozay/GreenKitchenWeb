@@ -39,6 +39,7 @@ export default function CategoryFilter({ categories = [], category, setCategory 
     <Box
       sx={{
         p: 2,
+        minWidth: 150,
         position: 'sticky',
         top: `calc(${theme.fitbowl.appBarHeight} + 16px)`,
         bgcolor: theme.palette.background.default,
@@ -77,6 +78,8 @@ export default function CategoryFilter({ categories = [], category, setCategory 
             sx={{
               justifyContent: 'flex-start',
               textTransform: 'none',
+              textWrap: 'nowrap',
+              textOverflow: 'ellipsis',
               color: String(category) === String(c.id) ? '#fff' : 'inherit',
               fontWeight: String(category) === String(c.id) ? 700 : 400,
               bgcolor: String(category) === String(c.id) ? theme.palette.primary.secondary : 'transparent',

@@ -52,18 +52,6 @@ export default function Posts() {
     fetchCategories()
   }, [])
 
-
-  // Debounce searchText
-  useEffect(() => {
-    if (searchTimeout.current) clearTimeout(searchTimeout.current)
-    setSearching(true)
-    searchTimeout.current = setTimeout(() => {
-      setDebouncedSearchText(searchText)
-      setSearching(false)
-    }, 1000)
-    return () => clearTimeout(searchTimeout.current)
-  }, [searchText])
-
   // fetch posts when page/status/debouncedSearchText/category change
   useEffect(() => {
     const fetchPosts = async () => {
@@ -87,6 +75,16 @@ export default function Posts() {
     fetchPosts()
   }, [page, size, statusFilter, debouncedSearchText, categoryFilter])
 
+  // Debounce searchText
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current)
+    setSearching(true)
+    searchTimeout.current = setTimeout(() => {
+      setDebouncedSearchText(searchText)
+      setSearching(false)
+    }, 500)
+    return () => clearTimeout(searchTimeout.current)
+  }, [searchText])
 
   const handleEdit = async (postId) => {
     try {
@@ -98,7 +96,6 @@ export default function Posts() {
         navigate(`/management/posts/edit/${postId}`, { state: { post } })
       }
     } catch (e) {
-      // toast.promise displays error already; keep console for debugging
       // eslint-disable-next-line no-console
       console.error('Failed to load post for edit', e)
     }
@@ -166,7 +163,7 @@ export default function Posts() {
             <Table size='small'>
               <TableHead>
                 <TableRow>
-                  <TableCell>Title</TableCell>
+                  <TableCell sx={{ width: 380, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Title</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Published At</TableCell>
@@ -176,7 +173,7 @@ export default function Posts() {
               <TableBody>
                 {posts.map(p => (
                   <TableRow key={p.id} hover>
-                    <TableCell>{p.title}</TableCell>
+                    <TableCell sx={{ width: 380, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</TableCell>
                     <TableCell>{p.categoryName || '-'}</TableCell>
                     <TableCell>
                       <Chip label={p.status} size="small" color={p.status === 'PUBLISHED' ? 'success' : 'default'} />

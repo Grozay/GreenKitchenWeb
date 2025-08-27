@@ -13,10 +13,17 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import LinearProgress from '@mui/material/LinearProgress'
 import ScheduleIcon from '@mui/icons-material/Schedule'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import RestaurantIcon from '@mui/icons-material/Restaurant'
+import Stepper from '@mui/material/Stepper'
+import Step from '@mui/material/Step'
+import StepLabel from '@mui/material/StepLabel'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import theme from '~/theme'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
 export default function OrderDetails({ customerDetails, orderCode: propOrderCode }) {
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const { orderId } = useParams()
   const navigate = useNavigate()
   const [order, setOrder] = useState(null)
@@ -31,6 +38,32 @@ export default function OrderDetails({ customerDetails, orderCode: propOrderCode
   }, [customerDetails, code])
 
   // progress helper removed — UI now shows step dots instead of a progress bar
+  // Stepper status config
+  const statusSteps = [
+    { key: 'PENDING', label: 'Chờ xác nhận', icon: <ScheduleIcon /> },
+    { key: 'CONFIRMED', label: 'Đã xác nhận', icon: <CheckCircleIcon /> },
+    { key: 'PREPARING', label: 'Đang chuẩn bị', icon: <RestaurantIcon /> },
+    { key: 'SHIPPING', label: 'Đang giao hàng', icon: <LocalShippingIcon /> },
+    { key: 'DELIVERED', label: 'Đã giao hàng', icon: <CheckCircleOutlineIcon /> }
+  ]
+  const currentStep = statusSteps.findIndex(s => s.key === order?.status)
+
+  function formatDateToMinute(date) {
+    if (!date) return ''
+    const d = new Date(date)
+    const pad = n => n.toString().padStart(2, '0')
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  }
+
+  // Map status to timestamp field
+  const getStatusTime = (stepKey) => {
+    if (stepKey === 'PENDING') return order.createdAt
+    if (stepKey === 'CONFIRMED') return order.confirmedAt || order.confirmAt
+    if (stepKey === 'PREPARING') return order.preparingAt
+    if (stepKey === 'SHIPPING') return order.shippingAt
+    if (stepKey === 'DELIVERED') return order.deliveredAt
+    return null
+  }
 
 
   if (!order) return (
@@ -56,7 +89,7 @@ export default function OrderDetails({ customerDetails, orderCode: propOrderCode
         <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 700 }}>{`Đơn hàng #${order.orderCode || order.id}`}</Typography>
-            <Typography variant="body2" color="text.secondary">{new Date(order.createdAt || order.deliveryTime || Date.now()).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</Typography>
+            <Typography variant="body2" color="text.secondary">{formatDateToMinute(order.createdAt || order.deliveryTime || Date.now())}</Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
             <Typography variant="h6" sx={{ color: '#4caf50', fontWeight: 700, mb: 1 }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}</Typography>
@@ -64,6 +97,47 @@ export default function OrderDetails({ customerDetails, orderCode: propOrderCode
           </Box>
         </CardContent>
       </Card>
+
+      {/* Order Status Stepper */}
+      <Box sx={{ width: '100%', mx: 'auto', mb: 2, bgcolor: '#fff', borderRadius: 2, boxShadow: 1, p: { xs: 2, sm: 2 } }}>
+        <Stepper
+          activeStep={currentStep}
+          orientation={isSmallScreen ? 'vertical' : 'horizontal'}
+          alternativeLabel={!isSmallScreen}
+        >
+          {statusSteps.map((step, idx) => {
+            const isActive = idx === currentStep
+            const activeColor = theme.palette.primary.secondary
+            return (
+              <Step key={step.key} completed={idx < currentStep}>
+                <StepLabel icon={isActive ? <span style={{ color: activeColor }}>{step.icon}</span> : <span>{step.icon}</span>}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { sm: 'flex-start', md: 'center' } }}>
+                    <Typography
+                      sx={{
+                        fontWeight: isActive ? 700 : 600,
+                        color: isActive ? activeColor : 'text.primary',
+                        maxWidth: 120,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: 'block'
+                      }}
+                      title={step.label}
+                    >
+                      {step.label}
+                    </Typography>
+                    {getStatusTime(step.key) && (
+                      <Typography variant="caption" sx={{ mt: 0.5, fontWeight: isActive ? 700 : 400, color: isActive ? activeColor : 'text.primary' }}>
+                        {formatDateToMinute(getStatusTime(step.key))}
+                      </Typography>
+                    )}
+                  </Box>
+                </StepLabel>
+              </Step>
+            )
+          })}
+        </Stepper>
+      </Box>
 
       {/* Order Items */}
       <Card sx={{ mb: 2, borderRadius: 2 }}>
@@ -89,95 +163,6 @@ export default function OrderDetails({ customerDetails, orderCode: propOrderCode
           </Box>
         </CardContent>
       </Card>
-
-      {/* Order Status Progress */}
-      <Card sx={{ mb: 2, borderRadius: 2 }}>
-        <CardContent>
-          <Typography variant="subtitle1" sx={{ mb: 3, fontWeight: 600 }}>Trạng thái đơn hàng</Typography>
-
-          {/* Progress Bar */}
-          <Box sx={{ mb: 3 }}>
-            <LinearProgress
-              variant="determinate"
-              value={((['PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED'].indexOf(order.status) + 1) / 4) * 100}
-              sx={{
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: '#e0e0e0',
-                '& .MuiLinearProgress-bar': {
-                  backgroundColor: 'primary.main',
-                  borderRadius: 4,
-                  transition: 'width 0.8s ease'
-                }
-              }}
-            />
-          </Box>
-
-          {/* Status Steps */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
-            {[
-              { status: 'PENDING', label: 'Đặt hàng', icon: ScheduleIcon, color: '#ff9800' },
-              { status: 'CONFIRMED', label: 'Xác nhận', icon: CheckCircleIcon, color: '#2196f3' },
-              { status: 'SHIPPING', label: 'Đang giao', icon: LocalShippingIcon, color: '#ff5722' },
-              { status: 'DELIVERED', label: 'Đã giao', icon: CheckCircleOutlineIcon, color: '#4caf50' }
-            ].map((step, idx) => {
-              const isActive = ['PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED'].indexOf(order.status) >= idx
-              const IconComponent = step.icon
-
-              return (
-                <Box key={step.status} sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  flex: 1,
-                  position: 'relative'
-                }}>
-                  {/* Icon Circle */}
-                  <Box sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: isActive ? step.color : '#e0e0e0',
-                    color: 'white',
-                    mb: 2,
-                    transition: 'all 0.3s ease',
-                    transform: isActive ? 'scale(1.1)' : 'scale(1)',
-                    boxShadow: isActive ? `0 4px 12px ${step.color}40` : '0 2px 4px rgba(0,0,0,0.1)',
-                    border: '3px solid white'
-                  }}>
-                    <IconComponent sx={{ fontSize: 24 }} />
-                  </Box>
-
-                  {/* Label */}
-                  <Typography variant="body2" sx={{
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? step.color : 'text.secondary',
-                    textAlign: 'center',
-                    fontSize: '0.875rem'
-                  }}>
-                    {step.label}
-                  </Typography>
-
-                  {/* Date */}
-                  {isActive && (
-                    <Typography variant="caption" color="text.secondary" sx={{
-                      textAlign: 'center',
-                      fontSize: '0.75rem',
-                      mt: 0.5
-                    }}>
-                      {new Date(order.createdAt || order.deliveryTime || Date.now()).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                    </Typography>
-                  )}
-                </Box>
-              )
-            })}
-          </Box>
-        </CardContent>
-      </Card>
-
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 12, md: 6 }}>
           <Card sx={{ borderRadius: 2 }}>
