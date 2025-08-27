@@ -48,7 +48,6 @@ import SupportTickets from './Support/SupportTickets'
 import Stores from './Locations/Stores'
 import NotAuthorized from './NotAuthorized/NotAuthorized'
 import { EMPLOYEE_ROLES } from '~/utils/constants'
-import { Typography } from '@mui/material'
 import MealDetail from './MenuMeal/MenuMealDetail'
 import MealEdit from './MenuMeal/MenuMealEdit'
 import IngredientsList from './Ingredient/IngredientList'
@@ -62,7 +61,6 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import Alert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
-import { set } from 'lodash'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -89,21 +87,23 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         title: 'Dashboard',
         icon: <DashboardIcon />
       },
-      // Accounts
+      // Orders
       {
-        segment: 'management/accounts',
-        title: 'Account',
-        icon: <PeopleIcon />,
-        children: [
-          { segment: 'list', title: 'Account List' },
-          { segment: 'create', title: 'Create Account' }
-        ]
+        segment: 'management/orders',
+        title: 'Orders',
+        icon: <AssignmentIcon />,
+        action: newOrderCount > 0 ? <Chip label={newOrderCount} color="primary" size="small" /> : null,
+        pattern: 'orders{/:orderCode}*'
       },
       // Customers
       {
         segment: 'management/customers',
         title: 'Customer',
         icon: <EmojiPeopleIcon />
+      },
+      {
+        kind: 'header',
+        title: 'PRODUCTIVITY'
       },
       // Meals / Products
       {
@@ -124,58 +124,6 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
           { segment: 'create', title: 'Create Ingredient' }
         ]
       },
-      {
-        kind: 'header',
-        title: 'PRODUCTIVITY'
-      },
-      // Orders
-      {
-        segment: 'management/orders',
-        title: 'Order',
-        icon: <AssignmentIcon />,
-        action: newOrderCount > 0 ? <Chip label={newOrderCount} color="primary" size="small" /> : null,
-        pattern: 'orders{/:orderCode}*'
-      },
-      // Coupons / Promotions
-      {
-        segment: 'management/coupons',
-        title: 'Coupons',
-        icon: <LocalOfferIcon />
-      },
-      // Payments
-      {
-        segment: 'management/payments',
-        title: 'Payments',
-        icon: <PaymentIcon />
-      },
-      // Delivery / Drivers
-      {
-        segment: 'management/delivery',
-        title: 'Delivery',
-        icon: <LocalShippingIcon />
-      },
-      // Inventory
-      {
-        segment: 'management/inventory',
-        title: 'Inventory',
-        icon: <Inventory2Icon />
-      },
-      {
-        kind: 'header',
-        title: 'GENERAL'
-      },
-      // Reports
-      {
-        segment: 'management/reports',
-        title: 'Reports',
-        icon: <AssessmentIcon />
-      },
-      // Security & Audit
-      {
-        segment: 'management/security',
-        title: 'Security & Audit',
-        icon: <SecurityIcon />
-      },
       // Support / Tickets
       {
         segment: 'management/support',
@@ -183,15 +131,15 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         icon: <SupportAgentIcon />,
         action: <Chip label={7} color="primary" size="small" />
       },
+      {
+        kind: 'header',
+        title: 'OTHERS'
+      },
       // Stores / Locations
       {
         segment: 'management/stores',
         title: 'Stores',
         icon: <StorefrontIcon />
-      },
-      {
-        kind: 'header',
-        title: 'OTHERS'
       },
       // Marketing & Posts
       {
@@ -203,6 +151,12 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         segment: 'management/posts',
         title: 'Posts',
         icon: <ArticleIcon />
+      },
+      // Coupons / Promotions
+      {
+        segment: 'management/coupons',
+        title: 'Coupons',
+        icon: <LocalOfferIcon />
       },
       // Settings
       {
@@ -232,8 +186,6 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
   }
   return baseNav
 }
-
-
 
 const customTheme = createTheme({
   cssVariables: { colorSchemeSelector: 'data-toolpad-color-scheme' },
@@ -346,7 +298,7 @@ function Layout(props) {
             fontWeight: 600,
             fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
           }}>
-            Green Kitchen Management
+            Green Kitchen Managemen
           </Typography>
         }}
       >
@@ -401,57 +353,10 @@ function Layout(props) {
               element={<NotFound />}
             />
 
-            {/* Accounts */}
-            <Route path="accounts">
-              <Route index element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                  <AccountList />
-                </ProtectedRoute>
-              } />
-              <Route path="list" element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                  <AccountList />
-                </ProtectedRoute>
-              } />
-              <Route path="create" element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                  <AccountCreate />
-                </ProtectedRoute>
-              } />
-            </Route>
-
-            {/* Products / Meals */}
-            <Route path="meals">
-              <Route index element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                  <MealsList />
-                </ProtectedRoute>
-              } />
-              <Route path="list" element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                  <MealsList />
-                </ProtectedRoute>
-              } />
-              <Route path="create" element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                  <MealCreate />
-                </ProtectedRoute>
-              } />
-            </Route>
-
-            {/* Inventory */}
-            <Route path="inventory" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Inventory /></ProtectedRoute>} />
-
             {/* Coupons / Promotions */}
             <Route path="coupons" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Coupons /></ProtectedRoute>} />
 
-            {/* Payments */}
-            <Route path="payments" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Payments /></ProtectedRoute>} />
-
-            {/* Delivery / Drivers */}
-            <Route path="delivery" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Delivery /></ProtectedRoute>} />
-
-            {/* Marketing & Posts */}
+            {/* Marketing */}
             <Route path="marketing" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Marketing /></ProtectedRoute>} />
 
             {/*Blog Posts */}
@@ -478,163 +383,60 @@ function Layout(props) {
               } />
             </Route>
 
-            {/* Reports */}
-            <Route path="reports" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Reports /></ProtectedRoute>} />
-
-            {/* Security & Audit */}
-            <Route path="security" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><SecurityLogs /></ProtectedRoute>} />
-
-            {/* Support / Tickets */}
-            <Route path="support" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
-                <SupportTickets />
-              </ProtectedRoute>} />
-
             {/* Locations / Stores */}
             <Route path="stores" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Stores /></ProtectedRoute>} />
 
+            {/* Products / Meals */}
+            <Route path="menu-meals">
+              <Route index path="list" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <MealsList />
+                </ProtectedRoute>
+              } />
+              <Route path=":slug" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <MealDetail />
+                </ProtectedRoute>
+              } />
+              <Route path="edit/:slug" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <MealEdit />
+                </ProtectedRoute>
+              } />
+              <Route path="create" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <MealCreate />
+                </ProtectedRoute>
+              } />
+            </Route>
+
+            {/* Ingredients */}
+            <Route path="ingredients">
+              <Route index path="list" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <IngredientsList />
+                </ProtectedRoute>
+              } />
+              <Route path=":id" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <IngredientDetail />
+                </ProtectedRoute>
+              } />
+              <Route path="edit/:id" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <IngredientEdit />
+                </ProtectedRoute>
+              } />
+              <Route path="create" element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <IngredientCreate />
+                </ProtectedRoute>
+              } />
+            </Route>
           </Routes>
         </DashboardLayout>
       </AppProvider >
     </>
-                <OrderList />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path='not-authorized'
-            element={<NotAuthorized />}
-          />
-
-          <Route
-            path='*'
-            element={<NotFound />}
-          />
-
-          {/* Accounts */}
-          <Route path="accounts">
-            <Route index element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <AccountList />
-              </ProtectedRoute>
-            } />
-            <Route path="list" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <AccountList />
-              </ProtectedRoute>
-            } />
-            <Route path="create" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <AccountCreate />
-              </ProtectedRoute>
-            } />
-          </Route>
-
-          {/* Products / Meals */}
-          <Route path="menu-meals">
-            <Route index path="list" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <MealsList />
-              </ProtectedRoute>
-            } />
-            <Route path=":slug" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <MealDetail />
-              </ProtectedRoute>
-            } />
-            <Route path="edit/:slug" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <MealEdit />
-              </ProtectedRoute>
-            } />
-            <Route path="create" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <MealCreate />
-              </ProtectedRoute>
-            } />
-          </Route>
-          {/* Ingredients */}
-          <Route path="ingredients">
-            <Route index path="list" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <IngredientsList />
-              </ProtectedRoute>
-            } />
-            <Route path=":id" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <IngredientDetail />
-              </ProtectedRoute>
-            } />
-            <Route path="edit/:id" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <IngredientEdit />
-              </ProtectedRoute>
-            } />
-            <Route path="create" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <IngredientCreate />
-              </ProtectedRoute>
-            } />
-          </Route>
-
-          {/* Inventory */}
-          <Route path="inventory" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Inventory /></ProtectedRoute>} />
-
-          {/* Coupons / Promotions */}
-          <Route path="coupons" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Coupons /></ProtectedRoute>} />
-
-          {/* Payments */}
-          <Route path="payments" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Payments /></ProtectedRoute>} />
-
-          {/* Delivery / Drivers */}
-          <Route path="delivery" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Delivery /></ProtectedRoute>} />
-
-          {/* Marketing & Posts */}
-          <Route path="marketing" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Marketing /></ProtectedRoute>} />
-
-          {/*Blog Posts */}
-          <Route path="posts">
-            <Route index element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <Posts />
-              </ProtectedRoute>
-            } />
-            <Route path="list" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <Posts />
-              </ProtectedRoute>
-            } />
-            <Route path="create" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <PostCreate />
-              </ProtectedRoute>
-            } />
-            <Route path="edit/:id" element={
-              <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
-                <PostCreate />
-              </ProtectedRoute>
-            } />
-          </Route>
-
-          {/* Reports */}
-          <Route path="reports" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Reports /></ProtectedRoute>} />
-
-          {/* Security & Audit */}
-          <Route path="security" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><SecurityLogs /></ProtectedRoute>} />
-
-          {/* Support / Tickets */}
-          <Route path="support" element={
-            <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
-              <SupportTickets />
-            </ProtectedRoute>} />
-
-          {/* Locations / Stores */}
-          <Route path="stores" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}><Stores /></ProtectedRoute>} />
-
-        </Routes>
-      </DashboardLayout>
-    </AppProvider >
   )
 }
 
