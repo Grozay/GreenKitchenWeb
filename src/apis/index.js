@@ -348,3 +348,43 @@ export const uploadPostImageAPI = async (file) => {
   })
   return response.data
 }
+// Dashboard APIs
+export const fetchDashboardOverviewAPI = async (from, to) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/overview?from=${from}&to=${to}`)
+  return response.data
+}
+
+export const fetchPopularFoodsAPI = async (from, to) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/popular-foods?from=${from}&to=${to}`)
+  return response.data
+}
+
+export const fetchSalesFiguresAPI = async (from, to, type = 'day') => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/sales-figures?from=${from}&to=${to}&type=${type}`)
+  return response.data
+}
+
+export const fetchDailyIncomeAPI = async (date) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/daily-income?date=${date}`)
+  return response.data
+}
+
+export const fetchOrderSuccessRateAPI = async (from, to) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/order-success-rate?from=${from}&to=${to}`)
+  return response.data
+}
+
+export const fetchMostFavouriteItemsAPI = async (from, to) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/most-favourite-items?from=${from}&to=${to}`)
+  return response.data
+}
+
+export const fetchRecentOrdersAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/recent-orders`)
+  return response.data
+}
+
+export const fetchWeeklyTrendingMenusAPI = async (date) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/weekly-trending-menus?date=${date}`)
+  return response.data
+}

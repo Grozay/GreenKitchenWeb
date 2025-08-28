@@ -46,10 +46,10 @@ export default function IngredientDetail() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/management/ingredients/list')}
+          onClick={() => navigate(-1)}
           sx={{ mr: 2 }}
         >
-          Back to List
+          Back
         </Button>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
           Ingredient Details

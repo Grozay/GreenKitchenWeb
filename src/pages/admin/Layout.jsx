@@ -56,7 +56,7 @@ import IngredientCreate from './Ingredient/IngredientCreate'
 import IngredientDetail from './Ingredient/IngredientDetail'
 import IngredientEdit from './Ingredient/IngredientEdit'
 // duplicate/wrong imports removed
-import Typography from '@mui/material/Typography'
+// import Typography from '@mui/material/Typography'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
