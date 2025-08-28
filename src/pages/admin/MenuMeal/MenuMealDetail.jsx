@@ -48,10 +48,10 @@ export default function MenuMealDetail() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/management/menu-meals/list')}
+          onClick={() => navigate(-1)} // Sửa thành navigate(-1)
           sx={{ mr: 2 }}
         >
-          Back to List
+          Back
         </Button>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
           Meal Details
