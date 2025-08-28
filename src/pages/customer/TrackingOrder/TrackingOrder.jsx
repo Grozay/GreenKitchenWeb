@@ -102,60 +102,61 @@ const TrackingOrder = () => {
         </Typography>
 
         {/* Search Section */}
-        <Paper
-          elevation={3}
-          sx={{
-            p: 3,
-            maxWidth: 500,
-            mx: 'auto',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-            borderRadius: 3
-          }}
-        >
-          <Box display="flex" gap={2} alignItems="center">
-            <TextField
-              fullWidth
-              label="Mã đơn hàng"
-              placeholder="Nhập mã đơn hàng (VD: GK-123456789)"
-              value={orderId}
-              onChange={(e) => setOrderId(e.target.value)}
-              onKeyDown={handleKeyPress}
-              variant="outlined"
-              disabled={loading}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2
-                }
-              }}
-            />
-            <Button
-              className='interceptor-loading'
-              variant="contained"
-              onClick={handleSearch}
-              disabled={loading || !orderId.trim()}
-              sx={{
-                minWidth: 120,
-                borderRadius: 2,
-                py: 1.5
-              }}
-            >
-              {loading ? 'Đang tìm...' : 'Tìm kiếm'}
-            </Button>
-          </Box>
-
-          {orderData && (
-            <Box mt={2} textAlign="right">
-              <Button
+        {!orderData && (
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3,
+              maxWidth: 500,
+              mx: 'auto',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+              borderRadius: 3
+            }}
+          >
+            <Box display="flex" gap={2} alignItems="center">
+              <TextField
+                fullWidth
+                label="Mã đơn hàng"
+                placeholder="Nhập mã đơn hàng (VD: GK-123456789)"
+                value={orderId}
+                onChange={(e) => setOrderId(e.target.value)}
+                onKeyDown={handleKeyPress}
                 variant="outlined"
-                size="small"
-                onClick={resetSearch}
-                sx={{ borderRadius: 2 }}
+                disabled={loading}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
+              />
+              <Button
+                className='interceptor-loading'
+                variant="contained"
+                onClick={handleSearch}
+                disabled={loading || !orderId.trim()}
+                sx={{
+                  minWidth: 120,
+                  borderRadius: 2,
+                  py: 1.5
+                }}
               >
-                Tìm đơn hàng khác
+                {loading ? 'Đang tìm...' : 'Tìm kiếm'}
               </Button>
             </Box>
-          )}
-        </Paper>
+          </Paper>
+        )}
+        {orderData && (
+          <Box mt={2} textAlign="right">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={resetSearch}
+              sx={{ borderRadius: 2 }}
+            >
+              Tìm đơn hàng khác
+            </Button>
+          </Box>
+        )}
       </Box>
 
       {/* Error Message */}
@@ -209,10 +210,7 @@ const TrackingOrder = () => {
                 order={{ xs: 1, md: 1, lg: 1 }}
               >
                 <OrderStatusProgress
-                  currentStatus={orderData.status}
-                  createdAt={orderData.createdAt}
-                  updatedAt={orderData.updatedAt}
-                  orientation="vertical"
+                  orderData={orderData}
                 />
               </Box>
 
