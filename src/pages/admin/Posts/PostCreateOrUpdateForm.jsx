@@ -22,6 +22,7 @@ import MDEditor from '@uiw/react-md-editor'
 import { createPostAPI, getPostByIdAPI, updatePostAPI, getPostCategoriesAPI, uploadPostImageAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import { useConfirm } from 'material-ui-confirm'
 
 
 export default function PostCreate() {
@@ -47,6 +48,7 @@ export default function PostCreate() {
   const [uploadedImages, setUploadedImages] = useState([])
   const [postStatus, setPostStatus] = useState('DRAFT')
   const thumbInputRef = useRef(null)
+  const confirm = useConfirm()
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
@@ -223,20 +225,16 @@ export default function PostCreate() {
 
   // load categories once
   useEffect(() => {
-    let mounted = true;
-    (async () => {
+    const getPostCategories = async () => {
       try {
         const cats = await getPostCategoriesAPI()
-        if (!mounted) return
         setCategories(cats || [])
       } catch (err) {
         // ignore but reference err to avoid unused variable lint
         void err
       }
-    })()
-    return () => {
-      mounted = false
     }
+    getPostCategories()
   }, [])
 
   const submitPost = async (targetStatus) => {
@@ -269,7 +267,7 @@ export default function PostCreate() {
           error: 'Failed to save post'
         }
       )
-      navigate('/management/posts/list')
+      navigate('/management/posts')
     } catch (err) {
       setError(err.message || 'Failed to save post')
     } finally {
@@ -277,16 +275,66 @@ export default function PostCreate() {
     }
   }
 
+  const handleBackToPosts = async () => {
+    const { confirmed } = await confirm({
+      title: 'Confirm Post Navigation',
+      description: 'Are you sure you want to go back to the post list? All your unsaved changes will be lost.',
+      confirmationText: 'Yes, Go Back',
+      cancellationText: 'No, Stay Here'
+    })
+    if (!confirmed) return
+
+    await navigate('/management/posts')
+  }
+
+  const handleCancelPost = async () => {
+    const { confirmed } = await confirm({
+      title: 'Confirm Post Cancellation',
+      description: 'Are you sure you want to cancel this post? All your unsaved changes will be lost.',
+      confirmationText: 'Yes, Cancel Post',
+      cancellationText: 'No, Stay Here'
+    })
+    if (!confirmed) return
+
+    await navigate('/management/posts')
+  }
+
   return (
-    <Container maxWidth="md" sx={{ py: 3 }}>
+    <Container maxWidth="lg" sx={{ py: 3 }}>
+      <Box sx={{ mb: 2 }}>
+        <Button
+          variant="text"
+          onClick={handleBackToPosts}
+          sx={{ minWidth: 'auto', px: 1 }}
+        >
+          ← Back to Post List
+        </Button>
+      </Box>
       <Paper sx={{ p: 3 }} elevation={2}>
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack spacing={2}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="h4">{isEdit ? 'Edit Post' : 'Create Post'}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Typography variant="h4" sx={{ flexGrow: 1 }}>{isEdit ? 'Edit Post' : 'Create Post'}</Typography>
               {isEdit && (
                 <Chip label={postStatus} color={postStatus === 'PUBLISHED' ? 'success' : 'default'} size="small" />
               )}
+              <FormControl sx={{ minWidth: 250 }}>
+                <InputLabel id="post-category-label">Category</InputLabel>
+                <Select
+                  labelId="post-category-label"
+                  label="Category"
+                  value={selectedCategoryId ?? ''}
+                  onChange={(e) => setSelectedCategoryId(e.target.value ? Number(e.target.value) : null)}
+                >
+                  {categories && categories.length > 0 ? (
+                    categories.map((c) => (
+                      <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem value="">No categories</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
             </Box>
 
             {error && <Alert severity="error">{error}</Alert>}
@@ -310,35 +358,68 @@ export default function PostCreate() {
               fullWidth
             />
 
-            {/* Excerpt removed */}
 
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <TextField label="Post Image" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} fullWidth />
-              <input ref={thumbInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleThumbChange} />
-              <Button variant="outlined" onClick={() => thumbInputRef.current.click()} disabled={uploading}>Upload Image</Button>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  label="Thumbnail URL"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  fullWidth
+                  placeholder="Enter image URL or upload image"
+                />
+                <input ref={thumbInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleThumbChange} />
+                <Button
+                  variant="outlined"
+                  onClick={() => thumbInputRef.current.click()}
+                  disabled={uploading}
+                  sx={{ mt: 1 }}
+                >
+                  {uploading ? 'Uploading...' : 'Upload Image'}
+                </Button>
+              </Box>
+
+              {imageUrl && (
+                <Box sx={{ position: 'relative' }}>
+                  <Box
+                    component="img"
+                    src={imageUrl}
+                    alt="Post thumbnail"
+                    sx={{
+                      width: 120,
+                      height: 80,
+                      objectFit: 'cover',
+                      borderRadius: 1,
+                      border: '2px solid #e0e0e0',
+                      boxShadow: 1
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none'
+                      toast.error('Invalid image URL')
+                    }}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={() => setImageUrl('')}
+                    sx={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -8,
+                      bgcolor: 'error.main',
+                      color: 'white',
+                      '&:hover': { bgcolor: 'error.dark' },
+                      width: 24,
+                      height: 24
+                    }}
+                    title="Remove thumbnail"
+                  >
+                    ×
+                  </IconButton>
+                </Box>
+              )}
             </Box>
 
             {/* Publish controls replaced by action buttons below */}
-
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel id="post-category-label">Category</InputLabel>
-                <Select
-                  labelId="post-category-label"
-                  label="Category"
-                  value={selectedCategoryId ?? ''}
-                  onChange={(e) => setSelectedCategoryId(e.target.value ? Number(e.target.value) : null)}
-                >
-                  {categories && categories.length > 0 ? (
-                    categories.map((c) => (
-                      <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem value="">No categories</MenuItem>
-                  )}
-                </Select>
-              </FormControl>
-            </Box>
 
             <Box>
               <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -370,12 +451,14 @@ export default function PostCreate() {
                 >
                   Insert Image
                 </Button>
+
                 {uploading && (
                   <Box sx={{ display: 'flex', alignItems: 'center', width: 240 }}>
                     <LinearProgress sx={{ flex: 1, mr: 2 }} />
                   </Box>
                 )}
               </Stack>
+
               {uploadedImages.length > 0 && (
                 <Box sx={{ mt: 1, display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                   {uploadedImages.map((u) => (
@@ -402,7 +485,7 @@ export default function PostCreate() {
               )}
             </Box>
             <Stack direction="row" spacing={2} justifyContent="flex-end">
-              <Button variant="outlined" onClick={() => navigate('/management/posts')}>Cancel</Button>
+              <Button variant="outlined" onClick={handleCancelPost}>Cancel</Button>
               <Button variant="outlined" disabled={!canSave} onClick={() => submitPost('DRAFT')}>Save as Draft</Button>
               <Button variant="contained" disabled={!canSave} onClick={() => submitPost('PUBLISHED')} startIcon={loading ? <CircularProgress size={16} /> : null}>Publish</Button>
             </Stack>

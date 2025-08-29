@@ -45,6 +45,7 @@ import PostCreate from './Posts/PostCreateOrUpdateForm'
 import Reports from './Reports/Reports'
 import SecurityLogs from './Security/SecurityLogs'
 import SupportTickets from './Support/SupportTickets'
+import MediaIcon from '@mui/icons-material/PermMedia'
 import Stores from './Locations/Stores'
 import NotAuthorized from './NotAuthorized/NotAuthorized'
 import { EMPLOYEE_ROLES } from '~/utils/constants'
@@ -157,6 +158,11 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         segment: 'management/coupons',
         title: 'Coupons',
         icon: <LocalOfferIcon />
+      },
+      {
+        segment: 'management/media',
+        title: 'Media',
+        icon: <MediaIcon />
       },
       // Settings
       {
@@ -298,7 +304,7 @@ function Layout(props) {
             fontWeight: 600,
             fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
           }}>
-            Green Kitchen Managemen
+            Green Kitchen Management
           </Typography>
         }}
       >

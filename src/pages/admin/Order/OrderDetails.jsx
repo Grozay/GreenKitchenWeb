@@ -5,9 +5,12 @@ import StepLabel from '@mui/material/StepLabel'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
-import Divider from '@mui/material/Divider'
 import Container from '@mui/material/Container'
 import CircularProgress from '@mui/material/CircularProgress'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
+import Avatar from '@mui/material/Avatar'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getOrderByCodeAPI, updateOrderStatusAPI } from '~/apis'
@@ -16,23 +19,45 @@ import { ORDER_STATUS } from '~/utils/constants'
 import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
 import { formatDateToMinute } from '~/utils/formatter'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import PersonIcon from '@mui/icons-material/Person'
+import PaymentIcon from '@mui/icons-material/Payment'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useNavigate } from 'react-router-dom'
 
 
 function getStatusColor(status) {
   switch (status) {
-    case ORDER_STATUS.PENDING: return 'warning'
-    case ORDER_STATUS.CONFIRMED: return 'info'
-    case ORDER_STATUS.PREPARING: return 'primary'
-    case ORDER_STATUS.SHIPPING: return 'secondary'
-    case ORDER_STATUS.DELIVERED: return 'success'
-    default: return 'default'
+  case ORDER_STATUS.PENDING: return 'warning'
+  case ORDER_STATUS.CONFIRMED: return 'info'
+  case ORDER_STATUS.PREPARING: return 'primary'
+  case ORDER_STATUS.SHIPPING: return 'secondary'
+  case ORDER_STATUS.DELIVERED: return 'success'
+  default: return 'default'
   }
 }
+
+function getStatusIcon(status) {
+  switch (status) {
+  case ORDER_STATUS.PENDING: return '⏳'
+  case ORDER_STATUS.CONFIRMED: return '✅'
+  case ORDER_STATUS.PREPARING: return '👨‍🍳'
+  case ORDER_STATUS.SHIPPING: return '🚚'
+  case ORDER_STATUS.DELIVERED: return '🎉'
+  default: return '❓'
+  }
+}
+
 export default function OrderDetails() {
   const { orderCode } = useParams()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [statusUpdating, setStatusUpdating] = useState(false)
+  const theme = useTheme()
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
+  const navigate = useNavigate()
+
   // Order status steps
   const statusSteps = [
     ORDER_STATUS.PENDING,
@@ -89,137 +114,270 @@ export default function OrderDetails() {
   }
 
   if (loading) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}><CircularProgress /></Box>
-  }
-  if (!order) {
-    return <Typography color="error">Order not found</Typography>
-  }
-  return (
-    <Container sx={{ py: 3 }}>
-      <Typography variant="h5" gutterBottom>ORDER #{order.orderCode || order.code}</Typography>
-      <Divider sx={{ mb: 2 }} />
-      {/* Status hint notification box */}
-      <Box sx={{ mb: 1, p: 2, borderRadius: 2, bgcolor: '#fff3e0', boxShadow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {order.status === ORDER_STATUS.PENDING && (
-          <Typography color={getStatusColor(order.status)} sx={{ fontWeight: 600, fontSize: 16 }}>Customer just placed the order. Please call to confirm with the customer.</Typography>
-        )}
-        {order.status === ORDER_STATUS.CONFIRMED && (
-          <Typography color={getStatusColor(order.status)} sx={{ fontWeight: 600, fontSize: 16 }}>Order confirmed. Prepare the meal and get ready for delivery.</Typography>
-        )}
-        {order.status === ORDER_STATUS.PREPARING && (
-          <Typography color={getStatusColor(order.status)} sx={{ fontWeight: 600, fontSize: 16 }}>Meal is being prepared. Please check kitchen progress.</Typography>
-        )}
-        {order.status === ORDER_STATUS.SHIPPING && (
-          <Typography color={getStatusColor(order.status)} sx={{ fontWeight: 600, fontSize: 16 }}>Order is out for delivery. Track the delivery status.</Typography>
-        )}
-        {order.status === ORDER_STATUS.DELIVERED && (
-          <Typography color={getStatusColor(order.status)} sx={{ fontWeight: 600, fontSize: 16 }}>Order delivered successfully. Thank you for your purchase!</Typography>
-        )}
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress size={60} />
       </Box>
-      <Grid container spacing={2}>
-        <Grid size={12}>
-          <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: '#f3e5f5' }}>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                mb: 2
-              }}
-            >
-              <Typography variant="h5" gutterBottom>ORDER PROCESSING</Typography>
+    )
+  }
+
+  if (!order) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="h4" color="error" align="center">
+          Order not found
+        </Typography>
+      </Container>
+    )
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{ py: 1 }}>
+      {/* Back Button */}
+      <Box sx={{ mb: 1 }}>
+        <Button
+          variant="text"
+          onClick={() => navigate('/management/orders')}
+          sx={{ minWidth: 'auto', px: 1 }}
+        >
+          ← Back to Orders
+        </Button>
+      </Box>
+
+      {/* Compact Header */}
+      <Card elevation={2} sx={{ mb: 2, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+        <CardContent sx={{ py: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)' }}>
+                <ShoppingCartIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                  ORDER #{order.orderCode || order.code}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Chip
+                label={`${getStatusIcon(order.status)} ${order.status}`}
+                color={getStatusColor(order.status)}
+                sx={{ color: 'white', fontWeight: 'bold' }}
+              />
               {currentStep < statusSteps.length - 1 && (
-                <Box>
-                  <Button
-                    onClick={handleUpdateStatus}
-                    disabled={statusUpdating}
-                    variant="contained"
-                    color="primary"
-                  >
-                    {statusUpdating ? 'Updating...' : `SET ${statusSteps[currentStep + 1]}`}
-                  </Button>
-                </Box>
+                <Button
+                  onClick={handleUpdateStatus}
+                  disabled={statusUpdating}
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
+                  }}
+                >
+                  {statusUpdating ? 'Updating...' : `SET ${statusSteps[currentStep + 1]}`}
+                </Button>
               )}
             </Box>
-
-
-            {/* Status Stepper */}
-            <Box sx={{ width: '100%', maxWidth: 700, mx: 'auto', mb: 2 }}>
-              <Stepper activeStep={currentStep} alternativeLabel>
-                {statusSteps.map((step, idx) => {
-                  let time = null
-                  if (step === ORDER_STATUS.PENDING && order.createdAt) time = order.createdAt
-                  if (step === ORDER_STATUS.CONFIRMED && (order.confirmedAt || order.confirmAt)) time = order.confirmedAt || order.confirmAt
-                  if (step === ORDER_STATUS.PREPARING && order.preparingAt) time = order.preparingAt
-                  if (step === ORDER_STATUS.SHIPPING && order.shippingAt) time = order.shippingAt
-                  if (step === ORDER_STATUS.DELIVERED && order.deliveredAt) time = order.deliveredAt
-                  return (
-                    <Step key={step} completed={idx < currentStep}>
-                      <StepLabel>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <Typography sx={{ fontWeight: 600 }}>{step}</Typography>
-                          {time && (
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                              {formatDateToMinute(time)}
-                            </Typography>
-                          )}
-                        </Box>
-                      </StepLabel>
-                    </Step>
-                  )
-                })}
-              </Stepper>
-            </Box>
           </Box>
+        </CardContent>
+      </Card>
 
-          {/** Order Information */}
-          <Grid size={12} sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: '#f5f5f5' }}>
-            <Typography variant="h6" gutterBottom>Order Information</Typography>
-            <Typography><strong>Customer ID:</strong> {order.customerId || order.customer?.id}</Typography>
-            <Typography><strong>Recipient:</strong> {order.recipientName}</Typography>
-            <Typography><strong>Phone:</strong> {order.recipientPhone}</Typography>
-            <Typography><strong>Address:</strong> {[order.street, order.ward, order.district, order.city].filter(Boolean).join(', ')}</Typography>
-            <Typography><strong>Delivery Time:</strong> {order.deliveryTime ? new Date(order.deliveryTime).toLocaleString() : ''}</Typography>
-            <Typography><strong>Created At:</strong> {order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}</Typography>
-          </Grid>
-          <Grid size={12} sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: '#e3f2fd' }}>
-            <Typography variant="h6" gutterBottom>Payment Information</Typography>
-            <Typography><strong>Payment Method:</strong> {order.paymentMethod}</Typography>
-            <Typography><strong>Payment Status:</strong> <Chip variant='outlined' label={order.paymentStatus} color={order.paymentStatus === 'COMPLETED' ? 'success' : 'warning'} /></Typography>
-          </Grid>
-          <Grid size={12} sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: '#fffde7' }}>
-            <Typography variant="h6" gutterBottom>Pricing Information</Typography>
-            <Typography><strong>Subtotal:</strong> {order.subtotal?.toLocaleString() || 0}₫</Typography>
-            <Typography><strong>Shipping Fee:</strong> {order.shippingFee?.toLocaleString() || 0}₫</Typography>
-            <Typography><strong>Membership Discount:</strong> {order.membershipDiscount?.toLocaleString() || 0}₫</Typography>
-            <Typography><strong>Coupon Discount:</strong> {order.couponDiscount?.toLocaleString() || 0}₫</Typography>
-            <Typography><strong>Total Amount:</strong> <strong>{order.totalAmount?.toLocaleString()}₫</strong></Typography>
-            <Typography><strong>Point Earn:</strong> {order.pointEarn}</Typography>
-            {order.notes && <Typography><strong>Notes:</strong> {order.notes}</Typography>}
-          </Grid>
-        </Grid>
-        {/* Right Column: Items & Status */}
-        <Grid size={12}>
-          <Typography variant="h6" gutterBottom>Order Items</Typography>
-          <Box sx={{ mb: 2 }}>
-            {order.orderItems && order.orderItems.length > 0 ? order.orderItems.map((item, idx) => (
-              <Box key={idx} sx={{ mb: 2, display: 'flex', alignItems: 'center', bgcolor: '#f9fbe7', p: 1, borderRadius: 2 }}>
-                {item.image && (
-                  <Box sx={{ width: 64, height: 64, mr: 2 }}>
-                    <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} />
+      {/* Status Progress - Compact */}
+      <Card elevation={1} sx={{ mb: 2 }}>
+        <CardContent sx={{ py: 1 }}>
+          <Stepper
+            activeStep={currentStep}
+            alternativeLabel={!isSmallScreen}
+            orientation={isSmallScreen ? 'vertical' : 'horizontal'}
+            sx={{ py: 1 }}
+          >
+            {statusSteps.map((step, idx) => {
+              let time = null
+              if (step === ORDER_STATUS.PENDING && order.createdAt) time = order.createdAt
+              if (step === ORDER_STATUS.CONFIRMED && (order.confirmedAt || order.confirmAt)) time = order.confirmedAt || order.confirmAt
+              if (step === ORDER_STATUS.PREPARING && order.preparingAt) time = order.preparingAt
+              if (step === ORDER_STATUS.SHIPPING && order.shippingAt) time = order.shippingAt
+              if (step === ORDER_STATUS.DELIVERED && order.deliveredAt) time = order.deliveredAt
+              return (
+                <Step key={step} completed={idx < currentStep}>
+                  <StepLabel>
+                    <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                      {getStatusIcon(step)} {step}
+                    </Typography>
+                    {time && (
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        {formatDateToMinute(time)}
+                      </Typography>
+                    )}
+                  </StepLabel>
+                </Step>
+              )
+            })}
+          </Stepper>
+        </CardContent>
+      </Card>
+
+      {/* Order Items - Compact */}
+      <Card elevation={1} sx={{ mb: 2 }}>
+        <CardHeader
+          title={`Order Items (${order.orderItems?.length || 0})`}
+          avatar={<ShoppingCartIcon color="primary" />}
+          sx={{ py: 1 }}
+        />
+        <CardContent sx={{ py: 1 }}>
+          {order.orderItems && order.orderItems.length > 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {order.orderItems.map((item, idx) => (
+                <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'center', p: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                  {item.image && (
+                    <Box
+                      component="img"
+                      src={item.image}
+                      alt={item.title}
+                      sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
+                    />
+                  )}
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                      {item.description}
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip label={`${item.quantity}x`} size="small" color="primary" />
+                        <Typography variant="body2">
+                          × {item.unitPrice?.toLocaleString()}₫
+                        </Typography>
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                        {(item.quantity * item.unitPrice)?.toLocaleString()}₫
+                      </Typography>
+                    </Box>
                   </Box>
-                )}
-                <Box>
-                  <Typography variant="subtitle1"><strong>{item.title}</strong> x {item.quantity} ({item.unitPrice?.toLocaleString()}₫)</Typography>
-                  <Typography variant="body2" color="text.secondary">{item.description}</Typography>
-                  {item.notes && <Typography variant="body2" color="text.secondary">Ghi chú: {item.notes}</Typography>}
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Typography color="text.secondary" align="center" sx={{ py: 2 }}>
+              No items in this order
+            </Typography>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Customer & Payment Info - Combined */}
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card elevation={1}>
+            <CardHeader
+              title="Customer & Delivery"
+              avatar={<PersonIcon color="primary" />}
+              sx={{ py: 1 }}
+            />
+            <CardContent sx={{ py: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Recipient:</Typography>
+                  <Typography variant="body2">{order.recipientName || 'N/A'}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Phone:</Typography>
+                  <Typography variant="body2">{order.recipientPhone || 'N/A'}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Address:</Typography>
+                  <Typography variant="body2" sx={{ textAlign: 'right', maxWidth: '60%' }}>
+                    {[order.street, order.ward, order.district, order.city].filter(Boolean).join(', ') || 'N/A'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Delivery Time:</Typography>
+                  <Typography variant="body2">
+                    {order.deliveryTime ? new Date(order.deliveryTime).toLocaleString() : 'Not specified'}
+                  </Typography>
                 </Box>
               </Box>
-            )) : <Typography color="text.secondary">No items</Typography>}
-          </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card elevation={1}>
+            <CardHeader
+              title="Payment & Pricing"
+              avatar={<PaymentIcon color="primary" />}
+              sx={{ py: 1 }}
+            />
+            <CardContent sx={{ py: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Method:</Typography>
+                  <Typography variant="body2">{order.paymentMethod || 'N/A'}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Status:</Typography>
+                  <Chip
+                    label={order.paymentStatus || 'PENDING'}
+                    size="small"
+                    color={order.paymentStatus === 'COMPLETED' ? 'success' : 'warning'}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Subtotal:</Typography>
+                  <Typography variant="body2">{order.subtotal?.toLocaleString() || 0}₫</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Shipping:</Typography>
+                  <Typography variant="body2">{order.shippingFee?.toLocaleString() || 0}₫</Typography>
+                </Box>
+                {(order.membershipDiscount > 0 || order.couponDiscount > 0) && (
+                  <>
+                    {order.membershipDiscount > 0 && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>Member Discount:</Typography>
+                        <Typography variant="body2" color="success.main">-{order.membershipDiscount?.toLocaleString()}₫</Typography>
+                      </Box>
+                    )}
+                    {order.couponDiscount > 0 && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>Coupon Discount:</Typography>
+                        <Typography variant="body2" color="success.main">-{order.couponDiscount?.toLocaleString()}₫</Typography>
+                      </Box>
+                    )}
+                  </>
+                )}
+                <Box sx={{ borderTop: '1px solid #e0e0e0', pt: 1, mt: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                      {order.totalAmount?.toLocaleString()}₫
+                    </Typography>
+                  </Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'right' }}>
+                    Points: {order.pointEarn}
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
+
+      {/* Order Notes */}
+      {order.notes && (
+        <Card elevation={1} sx={{ mt: 2 }}>
+          <CardContent sx={{ py: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Order Notes:</Typography>
+            <Typography variant="body2" color="text.secondary">{order.notes}</Typography>
+          </CardContent>
+        </Card>
+      )}
     </Container>
   )
 }

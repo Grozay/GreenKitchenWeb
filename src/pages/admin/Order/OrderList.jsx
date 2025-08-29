@@ -25,12 +25,13 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 import { API_ROOT, ORDER_STATUS } from '~/utils/constants'
-import { getOrdersFilteredAPI } from '~/apis'
+import { getOrdersFilteredAPI, updateOrderStatusAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import LinearProgress from '@mui/material/LinearProgress'
 import SockJS from 'sockjs-client'
 import { Client } from '@stomp/stompjs'
 import Popper from '@mui/material/Popper'
+import { useConfirm } from 'material-ui-confirm'
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -40,6 +41,16 @@ const getStatusColor = (status) => {
     case ORDER_STATUS.SHIPPING: return 'secondary'
     case ORDER_STATUS.DELIVERED: return 'success'
     default: return 'default'
+  }
+}
+
+const getNextStatus = (currentStatus) => {
+  switch (currentStatus) {
+    case ORDER_STATUS.PENDING: return ORDER_STATUS.CONFIRMED
+    case ORDER_STATUS.CONFIRMED: return ORDER_STATUS.PREPARING
+    case ORDER_STATUS.PREPARING: return ORDER_STATUS.SHIPPING
+    case ORDER_STATUS.SHIPPING: return ORDER_STATUS.DELIVERED
+    default: return currentStatus
   }
 }
 
@@ -53,19 +64,20 @@ export default function OrderList() {
   const [debouncedSearchText, setDebouncedSearchText] = useState('')
   const [searching, setSearching] = useState(false)
   const searchTimeout = useRef()
-  const [loading, setLoading] = useState(false)
   const [fromDate, setFromDate] = useState(dayjs().subtract(30, 'day'))
   const [toDate, setToDate] = useState(dayjs())
   const [newOrders, setNewOrders] = useState([])
   const [showNewOrderDialog, setShowNewOrderDialog] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(null)
+  const [showNoOrdersText, setShowNoOrdersText] = useState(false)
 
   const navigate = useNavigate()
-  const newOrderBtnRef = useRef(null);
+  const newOrderBtnRef = useRef(null)
+  const confirm = useConfirm()
 
   // fetch orders when page/status/debouncedSearchText change
   useEffect(() => {
     const fetchOrders = async () => {
-      setLoading(true)
       try {
         const res = await getOrdersFilteredAPI(
           page,
@@ -79,8 +91,6 @@ export default function OrderList() {
         setTotal(res.total)
       } catch {
         toast.error('Failed to load orders')
-      } finally {
-        setLoading(false)
       }
     }
     fetchOrders()
@@ -97,11 +107,23 @@ export default function OrderList() {
     return () => clearTimeout(searchTimeout.current)
   }, [searchText])
 
+  // Delay showing "No orders found" text
+  useEffect(() => {
+    if (orders.length === 0) {
+      const timer = setTimeout(() => {
+        setShowNoOrdersText(true)
+      }, 500)
+      return () => clearTimeout(timer)
+    } else {
+      setShowNoOrdersText(false)
+    }
+  }, [orders.length])
+
   // WebSocket: Tự động nhận order mới và cập nhật vào bảng
   useEffect(() => {
     const client = new Client({
       webSocketFactory: () => new SockJS(`${API_ROOT}/apis/v1/ws`),
-      reconnectDelay: 5000,
+      reconnectDelay: 5000
     })
     client.onConnect = () => {
       client.subscribe('/topic/order/new', (message) => {
@@ -113,7 +135,7 @@ export default function OrderList() {
             return [newOrder, ...prev]
           })
           setNewOrders(prev => [newOrder, ...prev])
-        } catch (e) {
+        } catch {
           //Ignore
         }
       })
@@ -136,10 +158,52 @@ export default function OrderList() {
     }
   }
 
+  const handleRowClick = (order) => {
+    navigate(`/management/orders/${order.orderCode}`)
+  }
+
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    const { confirmed } = await confirm({
+      title: 'Confirm Order Status Update',
+      description: `Are you sure you want to update the order status to ${newStatus}?`,
+      confirmationText: 'Yes, Update',
+      cancellationText: 'No, Cancel'
+    })
+    if (!confirmed) return
+
+    setUpdatingStatus(orderId)
+    try {
+      const response = await updateOrderStatusAPI({
+        id: orderId,
+        status: newStatus
+      })
+
+      if (response) {
+        // Update order status in the list
+        setOrders(prev => prev.map(order =>
+          order.id === orderId
+            ? { ...order, status: newStatus }
+            : order
+        ))
+        toast.success(`Order status updated to ${newStatus}`)
+      }
+    } catch {
+      toast.error('Failed to update order status')
+    } finally {
+      setUpdatingStatus(null)
+    }
+  }
+
+  const handleStatusChange = (order, newStatus) => {
+    if (newStatus !== order.status) {
+      handleUpdateStatus(order.id, newStatus)
+    }
+  }
+
   return (
-    <Box sx={{ minHeight: '100vh' }}>
+    <Box sx={{ minHeight: '90vh' }}>
       <Toolbar sx={{ position: 'relative' }}>
-        <Typography variant="h4" sx={{ flexGrow: 1, fontWeight: 'bold', letterSpacing: 1 }}>Order Management</Typography>
+        <Typography variant="h4" sx={{ flexGrow: 1, fontWeight: 'bold', py: 1 }}>Order Management</Typography>
         <Badge badgeContent={newOrders.length} color="secondary" sx={{ mr: 2 }}>
           <Button
             variant="contained"
@@ -166,7 +230,7 @@ export default function OrderList() {
               borderRadius: 2,
               p: 3,
               overflowY: 'auto',
-              minHeight: 200,
+              minHeight: 200
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -254,14 +318,26 @@ export default function OrderList() {
                   <TableCell sx={{ fontWeight: 'bold', width: 120 }}>Total</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', width: 120 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', width: 180 }}>Ordered At</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', width: 120 }}>Actions</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', width: 150 }}>Update Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {orders.map(order => {
                   const isNew = newOrders.some(o => o.id === order.id)
+                  const nextStatus = getNextStatus(order.status)
+                  const canUpdateStatus = order.status !== ORDER_STATUS.DELIVERED
+
                   return (
-                    <TableRow key={order.id} hover sx={{ transition: 'background 0.2s', '&:hover': { bgcolor: '#eaf0fb' } }}>
+                    <TableRow
+                      key={order.id}
+                      hover
+                      sx={{
+                        transition: 'background 0.2s',
+                        '&:hover': { bgcolor: '#eaf0fb', cursor: 'pointer' },
+                        '&:active': { bgcolor: '#e3f2fd' }
+                      }}
+                      onClick={() => handleRowClick(order)}
+                    >
                       <TableCell sx={{ fontWeight: 500 }}>
                         {order.orderCode}
                         {isNew && <span style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 8 }}><Chip label="New" color="success" size="small" sx={{ fontWeight: 'bold', height: 22 }} /></span>}
@@ -272,17 +348,49 @@ export default function OrderList() {
                         <Chip label={order.status} color={getStatusColor(order.status)} sx={{ fontWeight: 'bold' }} />
                       </TableCell>
                       <TableCell>{order.createdDate ? new Date(order.createdDate).toLocaleString() : (order.createdAt ? new Date(order.createdAt).toLocaleString() : '-')}</TableCell>
-                      <TableCell>
-                        <Button size="small" variant="contained" color="primary" sx={{ fontWeight: 'bold', borderRadius: 2 }} onClick={() => navigate(`/management/orders/${order.orderCode}`)}>
-                          Details
-                        </Button>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        {canUpdateStatus ? (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => handleStatusChange(order, nextStatus)}
+                            disabled={updatingStatus === order.id}
+                            sx={{
+                              fontSize: '0.75rem',
+                              minWidth: 120,
+                              fontWeight: 'bold',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            {updatingStatus === order.id ? (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <CircularProgress size={14} />
+                                Updating...
+                              </Box>
+                            ) : (
+                              `SET ${nextStatus}`
+                            )}
+                          </Button>
+                        ) : (
+                          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                            Completed
+                          </Typography>
+                        )}
                       </TableCell>
                     </TableRow>
                   )
                 })}
                 {orders.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">No orders found</TableCell>
+                    <TableCell colSpan={6} align="center">
+                      {!showNoOrdersText ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                          <CircularProgress size={40} />
+                        </Box>
+                      ) : (
+                        'No orders found'
+                      )}
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
