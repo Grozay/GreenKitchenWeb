@@ -1,5 +1,6 @@
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
+import Drawer from '@mui/material/Drawer'
 
 //token
 export const refreshTokenCustomerAPI = async () => {
@@ -350,6 +351,37 @@ export const getWeekMealPlanAPI = async (type, date) => {
   return response.data
 }
 
+export const createWeekMealAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/week-meals`, data)
+  return response.data
+}
+
+export const updateWeekMealAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/week-meals/${id}`, data)
+  return response.data
+}
+
+export const getByIdWeekMealAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/week-meals/${id}`)
+  return response.data
+}
+
+export const deleteWeekMealAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/week-meals/${id}`)
+  return response.data
+}
+
+export const updateWeekMealDayAPI = async (weekMealId, dayId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/week-meals/${weekMealId}/days/${dayId}`, data)
+  return response.data
+}
+
+export const getWeekMealDayByIdAPI = async (weekMealId, dayId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/week-meals/${weekMealId}/days/${dayId}`)
+  return response.data
+}
+
+
 // Posts
 export const createPostAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts`, data)
@@ -438,3 +470,4 @@ export const fetchWeeklyTrendingMenusAPI = async (date) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/weekly-trending-menus?date=${date}`)
   return response.data
 }
+
