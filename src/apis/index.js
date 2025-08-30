@@ -65,6 +65,19 @@ export const fetchCustomerDetails = async (email) => {
   return response.data
 }
 
+export const getAllCustomersAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customers`)
+  return response.data
+}
+
+export const getCustomersFilteredAPI = async (page, size, gender, q) => {
+  let url = `${API_ROOT}/apis/v1/customers/filter?page=${page}&size=${size}`
+  if (gender) url += `&gender=${encodeURIComponent(gender)}`
+  if (q) url += `&q=${encodeURIComponent(q)}`
+  const response = await authorizedAxiosInstance.get(url)
+  return response.data
+}
+
 export const updateCustomerInfo = async (data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customers/update`, data)
   return response.data
@@ -210,7 +223,7 @@ export const deleteCustomerTDEEAPI = async (id) => {
   return response.data
 }
 
-// Coupon APIs - Updated endpoints
+// Coupon APIs
 export const exchangeCouponAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/coupons/exchange`, data)
   return response.data
@@ -220,6 +233,33 @@ export const getExchangeableCouponsAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/available`)
   return response.data
 }
+
+export const getCouponByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/${id}`)
+  return response.data
+}
+
+// Admin Coupon APIs
+export const getAllCouponsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/admin/all`)
+  return response.data
+}
+
+export const deleteCouponAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/coupons/admin/delete/${id}`)
+  return response.data
+}
+
+export const createCouponAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/coupons/admin/create`, data)
+  return response.data
+}
+
+export const updateCouponAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/coupons/admin/update/${id}`, data)
+  return response.data
+}
+
 
 // Customer Coupon APIs
 export const customerUseCouponAPI = async (data) => {
@@ -352,11 +392,6 @@ export const getPostsAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts`)
   return response.data
 }
-
-// export const getPostsPagedAPI = async (page = 1, size = 10) => {
-//   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/posts?page=${page}&size=${size}`)
-//   return response.data
-// }
 
 export const getPostsFilteredAPI = async (page, size, status, categoryId, q) => {
   let url = `${API_ROOT}/apis/v1/posts/filter?page=${page}&size=${size}`

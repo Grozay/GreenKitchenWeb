@@ -54,6 +54,7 @@ import PostCreate from './Posts/PostCreateOrUpdateForm'
 import Reports from './Reports/Reports'
 import SecurityLogs from './Security/SecurityLogs'
 import SupportTickets from './Support/SupportTickets'
+import MediaIcon from '@mui/icons-material/PermMedia'
 import Stores from './Locations/Stores'
 import NotAuthorized from './NotAuthorized/NotAuthorized'
 import MealDetail from './MenuMeal/MenuMealDetail'
@@ -176,6 +177,11 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         segment: 'management/coupons',
         title: 'Coupons',
         icon: <LocalOfferIcon />
+      },
+      {
+        segment: 'management/media',
+        title: 'Media',
+        icon: <MediaIcon />
       },
       // Settings
       {

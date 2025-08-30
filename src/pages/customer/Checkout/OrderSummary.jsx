@@ -59,20 +59,16 @@ const OrderSummary = ({
     if (!coupon) return 0
 
     let discount = 0
-
     if (coupon.couponType === 'PERCENTAGE') {
       discount = (orderSubtotal * coupon.couponDiscountValue) / 100
     } else if (coupon.couponType === 'FIXED_AMOUNT') {
       discount = coupon.couponDiscountValue
     }
+    console.log('Initial calculated discount:', discount)
+    const cappedDiscount = coupon.maxDiscount ? Math.min(discount, coupon.maxDiscount) : discount
+    console.log('cappedDiscount:', cappedDiscount)
 
-    // Apply maximum discount limit if exists
-    if (coupon.maximumDiscountAmount && discount > coupon.maximumDiscountAmount) {
-      discount = coupon.maximumDiscountAmount
-    }
-
-    // Discount cannot exceed order subtotal
-    return Math.min(discount, orderSubtotal)
+    return cappedDiscount
   }
 
   // Check if coupon is applicable to current order
@@ -94,6 +90,8 @@ const OrderSummary = ({
 
   const handleSelectCoupon = (coupon) => {
     const discountAmount = calculateCouponDiscount(coupon, subtotal)
+    console.log('Selected coupon:', coupon)
+    console.log('Calculated coupon discount:', discountAmount)
     onApplyCoupon && onApplyCoupon(coupon, discountAmount)
     handleCouponClose()
   }
@@ -183,6 +181,12 @@ const OrderSummary = ({
       currency: 'VND'
     }).format(price || 0)
   }
+
+  // Calculate capped coupon discount
+  const cappedCouponDiscount = appliedCoupon && appliedCoupon.maxDiscount && couponDiscount > appliedCoupon.maxDiscount ? appliedCoupon.maxDiscount : couponDiscount
+
+  // Calculate total amount with capped discount
+  const calculatedTotal = subtotal + shippingFee - membershipDiscount - cappedCouponDiscount
 
   return (
     <Box sx={{
@@ -374,13 +378,6 @@ const OrderSummary = ({
               vertical: 'top',
               horizontal: 'left'
             }}
-            PaperProps={{
-              sx: {
-                maxWidth: 400,
-                maxHeight: 300,
-                mt: 1
-              }
-            }}
           >
             <Box sx={{ p: 2 }}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -414,9 +411,11 @@ const OrderSummary = ({
                                 {coupon.couponName}
                               </Typography>
                               <Chip
-                                label={coupon.couponType === 'PERCENTAGE'
-                                  ? `${coupon.couponDiscountValue}%`
-                                  : formatPrice(coupon.couponDiscountValue)
+                                label={coupon.maxDiscount
+                                  ? formatPrice(coupon.maxDiscount)
+                                  : coupon.couponType === 'PERCENTAGE'
+                                    ? `${coupon.couponDiscountValue}%`
+                                    : formatPrice(coupon.couponDiscountValue)
                                 }
                                 size="small"
                                 color="primary"
@@ -432,6 +431,11 @@ const OrderSummary = ({
                               {coupon.couponDescription && (
                                 <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
                                   {coupon.couponDescription}
+                                </Typography>
+                              )}
+                              {coupon.maxDiscount && (
+                                <Typography variant="caption" sx={{ color: '#00B389', display: 'block', fontWeight: 600 }}>
+                                  Giảm tối đa: {formatPrice(coupon.maxDiscount)}
                                 </Typography>
                               )}
                               <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
@@ -460,13 +464,6 @@ const OrderSummary = ({
             transformOrigin={{
               vertical: 'top',
               horizontal: 'left'
-            }}
-            PaperProps={{
-              sx: {
-                maxWidth: 450,
-                maxHeight: 400,
-                mt: 1
-              }
             }}
           >
             <Box sx={{ p: 2 }}>
@@ -546,9 +543,11 @@ const OrderSummary = ({
                                   )}
                                 </Box>
                                 <Chip
-                                  label={coupon.type === 'PERCENTAGE'
-                                    ? `${coupon.discountValue}%`
-                                    : formatPrice(coupon.discountValue)
+                                  label={coupon.maxDiscount
+                                    ? formatPrice(coupon.maxDiscount)
+                                    : coupon.type === 'PERCENTAGE'
+                                      ? `${coupon.discountValue}%`
+                                      : formatPrice(coupon.discountValue)
                                   }
                                   size="small"
                                   color="primary"
@@ -564,6 +563,11 @@ const OrderSummary = ({
                                 {coupon.description && (
                                   <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
                                     {coupon.description}
+                                  </Typography>
+                                )}
+                                {coupon.maxDiscount && (
+                                  <Typography variant="caption" sx={{ color: '#00B389', display: 'block', mb: 0.5, fontWeight: 600 }}>
+                                    Giảm tối đa: {formatPrice(coupon.maxDiscount)}
                                   </Typography>
                                 )}
                                 {!canExchange && (
@@ -599,13 +603,17 @@ const OrderSummary = ({
           </Popover>
 
           {couponDiscount > 0 && appliedCoupon && (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" sx={{ color: '#00B389' }}>
-                Giảm giá coupon ({appliedCoupon.couponName}):
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: '#00B389' }}>
-                -{formatPrice(couponDiscount)}
-              </Typography>
+            <Box sx={{ mb: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body2" sx={{ color: '#00B389' }}>
+                  Giảm giá coupon <br /> ({appliedCoupon.couponName}):
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, color: '#00B389' }}>
+                    -{formatPrice(cappedCouponDiscount)}
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
           )}
 
@@ -616,7 +624,7 @@ const OrderSummary = ({
               Tổng cộng:
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#4C082A' }}>
-              {formatPrice(totalAmount)}
+              {formatPrice(calculatedTotal)}
             </Typography>
           </Box>
         </Box>
