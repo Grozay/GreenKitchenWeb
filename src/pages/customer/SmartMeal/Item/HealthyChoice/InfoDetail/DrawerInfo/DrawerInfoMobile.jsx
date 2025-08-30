@@ -25,6 +25,7 @@ import Grid from '@mui/material/Grid'
 import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 import { useNavigate } from 'react-router-dom'
+import { IMAGE_DEFAULT } from '~/utils/constants'
 
 const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const [isReviewing, setIsReviewing] = useState(true)
@@ -55,7 +56,7 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   }
 
   const mainProtein = selected.protein?.[0]
-  const defaultImage = mainProtein?.image || ''
+  const defaultImage = mainProtein?.image || IMAGE_DEFAULT.IMAGE_CUSTOM
 
   const navigate = useNavigate()
 

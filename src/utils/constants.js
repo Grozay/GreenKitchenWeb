@@ -74,3 +74,14 @@ export const SUCCESS_MESSAGES = {
   PAYMENT_SUCCESS: 'Thanh toán thành công!',
   PROFILE_UPDATED: 'Cập nhật thông tin thành công!'
 }
+
+export const IMAGE_DEFAULT = {
+  IMAGE_WEEK_MEAL: 'http://res.cloudinary.com/dbq8itp9r/image/upload/v1755936835/i75eqgnrej3psk700afg.png',
+  IMAGE_CUSTOM: 'http://res.cloudinary.com/dbq8itp9r/image/upload/v1755936835/i75eqgnrej3psk700afg.png'
+}
+
+export const HEALTHY_MESSAGES = {
+  mealOrder1: 'Bữa sáng là khởi đầu hoàn hảo cho ngày mới, đừng bỏ lỡ để nạp năng lượng nhé!',
+  mealOrder2: 'Bữa trưa giúp bạn tiếp tục bứt phá, hãy chọn món để nạp năng lượng!',
+  mealOrder3: 'Ăn uống đúng giờ giúp cơ thể khỏe mạnh, đừng quên chăm sóc bản thân nhé!'
+}
