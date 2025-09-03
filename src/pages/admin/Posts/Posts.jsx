@@ -9,7 +9,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
-import Stack from '@mui/material/Stack'
+import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Table from '@mui/material/Table'
@@ -116,60 +116,65 @@ export default function Posts() {
   return (
     <>
       <Container maxWidth="lg" sx={{ py: 2 }}>
-        <Typography variant="h4" gutterBottom
-          sx= {{
-            fontWeight: 'bold'
-          }}
-        >
-          Posts Management
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '2rem', sm: '2.5rem' } }}>
+            Posts Management
+          </Typography>
+          <Button variant="contained" onClick={() => navigate('/management/posts/create')}>
+            Create Post
+          </Button>
+        </Box>
         <Paper sx={{ p: 2, borderRadius: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-            <FormControl sx={{ minWidth: 220 }} size="small">
-              <InputLabel id="category-filter-label">Category</InputLabel>
-              <Select
-                labelId="category-filter-label"
-                label="Category"
-                value={categoryFilter}
-                onChange={(e) => { setCategoryFilter(e.target.value); setPage(1) }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {categories.map(c => (
-                  <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FormControl sx={{ width: '100%' }} size="small">
+                <InputLabel id="category-filter-label">Category</InputLabel>
+                <Select
+                  labelId="category-filter-label"
+                  label="Category"
+                  value={categoryFilter}
+                  onChange={(e) => { setCategoryFilter(e.target.value); setPage(1) }}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  {categories.map(c => (
+                    <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
 
-            <FormControl sx={{ minWidth: 160 }} size="small">
-              <InputLabel id="status-filter-label">Status</InputLabel>
-              <Select
-                labelId="status-filter-label"
-                label="Status"
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
-              >
-                <MenuItem value="ALL">All</MenuItem>
-                <MenuItem value="PUBLISHED">Published</MenuItem>
-                <MenuItem value="DRAFT">Draft</MenuItem>
-              </Select>
-            </FormControl>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <FormControl sx={{ width: '100%' }} size="small">
+                <InputLabel id="status-filter-label">Status</InputLabel>
+                <Select
+                  labelId="status-filter-label"
+                  label="Status"
+                  value={statusFilter}
+                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
+                >
+                  <MenuItem value="ALL">All</MenuItem>
+                  <MenuItem value="PUBLISHED">Published</MenuItem>
+                  <MenuItem value="DRAFT">Draft</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
-            <TextField
-              label="Search Posts..."
-              variant="outlined"
-              size="small"
-              value={searchText}
-              onChange={e => { setSearchText(e.target.value); setPage(1) }}
-              sx={{ minWidth: 220 }}
-              slotProps={{
-                input: {
-                  endAdornment: searching ? <CircularProgress size={20} /> : null
-                }
-              }}
-            />
-            <Box sx={{ flex: 1 }} />
-            <Button variant="contained" onClick={() => navigate('/management/posts/create')}>Create Post</Button>
-          </Stack>
+            <Grid size={{ xs: 12, sm: 12, md: 4 }}>
+              <TextField
+                label="Search Posts..."
+                variant="outlined"
+                size="small"
+                value={searchText}
+                onChange={e => { setSearchText(e.target.value); setPage(1) }}
+                sx={{ width: '100%' }}
+                slotProps={{
+                  input: {
+                    endAdornment: searching ? <CircularProgress size={20} /> : null
+                  }
+                }}
+              />
+            </Grid>
+          </Grid>
 
           {searching && (
             <LinearProgress sx={{ mb: 1 }} />
@@ -178,7 +183,7 @@ export default function Posts() {
           <TableContainer sx={{ borderRadius: 3, boxShadow: 1 }}>
             <Table size='small'>
               <TableHead>
-                <TableRow sx={{ bgcolor: '#f0f2f5' }}>
+                <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', width: 80 }}></TableCell>
                   <TableCell sx={{ width: 320, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 'bold' }}>Title</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>

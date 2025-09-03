@@ -13,7 +13,7 @@ import CardHeader from '@mui/material/CardHeader'
 import Avatar from '@mui/material/Avatar'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { getOrderByCodeAPI, updateOrderStatusAPI } from '~/apis'
+import { getOrderByCodeAPI, updateOrderStatusAPI, getCustomMealByIdAPI } from '~/apis'
 import { Button } from '@mui/material'
 import { ORDER_STATUS } from '~/utils/constants'
 import { toast } from 'react-toastify'
@@ -54,6 +54,7 @@ export default function OrderDetails() {
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [statusUpdating, setStatusUpdating] = useState(false)
+  const [customMealDetails, setCustomMealDetails] = useState({})
   const theme = useTheme()
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const navigate = useNavigate()
@@ -79,6 +80,32 @@ export default function OrderDetails() {
       })
       .catch(() => setLoading(false))
   }, [orderCode])
+
+  // Fetch custom meal details when order is loaded
+  useEffect(() => {
+    if (order && order.orderItems) {
+      const customMealIds = order.orderItems
+        .filter(item => item.itemType === 'CUSTOM_MEAL' && item.customMealId)
+        .map(item => item.customMealId)
+
+      if (customMealIds.length > 0) {
+        // Fetch details for all custom meals in the order
+        const fetchPromises = customMealIds.map(id =>
+          getCustomMealByIdAPI(id).catch(() => null) // Handle errors gracefully
+        )
+
+        Promise.all(fetchPromises).then(results => {
+          const detailsMap = {}
+          customMealIds.forEach((id, index) => {
+            if (results[index]) {
+              detailsMap[id] = results[index]
+            }
+          })
+          setCustomMealDetails(detailsMap)
+        })
+      }
+    }
+  }, [order])
 
   const handleUpdateStatus = async () => {
     if (!order) return
@@ -231,37 +258,118 @@ export default function OrderDetails() {
         <CardContent sx={{ py: 1 }}>
           {order.orderItems && order.orderItems.length > 0 ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {order.orderItems.map((item, idx) => (
-                <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'center', p: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                  {item.image && (
-                    <Box
-                      component="img"
-                      src={item.image}
-                      alt={item.title}
-                      sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
-                    />
-                  )}
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {item.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                      {item.description}
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Chip label={`${item.quantity}x`} size="small" color="primary" />
-                        <Typography variant="body2">
-                          × {item.unitPrice?.toLocaleString()}₫
+              {order.orderItems.map((item, idx) => {
+                const customMealDetail = item.itemType === 'CUSTOM_MEAL' && item.customMealId
+                  ? customMealDetails[item.customMealId]
+                  : null
+
+                return (
+                  <Box key={idx}>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', p: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                      {item.image && (
+                        <Box
+                          component="img"
+                          src={item.image}
+                          alt={item.title}
+                          sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
+                        />
+                      )}
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                          {item.title}
                         </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                          {item.description}
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Chip label={`${item.quantity}x`} size="small" color="primary" />
+                            <Typography variant="body2">
+                              × {item.unitPrice?.toLocaleString()}₫
+                            </Typography>
+                          </Box>
+                          <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                            {(item.quantity * item.unitPrice)?.toLocaleString()}₫
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                        {(item.quantity * item.unitPrice)?.toLocaleString()}₫
-                      </Typography>
                     </Box>
+
+                    {/* Display ingredients for custom meals */}
+                    {customMealDetail && customMealDetail.details && customMealDetail.details.length > 0 && (
+                      <Box sx={{ ml: 3, mt: 1, mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid #e0e0e0' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}>
+                          🥗 Ingredients ({customMealDetail.details.length} items):
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {customMealDetail.details.map((ingredient, ingIdx) => (
+                            <Box
+                              key={ingIdx}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                p: 1,
+                                bgcolor: 'white',
+                                borderRadius: 1,
+                                border: '1px solid #f0f0f0'
+                              }}
+                            >
+                              {ingredient.image && (
+                                <Box
+                                  component="img"
+                                  src={ingredient.image}
+                                  alt={ingredient.title}
+                                  sx={{
+                                    width: 40,
+                                    height: 40,
+                                    objectFit: 'cover',
+                                    borderRadius: 1,
+                                    mr: 2,
+                                    flexShrink: 0
+                                  }}
+                                />
+                              )}
+                              <Box sx={{ flex: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                    {ingredient.title}
+                                  </Typography>
+                                  <Chip
+                                    label={ingredient.type}
+                                    size="small"
+                                    color="secondary"
+                                    variant="outlined"
+                                    sx={{ fontSize: '0.65rem', height: '18px' }}
+                                  />
+                                </Box>
+                                <Typography variant="caption" color="text.secondary">
+                                  Quantity: {ingredient.quantity}
+                                </Typography>
+                              </Box>
+                              <Box sx={{ textAlign: 'right', minWidth: '120px' }}>
+                                <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                                  {ingredient.calories} cal
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                                  <Typography variant="caption" color="primary.main">
+                                    P: {ingredient.protein}g
+                                  </Typography>
+                                  <Typography variant="caption" color="secondary.main">
+                                    C: {ingredient.carbs}g
+                                  </Typography>
+                                  <Typography variant="caption" color="warning.main">
+                                    F: {ingredient.fat}g
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
                   </Box>
-                </Box>
-              ))}
+                )
+              })}
             </Box>
           ) : (
             <Typography color="text.secondary" align="center" sx={{ py: 2 }}>

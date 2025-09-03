@@ -76,18 +76,18 @@ export default function OrderHistoryTab({ customerDetails }) {
       margin: '0 auto'
     }}>
       {/* Filter*/}
-      <Card sx={{ mb: 3, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <CardContent sx={{ p: 3 }}>
-          <Grid container spacing={3}>
+      <Card sx={{ mb: 2, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <CardContent sx={{ p: 2 }}>
+          <Grid container spacing={2}>
             {/* Filter theo trạng thái */}
             <Grid size={12}>
-              <Typography variant="body1" sx={{ mb: 2, fontWeight: 600, color: '#666' }}>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: '#666', fontSize: '14px' }}>
                 Trạng thái đơn hàng
               </Typography>
               <Box sx={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: 1
+                gap: 0.5
               }}>
                 {statusOptions.map((status) => (
                   <Chip
@@ -96,8 +96,11 @@ export default function OrderHistoryTab({ customerDetails }) {
                     variant={selectedStatus === status.key ? 'filled' : 'outlined'}
                     color={selectedStatus === status.key ? 'primary' : 'default'}
                     onClick={() => handleStatusChange(status.key)}
+                    size="small"
                     sx={{
                       cursor: 'pointer',
+                      fontSize: '14px',
+                      height: '28px',
                       '&:hover': {
                         backgroundColor: selectedStatus === status.key
                           ? 'primary.main'
@@ -111,23 +114,27 @@ export default function OrderHistoryTab({ customerDetails }) {
 
             {/* Filter theo ngày tháng */}
             <Grid size={12}>
-              <Typography variant="body1" sx={{ mb: 2, fontWeight: 600, color: '#666' }}>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: '#666', fontSize: '14px' }}>
                 Thời gian đặt hàng
               </Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
+                <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
                   <DatePicker
                     label="Từ ngày"
                     value={startDate}
                     onChange={handleStartDateChange}
-                    sx={{
-                      flex: 1,
-                      '& .MuiOutlinedInput-root': {
-                        '&:hover fieldset': {
-                          borderColor: '#4caf50'
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#4caf50'
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: '#4caf50'
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#4caf50'
+                            }
+                          }
                         }
                       }
                     }}
@@ -137,14 +144,18 @@ export default function OrderHistoryTab({ customerDetails }) {
                     value={endDate}
                     onChange={handleEndDateChange}
                     minDate={startDate}
-                    sx={{
-                      flex: 1,
-                      '& .MuiOutlinedInput-root': {
-                        '&:hover fieldset': {
-                          borderColor: '#4caf50'
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#4caf50'
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: '#4caf50'
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#4caf50'
+                            }
+                          }
                         }
                       }
                     }}
@@ -158,19 +169,20 @@ export default function OrderHistoryTab({ customerDetails }) {
 
       {/* Phần 3: Danh sách đơn hàng với khả năng đóng/mở */}
       <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <CardContent sx={{ p: 3 }}>
+        <CardContent sx={{ p: 2 }}>
           <Box sx={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            mb: 3
+            mb: 2
           }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: '#2e7d32' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: '#2e7d32', fontSize: '14px' }}>
               Lịch sử đơn hàng ({filteredOrders.length} đơn)
             </Typography>
             <IconButton
               onClick={() => setIsOrderHistoryOpen(!isOrderHistoryOpen)}
               sx={{ color: '#4caf50' }}
+              size="small"
             >
               {isOrderHistoryOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </IconButton>
@@ -179,14 +191,14 @@ export default function OrderHistoryTab({ customerDetails }) {
           <Collapse in={isOrderHistoryOpen}>
             {/* Order Cards */}
             {filteredOrders.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography variant="body1" color="text.secondary">
+              <Box sx={{ textAlign: 'center', py: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '14px' }}>
                   Không có đơn hàng nào phù hợp với bộ lọc
                 </Typography>
               </Box>
             ) : (
               <>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                   {filteredOrders.slice(0, visibleCount).map((order) => (
                     <OrderCard
                       key={order.id}
@@ -196,13 +208,14 @@ export default function OrderHistoryTab({ customerDetails }) {
                   ))}
                 </Box>
                 {visibleCount < filteredOrders.length && (
-                  <Box sx={{ textAlign: 'center', mt: 3 }}>
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
                     <Chip
                       label="Xem thêm"
                       color="primary"
                       clickable
                       onClick={() => setVisibleCount((prev) => prev + 5)}
-                      sx={{ fontWeight: 600, px: 3, py: 1, fontSize: '1rem' }}
+                      size="small"
+                      sx={{ fontWeight: 600, px: 2, py: 0.5, fontSize: '14px' }}
                     />
                   </Box>
                 )}
