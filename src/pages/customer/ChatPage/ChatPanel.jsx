@@ -265,7 +265,8 @@ export default function ChatPanel({ onMessagesUpdate }) {
     if (chatMode === 'AI' && awaitingAI) return
 
     setInput('')
-    // awaitingAI sẽ được tính lại dựa trên message PENDING và AI PENDING từ server
+    // Hiển thị trạng thái đang chờ AI ngay lập tức để tránh phải F5 lần đầu
+    setAwaitingAI(true)
     const tempId = `temp-${Date.now()}`
     setMessages(prev => ([
       ...prev,
@@ -289,7 +290,25 @@ export default function ChatPanel({ onMessagesUpdate }) {
     if (isCustomerLoggedIn) params.customerId = customerId
 
     try {
-      await chatAPI.sendMessage(params)
+      const resp = await chatAPI.sendMessage(params)
+      const respConvId = resp?.conversationId
+      if (!animationConvId && respConvId) {
+        setAnimationConvId(respConvId)
+        if (!isCustomerLoggedIn) {
+          localStorage.setItem('conversationId', respConvId)
+        }
+      }
+      // Backfill: lần đầu subscribe có thể chưa kịp nhận tin từ WS → refetch nhanh
+      setTimeout(() => {
+        const cid = respConvId || animationConvId
+        if (!cid) return
+        chatAPI.fetchMessagesPaged(cid, 0, PAGE_SIZE)
+          .then(data => {
+            setMessages([...data.content].reverse())
+            setHasMore(!data.last)
+          })
+          .catch(() => {})
+      }, 300)
     } catch (error) {
       setMessages(prev => ([
         ...prev.filter(m => m.id !== tempId),
