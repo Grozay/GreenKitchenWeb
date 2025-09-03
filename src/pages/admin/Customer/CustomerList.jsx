@@ -124,7 +124,7 @@ export default function CustomerList() {
           <TableContainer sx={{ borderRadius: 3, boxShadow: 1 }}>
             <Table size='small'>
               <TableHead>
-                <TableRow sx={{ bgcolor: '#f0f2f5' }}>
+                <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', width: 60 }}>Avatar</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>

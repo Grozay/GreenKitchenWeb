@@ -220,16 +220,42 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
 
 const customTheme = createTheme({
   cssVariables: { colorSchemeSelector: 'data-toolpad-color-scheme' },
-  palette: {
-    mode: 'light'
-  },
+  colorSchemes: { light: true, dark: true },
   components: {
-    ToolpadAppBar: {
+    MuiDrawer: {
       styleOverrides: {
         root: {
-          '& .MuiIconButton-root[data-testid="theme-toggle"], & .mode-toggle': {
-            display: 'none'
+          width: '220px !important',
+          '& .MuiDrawer-paper': {
+            width: '220px !important',
+            borderRight: '1px solid #e0e0e0'
           }
+        }
+      }
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        primary: {
+          fontSize: '0.875rem',
+          fontWeight: 500
+        }
+      }
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          height: '20px',
+          fontSize: '0.75rem'
+        }
+      }
+    },
+    MuiListSubheader: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          minHeight: '28px'
         }
       }
     }
@@ -338,19 +364,17 @@ function Layout(props) {
         branding={{
           logo: '',
           homeUrl: '/management',
-          title: (
-            <Typography
-              sx={{
-                fontWeight: 600,
-                fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
-              }}
-            >
-              Green Kitchen Management
-            </Typography>
-          )
+          title: <Typography
+            variant='h6'
+            sx={{
+              fontWeight: 600,
+              fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
+            }}>
+            Green Kitchen Management
+          </Typography>
         }}
       >
-        <DashboardLayout>
+        <DashboardLayout disableCollapsibleSidebar>
           <Routes>
             <Route
               index

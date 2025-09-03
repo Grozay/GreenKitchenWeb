@@ -62,7 +62,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                     <Typography variant="h5" sx={{ fontWeight: 'bold', color: tier.color, mb: 1 }}>
                       {tier.displayName}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.75rem' } }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
                       {tier.maxSpent
                         ? `Chi tiêu từ ${tier.minSpent.toLocaleString()} - ${tier.maxSpent.toLocaleString()} VNĐ`
                         : `Chi tiêu từ ${tier.minSpent.toLocaleString()} VNĐ trở lên`
@@ -75,7 +75,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                         🎁 Ưu đãi chính:
                       </Typography>
                       {tier.benefits.map((benefit, index) => (
-                        <Typography key={index} variant="body2" sx={{ fontSize: '0.85rem', mb: 0.5, color: 'text.secondary' }}>
+                        <Typography key={index} variant="body2" sx={{ fontSize: '0.875rem', mb: 0.5, color: 'text.secondary' }}>
                           • {benefit}
                         </Typography>
                       ))}
@@ -84,7 +84,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                   {isCurrentTier && (
                     <Chip
                       label="HẠNG HIỆN TẠI"
-                      sx={{ width: '100%', margin: '0 auto', backgroundColor: tier.color, color: 'white', fontWeight: 'bold', fontSize: '0.5rem', zIndex: 1 }}
+                      sx={{ width: '100%', margin: '0 auto', backgroundColor: tier.color, color: 'white', fontWeight: 'bold', fontSize: '0.875rem', zIndex: 1 }}
                     />
                   )}
                 </CardContent>
@@ -102,7 +102,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                 {displayTier.name === membership?.currentTier && (
                   <Chip
                     label="HẠNG HIỆN TẠI"
-                    sx={{ ml: 2, backgroundColor: displayTier.color, color: 'white', fontSize: '0.75rem' }}
+                    sx={{ ml: 2, backgroundColor: displayTier.color, color: 'white', fontSize: '0.875rem' }}
                   />
                 )}
               </Typography>

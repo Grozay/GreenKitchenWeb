@@ -21,11 +21,30 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
         <Grid container spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, sm: 6, md: 6 }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
-              <LoyaltyOutlinedIcon sx={{ fontSize: '2rem', color: 'white' }} />
-              <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
-                Hạng Thành Viên
+              <LoyaltyOutlinedIcon sx={{ fontSize: '2rem', color: 'white', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
+              <Typography variant="h5" sx={{
+                fontWeight: 800,
+                color: 'white',
+                textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                letterSpacing: '0.5px'
+              }}>
+                HẠNG THÀNH VIÊN
               </Typography>
             </Box>
+            <Typography variant="h4" sx={{
+              fontWeight: 900,
+              color: 'white',
+              textShadow: '0 3px 6px rgba(0,0,0,0.4)',
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+              textAlign: 'center',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>
+              {membership?.currentTier === 'ENERGY' && '🌱 ENERGY'}
+              {membership?.currentTier === 'VITALITY' && '⚡ VITALITY'}
+              {membership?.currentTier === 'RADIANCE' && '👑 RADIANCE'}
+            </Typography>
           </Grid>
           <Grid size={{ xs: 12, sm: 3, md: 3 }}>
             <Button
@@ -37,10 +56,13 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
               sx={{
                 backgroundColor: 'rgba(255,255,255,0.15)',
                 color: 'white',
-                fontWeight: 'bold',
+                fontWeight: 700,
                 borderRadius: 3,
                 py: 1.5,
                 border: '2px solid rgba(255,255,255,0.2)',
+                fontSize: '0.9rem',
+                textTransform: 'none',
+                letterSpacing: '0.5px',
                 '&:hover': {
                   backgroundColor: 'rgba(255,255,255,0.25)',
                   border: '2px solid rgba(255,255,255,0.4)',
@@ -62,10 +84,13 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
               sx={{
                 backgroundColor: 'rgba(255,255,255,0.15)',
                 color: 'white',
-                fontWeight: 'bold',
+                fontWeight: 700,
                 borderRadius: 3,
                 py: 1.5,
                 border: '2px solid rgba(255,255,255,0.2)',
+                fontSize: '0.9rem',
+                textTransform: 'none',
+                letterSpacing: '0.5px',
                 '&:hover': {
                   backgroundColor: 'rgba(255,255,255,0.25)',
                   border: '2px solid rgba(255,255,255,0.4)',
@@ -154,14 +179,14 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                       transform: 'translate(-50%, -50%)',
                       color: tierProgress?.progressToNextTier > 50 ? '#000' : '#fff',
                       fontWeight: 'bold',
-                      fontSize: '0.7rem'
+                      fontSize: '0.875rem'
                     }}
                   >
                     {Math.round(tierProgress?.progressToNextTier || 0)}%
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.8rem', color: 'white' }}>
+                  <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.875rem', color: 'white' }}>
                     Còn cần: <strong style={{ color: '#FFD700' }}>{tierProgress?.spentToNextTier?.toLocaleString() || '0'} VNĐ</strong>
                   </Typography>
                 </Box>
@@ -187,7 +212,7 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                   <Typography variant="h5" sx={{ mb: 1, fontWeight: 'bold', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                     ✨ RADIANCE ✨
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'white', opacity: 0.9, fontSize: '0.8rem' }}>
+                  <Typography variant="body2" sx={{ color: 'white', opacity: 0.9, fontSize: '0.875rem' }}>
                     Chi tiêu: <strong>{membership?.totalSpentLast6Months?.toLocaleString() || '0'} VNĐ</strong>
                   </Typography>
                 </Box>
