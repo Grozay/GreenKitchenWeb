@@ -358,7 +358,13 @@ export default function ChatPanel({ onMessagesUpdate }) {
         {messages
           .filter(m => !(m.senderRole === 'AI' && (m.status === 'PENDING' || m.status === 'pending')))
           .map((message, idx) => {
-            return (
+            const hasMenu = Array.isArray(message.menu) && message.menu.length > 0
+            return hasMenu ? (
+              <ProductMessageBubble
+                key={`${message.id}-${idx}`}
+                message={message}
+              />
+            ) : (
               <MessageBubble
                 key={`${message.id}-${idx}`}
                 message={message}
