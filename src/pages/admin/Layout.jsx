@@ -61,6 +61,8 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import Alert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
+import ChatIcon from '@mui/icons-material/Chat'
+import Chat from './Chat/Chat'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -131,6 +133,13 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         icon: <SupportAgentIcon />,
         action: <Chip label={7} color="primary" size="small" />
       },
+      // Inbox / Chat
+      {
+        segment: 'management/inbox',
+        title: 'Inbox',
+        icon: <ChatIcon />,
+        action: <Chip label="New" color="success" size="small" />
+      },
       {
         kind: 'header',
         title: 'OTHERS'
@@ -181,6 +190,12 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         segment: 'management/support',
         title: 'Support',
         icon: <SupportAgentIcon />
+      },
+      {
+        segment: 'management/inbox',
+        title: 'Inbox',
+        icon: <ChatIcon />,
+        action: <Chip label="New" color="success" size="small" />
       }
     )
   }
@@ -433,6 +448,9 @@ function Layout(props) {
                 </ProtectedRoute>
               } />
             </Route>
+
+            {/* Chat */}
+            <Route path="inbox" element={<ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}><Chat /></ProtectedRoute>} />
           </Routes>
         </DashboardLayout>
       </AppProvider >

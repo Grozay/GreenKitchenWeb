@@ -181,11 +181,11 @@ export default function ChatPanel({ onMessagesUpdate }) {
     const list = listRef.current
     if (!list) return
     const onScroll = () => {
-      if (list.scrollTop === 0 && hasMore && !isLoadingOlder) handleLoadMore()
+      if (list.scrollTop === 0 && hasMore && !isLoadingOlder) loadMoreMessages()
     }
     list.addEventListener('scroll', onScroll)
     return () => list.removeEventListener('scroll', onScroll)
-  }, [handleLoadMore, hasMore, isLoadingOlder])
+  }, [loadMoreMessages, hasMore, isLoadingOlder])
 
   // WebSocket incoming handler
   const handleIncoming = useCallback((msg) => {
