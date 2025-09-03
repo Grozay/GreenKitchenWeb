@@ -19,23 +19,71 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import Chip from '@mui/material/Chip'
 import theme from '~/theme'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import { getOrderByCodeAPI, getCustomMealByIdAPI } from '~/apis'
 
-export default function OrderDetails({ customerDetails, orderCode: propOrderCode }) {
+export default function OrderDetails({ orderCode: propOrderCode }) {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const { orderId } = useParams()
   const navigate = useNavigate()
   const [order, setOrder] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [customMealDetails, setCustomMealDetails] = useState({})
 
   const code = propOrderCode || orderId
 
+  // Calculate subtotal from order items
+  const calculateSubtotal = () => {
+    if (!order?.orderItems) return 0
+    return order.orderItems.reduce((sum, item) => {
+      return sum + (item.totalPrice || (item.unitPrice * item.quantity) || 0)
+    }, 0)
+  }
+
+  const subtotal = calculateSubtotal()
+
   useEffect(() => {
-    if (!customerDetails) return
-    const all = customerDetails.orders || []
-    const found = all.find(o => o.orderCode === code || String(o.id) === String(code))
-    setOrder(found || null)
-  }, [customerDetails, code])
+    const fetchOrderDetails = async () => {
+      if (!code) return
+
+      try {
+        setLoading(true)
+        setError(null)
+        const orderData = await getOrderByCodeAPI(code)
+        setOrder(orderData)
+
+        // Fetch custom meal details if any
+        if (orderData.orderItems) {
+          const customMealIds = orderData.orderItems
+            .filter(item => item.itemType === 'CUSTOM_MEAL' && item.customMealId)
+            .map(item => item.customMealId)
+
+          if (customMealIds.length > 0) {
+            // Fetch details for all custom meals in the order
+            const fetchPromises = customMealIds.map(id =>
+              getCustomMealByIdAPI(id).catch(() => null) // Handle errors gracefully
+            )
+
+            const customMealResults = await Promise.all(fetchPromises)
+            const detailsMap = {}
+            customMealIds.forEach((id, index) => {
+              if (customMealResults[index]) {
+                detailsMap[id] = customMealResults[index]
+              }
+            })
+            setCustomMealDetails(detailsMap)
+          }
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrderDetails()
+  }, [code])
 
   // progress helper removed — UI now shows step dots instead of a progress bar
   // Stepper status config
@@ -66,19 +114,31 @@ export default function OrderDetails({ customerDetails, orderCode: propOrderCode
   }
 
 
-  if (!order) return (
-    // If customerDetails is not yet loaded, show a spinner
-    !customerDetails ? (
+  if (loading) {
+    return (
       <Box sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Box>
-    ) : (
+    )
+  }
+
+  if (error) {
+    return (
       <Box sx={{ p: 3 }}>
-        <Typography>Order not found</Typography>
-        <Button variant="text" onClick={() => navigate('/profile/order-history')}>Back</Button>
+        <Typography color="error">{error}</Typography>
+        <Button variant="text" onClick={() => navigate('/profile/order-history')}>Quay lại</Button>
       </Box>
     )
-  )
+  }
+
+  if (!order) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography>Đơn hàng không tồn tại</Typography>
+        <Button variant="text" onClick={() => navigate('/profile/order-history')}>Quay lại</Button>
+      </Box>
+    )
+  }
 
   return (
     <Box>
@@ -144,22 +204,109 @@ export default function OrderDetails({ customerDetails, orderCode: propOrderCode
         <CardContent>
           <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Chi tiết sản phẩm</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {order.orderItems?.map((it, i) => (
-              <Card key={i} variant="outlined" sx={{ p: 2, borderRadius: 1, bgcolor: '#fafafa' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar variant="rounded" src={it.image} sx={{ width: 80, height: 60, bgcolor: '#f5f5f5' }} />
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>{it.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">Số lượng: {it.quantity}</Typography>
-                  </Box>
-                  <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="body1" sx={{ fontWeight: 600, color: '#4caf50' }}>
-                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(it.totalPrice || (it.unitPrice * it.quantity) || 0)}
-                    </Typography>
-                  </Box>
+            {order.orderItems?.map((it, i) => {
+              const customMealDetail = it.itemType === 'CUSTOM_MEAL' && it.customMealId
+                ? customMealDetails[it.customMealId]
+                : null
+
+              return (
+                <Box key={i}>
+                  <Card variant="outlined" sx={{ p: 2, borderRadius: 1, bgcolor: '#fafafa' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Avatar variant="rounded" src={it.image} sx={{ width: 80, height: 60, bgcolor: '#f5f5f5' }} />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>{it.title}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>{it.description}</Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Chip label={`${it.quantity}x`} size="small" color="primary" />
+                            <Typography variant="body2">
+                              × {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(it.unitPrice || 0)}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: '#4caf50' }}>
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(it.totalPrice || (it.unitPrice * it.quantity) || 0)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Card>
+
+                  {/* Display ingredients for custom meals */}
+                  {customMealDetail && customMealDetail.details && customMealDetail.details.length > 0 && (
+                    <Box sx={{ ml: 3, mt: 1, mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid #e0e0e0' }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}>
+                        🥗 Nguyên liệu ({customMealDetail.details.length} món):
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {customMealDetail.details.map((ingredient, ingIdx) => (
+                          <Box
+                            key={ingIdx}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              p: 1,
+                              bgcolor: 'white',
+                              borderRadius: 1,
+                              border: '1px solid #f0f0f0'
+                            }}
+                          >
+                            {ingredient.image && (
+                              <Box
+                                component="img"
+                                src={ingredient.image}
+                                alt={ingredient.title}
+                                sx={{
+                                  width: 40,
+                                  height: 40,
+                                  objectFit: 'cover',
+                                  borderRadius: 1,
+                                  mr: 2,
+                                  flexShrink: 0
+                                }}
+                              />
+                            )}
+                            <Box sx={{ flex: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                  {ingredient.title}
+                                </Typography>
+                                <Chip
+                                  label={ingredient.type}
+                                  size="small"
+                                  color="secondary"
+                                  variant="outlined"
+                                  sx={{ fontSize: '0.65rem', height: '18px' }}
+                                />
+                              </Box>
+                              <Typography variant="caption" color="text.secondary">
+                                Số lượng: {ingredient.quantity}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ textAlign: 'right', minWidth: '120px' }}>
+                              <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                                {ingredient.calories} cal
+                              </Typography>
+                              <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                                <Typography variant="body2" color="primary.main" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>
+                                  Protein: {ingredient.protein}g
+                                </Typography>
+                                <Typography variant="body2" color="secondary.main" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>
+                                  Carbs: {ingredient.carbs}g
+                                </Typography>
+                                <Typography variant="body2" color="warning.main" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>
+                                  Fat: {ingredient.fat}g
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
-              </Card>
-            ))}
+              )
+            })}
           </Box>
         </CardContent>
       </Card>
@@ -209,13 +356,31 @@ export default function OrderDetails({ customerDetails, orderCode: propOrderCode
               </Box>
               <Divider sx={{ my: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="body2" color="text.secondary">Tổng tiền hàng</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.subTotal || order.totalAmount || 0)}</Typography>
+                <Typography variant="body2" color="text.secondary">Tổng cộng</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}</Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="body2" color="text.secondary">Giảm giá</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'success.main' }}>{order.discount ? '-' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount) : '-'}</Typography>
-              </Box>
+              <Divider sx={{ my: 1 }} />
+              {(order.membershipDiscount > 0 || order.couponDiscount > 0) && (
+                <>
+                  {order.membershipDiscount > 0 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
+                      <Typography variant="body2" color="text.secondary">Giảm giá hội viên</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500, color: 'success.main' }}>
+                        -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.membershipDiscount)}
+                      </Typography>
+                    </Box>
+                  )}
+                  {order.couponDiscount > 0 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
+                      <Typography variant="body2" color="text.secondary">Giảm giá coupon</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500, color: 'success.main' }}>
+                        -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.couponDiscount)}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Divider sx={{ my: 1 }} />
+                </>
+              )}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                 <Typography variant="body2" color="text.secondary">Phí vận chuyển</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>{order.shippingFee ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shippingFee) : 'Miễn phí'}</Typography>

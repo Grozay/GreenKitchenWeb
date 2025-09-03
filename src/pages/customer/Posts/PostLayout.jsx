@@ -44,6 +44,7 @@ export default function PostLayout() {
   const [hoveredPost, setHoveredPost] = useState(null)
   const hoverTimerRef = useRef(null)
   const open = Boolean(anchorEl && hoveredPost)
+  const [showNoPostsText, setShowNoPostsText] = useState(false)
 
 
   // fetch categories once
@@ -101,6 +102,18 @@ export default function PostLayout() {
     const id = setTimeout(() => { setDebouncedCategory(category); setIsLoading(false) }, 250)
     return () => clearTimeout(id)
   }, [category])
+
+  // Delay showing "No posts found" text
+  useEffect(() => {
+    if (posts.length === 0 && !isSearching) {
+      const timer = setTimeout(() => {
+        setShowNoPostsText(true)
+      }, 500)
+      return () => clearTimeout(timer)
+    } else {
+      setShowNoPostsText(false)
+    }
+  }, [posts.length, isSearching])
 
   // wrap setters so changing filters resets page to 1 immediately
   const setCategoryAndReset = (v) => { setCategory(v); setPage(1), setIsLoading(true) }
@@ -225,7 +238,13 @@ export default function PostLayout() {
               {(!isSearching && posts.length === 0) && (
                 <Grid size={{ xs: 12 }}>
                   <Box sx={{ textAlign: 'center', color: '#888', fontSize: 18, mt: 4 }}>
-                    No posts found
+                    {!showNoPostsText ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                        <CircularProgress size={40} />
+                      </Box>
+                    ) : (
+                      'No posts found'
+                    )}
                   </Box>
                 </Grid>
               )}

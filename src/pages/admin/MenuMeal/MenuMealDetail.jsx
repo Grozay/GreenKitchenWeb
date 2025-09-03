@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Box, Typography, Paper, Divider, Button, Chip, Avatar } from '@mui/material'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
+import Divider from '@mui/material/Divider'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Avatar from '@mui/material/Avatar'
 import Grid from '@mui/material/Grid'
 import { toast } from 'react-toastify'
 import { getDetailMenuMealAPI } from '~/apis'
@@ -48,10 +54,10 @@ export default function MenuMealDetail() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/management/menu-meals/list')}
+          onClick={() => navigate(-1)} // Sửa thành navigate(-1)
           sx={{ mr: 2 }}
         >
-          Back to List
+          Back
         </Button>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
           Meal Details

@@ -25,6 +25,7 @@ import AuthAdmin from './pages/admin/AuthAdmin/Auth'
 import Layout from './pages/admin/Layout'
 import PostLayout from './pages/customer/Posts/PostLayout'
 import PostDetails from './pages/customer/Posts/PostDetails'
+import { BankTransfer } from './pages/customer/Checkout/BankTransfer'
 
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
@@ -61,6 +62,7 @@ function App() {
       <Route path="/week-meal-planner" element={<WeekMealLayout />} />
       {/* <Route path="/calo-calculator" element={<CaloCalculatorLayout />} /> */}
       <Route path="/cart" element={<Cart />} />
+      <Route path="/bank-transfer" element={<BankTransfer />} />
 
       {/* Authentication */}
       <Route path="/login" element={<Auth />} />

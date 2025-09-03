@@ -11,11 +11,11 @@ import Alert from '@mui/material/Alert'
 import LinearProgress from '@mui/material/LinearProgress'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { toast } from 'react-toastify'
-import DeliveryInfoForm from './components/DeliveryInfoForm'
-import PaymentMethodForm from './components/PaymentMethodForm'
-import OrderSummary from './components/OrderSummary'
-import OrderConfirmDialog from './components/OrderConfirmDialog'
-import PayPalPaymentForm from './components/PayPalPaymentForm'
+import DeliveryInfoForm from './DeliveryInfoForm'
+import PaymentMethodForm from './PaymentMethodForm'
+import OrderSummary from './OrderSummary'
+import OrderConfirmDialog from './OrderConfirmDialog'
+import PayPalPaymentForm from './PayPalPaymentForm'
 import { createOrder, customerUseCouponAPI, fetchCustomerDetails } from '~/apis'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { selectCurrentCart, clearCart } from '~/redux/cart/cartSlice'
@@ -31,6 +31,7 @@ const Checkout = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [customerDetails, setCustomerDetails] = useState(null)
   const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponDiscount, setCouponDiscount] = useState(0)
   const [showPayPalForm, setShowPayPalForm] = useState(false)
 
   // Calculate order summary
@@ -87,7 +88,7 @@ const Checkout = () => {
           }))
         }
       } catch (error) {
-        toast.error('❌ Không thể tải thông tin khách hàng!')
+        toast.error('Không thể tải thông tin khách hàng!')
       } finally {
         setLoading(false)
       }
@@ -113,24 +114,6 @@ const Checkout = () => {
       membershipDiscount = subtotal * 0.05
     }
 
-    // Calculate coupon discount
-    let couponDiscount = 0
-    if (appliedCoupon) {
-      if (appliedCoupon.couponType === 'PERCENTAGE') {
-        couponDiscount = (subtotal * appliedCoupon.couponDiscountValue) / 100
-      } else if (appliedCoupon.couponType === 'FIXED_AMOUNT') {
-        couponDiscount = appliedCoupon.couponDiscountValue
-      }
-
-      // Apply maximum discount limit if exists
-      if (appliedCoupon.maximumDiscountAmount && couponDiscount > appliedCoupon.maximumDiscountAmount) {
-        couponDiscount = appliedCoupon.maximumDiscountAmount
-      }
-
-      // Discount cannot exceed order subtotal
-      couponDiscount = Math.min(couponDiscount, subtotal)
-    }
-
     // Calculate total amount
     const totalAmount = subtotal + shippingFee - membershipDiscount - couponDiscount
 
@@ -141,18 +124,20 @@ const Checkout = () => {
       couponDiscount,
       totalAmount
     })
-  }, [currentCart, customerDetails, appliedCoupon])
+  }, [currentCart, customerDetails, appliedCoupon, couponDiscount])
 
   // Handle apply coupon
   const handleApplyCoupon = (coupon, discountAmount) => {
     setAppliedCoupon(coupon)
-    toast.success(`✅ Đã áp dụng coupon "${coupon.couponName}"!`)
+    setCouponDiscount(discountAmount)
+    toast.success(`Đã áp dụng coupon "${coupon.couponName}"!`)
   }
 
   // Handle remove coupon
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null)
-    toast.info('🗑️ Đã bỏ coupon')
+    setCouponDiscount(0)
+    toast.info('Đã bỏ coupon')
   }
 
   // Handle coupons updated after exchange
@@ -271,7 +256,7 @@ const Checkout = () => {
         return
       }
     } catch {
-      toast.error('❌ Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
+      toast.error('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
     } finally {
       setLoading(false)
     }
@@ -296,11 +281,11 @@ const Checkout = () => {
         paypalOrderId: paymentResult.id,
         notes: '',
         orderItems: cartItems.map(item => ({
-          itemType: item.isCustom ? 'CUSTOM_MEAL' : 'MENU_MEAL',
-          menuMealId: !item.isCustom ? item.id : null,
-          customMealId: item.isCustom ? item.id : null,
+          itemType: item.itemType,
+          menuMealId: item.itemType === 'MENU_MEAL' ? item.menuMeal?.id : null,
+          customMealId: item.itemType === 'CUSTOM_MEAL' ? item.customMeal?.id : null,
           quantity: item.quantity || 1,
-          unitPrice: item.basePrice || 0,
+          unitPrice: item.unitPrice || 0,
           notes: ''
         }))
       }
@@ -326,7 +311,7 @@ const Checkout = () => {
         toast.success('Đặt hàng và thanh toán thành công!')
         navigate('/profile/order-history')
       }
-    } catch (error) {
+    } catch {
       toast.error('Có lỗi xảy ra sau khi thanh toán PayPal')
     } finally {
       setShowPayPalForm(false)
@@ -334,7 +319,7 @@ const Checkout = () => {
     }
   }
 
-  const handlePayPalError = (error) => {
+  const handlePayPalError = () => {
     setShowPayPalForm(false)
     setLoading(false)
     // Error đã được handle trong PayPalPaymentForm
@@ -397,7 +382,7 @@ const Checkout = () => {
 
         <Grid container spacing={4}>
           {/* Left Column - Forms */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             {/* Delivery Info Form */}
             <DeliveryInfoForm
               deliveryInfo={deliveryInfo}
@@ -421,7 +406,7 @@ const Checkout = () => {
           </Grid>
 
           {/* Right Column - Order Summary */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <OrderSummary
               {...orderSummary}
               appliedCoupon={appliedCoupon}
@@ -499,7 +484,7 @@ const Checkout = () => {
                 fullWidth
                 variant="outlined"
                 onClick={() => setShowPayPalForm(false)}
-                sx={{ 
+                sx={{
                   mt: 2,
                   height: 42,
                   bgcolor: 'white',

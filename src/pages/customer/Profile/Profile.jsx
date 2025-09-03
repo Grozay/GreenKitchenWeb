@@ -260,7 +260,7 @@ function Profile() {
               {(() => {
                 const m = location.pathname.match(/\/profile\/order-history\/([^/]+)/)
                 const orderCode = m ? decodeURIComponent(m[1]) : null
-                return <OrderDetails orderCode={orderCode} customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} />
+                return <OrderDetails orderCode={orderCode} />
               })()}
             </TabPanel>
           </Box>

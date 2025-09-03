@@ -62,13 +62,16 @@ const Cart = () => {
   const calculateItemNutrition = (item) => {
     let totalCalories = 0, totalProtein = 0, totalCarbs = 0, totalFat = 0
 
-    if (item.isCustom && item.details) {
-      item.details.forEach(detail => {
+    if (item.isCustom && item.customMeal?.details) { // Sửa item.details thành item.customMeal?.details
+      item.customMeal.details.forEach(detail => { // Sửa item.details thành item.customMeal.details
         totalCalories += (detail.calories || 0) * (detail.quantity || 1)
         totalProtein += (detail.protein || 0) * (detail.quantity || 1)
         totalCarbs += (detail.carbs || 0) * (detail.quantity || 1)
         totalFat += (detail.fat || 0) * (detail.quantity || 1)
       })
+    } else if (item.itemType === 'WEEK_MEAL') {
+      // WeekMeal không có nutrition, return 0
+      return { calories: 0, protein: 0, carbs: 0, fat: 0 }
     } else {
       totalCalories = item.calories || 0
       totalProtein = item.protein || 0
