@@ -1,13 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  createEmailTemplateAPI,
-  updateEmailTemplateAPI,
-  getAllEmailTemplatesAPI,
-  deleteEmailTemplateAPI,
-  toggleEmailTemplateAPI,
-  checkEmailTemplateNameAPI,
-  getEmailTemplateStatisticsAPI
-} from '~/apis'
 import {
   Box,
   Paper,
@@ -153,11 +144,12 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
   const loadTemplates = async () => {
     try {
       setIsLoading(true)
-      const data = await getAllEmailTemplatesAPI()
-      setTemplates(data)
+      // TODO: Gọi API load templates thực tế
+      // const response = await getEmailTemplatesAPI()
+      // setTemplates(response.data)
+      setIsLoading(false)
     } catch (error) {
       onShowSnackbar('Lỗi tải danh sách template', 'error')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -217,37 +209,34 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
       return
     }
     
+    // Nếu không chọn template thì phải điền subject và content
     if (!selectedTemplate && (!formData.subject || !formData.content)) {
-      onShowSnackbar('Vui lòng điền đầy đủ subject và content', 'warning')
+      onShowSnackbar('Vui lòng điền đầy đủ thông tin', 'warning')
       return
     }
 
     try {
-      const response = editingTemplate 
-        ? await updateEmailTemplateAPI(editingTemplate.id, formData)
-        : await createEmailTemplateAPI(formData)
+      // TODO: Gọi API save template thực tế
+      // const response = editingTemplate 
+      //   ? await updateEmailTemplateAPI(editingTemplate.id, templateForm)
+      //   : await createEmailTemplateAPI(templateForm)
       
-      onShowSnackbar(
-        editingTemplate ? 'Đã cập nhật template thành công' : 'Đã tạo template mới thành công', 
-        'success'
-      )
+      if (editingTemplate) {
+        onShowSnackbar('Đã cập nhật template', 'success')
+      } else {
+        onShowSnackbar('Đã tạo template mới', 'success')
+      }
 
       setOpenDialog(false)
-      loadTemplates()
     } catch (error) {
-      onShowSnackbar('Lỗi lưu template: ' + (error.response?.data?.error || error.message), 'error')
+      onShowSnackbar('Lỗi lưu template: ' + error.message, 'error')
     }
   }
 
-  const handleDeleteTemplate = async (templateId) => {
+  const handleDeleteTemplate = (templateId) => {
     if (window.confirm('Bạn có chắc muốn xóa template này?')) {
-      try {
-        await deleteEmailTemplateAPI(templateId)
-        onShowSnackbar('Đã xóa template thành công', 'success')
-        loadTemplates()
-      } catch (error) {
-        onShowSnackbar('Lỗi xóa template: ' + (error.response?.data?.error || error.message), 'error')
-      }
+      setTemplates(templates.filter(t => t.id !== templateId))
+      onShowSnackbar('Đã xóa template', 'success')
     }
   }
 
@@ -353,12 +342,12 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
                 <CardActions>
                   <Button 
                     size="small" 
-                    variant={selectedTemplate?.id === template.id ? "outlined" : "contained"}
-                    color={selectedTemplate?.id === template.id ? "success" : "primary"}
+                    variant="contained" 
+                    color="primary"
                     onClick={() => handleSelectTemplate(template)}
                     sx={{ mr: 1 }}
                   >
-                    {selectedTemplate?.id === template.id ? "Đã chọn" : "Chọn"}
+                    Chọn
                   </Button>
                   <IconButton size="small" onClick={() => handleEditTemplate(template)}>
                     <EditIcon />
@@ -419,9 +408,9 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
               <Grid item xs={12}>
                 <Alert severity="success" sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                    Đã chọn template: {selectedTemplate.name}
+                    Template đã chọn: {selectedTemplate.name}
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ mt: 1 }}>
                     Subject: {selectedTemplate.subject}
                   </Typography>
                   <Button 

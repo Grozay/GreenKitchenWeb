@@ -37,7 +37,7 @@ import SendIcon from '@mui/icons-material/Send'
 import HistoryIcon from '@mui/icons-material/History'
 import AnalyticsIcon from '@mui/icons-material/Analytics'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { triggerEmailSchedulerNowAPI, testEmailSchedulerScheduleAPI, getCartScanStatsAPI, scanAndSendCartEmailsAPI, getSchedulerInfoAPI, broadcastEmailNowAPI, broadcastEmailScheduleAPI, broadcastPreviewAPI, getEmailHistoryAPI, getEmailStatisticsAPI, testEmailSchedulerAPI, getActiveEmailTemplatesAPI } from '~/apis'
+import { triggerEmailSchedulerNowAPI, testEmailSchedulerScheduleAPI, getCartScanStatsAPI, scanAndSendCartEmailsAPI, getSchedulerInfoAPI, broadcastEmailNowAPI, broadcastEmailScheduleAPI, broadcastPreviewAPI, getEmailHistoryAPI, getEmailStatisticsAPI, testEmailSchedulerAPI } from '~/apis'
 
 const EmailMarketing = ({ onShowSnackbar }) => {
   const [emailType, setEmailType] = useState('cart_abandonment')
@@ -48,9 +48,6 @@ const EmailMarketing = ({ onShowSnackbar }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [sendAllCustomers, setSendAllCustomers] = useState(false)
   const [previewEmail, setPreviewEmail] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState(null)
-  const [templates, setTemplates] = useState([])
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false)
   const [emailStats, setEmailStats] = useState({
     totalSent: 0,
     opened: 0,
@@ -105,36 +102,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
   React.useEffect(() => {
     loadEmailHistory()
     loadEmailStatistics()
-    loadTemplates()
   }, [])
-
-  // Load templates từ API
-  const loadTemplates = async () => {
-    try {
-      const data = await getActiveEmailTemplatesAPI()
-      setTemplates(data)
-    } catch (error) {
-      console.error('Lỗi load templates:', error)
-      onShowSnackbar('Lỗi tải danh sách template', 'error')
-    }
-  }
-
-  // Chọn template
-  const handleSelectTemplate = (template) => {
-    setSelectedTemplate(template)
-    setSubject(template.subject)
-    setContent(template.content)
-    setShowTemplateSelector(false)
-    onShowSnackbar(`Đã chọn template: ${template.name}`, 'success')
-  }
-
-  // Bỏ chọn template
-  const handleUnselectTemplate = () => {
-    setSelectedTemplate(null)
-    setSubject('')
-    setContent('')
-    onShowSnackbar('Đã bỏ chọn template', 'info')
-  }
 
   const handleSendEmail = async () => {
     if (!subject || !content) {
@@ -464,115 +432,25 @@ const EmailMarketing = ({ onShowSnackbar }) => {
               </Grid>
             </Box>
 
-            {/* Template Selector */}
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">Chọn Template</Typography>
-                <Button
-                  variant="outlined"
-                  onClick={() => setShowTemplateSelector(!showTemplateSelector)}
-                  sx={{ minWidth: 120 }}
-                >
-                  {showTemplateSelector ? 'Ẩn Templates' : 'Chọn Template'}
-                </Button>
-              </Box>
-              
-              {selectedTemplate && (
-                <Alert severity="success" sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                    Đã chọn: {selectedTemplate.name}
-                  </Typography>
-                  <Typography variant="body2">
-                    Subject: {selectedTemplate.subject}
-                  </Typography>
-                  <Button 
-                    size="small" 
-                    color="error" 
-                    onClick={handleUnselectTemplate}
-                    sx={{ mt: 1 }}
-                  >
-                    Bỏ chọn template
-                  </Button>
-                </Alert>
-              )}
+            <TextField
+              fullWidth
+              label="Tiêu đề email"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              sx={{ mb: 3 }}
+              placeholder="Nhập tiêu đề email..."
+            />
 
-              {showTemplateSelector && (
-                <Grid container spacing={2}>
-                  {templates.map((template) => (
-                    <Grid item xs={12} md={6} key={template.id}>
-                      <Card 
-                        sx={{ 
-                          cursor: 'pointer',
-                          border: selectedTemplate?.id === template.id ? 2 : 1,
-                          borderColor: selectedTemplate?.id === template.id ? 'primary.main' : 'divider',
-                          '&:hover': { borderColor: 'primary.main' }
-                        }}
-                        onClick={() => handleSelectTemplate(template)}
-                      >
-                        <CardContent>
-                          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                            {template.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            {template.subject}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              )}
-            </Box>
-
-            {/* Chỉ hiển thị textField khi KHÔNG chọn template */}
-            {!selectedTemplate && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Tiêu đề email"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  sx={{ mb: 3 }}
-                  placeholder="Nhập tiêu đề email..."
-                />
-
-                <TextField
-                  fullWidth
-                  label="Nội dung email"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  multiline
-                  rows={6}
-                  sx={{ mb: 3 }}
-                  placeholder="Nhập nội dung email..."
-                />
-              </>
-            )}
-
-            {/* Hiển thị preview khi đã chọn template */}
-            {selectedTemplate && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>Preview Email</Typography>
-                <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                    Subject: {subject}
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-                  <Box 
-                    dangerouslySetInnerHTML={{ __html: content }}
-                    sx={{ 
-                      border: '1px solid #ddd', 
-                      padding: 2, 
-                      bgcolor: 'white',
-                      borderRadius: 1
-                    }}
-                  />
-                </Paper>
-              </Box>
-            )}
+            <TextField
+              fullWidth
+              label="Nội dung email"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              multiline
+              rows={6}
+              sx={{ mb: 3 }}
+              placeholder="Nhập nội dung email..."
+            />
 
             <FormControlLabel
               control={
