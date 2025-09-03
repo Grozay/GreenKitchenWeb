@@ -40,6 +40,7 @@ export const useChatLogic = ({
   // Refs
   const listRef = useRef(null)
   const timeoutRefs = useRef(new Map())
+  const awaitingUnlockRef = useRef(null)
   // scrollPositionRef đã được xử lý bởi useInfiniteScroll hook
 
   // Memoize chatAPI để tránh re-render không cần thiết
@@ -180,6 +181,9 @@ export const useChatLogic = ({
     const pendingMessage = createPendingMessage(conversationId, text, customerName, customerId)
     setMessages(prev => [...prev, pendingMessage])
     setAwaitingAI(true)
+    // Fallback unlock sau 30s để lần hỏi thứ 2 không bị khóa nếu miss WS
+    if (awaitingUnlockRef.current) clearTimeout(awaitingUnlockRef.current)
+    awaitingUnlockRef.current = setTimeout(() => setAwaitingAI(false), 30000)
 
     // Tạo timeout cho message
     const timeoutId = createMessageTimeout(pendingMessage.id, 30000, (msgId) => {
@@ -220,6 +224,10 @@ export const useChatLogic = ({
           .then((data) => {
             setMessages([...data.content].reverse())
             setHasMore(!data.last)
+            if (awaitingUnlockRef.current) {
+              clearTimeout(awaitingUnlockRef.current)
+              awaitingUnlockRef.current = null
+            }
           })
           .catch(() => {})
       }, 300)
