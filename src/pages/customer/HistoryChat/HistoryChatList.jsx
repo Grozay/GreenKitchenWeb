@@ -51,7 +51,7 @@ export default function HistoryChatList() {
             {conversations.map((cid, idx) => (
               <Box key={cid}>
                 <ListItemButton
-                  onClick={() => navigate(`/historyChat/${cid}`)}
+                  onClick={() => navigate(`/agent/${cid}`)}
                   sx={{
                     py: 1.2,
                     borderRadius: 2,

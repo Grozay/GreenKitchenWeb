@@ -7,11 +7,13 @@ import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import Chip from '@mui/material/Chip'
-import HeadsetIcon from '@mui/icons-material/Headset'
+import { getAvatarInfo, getSenderName } from '~/utils/chatUtils'
 
 function ProductMessageBubble({ message }) {
-  const senderName = 'Nhân viên GreenKitchen'
-
+  // Sử dụng utility functions
+  const avatarInfo = getAvatarInfo('AI', 'medium')
+  const senderName = getSenderName('AI')
+  const IconComponent = avatarInfo.IconComponent
 
   return (
     <Box sx={{
@@ -24,9 +26,9 @@ function ProductMessageBubble({ message }) {
     }}>
       {/* Avatar */}
       <Avatar sx={{
-        width: 36,
-        height: 36,
-        bgcolor: 'grey.600',
+        width: avatarInfo.width,
+        height: avatarInfo.height,
+        bgcolor: avatarInfo.bgcolor,
         boxShadow: 2,
         flexShrink: 0,
         mt: 0.5,
@@ -35,7 +37,7 @@ function ProductMessageBubble({ message }) {
           transform: 'scale(1.1)'
         }
       }}>
-        <HeadsetIcon />
+        <IconComponent fontSize={avatarInfo.fontSize} />
       </Avatar>
 
       {/* Message Bubble */}
@@ -78,7 +80,6 @@ function ProductMessageBubble({ message }) {
             height: 24
           }}
         />
-
 
         {/* Message text */}
         {message.content && (

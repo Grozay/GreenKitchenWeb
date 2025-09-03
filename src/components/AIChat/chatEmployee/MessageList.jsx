@@ -18,7 +18,11 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
+import { useTheme } from '@mui/material/styles'
+import { useMediaQuery } from '@mui/material'
 
 function escapeHTML(str) {
   return str.replace(/[&<>"']/g, (m) =>
@@ -39,9 +43,12 @@ export default function MessageList({
   hasMore,
   onLoadMore,
   onReleaseToAI,
-  isEmpCanChat
+  isEmpCanChat,
+  onBack
 }) {
   const listRef = useRef(null)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   // Infinite scroll handler
   useEffect(() => {
@@ -81,67 +88,114 @@ export default function MessageList({
     <>
       {/* Header */}
       <Box sx={{
-        p: 2,
+        p: { xs: 1.5, sm: 2 },
         borderBottom: 1,
         borderColor: 'grey.200',
         bgcolor: 'white',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        minHeight: 70,
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+        minHeight: { xs: 60, sm: 70 },
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: { xs: 1, sm: 0 }
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center',
+          width: { xs: '100%', sm: 'auto' }
+        }}>
+          {/* Nút Back cho mobile */}
+          {isMobile && selectedConv && onBack && (
+            <IconButton
+              onClick={onBack}
+              sx={{
+                mr: { xs: 1, sm: 2 },
+                color: 'primary.main',
+                display: { xs: 'flex', sm: 'none' },
+                '&:hover': {
+                  backgroundColor: 'rgba(46, 125, 50, 0.08)'
+                }
+              }}
+              aria-label="Quay lại danh sách chat"
+            >
+              <ArrowBackIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+            </IconButton>
+          )}
+          
           {selectedConv && (
             <Avatar sx={{
-              mr: 2,
+              mr: { xs: 1, sm: 2 },
               bgcolor: 'primary.main',
-              width: 48,
-              height: 48
+              width: { xs: 40, sm: 48 },
+              height: { xs: 40, sm: 48 }
             }}>
               {selectedConv.customerName?.[0]?.toUpperCase() || '?'}
             </Avatar>
           )}
-          <Box>
-            <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }}>
-              {selectedConv?.customerName || 'Chọn hội thoại để chat'}
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: 'bold',
+                fontSize: { xs: '1rem', sm: '1.25rem' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {selectedConv?.customerName || 'Chọn hội thoại'}
             </Typography>
             {selectedConv && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                <Chip
-                  label={selectedConv.status}
-                  size="small"
-                  color={getStatusColor(selectedConv.status)}
-                  sx={{ fontSize: '0.75rem', height: 20 }}
-                />
-                {selectedConv.customerPhone && (
-                  <Typography variant="caption" color="text.secondary">
-                    {selectedConv.customerPhone}
-                  </Typography>
-                )}
-              </Box>
+              <Typography 
+                variant="body2" 
+                color="text.secondary"
+                sx={{ 
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {selectedConv.customerPhone || 'Không có SĐT'}
+              </Typography>
             )}
           </Box>
         </Box>
 
-        {/* Release to AI button */}
-        {selectedConv && isEmpCanChat && (
-          <Button
-            color="warning"
-            variant="outlined"
-            startIcon={<SmartToyIcon />}
-            onClick={onReleaseToAI}
-            sx={{
-              borderColor: '#ff9800',
-              color: '#ff9800',
-              '&:hover': {
-                borderColor: '#f57c00',
-                bgcolor: 'rgba(255, 152, 0, 0.04)'
-              }
-            }}
-          >
-            Chuyển AI
-          </Button>
+        {selectedConv && (
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+            gap: { xs: 1, sm: 2 },
+            width: { xs: '100%', sm: 'auto' },
+            justifyContent: { xs: 'space-between', sm: 'flex-end' }
+        }}>
+            <Chip
+              label={selectedConv.status}
+              color={getStatusColor(selectedConv.status)}
+              size="small"
+              sx={{ 
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                height: { xs: 24, sm: 28 }
+              }}
+            />
+            {isEmpCanChat && (
+            <Button
+              variant="outlined"
+                size="small"
+              onClick={onReleaseToAI}
+                startIcon={<SmartToyIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
+              sx={{
+                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                  height: { xs: 24, sm: 28 },
+                  px: { xs: 1, sm: 1.5 }
+                }}
+              >
+                Trả về AI
+            </Button>
+          )}
+        </Box>
         )}
       </Box>
 
@@ -170,24 +224,24 @@ export default function MessageList({
 
         {selectedConv ? (
           <>
-            {messages.length === 0 && !isLoading ? (
-              <Typography
+        {messages.length === 0 && !isLoading ? (
+            <Typography 
                 align="center"
-                color="text.secondary"
+              color="text.secondary"
                 sx={{ mt: 6, fontStyle: 'italic' }}
-              >
+            >
                 Chưa có tin nhắn nào
-              </Typography>
+            </Typography>
             ) : (
               messages.map((m, idx) => {
                 const isEmp = m.senderRole === 'EMP'
                 const isAI = m.senderRole === 'AI'
                 const isCustomer = m.senderRole === 'CUS' || m.senderRole === 'GUEST'
                 const isRight = isEmp || isAI
-
-                return (
+            
+            return (
                   <Box key={`${m.id || idx}`} sx={{
-                    display: 'flex',
+                  display: 'flex',
                     flexDirection: isRight ? 'row-reverse' : 'row',
                     alignItems: 'flex-end',
                     gap: 1
@@ -240,7 +294,7 @@ export default function MessageList({
                       <Typography
                         fontWeight="bold"
                         fontSize={12}
-                        sx={{
+                    sx={{
                           mb: 0.5,
                           opacity: 0.9
                         }}
@@ -251,29 +305,29 @@ export default function MessageList({
                         )}
                       </Typography>
 
-                      <Typography
+                  <Typography
                         component="div"
                         fontSize={14}
-                        sx={{
+                    sx={{
                           whiteSpace: 'pre-line',
                           lineHeight: 1.4
-                        }}
+                    }}
                         dangerouslySetInnerHTML={{ __html: escapeHTML(m.content) }}
-                      />
-
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: 'block',
+                  />
+                  
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
                           textAlign: 'right',
                           mt: 0.5,
-                          opacity: 0.7,
+                      opacity: 0.7,
                           fontSize: '0.7rem'
                         }}
                       >
                         {m.createdAt?.slice(11, 16)}
-                      </Typography>
-                    </Box>
+                  </Typography>
+                </Box>
                   </Box>
                 )
               })

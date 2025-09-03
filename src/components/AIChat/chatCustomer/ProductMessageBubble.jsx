@@ -6,14 +6,16 @@ import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
 import Tooltip from '@mui/material/Tooltip'
-import SupportAgentIcon from '@mui/icons-material/SupportAgent'
 import { useNavigate } from 'react-router-dom'
-
+import { getAvatarInfo, getSenderName } from '~/utils/chatUtils'
 
 function ProductMessageBubble({ message }) {
-  const senderName = 'Nhân viên GreenKitchen'
   const navigate = useNavigate()
-
+  
+  // Sử dụng utility functions
+  const avatarInfo = getAvatarInfo('AI', 'medium')
+  const senderName = getSenderName('AI')
+  const IconComponent = avatarInfo.IconComponent
 
   return (
     <Box
@@ -39,9 +41,9 @@ function ProductMessageBubble({ message }) {
       {/* Avatar */}
       <Avatar
         sx={{
-          width: { xs: 32, sm: 36 },
-          height: { xs: 32, sm: 36 },
-          bgcolor: 'grey.600', // Màu mặc định
+          width: avatarInfo.width,
+          height: avatarInfo.height,
+          bgcolor: avatarInfo.bgcolor,
           flexShrink: 0,
           boxShadow: 1,
           mt: 0.5,
@@ -51,7 +53,7 @@ function ProductMessageBubble({ message }) {
           }
         }}
       >
-        <SupportAgentIcon fontSize="small" />
+        <IconComponent fontSize={avatarInfo.fontSize} />
       </Avatar>
 
       {/* Message Bubble */}
@@ -97,7 +99,6 @@ function ProductMessageBubble({ message }) {
         >
           {senderName}
         </Typography>
-
 
         {/* Message text */}
         {message.content && (

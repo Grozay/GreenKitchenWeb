@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -6,8 +6,10 @@ import MessageBubble from './MessageBubble'
 import ProductMessageBubble from './ProductMessageBubble'
 import ChatInput from './ChatInput'
 import TypingIndicator from './TypingIndicator'
-
+import { selectCustomerName } from '~/redux/user/customerSlice'
+import { useInfiniteScroll } from '~/hooks/useInfiniteScroll'
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
+
 import {
   initGuestConversation as guestInitConversation,
   sendMessage as guestSendMessage,
@@ -24,9 +26,26 @@ import {
 export default function ChatPanel({ onMessagesUpdate }) {
   const isCustomerLoggedIn = useSelector(state => !!state.customer.currentCustomer)
   const customerId = useSelector(state => state.customer.currentCustomer?.id)
-  const customerName = useSelector(state => state.customer.currentCustomer?.name)
+  const customerName = useSelector(selectCustomerName) // Sử dụng selector từ Redux
 
-  const chatAPI = getChatAPI(isCustomerLoggedIn)
+  // Memoize chatAPI để tránh tạo object mới mỗi lần render
+  const chatAPI = useMemo(() => {
+    if (isCustomerLoggedIn) {
+      return {
+        initConversation: null,
+        sendMessage: userSendMessage,
+        fetchMessagesPaged: userFetchMessagesPaged,
+        fetchConversationStatus: userFetchConversationStatus,
+        getConversations
+      }
+    }
+    return {
+      initConversation: guestInitConversation,
+      sendMessage: guestSendMessage,
+      fetchMessagesPaged: guestFetchMessagesPaged,
+      fetchConversationStatus: guestFetchConversationStatus
+    }
+  }, [isCustomerLoggedIn])
 
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -43,6 +62,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false) // State riêng cho việc load tin nhắn cũ
   const listRef = useRef(null)
   const PAGE_SIZE = 20
 
@@ -81,8 +101,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
         })
       }
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCustomerLoggedIn, customerId])
+  }, [isCustomerLoggedIn, customerId, chatAPI])
 
   // Guest bootstrap if no conv id yet
   useEffect(() => {
@@ -109,40 +128,64 @@ export default function ChatPanel({ onMessagesUpdate }) {
       setHasMore(!data.last)
       setIsLoading(false)
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animationConvId, chatMode])
+  }, [animationConvId, chatMode, chatAPI, PAGE_SIZE])
 
-  // Auto scroll to bottom when messages change
+  // Auto scroll to bottom when messages change - chỉ khi có messages mới
   useEffect(() => {
-    if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight
-  }, [messages])
+    if (messages.length > 0 && !isLoadingOlder && listRef.current) {
+      // Chỉ scroll xuống khi không phải đang load tin nhắn cũ
+      listRef.current.scrollTop = listRef.current.scrollHeight
+    }
+  }, [messages.length, isLoadingOlder]) // Thêm isLoadingOlder vào dependency
 
-  // Expose messages to parent for menu extraction
-  useEffect(() => {
+  // Expose messages to parent for menu extraction - memoize để tránh re-render
+  const memoizedOnMessagesUpdate = useCallback(() => {
     if (onMessagesUpdate) onMessagesUpdate(messages)
-  }, [messages, onMessagesUpdate])
+  }, [onMessagesUpdate, messages])
 
-  // Infinite scroll load more
-  const handleLoadMore = useCallback(() => {
-    if (isLoading || !hasMore) return
-    setIsLoading(true)
-    chatAPI.fetchMessagesPaged(animationConvId, page + 1, PAGE_SIZE).then(data => {
+  useEffect(() => {
+    memoizedOnMessagesUpdate()
+  }, [memoizedOnMessagesUpdate])
+
+  // Callback để load tin nhắn cũ - được sử dụng bởi useInfiniteScroll
+  const loadMoreMessages = useCallback(async () => {
+    try {
+      const data = await chatAPI.fetchMessagesPaged(animationConvId, page + 1, PAGE_SIZE)
+      
+      // Cập nhật messages trước
       setMessages(prev => [...[...data.content].reverse(), ...prev])
       setPage(prev => prev + 1)
       setHasMore(!data.last)
-      setIsLoading(false)
-    })
-  }, [animationConvId, page, hasMore, isLoading, chatAPI])
+      
+    } catch (error) {
+      console.error('Failed to load more messages:', error)
+      setHasMore(false) // Set false nếu có lỗi
+    }
+  }, [animationConvId, page, chatAPI, PAGE_SIZE])
+
+  // Sử dụng hook chung để xử lý infinite scroll
+  // Hook phải được gọi ở top level của component
+  const infiniteScrollHook = useInfiniteScroll({
+    hasMore,
+    isLoading: isLoadingOlder, // Sử dụng isLoadingOlder
+    page,
+    pageSize: PAGE_SIZE,
+    onLoadMore: loadMoreMessages,
+    listRef,
+    sleepDelay: 500, // Sleep 0.5s trước khi load
+    scrollRestoreDelay: 50, // Delay 50ms để khôi phục scroll
+    setIsLoading: setIsLoadingOlder // Truyền callback để set loading state
+  })
 
   useEffect(() => {
     const list = listRef.current
     if (!list) return
     const onScroll = () => {
-      if (list.scrollTop === 0 && hasMore && !isLoading) handleLoadMore()
+      if (list.scrollTop === 0 && hasMore && !isLoadingOlder) loadMoreMessages()
     }
     list.addEventListener('scroll', onScroll)
     return () => list.removeEventListener('scroll', onScroll)
-  }, [handleLoadMore, hasMore, isLoading])
+  }, [loadMoreMessages, hasMore, isLoadingOlder])
 
   // WebSocket incoming handler
   const handleIncoming = useCallback((msg) => {
@@ -154,7 +197,12 @@ export default function ChatPanel({ onMessagesUpdate }) {
     }
     setMessages(prev => {
       // Xoá pending tạm (client) của CUSTOMER nếu server đã trả về bản thật
-      let next = prev.filter(m => !(m.status === 'pending' && m.content === msg.content && m.senderRole === msg.senderRole && msg.senderRole === 'CUSTOMER'))
+      let next = prev.filter(m => !(
+        m.status === 'pending' && 
+        m.content === msg.content && 
+        m.senderRole === msg.senderRole && 
+        msg.senderRole === 'CUSTOMER'
+      ))
 
       // Upsert theo id: nếu đã tồn tại -> replace, chưa có -> append
       const idx = next.findIndex(m => m.id === msg.id)
@@ -185,22 +233,30 @@ export default function ChatPanel({ onMessagesUpdate }) {
 
   // Fallback senderName for pending
   useEffect(() => {
-    setMessages(prev => prev.map(m => (
-      m.status === 'pending' && m.senderRole === 'CUSTOMER' && !m.senderName
-        ? { ...m, senderName: customerName || 'Bạn' }
-        : m
-    )))
+    if (customerName) {
+      setMessages(prev => prev.map(m => (
+        m.status === 'pending' && m.senderRole === 'CUSTOMER' && !m.senderName
+          ? { ...m, senderName: customerName }
+          : m
+      )))
+    }
   }, [customerName])
 
-  // Tính awaitingAI chỉ dựa trên tin nhắn cuối cùng
-  useEffect(() => {
+  // Tính awaitingAI chỉ dựa trên tin nhắn cuối cùng - memoize để tránh tính toán lại
+  const nextAwaitingAI = useMemo(() => {
     const isPending = (st) => st === 'PENDING' || st === 'pending'
     const lastMsg = messages[messages.length - 1]
     const lastIsAiPending = lastMsg && lastMsg.senderRole === 'AI' && isPending(lastMsg.status)
     const lastCustomerPending = lastMsg && lastMsg.senderRole === 'CUSTOMER' && isPending(lastMsg.status)
-    const nextAwaiting = lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
-    if (nextAwaiting !== awaitingAI) setAwaitingAI(nextAwaiting)
-  }, [messages, chatMode, awaitingAI])
+    return lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
+  }, [messages, chatMode])
+
+  // Update awaitingAI chỉ khi cần thiết
+  useEffect(() => {
+    if (nextAwaitingAI !== awaitingAI) {
+      setAwaitingAI(nextAwaitingAI)
+    }
+  }, [nextAwaitingAI, awaitingAI])
 
   // Send message
   const handleSend = useCallback(async () => {
@@ -263,7 +319,18 @@ export default function ChatPanel({ onMessagesUpdate }) {
           '&::-webkit-scrollbar-thumb': { bgcolor: 'grey.400', borderRadius: 3 }
         }}
       >
-        {isLoading && hasMore && (
+        {/* Loading indicator cho tin nhắn cũ */}
+        {isLoadingOlder && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+            <CircularProgress size={24} />
+            <Box sx={{ ml: 1, color: 'text.secondary' }}>
+              Đang tải tin nhắn cũ...
+            </Box>
+          </Box>
+        )}
+
+        {/* Loading indicator cho tin nhắn mới */}
+        {isLoading && !isLoadingOlder && hasMore && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <CircularProgress size={24} />
           </Box>
@@ -294,22 +361,4 @@ export default function ChatPanel({ onMessagesUpdate }) {
       />
     </>
   )
-}
-
-function getChatAPI(isCustomerLoggedIn) {
-  if (isCustomerLoggedIn) {
-    return {
-      initConversation: null,
-      sendMessage: userSendMessage,
-      fetchMessagesPaged: userFetchMessagesPaged,
-      fetchConversationStatus: userFetchConversationStatus,
-      getConversations
-    }
-  }
-  return {
-    initConversation: guestInitConversation,
-    sendMessage: guestSendMessage,
-    fetchMessagesPaged: guestFetchMessagesPaged,
-    fetchConversationStatus: guestFetchConversationStatus
-  }
 }

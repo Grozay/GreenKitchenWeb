@@ -422,6 +422,18 @@ export const getPostCategoriesAPI = async () => {
   return response.data
 }
 
+
+
+export const submitFeedbackAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/support/feedback`, data)
+  return response.data
+}
+
+export const submitSupportTicketAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/support/ticket`, data)
+  return response.data
+}
+
 export const uploadPostImageAPI = async (file) => {
   const formData = new FormData()
   formData.append('imageFile', file)
@@ -430,6 +442,115 @@ export const uploadPostImageAPI = async (file) => {
   })
   return response.data
 }
+
+// Marketing - Email Scheduler & Cart Scan
+export const triggerEmailSchedulerNowAPI = async () => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-scheduler/trigger-now`)
+  return response.data
+}
+
+export const testEmailSchedulerScheduleAPI = async (hours = 2) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-scheduler/test-schedule?hours=${hours}`)
+  return response.data
+}
+
+export const getCartScanStatsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-scan/stats`)
+  return response.data
+}
+
+export const scanAndSendCartEmailsAPI = async () => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/cart-scan/scan-and-send-emails`)
+  return response.data
+}
+
+export const getSchedulerInfoAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-scheduler/info`)
+  return response.data
+}
+
+// Admin Broadcast Email APIs
+export const broadcastEmailNowAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-admin/broadcast`, data)
+  return response.data
+}
+
+export const broadcastEmailScheduleAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-admin/broadcast-schedule`, data)
+  return response.data
+}
+
+export const broadcastPreviewAPI = async (to, data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-admin/preview?to=${encodeURIComponent(to)}`, data)
+  return response.data
+}
+
+// Email History APIs
+export const getEmailHistoryAPI = async (page = 0, size = 10, emailType = null, status = null) => {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  if (emailType) params.append('emailType', emailType)
+  if (status) params.append('status', status)
+  
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/history?${params}`)
+  return response.data
+}
+
+export const getEmailStatisticsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/statistics`)
+  return response.data
+}
+
+export const getEmailHistoryByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/history/${id}`)
+  return response.data
+}
+
+export const testEmailSchedulerAPI = async () => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-admin/test-scheduler`)
+  return response.data
+}
+
+// Cart Abandonment Schedule APIs
+export const createCartAbandonmentScheduleAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/cart-abandonment-schedule`, data)
+  return response.data
+}
+
+export const updateCartAbandonmentScheduleAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/cart-abandonment-schedule/${id}`, data)
+  return response.data
+}
+
+export const getAllCartAbandonmentSchedulesAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule`)
+  return response.data
+}
+
+export const getCartAbandonmentScheduleByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/${id}`)
+  return response.data
+}
+
+export const deleteCartAbandonmentScheduleAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/cart-abandonment-schedule/${id}`)
+  return response.data
+}
+
+export const toggleCartAbandonmentScheduleAPI = async (id) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/cart-abandonment-schedule/${id}/toggle`)
+  return response.data
+}
+
+export const checkCartAbandonmentScheduleNameAPI = async (scheduleName, excludeId = null) => {
+  const params = new URLSearchParams({ scheduleName })
+  if (excludeId) params.append('excludeId', excludeId)
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/check-name?${params}`)
+  return response.data
+}
+
+export const getCartAbandonmentScheduleStatisticsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/statistics`)
+
 // Dashboard APIs
 export const fetchDashboardOverviewAPI = async (from, to) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/overview?from=${from}&to=${to}`)

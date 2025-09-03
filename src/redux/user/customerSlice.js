@@ -83,7 +83,13 @@ export const selectCurrentCustomer = (state) => {
 export const selectIsCustomerLoggedIn = (state) => !!state.customer.currentCustomer
 //selectCustomerName: là 1 hàm selector giúp cho các component biết tên của người dùng
 //nếu người dùng chưa đăng nhập (currentCustomer === null) thì sẽ trả về chuỗi 'Guest'
-export const selectCustomerName = (state) => state.customer.currentCustomer?.fullName ||  state.customer.currentCustomer?.name ||'Guest'
+export const selectCustomerName = (state) => {
+  const customer = state.customer.currentCustomer
+  if (!customer) return 'Guest'
+  
+  // Ưu tiên fullName, sau đó đến name, cuối cùng là 'Guest'
+  return customer.fullName || customer.name || 'Guest'
+}
 // Lấy ID khách hàng (null nếu guest)
 export const selectCustomerId = state => state.customer.currentCustomer?.id || null
 

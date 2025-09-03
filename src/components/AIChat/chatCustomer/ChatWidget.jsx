@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -10,7 +10,6 @@ import ChatInput from './ChatInput'
 import FloatingChatButton from './FloatingChatButton'
 import FloatingCloseButton from './FloatingCloseButton'
 import { fetchMessagesPaged, initGuestConversation, getConversations } from '~/apis/chatAPICus'
-
 import { useChatWebSocket } from '~/hooks/useChatWebSocket'
 import {
   initGuestConversation as guestInitConversation,
@@ -18,48 +17,74 @@ import {
   fetchMessagesPaged as guestFetchMessagesPaged,
   fetchConversationStatus as guestFetchConversationStatus
 } from '~/apis/chatAPIGuest'
-
 import {
   sendMessage as userSendMessage,
   fetchMessagesPaged as userFetchMessagesPaged,
   fetchConversationStatus as userFetchConversationStatus
-
 } from '~/apis/chatAPICus'
+import { useChatLogic } from '~/hooks/useChatLogic'
 
 function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
   const isCustomerLoggedIn = useSelector(state => !!state.customer.currentCustomer)
   const customerId = useSelector(state => state.customer.currentCustomer?.id)
-  const customerName = useSelector(state => state.customer.currentCustomer?.name)
 
-  const chatAPI = getChatAPI(isCustomerLoggedIn)
-  const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
+  // Memoize chatAPI để tránh tạo object mới mỗi lần render
+  const chatAPI = useMemo(() => {
+    if (isCustomerLoggedIn) {
+      return {
+        initConversation: null, // user login luôn có conversationId khi chat
+        sendMessage: userSendMessage,
+        fetchMessagesPaged: userFetchMessagesPaged,
+        fetchConversationStatus: userFetchConversationStatus,
+        getConversations: getConversations
+      }
+    }
+    return {
+      initConversation: guestInitConversation,
+      sendMessage: guestSendMessage,
+      fetchMessagesPaged: guestFetchMessagesPaged,
+      fetchConversationStatus: guestFetchConversationStatus
+    }
+  }, [isCustomerLoggedIn])
 
   const [animationConvId, setAnimationConvId] = useState(() => {
     if (!isCustomerLoggedIn) {
-    // Nếu đã có trong localStorage thì lấy lại, còn không thì null để tạo mới
+      // Nếu đã có trong localStorage thì lấy lại, còn không thì null để tạo mới
       return Number(localStorage.getItem('conversationId')) || null
     }
     // User login thì vẫn lấy từ prop/conversations
     return conversationId
   })
 
-  const [chatMode, setChatMode] = useState(initialMode)
-  const [awaitingAI, setAwaitingAI] = useState(false)
   const [conversationStatus, setConversationStatus] = useState('AI')
-  const [page, setPage] = useState(0)
-  const [hasMore, setHasMore] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-  const listRef = useRef(null)
-  const PAGE_SIZE = 20
+  const [chatMode, setChatMode] = useState(initialMode)
 
+  // Sử dụng custom hook cho logic chat
+  const {
+    messages,
+    input,
+    awaitingAI,
+    isLoading,
+    hasMore,
+    setInput,
+    handleSend,
+    listRef,
+    handleIncoming,
+    customerName // Lấy customerName từ useChatLogic
+  } = useChatLogic({
+    conversationId: animationConvId,
+    initialMode,
+    pageSize: 20,
+    chatAPI,
+    onMessagesUpdate: null
+  })
 
   // Gộp các logic lấy conversationId từ props/localStorage
   useEffect(() => {
     if (!isCustomerLoggedIn) {
       let id = Number(localStorage.getItem('conversationId')) || null
       if (!id) {
-      // Chưa có conversationId localStorage thì tạo mới
+        // Chưa có conversationId localStorage thì tạo mới
         chatAPI.initConversation().then(newId => {
           setAnimationConvId(newId)
           localStorage.setItem('conversationId', newId)
@@ -89,12 +114,9 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
           setChatMode(status === 'AI' ? 'AI' : 'EMP')
         })
       }
-    // else ...
     })
-
     // eslint-disable-next-line
-}, [isCustomerLoggedIn, customerId])
-
+  }, [isCustomerLoggedIn, customerId, chatAPI])
 
   useEffect(() => {
     if (!animationConvId && !isCustomerLoggedIn) {
@@ -102,92 +124,14 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
         setAnimationConvId(id)
         localStorage.setItem('conversationId', id)
         // load ngay 0 tin (nếu cần)
-        fetchMessagesPaged(id, 0, PAGE_SIZE).then(data => {
-          setMessages(data.content.reverse())
-          setHasMore(!data.last)
+        fetchMessagesPaged(id, 0, 20).then(data => {
+          // Không cần setMessages ở đây vì useChatLogic đã xử lý
         })
       })
     }
   }, [animationConvId, isCustomerLoggedIn])
 
-  // Load messages khi animationConvId hoặc chatMode đổi
-  useEffect(() => {
-    if (!animationConvId) return
-    setIsLoading(true)
-    setPage(0)
-    chatAPI.fetchMessagesPaged(animationConvId, 0, PAGE_SIZE).then((data) => {
-      setMessages([...data.content].reverse())
-      setPage(0)
-      setHasMore(!data.last)
-      setIsLoading(false)
-    })
-    // eslint-disable-next-line
-  }, [animationConvId, chatMode])
-
-  // Auto scroll cuối khi messages thay đổi
-  useEffect(() => {
-    if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight
-  }, [messages])
-
-  // Infinite scroll
-  const handleLoadMore = useCallback(() => {
-    if (isLoading || !hasMore) return
-    setIsLoading(true)
-    chatAPI.fetchMessagesPaged(animationConvId, page + 1, PAGE_SIZE).then((data) => {
-      setMessages(prev => [...[...data.content].reverse(), ...prev])
-      setPage(prev => prev + 1)
-      setHasMore(!data.last)
-      setIsLoading(false)
-    })
-  }, [animationConvId, page, hasMore, isLoading, chatAPI])
-
-  // Scroll listener để load thêm tin nhắn
-  useEffect(() => {
-    const list = listRef.current
-    if (!list) return
-    const handleScroll = () => {
-      if (list.scrollTop === 0 && hasMore && !isLoading) handleLoadMore()
-    }
-    list.addEventListener('scroll', handleScroll)
-    return () => list.removeEventListener('scroll', handleScroll)
-  }, [handleLoadMore, hasMore, isLoading])
-
-  // Fallback senderName cho pending messages
-  useEffect(() => {
-    setMessages(prev =>
-      prev.map(m =>
-        m.status === 'pending' && m.senderRole === 'CUSTOMER' && !m.senderName
-          ? { ...m, senderName: customerName || 'Bạn' }
-          : m
-      )
-    )
-  }, [customerName])
-
   // Xử lý tin nhắn từ websocket
-  const handleIncoming = useCallback((msg) => {
-    if (msg.conversationId && msg.conversationId !== animationConvId) {
-      setAnimationConvId(msg.conversationId)
-      // CHỈ LƯU localStorage khi đang là GUEST
-      if (!isCustomerLoggedIn) {
-        localStorage.setItem('conversationId', msg.conversationId)
-      }
-    }
-    setMessages(prev => {
-      // Xoá pending tạm (client) của CUSTOMER nếu server đã trả về bản thật
-      let next = prev.filter(m => !(m.status === 'pending' && m.content === msg.content && m.senderRole === msg.senderRole && msg.senderRole === 'CUSTOMER'))
-      // Upsert theo id: nếu đã tồn tại -> replace, chưa có -> append
-      const idx = next.findIndex(m => m.id === msg.id)
-      if (idx >= 0) {
-        next = next.map((m, i) => i === idx ? { ...m, ...msg } : m)
-      } else {
-        next = [...next, msg]
-      }
-      return next
-    })
-    console.log('>>> handleIncoming:', msg)
-  }, [animationConvId, isCustomerLoggedIn])
-
-
   useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
   useChatWebSocket('/topic/emp-notify', async (convId) => {
     const conversationId = typeof convId === 'object' ? convId.conversationId : convId
@@ -202,85 +146,6 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
       }
     }
   })
-
-  function getChatAPI(isCustomerLoggedIn) {
-    if (isCustomerLoggedIn) {
-      return {
-        initConversation: null, // user login luôn có conversationId khi chat
-        sendMessage: userSendMessage,
-        fetchMessagesPaged: userFetchMessagesPaged,
-        fetchConversationStatus: userFetchConversationStatus,
-        getConversations: getConversations
-      }
-    }
-    return {
-      initConversation: guestInitConversation,
-      sendMessage: guestSendMessage,
-      fetchMessagesPaged: guestFetchMessagesPaged,
-      fetchConversationStatus: guestFetchConversationStatus
-    }
-  }
-
-  // Gửi tin nhắn
-  const handleSend = useCallback(async () => {
-    const text = input.trim()
-    if (!text) return
-    if (chatMode === 'AI' && awaitingAI) return
-
-    setInput('')
-    // awaitingAI sẽ được tính lại dựa trên message PENDING và AI PENDING từ server
-    const tempId = `temp-${Date.now()}`
-    setMessages(prev => [
-      ...prev,
-      {
-        id: tempId,
-        conversationId: animationConvId,
-        senderName: isCustomerLoggedIn ? customerName : 'Guest',
-        senderRole: 'CUSTOMER',
-        content: text,
-        timestamp: new Date().toISOString(),
-        status: 'pending'
-      }
-    ])
-
-    const params = {
-      conversationId: animationConvId,
-      senderRole: 'CUSTOMER',
-      content: text,
-      lang: 'vi'
-    }
-    if (isCustomerLoggedIn) params.customerId = customerId
-
-    try {
-      await chatAPI.sendMessage(params)
-      // KHÔNG setMessages với resp trả về ở đây nữa!
-    } catch (error) {
-      setMessages(prev => [
-        ...prev.filter(m => m.id !== tempId),
-        {
-          id: Date.now() + 1,
-          conversationId: animationConvId,
-          senderName: 'SYSTEM',
-          content: error?.message || 'Gửi thất bại',
-          timestamp: new Date().toISOString()
-        }
-      ])
-      setAwaitingAI(false)
-    }
-  }, [
-    input, chatMode, awaitingAI, animationConvId,
-    isCustomerLoggedIn, customerId, customerName, chatAPI
-  ])
-
-  // Tính awaitingAI dựa trên trạng thái của tin nhắn cuối cùng
-  useEffect(() => {
-    const isPending = (st) => st === 'PENDING' || st === 'pending'
-    const lastMsg = messages[messages.length - 1]
-    const lastIsAiPending = lastMsg && lastMsg.senderRole === 'AI' && isPending(lastMsg.status)
-    const lastCustomerPending = lastMsg && lastMsg.senderRole === 'CUSTOMER' && isPending(lastMsg.status)
-    const nextAwaiting = lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
-    if (nextAwaiting !== awaitingAI) setAwaitingAI(nextAwaiting)
-  }, [messages, chatMode, awaitingAI])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -313,7 +178,7 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
                 <ProductMessageBubble
                   key={`${message.id}-${idx}`}
                   message={message}
-                  customerName={customerName}
+                  customerName={customerName} // Sử dụng customerName từ useChatLogic
                 />
               )
             }
@@ -321,7 +186,7 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
               <MessageBubble
                 key={`${message.id}-${idx}`}
                 message={message}
-                customerName={customerName}
+                customerName={customerName} // Sử dụng customerName từ useChatLogic
                 isOwn={message.senderRole === 'CUSTOMER'}
               />
             )

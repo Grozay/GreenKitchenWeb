@@ -3,28 +3,13 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
-import PersonIcon from '@mui/icons-material/Person'
-import HeadsetIcon from '@mui/icons-material/SupportAgent'
-import InfoIcon from '@mui/icons-material/Info'
+import { getAvatarInfo, getSenderName } from '~/utils/chatUtils'
 
 function MessageBubble({ message, customerName, isOwn }) {
-  // Xác định loại sender và avatar
-  let senderName
-  if (message.senderRole === 'CUSTOMER') {
-    senderName = message.senderName || customerName || 'Bạn'
-  } else if (message.senderRole === 'EMP' || message.senderRole === 'AI') {
-    senderName = 'Nhân viên GreenKitchen'
-  } else {
-    senderName = 'Hệ thống'
-  }
-
-
-  // Avatar cho từng loại
-  let avatar = null
-  if (message.senderRole === 'CUSTOMER') avatar = <PersonIcon />
-  else if (message.senderRole === 'EMP' || message.senderRole === 'AI') avatar = <HeadsetIcon />
-  else if (message.senderRole === 'SYSTEM') avatar = <InfoIcon />
-
+  // Sử dụng utility functions
+  const senderName = getSenderName(message.senderRole, customerName)
+  const avatarInfo = getAvatarInfo(message.senderRole, 'medium')
+  const IconComponent = avatarInfo.IconComponent
 
   // SYSTEM message (welcome/notify): khác biệt bubble & bỏ avatar
   if (message.senderRole === 'SYSTEM') {
@@ -44,7 +29,7 @@ function MessageBubble({ message, customerName, isOwn }) {
           }}
         >
           <Chip
-            icon={<InfoIcon />}
+            icon={<IconComponent fontSize="small" />}
             label="Hệ thống"
             color="primary"
             variant="outlined"
@@ -76,12 +61,12 @@ function MessageBubble({ message, customerName, isOwn }) {
       flexDirection: isOwn ? 'row-reverse' : 'row'
     }}>
       <Avatar sx={{
-        width: 36,
-        height: 36,
-        bgcolor: isOwn ? 'primary.main' : 'grey.600',
+        width: avatarInfo.width,
+        height: avatarInfo.height,
+        bgcolor: isOwn ? 'primary.main' : avatarInfo.bgcolor,
         boxShadow: 2
       }}>
-        {avatar}
+        <IconComponent fontSize={avatarInfo.fontSize} />
       </Avatar>
 
       <Paper
