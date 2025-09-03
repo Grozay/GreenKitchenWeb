@@ -8,13 +8,14 @@ import CloseIcon from '@mui/icons-material/Close'
 import Button from '@mui/material/Button'
 import ItemWeekPlan from '../ItemWeekPlan/ItemWeekPlan'
 import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
+import { useDispatch, useSelector } from 'react-redux'
+import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
+import { toast } from 'react-toastify'
+import { IMAGE_DEFAULT } from '~/utils/constants'
+import { HEALTHY_MESSAGES } from '~/utils/constants'
 
 
-const healthyMessages = {
-  mealOrder1: 'Bữa sáng là khởi đầu hoàn hảo cho ngày mới, đừng bỏ lỡ để nạp năng lượng nhé!',
-  mealOrder2: 'Bữa trưa giúp bạn tiếp tục bứt phá, hãy chọn món để nạp năng lượng!',
-  mealOrder3: 'Ăn uống đúng giờ giúp cơ thể khỏe mạnh, đừng quên chăm sóc bản thân nhé!'
-}
+
 
 const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   // Mặc định check hết khi mở Drawer
@@ -56,6 +57,10 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     })
   }, [open])
 
+  const dispatch = useDispatch()
+  const [ordering, setOrdering] = useState(false)
+  const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
+
   const handleSwitchChange = (idx, mealKey, checked) => {
     setDays(prev =>
       prev.map((d, i) =>
@@ -63,8 +68,8 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
       )
     )
     // Nếu tắt switch và chưa cảnh báo healthy cho buổi này thì cảnh báo
-    if (!checked && healthyMessages[mealKey] && !shownHealthy[mealKey]) {
-      setHealthyMsg(healthyMessages[mealKey])
+    if (!checked && HEALTHY_MESSAGES[mealKey] && !shownHealthy[mealKey]) {
+      setHealthyMsg(HEALTHY_MESSAGES[mealKey])
       setOpenHealthy(true)
       setShownHealthy(prev => ({ ...prev, [mealKey]: true }))
     }
@@ -90,18 +95,37 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     return sum + dayTotal
   }, 0)
 
-  const handleOrder = () => {
-    const orderData = {
-      weekStart: weekData.weekStart,
-      weekEnd: weekData.weekEnd,
-      type: weekData.type,
-      days: filteredDays,
-      itemType: 'WEEK_MEAL',
-      totalAmount
+  const handleOrder = async () => {
+    if (ordering) return
+
+    try {
+      setOrdering(true)
+
+      // Tạo request data theo format API tương tự CardMenu
+      const requestData = {
+        isCustom: false,
+        menuMealId: null,
+        quantity: 1,
+        unitPrice: totalAmount,
+        totalPrice: totalAmount,
+        title: title,
+        description: `Tuần ăn từ ${weekData.weekStart} đến ${weekData.weekEnd}, loại: ${weekData.type}`,
+        image: IMAGE_DEFAULT.IMAGE_WEEK_MEAL,
+        itemType: 'WEEK_MEAL'
+      }
+
+      // Gọi redux thunk để add vào cart
+      await dispatch(createCartItem({ customerId, itemData: requestData }))
+      if (customerId) {
+        await dispatch(fetchCart(customerId))
+      }
+      toast.success('Thêm vào giỏ hàng thành công!')
+      onClose()
+    } catch (error) {
+      toast.error('Thêm vào giỏ hàng thất bại')
+    } finally {
+      setOrdering(false)
     }
-    console.log('🚀 ~ handleOrder ~ orderData:', orderData)
-    if (onOrder) onOrder(orderData)
-    onClose()
   }
 
   return (
@@ -231,6 +255,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <Button
               variant="contained"
+              disabled={ordering}
               sx={{ bgcolor: theme.palette.primary.secondary, fontWeight: 700, px: 4, py: 1.5, borderRadius: 5, fontSize: '1.1rem', minWidth: '300px', mb: 3 }}
               onClick={handleOrder}
             >

@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid'
 import { useState } from 'react'
 import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
+import React from 'react' // Thêm import React nếu chưa có
 
 const CartItem = ({
   item,
@@ -19,10 +20,12 @@ const CartItem = ({
   const [confirmDialog, setConfirmDialog] = useState(false)
   const nutrition = calculateItemNutrition(item)
 
-  // Lấy title đúng chuẩn (ưu tiên menuMeal, customMeal)
+  // Lấy title đúng chuẩn (ưu tiên menuMeal, customMeal, weekMeal)
   const getProductTitle = () => {
     if (item.isCustom) {
       return item.customMeal?.title || item.title || 'Custom Meal'
+    } else if (item.itemType === 'WEEK_MEAL') {
+      return item.title || 'Week Meal'
     } else {
       return item.menuMeal?.title || item.title || 'Menu Meal'
     }
@@ -32,10 +35,12 @@ const CartItem = ({
   const getProductImage = () => {
     if (item.isCustom) {
       if (item.customMeal?.image) return item.customMeal.image
-      if (item.details && item.details.length > 0) {
-        return item.details[0].image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+      if (item.customMeal?.details && item.customMeal.details.length > 0) {
+        return item.customMeal.details[0].image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
       }
       return 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
+    } else if (item.itemType === 'WEEK_MEAL') {
+      return item.image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
     } else {
       return item.menuMeal?.image || item.image || 'https://res.cloudinary.com/quyendev/image/upload/v1753600162/lkxear2dns4tpnjzntny.png'
     }
@@ -45,6 +50,8 @@ const CartItem = ({
   const getProductDescription = () => {
     if (item.isCustom) {
       return item.customMeal?.description || item.description || 'Custom meal với các nguyên liệu được lựa chọn'
+    } else if (item.itemType === 'WEEK_MEAL') {
+      return item.description || 'Tuần ăn với các bữa được chọn'
     } else {
       return item.menuMeal?.description || item.description || ''
     }
@@ -54,9 +61,9 @@ const CartItem = ({
     setConfirmDialog(true)
   }
 
-  // Sửa lại hàm xác nhận xóa để truyền đúng id (ưu tiên menuMealId hoặc id)
+  // Sửa lại hàm xác nhận xóa để truyền đúng id
   const confirmRemove = () => {
-    onRemove(item.menuMealId || item.customMealId || item.id)
+    onRemove(item.id) // Dùng item.id cho tất cả loại
     setConfirmDialog(false)
   }
 
@@ -161,48 +168,68 @@ const CartItem = ({
                   flexDirection: { xs: 'column', sm: 'row' },
                   gap: { xs: 2, sm: 0 }
                 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconButton
-                      onClick={handleDecreaseQuantity}
-                      size="small"
-                      sx={{
+                  {item.itemType !== 'WEEK_MEAL' ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <IconButton
+                        onClick={handleDecreaseQuantity}
+                        size="small"
+                        sx={{
+                          border: '1px solid #e0e0e0',
+                          borderRadius: 1,
+                          width: 32,
+                          height: 32,
+                          '&:hover': { bgcolor: '#f5f5f5' }
+                        }}
+                      >
+                        <RemoveIcon fontSize="small" />
+                      </IconButton>
+
+                      <Typography variant="h6" sx={{
+                        mx: 2,
+                        minWidth: '30px',
+                        textAlign: 'center',
+                        fontWeight: 600,
                         border: '1px solid #e0e0e0',
                         borderRadius: 1,
-                        width: 32,
-                        height: 32,
-                        '&:hover': { bgcolor: '#f5f5f5' }
-                      }}
-                    >
-                      <RemoveIcon fontSize="small" />
-                    </IconButton>
+                        px: 2,
+                        py: 0.5
+                      }}>
+                        {item.quantity}
+                      </Typography>
 
-                    <Typography variant="h6" sx={{
-                      mx: 2,
-                      minWidth: '30px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      border: '1px solid #e0e0e0',
-                      borderRadius: 1,
-                      px: 2,
-                      py: 0.5
-                    }}>
-                      {item.quantity}
-                    </Typography>
-
-                    <IconButton
-                      onClick={handleIncreaseQuantity}
-                      size="small"
-                      sx={{
+                      <IconButton
+                        onClick={handleIncreaseQuantity}
+                        size="small"
+                        sx={{
+                          border: '1px solid #e0e0e0',
+                          borderRadius: 1,
+                          width: 32,
+                          height: 32,
+                          '&:hover': { bgcolor: '#f5f5f5' }
+                        }}
+                      >
+                        <AddIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Typography>
+                        <Box component="span" fontWeight="bold">Quantity:</Box>
+                      </Typography>
+                      <Typography variant="h6" sx={{
+                        mx: 2,
+                        minWidth: '30px',
+                        textAlign: 'center',
+                        fontWeight: 600,
                         border: '1px solid #e0e0e0',
                         borderRadius: 1,
-                        width: 32,
-                        height: 32,
-                        '&:hover': { bgcolor: '#f5f5f5' }
-                      }}
-                    >
-                      <AddIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
+                        px: 2,
+                        py: 0.5
+                      }}>
+                        {item.quantity}
+                      </Typography>
+                    </Box>
+                  )}
 
                   <Box sx={{ ml: { xs: 0, sm: 4 }, mb: { xs: 2, sm: 0 } }}>
                     <IconButton
@@ -220,47 +247,53 @@ const CartItem = ({
               </Box>
 
               {/* Nutrition Info */}
-              <Box sx={{ borderBottom: '1.5px dashed' }}></Box>
-              <Box sx={{ mt: 2.5 }}>
-                <Grid
-                  container
-                  spacing={2}
-                  sx={{
-                    textAlign: 'center',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    justifyItems: 'center',
-                    width: '100%',
-                    m: 1,
-                    '& .MuiGrid-item': {
-                      padding: '0 8px',
-                      flexBasis: '25%',
-                      maxWidth: '25%',
-                      flexGrow: 1
-                    }
-                  }}
-                >
-                  {items.map((nutritionItem, index) => (
-                    <Grid size={{ xs: 3 }} key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <Typography variant="h7" fontWeight="bold" sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
-                        {nutritionItem.value}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 400, fontSize: '0.75rem' }}>
-                        {nutritionItem.label}
-                      </Typography>
+              {item.itemType !== 'WEEK_MEAL' ? (
+                <Box>
+                  <Box sx={{ borderBottom: '1.5px dashed' }}></Box>
+                  <Box sx={{ mt: 2.5 }}>
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{
+                        textAlign: 'center',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        justifyItems: 'center',
+                        width: '100%',
+                        m: 1,
+                        '& .MuiGrid-item': {
+                          padding: '0 8px',
+                          flexBasis: '25%',
+                          maxWidth: '25%',
+                          flexGrow: 1
+                        }
+                      }}
+                    >
+                      {items.map((nutritionItem, index) => (
+                        <Grid size={{ xs: 3 }} key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <Typography variant="h7" fontWeight="bold" sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
+                            {nutritionItem.value}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 400, fontSize: '0.75rem' }}>
+                            {nutritionItem.label}
+                          </Typography>
+                        </Grid>
+                      ))}
                     </Grid>
-                  ))}
-                </Grid>
-              </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={{ height: '30px' }}></Box> // Khoảng trống để đồng bộ với card khác
+              )}
 
               {/* Custom Meal Ingredients */}
-              {item.isCustom && item.details && (
+              {item.isCustom && item.customMeal?.details && ( // Sửa item.details thành item.customMeal?.details
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                    Nguyên liệu:
+                    Ingredients
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {item.details.slice(0, 5).map((detail) => (
+                    {item.customMeal.details.slice(0, 5).map((detail) => ( // Sửa item.details thành item.customMeal.details
                       <Typography
                         key={detail.id}
                         variant="caption"
@@ -275,7 +308,7 @@ const CartItem = ({
                         {detail.title}
                       </Typography>
                     ))}
-                    {item.details.length > 5 && (
+                    {item.customMeal.details.length > 5 && ( // Sửa item.details thành item.customMeal.details
                       <Typography
                         variant="caption"
                         sx={{
@@ -285,7 +318,7 @@ const CartItem = ({
                           fontSize: '0.7rem'
                         }}
                       >
-                        +{item.details.length - 5} khác...
+                        +{item.customMeal.details.length - 5} khác...
                       </Typography>
                     )}
                   </Box>

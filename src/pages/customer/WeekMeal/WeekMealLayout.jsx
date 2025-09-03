@@ -131,15 +131,25 @@ const WeekMealLayout = () => {
           <Box sx={{ pt: 6 }} key={key}>
             {loading[key] ? (
               <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3, mb: 4 }} />
+            ) : weekData[key] ? (
+              <WeekPlan
+                weekData={weekData[key]}
+                title={title}
+                onPrevWeek={() => handleChangeWeek(key, -7)}
+                onNextWeek={() => handleChangeWeek(key, 7)}
+              />
             ) : (
-              weekData[key] && (
-                <WeekPlan
-                  weekData={weekData[key]}
-                  title={title}
-                  onPrevWeek={() => handleChangeWeek(key, -7)}
-                  onNextWeek={() => handleChangeWeek(key, 7)}
-                />
-              )
+              <Typography
+                variant="body1"
+                align="center"
+                sx={{
+                  py: 4,
+                  color: theme.palette.text.textSub,
+                  fontSize: '1.1rem'
+                }}
+              >
+                Không có dữ liệu cho kế hoạch này.
+              </Typography>
             )}
           </Box>
         ))}
