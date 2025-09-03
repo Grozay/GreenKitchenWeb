@@ -1,6 +1,5 @@
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
-import Drawer from '@mui/material/Drawer'
 
 //token
 export const refreshTokenCustomerAPI = async () => {
@@ -550,7 +549,8 @@ export const checkCartAbandonmentScheduleNameAPI = async (scheduleName, excludeI
 
 export const getCartAbandonmentScheduleStatisticsAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/statistics`)
-
+  return response.data
+}
 // Dashboard APIs
 export const fetchDashboardOverviewAPI = async (from, to) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/overview?from=${from}&to=${to}`)
@@ -591,4 +591,3 @@ export const fetchWeeklyTrendingMenusAPI = async (date) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/weekly-trending-menus?date=${date}`)
   return response.data
 }
-
