@@ -105,13 +105,13 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     })
     .filter(Boolean)
 
-  const totalAmount = filteredDays.reduce((sum, d) => {
+  const totalAmount = Math.round(filteredDays.reduce((sum, d) => {
     let dayTotal = 0
-    if (d.meal1 && d.meal1.price) dayTotal += d.meal1.price
-    if (d.meal2 && d.meal2.price) dayTotal += d.meal2.price
-    if (d.meal3 && d.meal3.price) dayTotal += d.meal3.price
+    if (d.meal1 && d.meal1.price) dayTotal += parseFloat(d.meal1.price) || 0
+    if (d.meal2 && d.meal2.price) dayTotal += parseFloat(d.meal2.price) || 0
+    if (d.meal3 && d.meal3.price) dayTotal += parseFloat(d.meal3.price) || 0
     return sum + dayTotal
-  }, 0)
+  }, 0))
 
   const handleOrder = async () => {
     if (ordering) return
