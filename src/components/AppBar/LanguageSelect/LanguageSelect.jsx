@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentLanguage, updateCurrentLanguage } from '~/redux/translations/translationsSlice'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-
 import i18n from '~/customLibraries/i18n'
+
 const LanguageSelect = () => {
   const dispatch = useDispatch()
   const currentLanguageCode = useSelector(selectCurrentLanguage)
@@ -17,8 +17,8 @@ const LanguageSelect = () => {
 
   const handleSwitchLanguage = () => {
     const newLanguage = currentLanguageCode === 'en' ? 'vi' : 'en'
-    dispatch(updateCurrentLanguage(newLanguage))
-    i18n.changeLanguage(newLanguage)
+    dispatch(updateCurrentLanguage(newLanguage))  // Cập nhật Redux
+    i18n.changeLanguage(newLanguage)  // Cập nhật i18n
   }
 
   return (

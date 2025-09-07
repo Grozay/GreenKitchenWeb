@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import CardMedia from '@mui/material/CardMedia'
+// import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -15,11 +15,16 @@ import Rating from '@mui/material/Rating'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import { ShoppingCart, Add, Remove, ArrowBack } from '@mui/icons-material'
 import theme from '~/theme'
-import { getDetailMenuMealAPI, getMenuMealAPI } from '~/apis' // Import API add to cart
-import CardContent from '@mui/material/CardContent'
+import { getDetailMenuMealAPI, getMenuMealAPI } from '~/apis'
+// import CardContent from '@mui/material/CardContent'
 import AppBar from '~/components/AppBar/AppBar'
 import { toast } from 'react-toastify'
 import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import RelatedMealItem from '~/pages/customer/Menu/MenuDetail/RelatedMeal/RelatedMealItem'
+import Skeleton from '@mui/material/Skeleton'
+import { useTranslation } from 'react-i18next'
 
 const MenuDetail = () => {
   const { slug } = useParams()
@@ -32,9 +37,36 @@ const MenuDetail = () => {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(true)
-  const [addingToCart, setAddingToCart] = useState(false) // State để handle loading khi add to cart
+  const [addingToCart, setAddingToCart] = useState(false)
 
   const customerId = useSelector(state => state.auth?.customerId ?? null)
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  const translatedTitle = useTranslate(menuMeal?.title || '', currentLang)
+  const translatedDescription = useTranslate(menuMeal?.description || '', currentLang)
+  const translatedNotFound = useTranslate('Meal package not found!', currentLang)
+  const translatedBackToMenu = useTranslate('Back to menu list', currentLang)
+  const translatedPrice = useTranslate('Price', currentLang)
+  const translatedVnd = useTranslate('VND', currentLang)
+  const translatedNutritionalInfo = useTranslate('Nutritional Information', currentLang)
+  const translatedCalories = t('nutrition.calories')
+  const translatedProtein = t('nutrition.protein')
+  const translatedCarbs = t('nutrition.carbs')
+  const translatedFat = t('nutrition.fat')
+  const translatedQuantity = useTranslate('Quantity', currentLang)
+  const translatedAdding = useTranslate('Adding...', currentLang)
+  const translatedAddToCart = useTranslate('Add to Cart', currentLang)
+  const translatedReviewsComments = useTranslate('Reviews & Comments', currentLang)
+  const translatedWriteReview = useTranslate('Write a Review', currentLang)
+  const translatedYourRating = useTranslate('Your Rating', currentLang)
+  const translatedSubmitReview = useTranslate('Submit Review', currentLang)
+  const translatedCustomerReviews = useTranslate('Customer Reviews', currentLang)
+  const translatedNoReviews = useTranslate('No reviews yet. Be the first to review this dish!', currentLang)
+  const translatedYouMightLike = useTranslate('You might also like', currentLang)
+  const translatedAddedToCart = useTranslate('Added to cart!', currentLang)
+  const translatedReviewSubmitted = useTranslate('Review submitted successfully!', currentLang)
+  const translatedFailedToAddToCart = useTranslate('Failed to add to cart', currentLang) // Thêm cho toast
 
   const handleAddToCart = async () => {
     if (!menuMeal || addingToCart) return
@@ -42,7 +74,6 @@ const MenuDetail = () => {
     try {
       setAddingToCart(true)
 
-      // Tạo request data đúng format reducer/cartSlice
       const requestData = {
         isCustom: false,
         menuMealId: menuMeal.id,
@@ -59,17 +90,16 @@ const MenuDetail = () => {
         fat: menuMeal.fat
       }
 
-      // Gọi redux thunk để add vào cart
       await dispatch(createCartItem({ customerId, itemData: requestData }))
 
-      // Nếu đã đăng nhập thì fetch lại cart từ BE, chưa đăng nhập thì giữ nguyên Redux
       if (customerId) {
         await dispatch(fetchCart(customerId))
       }
 
       setSnackbarOpen(true)
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      toast.error('Failed to add to cart')
+      toast.error(translatedFailedToAddToCart)
     } finally {
       setAddingToCart(false)
     }
@@ -115,9 +145,87 @@ const MenuDetail = () => {
       <Box sx={{ bgcolor: theme.palette.background.default, minHeight: '100vh', fontFamily: '"Poppins", sans-serif' }}>
         <AppBar />
         <Box sx={{ maxWidth: '1280px', mx: 'auto', px: 2, py: 6, mt: theme.fitbowl.appBarHeight }}>
-          <Typography variant="h5" align="center">
-            Loading...
-          </Typography>
+          {/* Skeleton for back button */}
+          <Skeleton variant="rectangular" width={200} height={40} sx={{ mb: 4, borderRadius: 5 }} />
+
+          <Grid container spacing={12}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              {/* Skeleton for image */}
+              <Skeleton variant="rectangular" width="100%" height={400} sx={{ borderRadius: '12px' }} />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              {/* Skeleton for title */}
+              <Skeleton variant="text" width="80%" height={60} sx={{ mb: 3 }} />
+              <Skeleton variant="rectangular" width={96} height={4} sx={{ mb: 4 }} />
+
+              {/* Skeleton for description */}
+              <Skeleton variant="text" width="100%" height={20} sx={{ mb: 1 }} />
+              <Skeleton variant="text" width="90%" height={20} sx={{ mb: 1 }} />
+              <Skeleton variant="text" width="70%" height={20} sx={{ mb: 4 }} />
+
+              {/* Skeleton for price */}
+              <Skeleton variant="text" width={150} height={30} sx={{ mb: 4 }} />
+
+              {/* Skeleton for nutritional info */}
+              <Skeleton variant="text" width={200} height={25} sx={{ mb: 2 }} />
+              <Grid container spacing={2} sx={{ mb: 4 }}>
+                <Grid size={{ xs: 6, sm: 3 }}>
+                  <Skeleton variant="rectangular" width="100%" height={60} sx={{ borderRadius: 2 }} />
+                </Grid>
+                <Grid size={{ xs: 6, sm: 3 }}>
+                  <Skeleton variant="rectangular" width="100%" height={60} sx={{ borderRadius: 2 }} />
+                </Grid>
+                <Grid size={{ xs: 6, sm: 3 }}>
+                  <Skeleton variant="rectangular" width="100%" height={60} sx={{ borderRadius: 2 }} />
+                </Grid>
+                <Grid size={{ xs: 6, sm: 3 }}>
+                  <Skeleton variant="rectangular" width="100%" height={60} sx={{ borderRadius: 2 }} />
+                </Grid>
+              </Grid>
+
+              {/* Skeleton for quantity */}
+              <Skeleton variant="text" width={100} height={20} sx={{ mb: 2 }} />
+              <Skeleton variant="rectangular" width={200} height={40} sx={{ mb: 4, borderRadius: 2 }} />
+
+              {/* Skeleton for add to cart button */}
+              <Skeleton variant="rectangular" width={200} height={50} sx={{ borderRadius: '8px' }} />
+            </Grid>
+          </Grid>
+
+          {/* Skeleton for reviews section */}
+          <Box sx={{ mt: 8 }}>
+            <Skeleton variant="text" width={250} height={30} sx={{ mb: 4 }} />
+            <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: 2, mb: 6 }} />
+            <Skeleton variant="text" width={200} height={25} sx={{ mb: 3 }} />
+            <Skeleton variant="rectangular" width="100%" height={100} sx={{ borderRadius: 2, mb: 3 }} />
+            <Skeleton variant="rectangular" width="100%" height={100} sx={{ borderRadius: 2, mb: 3 }} />
+          </Box>
+
+          {/* Skeleton for related meals */}
+          <Box sx={{ mt: 8 }}>
+            <Skeleton variant="text" width={200} height={30} sx={{ mb: 4 }} />
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: '12px', mb: 2 }} />
+                <Skeleton variant="text" width="80%" height={25} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="60%" height={20} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="40%" height={20} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: '12px', mb: 2 }} />
+                <Skeleton variant="text" width="80%" height={25} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="60%" height={20} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="40%" height={20} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: '12px', mb: 2 }} />
+                <Skeleton variant="text" width="80%" height={25} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="60%" height={20} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="40%" height={20} />
+              </Grid>
+            </Grid>
+          </Box>
         </Box>
       </Box>
     )
@@ -129,14 +237,14 @@ const MenuDetail = () => {
         <AppBar />
         <Box sx={{ maxWidth: '1280px', mx: 'auto', px: 2, py: 6, mt: theme.fitbowl.appBarHeight }}>
           <Typography variant="h5" color="error" align="center">
-            Meal package not found!
+            {translatedNotFound}
           </Typography>
           <Button
             variant="contained"
             sx={{ mt: 4, mx: 'auto', display: 'block', bgcolor: theme.palette.primary.main, color: 'white' }}
             onClick={() => navigate('/menu')}
           >
-            Back to menu list
+            {translatedBackToMenu}
           </Button>
         </Box>
       </Box>
@@ -162,7 +270,7 @@ const MenuDetail = () => {
           }}
           onClick={() => navigate(-1)}
         >
-          Back to menu list
+          {translatedBackToMenu}
         </Button>
 
         <Grid container spacing={12}>
@@ -197,21 +305,21 @@ const MenuDetail = () => {
                 wordBreak: 'break-word'
               }}
             >
-              {menuMeal.title}
+              {translatedTitle}
             </Typography>
             <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mb: 4 }} />
 
             <Typography variant="body1" sx={{ mb: 4, color: theme.palette.text.textSub, fontSize: { xs: '1rem', md: '1.15rem' } }}>
-              {menuMeal.description}
+              {translatedDescription}
             </Typography>
 
             <Typography variant="h5" sx={{ fontWeight: 800, color: theme.palette.text.primary, mb: 4 }}>
-              Price: {menuMeal.price.toLocaleString()} VND
+              {translatedPrice}: {menuMeal.price.toLocaleString()} {translatedVnd}
             </Typography>
 
             {/* Nutritional Information */}
             <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 2 }}>
-              Nutritional Information
+              {translatedNutritionalInfo}
             </Typography>
             <Grid container spacing={2} sx={{ mb: 4 }}>
               <Grid size={{ xs: 6, sm: 3 }}>
@@ -220,7 +328,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.calories)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Calories
+                    {translatedCalories}
                   </Typography>
                 </Box>
               </Grid>
@@ -230,7 +338,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.protein)}g
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Protein
+                    {translatedProtein}
                   </Typography>
                 </Box>
               </Grid>
@@ -240,7 +348,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.carbs)}g
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Carbs
+                    {translatedCarbs}
                   </Typography>
                 </Box>
               </Grid>
@@ -250,7 +358,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.fat)}g
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Fat
+                    {translatedFat}
                   </Typography>
                 </Box>
               </Grid>
@@ -258,7 +366,7 @@ const MenuDetail = () => {
 
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
               <Typography variant="body1" sx={{ mr: 2, color: theme.palette.text.primary }}>
-                Quantity:
+                {translatedQuantity}:
               </Typography>
               <IconButton onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
                 <Remove />
@@ -309,7 +417,7 @@ const MenuDetail = () => {
               }}
               onClick={handleAddToCart}
             >
-              {addingToCart ? 'Adding...' : 'Add to Cart'}
+              {addingToCart ? translatedAdding : translatedAddToCart}
             </Button>
           </Grid>
         </Grid>
@@ -317,16 +425,16 @@ const MenuDetail = () => {
         {/* Reviews & Comments */}
         <Box sx={{ mt: 8 }}>
           <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 4 }}>
-            Reviews & Comments
+            {translatedReviewsComments}
           </Typography>
 
           {/* Add review form */}
           <Box sx={{ mb: 6, p: 3, bgcolor: theme.palette.primary.card, borderRadius: 2 }}>
             <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
-              Write a Review
+              {translatedWriteReview}
             </Typography>
             <Typography variant="body1" sx={{ mb: 1, color: theme.palette.text.primary }}>
-              Your Rating:
+              {translatedYourRating}:
             </Typography>
             <Rating
               value={rating}
@@ -336,7 +444,7 @@ const MenuDetail = () => {
             />
             <TextareaAutosize
               minRows={4}
-              placeholder="Write your comment..."
+              placeholder={translatedWriteReview}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               style={{
@@ -362,14 +470,14 @@ const MenuDetail = () => {
               onClick={handleCommentSubmit}
               disabled={!comment || !rating}
             >
-              Submit Review
+              {translatedSubmitReview}
             </Button>
           </Box>
 
           {/* List of reviews */}
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 3 }}>
-              Customer Reviews ({menuMeal.reviews?.length || 0}):
+              {translatedCustomerReviews} ({menuMeal.reviews?.length || 0}):
             </Typography>
             {menuMeal.reviews && menuMeal.reviews.length > 0 ? (
               menuMeal.reviews.map((review) => (
@@ -399,7 +507,7 @@ const MenuDetail = () => {
               ))
             ) : (
               <Typography variant="body2" sx={{ color: theme.palette.text.secondary, fontStyle: 'italic' }}>
-                No reviews yet. Be the first to review this dish!
+                {translatedNoReviews}
               </Typography>
             )}
           </Box>
@@ -409,52 +517,11 @@ const MenuDetail = () => {
         {relatedMeals.length > 0 && (
           <Box sx={{ mt: 8 }}>
             <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 4 }}>
-              You might also like
+              {translatedYouMightLike}
             </Typography>
             <Grid container spacing={3}>
               {relatedMeals.map((item) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
-                  <Card
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      height: '100%',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      transition: 'transform 0.3s ease-in-out',
-                      backgroundColor: theme.palette.primary.card,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: '0 8px 20px rgba(0,0,0,0.15)'
-                      }
-                    }}
-                    onClick={() => navigate(`/menu/${item.slug}`)}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={item.image}
-                      alt={item.title}
-                      sx={{ objectFit: 'cover' }}
-                    />
-                    <CardContent sx={{ p: 2, flexGrow: 1 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 700, mb: 1, color: theme.palette.text.primary }}
-                      >
-                        {item.title}
-                      </Typography>
-                      <Typography variant="body2" sx={{ mb: 2, color: theme.palette.text.textSub }}>
-                        {item.description}
-                      </Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: theme.palette.primary.secondary }}>
-                        {item.price.toLocaleString()} VND
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
+                <RelatedMealItem key={item.id} item={item} />
               ))}
             </Grid>
           </Box>
@@ -469,7 +536,7 @@ const MenuDetail = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          {comment ? 'Review submitted successfully!' : `Added ${quantity} ${menuMeal?.title} to cart!`}
+          {comment ? translatedReviewSubmitted : `${translatedAddedToCart} ${quantity} ${translatedTitle}!`}
         </Alert>
       </Snackbar>
     </Box>

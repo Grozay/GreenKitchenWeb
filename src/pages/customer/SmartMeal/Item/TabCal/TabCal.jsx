@@ -1,33 +1,15 @@
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import theme from '~/theme'
-import { useDispatch, useSelector } from 'react-redux'
-import { selectShowSauceHint, setShowSauceHint } from '~/redux/meal/suggestSauceSlice'
-import { keyframes } from '@mui/system'
+import { useTranslation } from 'react-i18next'
 
-const pulseAnimation = keyframes`
-  0% {
-    background-color: rgba(255, 0, 0, 0.1);
-  }
-  50% {
-    background-color: rgba(255, 0, 0, 0.5);
-  }
-  100% {
-    background-color: rgba(255, 0, 0, 0.1);
-  }
-`
 
 const TabCal = ({ value, handleChange }) => {
-  const dispatch = useDispatch()
-  // const showSauceHint = useSelector(selectShowSauceHint) || false
 
   const handleTabChange = (event, newValue) => {
-    // if (newValue === 3) {
-    //   dispatch(setShowSauceHint(false))
-    // }
     handleChange(event, newValue)
   }
-
+  const { t } = useTranslation()
   return (
     <Tabs
       value={value}
@@ -69,14 +51,14 @@ const TabCal = ({ value, handleChange }) => {
         },
         '& .MuiTab-root:last-child': {
           // animation: showSauceHint ? `${pulseAnimation} 1.5s infinite` : 'none',
-          position: 'relative',
+          position: 'relative'
         }
       }}
     >
-      <Tab label="PROTEIN" hrefLang='#' />
-      <Tab label="CARBS" hrefLang='#' />
-      <Tab label="SIDE" hrefLang='#' />
-      <Tab label="SAUCE" hrefLang='#' />
+      <Tab label={t('smartMeal.protein')} />
+      <Tab label={t('smartMeal.carbs')} />
+      <Tab label={t('smartMeal.side')} />
+      <Tab label={t('smartMeal.sauce')} />
     </Tabs>
   )
 }

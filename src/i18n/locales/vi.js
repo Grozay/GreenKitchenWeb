@@ -1,0 +1,91 @@
+const vi = {
+  navBar: {
+    nameWebsite: 'GREEN KITCHEN',
+    home: 'TRANG CHỦ',
+    menu: 'THỰC ĐƠN',
+    orderChecking: 'KIỂM TRA ĐƠN HÀNG',
+    catering: 'DỊCH VỤ TIỆC',
+    Calculator: 'TÍNH CALORIES',
+    blog: 'TIN TỨC XANH',
+    cart: 'GIỎ HÀNG',
+    notification: 'THÔNG BÁO',
+    profile: 'Hồ sơ',
+    openMenu: 'Mở menu điều hướng',
+    selectLanguage: 'Chọn ngôn ngữ',
+    aboutUs: 'VỀ CHÚNG TÔI',
+    customMeal: 'BỮA ĂN TÙY CHỌN',
+    weekMeal: 'BỮA ĂN TUẦN'
+  },
+  nutrition: {
+    protein: 'Chất đạm',
+    carbs: 'Tinh bột',
+    fat: 'Chất béo',
+    calories: 'Calories'
+  },
+  menu: {
+    choose: 'Chọn',
+    mealPlan: 'GÓI BỮA ĂN',
+    description: 'Green kit cung cấp nhiều gói bữa ăn và thực phẩm kèm theo để đáp ứng nhu cầu của bạn',
+    high: 'CALO CAO',
+    balance: 'CALO CÂN BẰNG',
+    low: 'CALO THẤP',
+    vegetarian: 'CHAY'
+  },
+  smartMeal: {
+    protein: 'CHẤT ĐẠM',
+    carbs: 'TINH BỘT',
+    side: 'MÓN KÈM',
+    sauce: 'NƯỚC SỐT'
+  },
+  weekMeal: {
+    orderNow: 'Đặt Ngay',
+    healthWarning: 'Cảnh báo sức khỏe',
+    understood: 'Đã hiểu',
+    day: 'NGÀY',
+    meal1: 'SÁNG',
+    meal2: 'TRƯA',
+    meal3: 'TỐI',
+    time1: '(6:00 - 10:00)',
+    time2: '(11:00 - 14:00)',
+    time3: '(17:00 - 20:00)',
+    addedToCart: 'Thêm vào giỏ hàng thành công!',
+    failedToAdd: 'Thêm vào giỏ hàng thất bại',
+    weekMealFrom: 'Tuần ăn từ',
+    to: 'đến',
+    type: 'loại:',
+    lowCalories: 'THỰC ĐƠN CALO THẤP',
+    balanceCalories: 'THỰC ĐƠN CALO CÂN BẰNG',
+    highCalories: 'THỰC ĐƠN CALO CAO',
+    vegetarian: 'THỰC ĐƠN CHAY',
+    noData: 'Không có dữ liệu cho kế hoạch này.',
+    chooseWeekly: 'CHỌN KẾ HOẠCH BỮA ĂN TUẦN',
+    chooseWeeklyDesc: 'Chọn kế hoạch bữa ăn hàng tuần phù hợp với nhu cầu và sở thích của bạn. Các kế hoạch của chúng tôi được thiết kế để giúp bạn duy trì chế độ ăn uống cân bằng trong khi thưởng thức những bữa ăn ngon miệng mỗi ngày.',
+    prevWeek: 'TUẦN TRƯỚC',
+    nextWeek: 'TUẦN SAU'
+  },
+  cart: {
+    emptyTitle: 'Giỏ hàng của bạn đang trống',
+    emptyDescription: 'Có vẻ như bạn chưa thêm món ăn ngon nào vào giỏ hàng. Hãy bắt đầu khám phá thực đơn của chúng tôi!',
+    viewMenu: 'Xem Thực Đơn',
+    calculateCalories: 'Tính Calo',
+    summaryTitle: 'TÓM TẮT',
+    itemCount: 'Số lượng sản phẩm',
+    totalNutrition: 'Tổng hợp dinh dưỡng',
+    energy: 'Năng lượng',
+    protein: 'Đạm',
+    carbs: 'Carb',
+    fat: 'Béo',
+    total: 'Tổng cộng',
+    checkout: 'TIẾN HÀNH THANH TOÁN',
+    backToMenu: 'Quay lại thực đơn',
+    ingredients: 'Nguyên liệu',
+    confirmRemoveTitle: 'Xác nhận xóa sản phẩm',
+    confirmRemoveDescription: 'Bạn có chắc chắn muốn xóa {item} khỏi giỏ hàng?',
+    remove: 'Xóa',
+    cartTitle: 'Giỏ mua hàng ({count} sản phẩm)',
+    emptyCartTitle: 'Giỏ hàng của bạn đang trống',
+    emptyCartDescription: 'Hãy thêm sản phẩm vào giỏ hàng để tiếp tục'
+  }
+}
+
+export default vi

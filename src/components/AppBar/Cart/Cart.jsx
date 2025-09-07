@@ -21,6 +21,8 @@ import Button from '@mui/material/Button'
 import CloseIcon from '@mui/icons-material/Close'
 import Divider from '@mui/material/Divider'
 import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -28,6 +30,79 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     color: theme.palette.primary.contrastText
   }
 }))
+
+// Component nhỏ cho từng item để gọi useTranslate ở top level
+const CartItem = ({ item, currentLang, onItemClick, onRemoveItem }) => {
+  const translatedItemTitle = useTranslate(item.title || '', currentLang)
+  const translatedQuantity = useTranslate('Quantity:', currentLang)
+  const translatedVND = useTranslate('VND', currentLang)
+
+  return (
+    <MenuItem
+      key={item.menuMealId || item.customMealId}
+      onClick={onItemClick}
+      sx={{
+        px: 2,
+        py: 1.5,
+        display: 'block',
+        '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+        minHeight: 'auto',
+        cursor: 'pointer'
+      }}
+    >
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', position: 'relative' }}>
+        {/* Remove button */}
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemoveItem(item.menuMealId || item.customMealId || item.id)
+          }}
+          sx={{
+            position: 'absolute',
+            top: -8,
+            right: -8,
+            backgroundColor: 'rgba(0,0,0,0.1)',
+            '&:hover': { backgroundColor: 'rgba(0,0,0,0.2)' },
+            width: 24,
+            height: 24,
+            zIndex: 1
+          }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+
+        <Avatar
+          src={item.image}
+          alt={translatedItemTitle}
+          sx={{ width: 60, height: 60, borderRadius: 1, flexShrink: 0 }}
+        />
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="body2" sx={{
+            fontWeight: 500,
+            mb: 0.5,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>
+            {translatedItemTitle}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+            {item.totalPrice.toLocaleString()} {translatedVND}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {translatedQuantity}
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              {item.quantity}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </MenuItem>
+  )
+}
 
 const Cart = () => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -38,6 +113,7 @@ const Cart = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const currentLang = useSelector(selectCurrentLanguage)
 
   // Redux selectors
   const currentCart = useSelector(selectCurrentCart)
@@ -98,14 +174,24 @@ const Cart = () => {
     setItemToRemove(null)
   }
 
-  // Sửa lại hàm lấy title, image cho giống CartItem
-  const getProductTitle = (item) => item.title
-  const getProductImage = (item) => item.image
+  // Dịch tự động cho các chuỗi
+  const translatedCart = useTranslate('Cart', currentLang)
+  const translatedViewCart = useTranslate('VIEW CART', currentLang)
+  const translatedEmptyCart = useTranslate('Your cart is empty', currentLang)
+  const translatedProducts = useTranslate('PRODUCTS', currentLang)
+  const translatedTotal = useTranslate('TOTAL:', currentLang)
+  const translatedCheckout = useTranslate('CHECKOUT', currentLang)
+  const translatedVND = useTranslate('VND', currentLang)
+
+  // Dịch cho ConfirmModal
+  const translatedConfirmTitle = useTranslate('Confirm Remove Item', currentLang)
+  const translatedConfirmDescription = useTranslate('Are you sure you want to remove this item from the cart?', currentLang)
+  const translatedRemoveBtn = useTranslate('Remove', currentLang)
 
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-        <Tooltip title="Cart">
+        <Tooltip title={translatedCart}>
           <IconButton
             onClick={handleClick}
             size="small"
@@ -164,7 +250,7 @@ const Cart = () => {
           borderBottom: '1px solid #e0e0e0'
         }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {totalItems} SẢN PHẨM
+            {totalItems} {translatedProducts}
           </Typography>
           <Button
             variant="text"
@@ -175,7 +261,7 @@ const Cart = () => {
               fontWeight: 500
             }}
           >
-            VIEW CART
+            {translatedViewCart}
           </Button>
         </Box>
 
@@ -183,7 +269,7 @@ const Cart = () => {
         {totalItems === 0 ? (
           <Box sx={{ px: 2, py: 4, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
-              Giỏ hàng của bạn đang trống
+              {translatedEmptyCart}
             </Typography>
           </Box>
         ) : (
@@ -207,69 +293,13 @@ const Cart = () => {
             }
           }}>
             {cartItems.map((item) => (
-              <MenuItem
+              <CartItem
                 key={item.menuMealId || item.customMealId}
-                onClick={handleItemClick}
-                sx={{
-                  px: 2,
-                  py: 1.5,
-                  display: 'block',
-                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
-                  minHeight: 'auto',
-                  cursor: 'pointer'
-                }}
-              >
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', position: 'relative' }}>
-                  {/* Remove button */}
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleRemoveItem(item.menuMealId || item.customMealId || item.id)
-                    }}
-                    sx={{
-                      position: 'absolute',
-                      top: -8,
-                      right: -8,
-                      backgroundColor: 'rgba(0,0,0,0.1)',
-                      '&:hover': { backgroundColor: 'rgba(0,0,0,0.2)' },
-                      width: 24,
-                      height: 24,
-                      zIndex: 1
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-
-                  <Avatar
-                    src={getProductImage(item)}
-                    alt={getProductTitle(item)}
-                    sx={{ width: 60, height: 60, borderRadius: 1, flexShrink: 0 }}
-                  />
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="body2" sx={{
-                      fontWeight: 500,
-                      mb: 0.5,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {getProductTitle(item)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-                      {item.totalPrice.toLocaleString()} VNĐ
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Số lượng:
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {item.quantity}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </MenuItem>
+                item={item}
+                currentLang={currentLang}
+                onItemClick={handleItemClick}
+                onRemoveItem={handleRemoveItem}
+              />
             ))}
           </Box>
         )}
@@ -286,10 +316,10 @@ const Cart = () => {
             alignItems: 'center'
           }}>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              TỔNG TIỀN:
+              {translatedTotal}
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {totalAmount.toLocaleString()} VNĐ
+              {totalAmount.toLocaleString()} {translatedVND}
             </Typography>
           </Box>
         )}
@@ -313,7 +343,7 @@ const Cart = () => {
                 }
               }}
             >
-              ĐI ĐẾN THANH TOÁN
+              {translatedCheckout}
             </Button>
           </Box>
         )}
@@ -324,9 +354,9 @@ const Cart = () => {
         open={confirmDialogOpen}
         onClose={handleCancelRemove}
         onConfirm={handleConfirmRemove}
-        title="Confirm Remove Item"
-        description="Are you sure you want to remove this item from the cart?"
-        btnName="Remove"
+        title={translatedConfirmTitle}
+        description={translatedConfirmDescription}
+        btnName={translatedRemoveBtn}
       />
     </>
   )

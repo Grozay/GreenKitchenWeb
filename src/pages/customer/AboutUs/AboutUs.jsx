@@ -7,11 +7,16 @@ import Grid from '@mui/material/Grid'
 import AppBar from '~/components/AppBar/AppBar'
 import Footer from '~/components/Footer/Footer'
 import theme from '~/theme'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import useTranslate from '~/hooks/useTranslate'
 
 const AboutUs = () => {
   useEffect(() => {
     AOS.init({ once: true, duration: 800 })
   }, [])
+
+  const currentLang = useSelector(selectCurrentLanguage)
 
   return (
     <Box sx={{ backgroundColor: theme.colorSchemes.light.palette.background.default }}>
@@ -23,7 +28,7 @@ const AboutUs = () => {
             variant="h6"
             sx={{ fontWeight: 500, color: theme.colorSchemes.light.palette.text.textSub, mb: 2 }}
           >
-            OUR STORY
+            {useTranslate('OUR STORY', currentLang)}
           </Typography>
           <Typography
             variant="h1"
@@ -34,7 +39,7 @@ const AboutUs = () => {
               lineHeight: 1.2
             }}
           >
-            At Fitbowl, every healthy meal is a love letter to your future self.
+            {useTranslate('At Fitbowl, every healthy meal is a love letter to your future self.', currentLang)}
           </Typography>
           <Typography
             variant="body1"
@@ -46,20 +51,8 @@ const AboutUs = () => {
               fontSize: '1.2rem'
             }}
           >
-            We’re your partner in wellness, crafting personalized, AI-driven meals that nourish your body and soul, tailored to your unique needs and tastes.
+            {useTranslate('We’re your partner in wellness, crafting personalized, AI-driven meals that nourish your body and soul, tailored to your unique needs and tastes.', currentLang)}
           </Typography>
-          {/* <Button
-            variant="text"
-            sx={{
-              mt: 3,
-              color: theme.colorSchemes.light.palette.primary.secondary,
-              fontWeight: 600,
-              fontSize: '1.1rem',
-            }}
-            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-          >
-            Scroll to Discover
-          </Button> */}
         </Box>
 
         {/* Mission Section (Text over Image) */}
@@ -113,7 +106,7 @@ const AboutUs = () => {
               variant="h4"
               sx={{ fontWeight: 600, color: '#fff', mb: 3 }}
             >
-              OUR MISSION
+              {useTranslate('OUR MISSION', currentLang)}
             </Typography>
             <Typography
               variant="h3"
@@ -124,13 +117,13 @@ const AboutUs = () => {
                 fontSize: { xs: '1.8rem', md: '2.5rem' }
               }}
             >
-              We help you build a healthy relationship with food.
+              {useTranslate('We help you build a healthy relationship with food.', currentLang)}
             </Typography>
             <Typography variant="body1" sx={{ color: '#fff', lineHeight: 1.8 }}>
-              Using advanced AI, Fitbowl creates fresh, nutritionally balanced, and flavorful meals tailored to your dietary needs and preferences. We aim to inspire a deeper connection between you and your food, empowering you to make conscious choices that fuel your body and nurture your soul.
+              {useTranslate('Using advanced AI, Fitbowl creates fresh, nutritionally balanced, and flavorful meals tailored to your dietary needs and preferences. We aim to inspire a deeper connection between you and your food, empowering you to make conscious choices that fuel your body and nurture your soul.', currentLang)}
             </Typography>
             <Typography variant="body1" sx={{ color: '#fff', lineHeight: 1.8, mt: 2 }}>
-              Our vision is a world where everyone embraces the power of personalized nutrition, transforming lives one delicious bowl at a time.
+              {useTranslate('Our vision is a world where everyone embraces the power of personalized nutrition, transforming lives one delicious bowl at a time.', currentLang)}
             </Typography>
           </Box>
         </Box>
@@ -145,7 +138,7 @@ const AboutUs = () => {
               mb: 6
             }}
           >
-            OUR VALUES
+            {useTranslate('OUR VALUES', currentLang)}
           </Typography>
           <Grid container spacing={4}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }} data-aos="zoom-in">
@@ -161,7 +154,7 @@ const AboutUs = () => {
                   backgroundPosition: 'center',
                   '&:hover .valueText': {
                     opacity: 1,
-                    backgroundColor: 'rgba(0, 179, 137, 0.8)' // theme.colorSchemes.light.palette.primary.secondary
+                    backgroundColor: 'rgba(0, 179, 137, 0.8)'
                   }
                 }}
               >
@@ -186,10 +179,10 @@ const AboutUs = () => {
                     variant="h6"
                     sx={{ fontWeight: 600, color: '#fff', mb: 2 }}
                   >
-                    Food Made with Love
+                    {useTranslate('Food Made with Love', currentLang)}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
-                    Every meal is crafted with care, from our kitchen to your table, spreading love through every bite.
+                    {useTranslate('Every meal is crafted with care, from our kitchen to your table, spreading love through every bite.', currentLang)}
                   </Typography>
                 </Box>
               </Box>
@@ -232,10 +225,10 @@ const AboutUs = () => {
                     variant="h6"
                     sx={{ fontWeight: 600, color: '#fff', mb: 2 }}
                   >
-                    You-nique Experience
+                    {useTranslate('You-nique Experience', currentLang)}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
-                    Our AI listens to your needs, creating personalized meal plans that feel like they were made just for you.
+                    {useTranslate('Our AI listens to your needs, creating personalized meal plans that feel like they were made just for you.', currentLang)}
                   </Typography>
                 </Box>
               </Box>
@@ -278,10 +271,10 @@ const AboutUs = () => {
                     variant="h6"
                     sx={{ fontWeight: 600, color: '#fff', mb: 2 }}
                   >
-                    Lasting Relationships
+                    {useTranslate('Lasting Relationships', currentLang)}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
-                    We build lifelong connections with our customers, staff, and partners, fostering a community of wellness.
+                    {useTranslate('We build lifelong connections with our customers, staff, and partners, fostering a community of wellness.', currentLang)}
                   </Typography>
                 </Box>
               </Box>
@@ -324,10 +317,10 @@ const AboutUs = () => {
                     variant="h6"
                     sx={{ fontWeight: 600, color: '#fff', mb: 2 }}
                   >
-                    Tasteful Communication
+                    {useTranslate('Tasteful Communication', currentLang)}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
-                    We make nutrition fun and engaging, communicating in a playful yet informative way to inspire healthy choices.
+                    {useTranslate('We make nutrition fun and engaging, communicating in a playful yet informative way to inspire healthy choices.', currentLang)}
                   </Typography>
                 </Box>
               </Box>
@@ -351,25 +344,25 @@ const AboutUs = () => {
                   variant="h4"
                   sx={{ fontWeight: 600, color: theme.colorSchemes.light.palette.text.primary }}
                 >
-                  OUR TECHNIQUE
+                  {useTranslate('OUR TECHNIQUE', currentLang)}
                 </Typography>
                 <Typography
                   variant="h5"
                   sx={{ fontWeight: 600, color: theme.colorSchemes.light.palette.primary.secondary }}
                 >
-                  Sous-vide, Sou-good!
+                  {useTranslate('Sous-vide, Sou-good!', currentLang)}
                 </Typography>
                 <Typography
                   variant="body1"
                   sx={{ color: theme.colorSchemes.light.palette.text.textSub, lineHeight: 1.8 }}
                 >
-                  Our sous-vide technique gently cooks your meals in a precise water bath, retaining 90% of the nutrients and flavors. Each bite is tender, juicy, and bursting with natural goodness—no more bland, dry meals.
+                  {useTranslate('Our sous-vide technique gently cooks your meals in a precise water bath, retaining 90% of the nutrients and flavors. Each bite is tender, juicy, and bursting with natural goodness—no more bland, dry meals.', currentLang)}
                 </Typography>
                 <Typography
                   variant="body1"
                   sx={{ color: theme.colorSchemes.light.palette.text.textSub, lineHeight: 1.8 }}
                 >
-                  We use minimal oil, less sugar, and no artificial additives, letting the true flavors of fresh ingredients shine through.
+                  {useTranslate('We use minimal oil, less sugar, and no artificial additives, letting the true flavors of fresh ingredients shine through.', currentLang)}
                 </Typography>
               </Box>
             </Grid>
@@ -386,7 +379,7 @@ const AboutUs = () => {
               mb: 6
             }}
           >
-            Our Philosophy to Healthy Eating
+            {useTranslate('Our Philosophy to Healthy Eating', currentLang)}
           </Typography>
           <Grid container spacing={4}>
             <Grid size={{ xs: 12, md: 4 }} data-aos="zoom-in">
@@ -400,13 +393,13 @@ const AboutUs = () => {
                   variant="h6"
                   sx={{ fontWeight: 600, color: theme.colorSchemes.light.palette.text.primary, mb: 2 }}
                 >
-                  Protein Powerhouse
+                  {useTranslate('Protein Powerhouse', currentLang)}
                 </Typography>
                 <Typography
                   variant="body2"
                   sx={{ color: theme.colorSchemes.light.palette.text.textSub }}
                 >
-                  Our AI-curated bowls pack a protein punch, fueling your energy and supporting muscle growth for a stronger you.
+                  {useTranslate('Our AI-curated bowls pack a protein punch, fueling your energy and supporting muscle growth for a stronger you.', currentLang)}
                 </Typography>
               </Box>
             </Grid>
@@ -421,13 +414,13 @@ const AboutUs = () => {
                   variant="h6"
                   sx={{ fontWeight: 600, color: theme.colorSchemes.light.palette.text.primary, mb: 2 }}
                 >
-                  Carbs Done Right
+                  {useTranslate('Carbs Done Right', currentLang)}
                 </Typography>
                 <Typography
                   variant="body2"
                   sx={{ color: theme.colorSchemes.light.palette.text.textSub }}
                 >
-                  We choose the right carbs to keep you energized all day, without the crash, using AI to balance your meals perfectly.
+                  {useTranslate('We choose the right carbs to keep you energized all day, without the crash, using AI to balance your meals perfectly.', currentLang)}
                 </Typography>
               </Box>
             </Grid>
@@ -442,13 +435,13 @@ const AboutUs = () => {
                   variant="h6"
                   sx={{ fontWeight: 600, color: theme.colorSchemes.light.palette.text.primary, mb: 2 }}
                 >
-                  Veggie Wonderland
+                  {useTranslate('Veggie Wonderland', currentLang)}
                 </Typography>
                 <Typography
                   variant="body2"
                   sx={{ color: theme.colorSchemes.light.palette.text.textSub }}
                 >
-                  Our veggie-packed bowls boost digestion and heart health, crafted with AI to maximize flavor and nutrition.
+                  {useTranslate('Our veggie-packed bowls boost digestion and heart health, crafted with AI to maximize flavor and nutrition.', currentLang)}
                 </Typography>
               </Box>
             </Grid>

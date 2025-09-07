@@ -9,13 +9,25 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentMeal, addItem, removeItem } from '~/redux/meal/mealSlice'
 import { setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
 import { toast } from 'react-toastify'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useTranslation } from 'react-i18next'
 
 const FoodCard = ({ card }) => {
   const [count, setCount] = useState(0)
   const selectedItems = useSelector(selectCurrentMeal)
   const dispatch = useDispatch()
   const [isFlipped, setIsFlipped] = useState(false)
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
 
+  const translatedCalories = t('nutrition.calories')
+  const translatedProtein = t('nutrition.protein')
+  const translatedCarbs = t('nutrition.carbs')
+  const translatedFat = t('nutrition.fat')
+  const translatedOutOfStock = useTranslate('Sản phẩm đã hết hàng!', currentLang)
+  const translatedTitle = useTranslate(card?.title || '', currentLang)
+  const translatedDescription = useTranslate(card?.description || '', currentLang)
 
   useEffect(() => {
     const itemInCart = selectedItems[card.type.toLowerCase()]?.find(item => item.id === card.id)
@@ -50,7 +62,7 @@ const FoodCard = ({ card }) => {
   const handleIncrease = (e) => {
     e.stopPropagation()
     if (card.stock === 0) {
-      toast.error('Sản phẩm đã hết hàng!')
+      toast.error(translatedOutOfStock)
       return
     }
     dispatch(addItem({
@@ -158,7 +170,7 @@ const FoodCard = ({ card }) => {
               mb: 2
             }}
           >
-            {card?.title}
+            {translatedTitle}
           </Typography>
 
           {/* Counter ở mặt trước */}
@@ -229,19 +241,19 @@ const FoodCard = ({ card }) => {
         >
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
             <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant='body2' >Calories:</Typography>
+              <Typography variant='body2' >{translatedCalories}</Typography>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>{card?.calories || 0}</Typography>
             </Typography>
             <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant='body2' >Protein:</Typography>
+              <Typography variant='body2' >{translatedProtein}</Typography>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>{card?.protein || 0}g</Typography>
             </Typography>
             <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant='body2' >Carbs:</Typography>
+              <Typography variant='body2' >{translatedCarbs}</Typography>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>{card?.carbs || 0}g</Typography>
             </Typography>
             <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant='body2' >Fat:</Typography>
+              <Typography variant='body2' >{translatedFat}</Typography>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>{card?.fat || 0}g</Typography>
             </Typography>
           </Box>
@@ -259,7 +271,7 @@ const FoodCard = ({ card }) => {
                 mb: 2
               }}
             >
-              &quot;{card.description}&quot;
+              &quot;{translatedDescription}&quot;
             </Typography>
           )}
 
