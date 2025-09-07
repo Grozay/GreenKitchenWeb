@@ -11,13 +11,28 @@ import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
 import Grid from '@mui/material/Grid'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useTranslation } from 'react-i18next'
 
 const CardMenu = ({ item, typeBasedIndex }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [addingToCart, setAddingToCart] = useState(false)
   const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
-  // const customerId = 1
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+  // Dịch các văn bản từ API
+  const translatedTitle = useTranslate(item.title, currentLang)
+  // const translatedDescription = useTranslate(item.description, currentLang)
+  const translatedProtein = t('nutrition.protein')
+  const translatedCarbs = t('nutrition.carbs')
+  const translatedFat = t('nutrition.fat')
+  const translatedCalories = t('nutrition.calories')
+  const translatedVnd = useTranslate('VNĐ', currentLang)
+  const translatedOutOfStock = useTranslate('This item is out of stock', currentLang)
+  const translatedAddedToCart = useTranslate('Added to cart successfully!', currentLang)
+  const translatedFailedToAddToCart = useTranslate('Failed to add to cart', currentLang)
 
   const handleNavigateToDetail = (slug) => {
     navigate(`/menu/${slug}`)
@@ -30,7 +45,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
 
     // Kiểm tra hết hàng
     if (item.stock === 0) {
-      toast.error('Sản phẩm đã hết hàng!')
+      toast.error(translatedOutOfStock)
       return
     }
 
@@ -59,10 +74,10 @@ const CardMenu = ({ item, typeBasedIndex }) => {
       if (customerId) {
         await dispatch(fetchCart(customerId))
       }
-      toast.success('Added to cart successfully!')
-    // eslint-disable-next-line no-unused-vars
+      toast.success(translatedAddedToCart)
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      toast.error('Failed to add to cart')
+      toast.error(translatedFailedToAddToCart)
     } finally {
       setAddingToCart(false)
     }
@@ -79,9 +94,9 @@ const CardMenu = ({ item, typeBasedIndex }) => {
   }
 
   const items = [
-    { label: 'Protein', value: `${Math.round(item.protein)}` },
-    { label: 'Carbs', value: `${Math.round(item.carbs)}` },
-    { label: 'Fat', value: `${Math.round(item.fat)}` }
+    { label: translatedProtein, value: `${Math.round(item.protein)}` },
+    { label: translatedCarbs, value: `${Math.round(item.carbs)}` },
+    { label: translatedFat, value: `${Math.round(item.fat)}` }
   ]
 
   const itemFilter = {
@@ -159,7 +174,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               fontSize: '0.9rem',
               background: 'white'
             }}>
-              {item.calories} CALORIES
+              {item.calories} {translatedCalories}
             </Box>
           </Box>
         </Box>
@@ -189,7 +204,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
                 color: '#4C082A',
                 fontSize: '0.9rem'
               }}>
-                {item.calories} CALORIES
+                {item.calories} {translatedCalories}
               </Box>
             </Box>
           </Box>
@@ -207,7 +222,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
                 whiteSpace: 'normal'
               }}
             >
-              {itemFilter.title}
+              {translatedTitle}
             </Typography>
           </Box>
           <Box sx={{ borderBottom: '1.5px dashed' }}></Box>
@@ -256,7 +271,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               fontWeight: 800,
               color: theme.palette.text.textSub
             }}>
-              {itemFilter.price} VNĐ
+              {itemFilter.price} {translatedVnd}
             </Typography>
             <IconButton
               onClick={handleAddToCart}

@@ -5,9 +5,19 @@ import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 import EmptyBowl from './EmptyBowl/EmptyBowl'
 import ListCardChoice from './ListCardChoice/ListCardChoice'
 import InfoDetail from './InfoDetail/InfoDetail'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const HealthyChoice = ({ itemHealthy }) => {
   const selectedItems = useSelector(selectCurrentMeal)
+  const currentLang = useSelector(selectCurrentLanguage)
+
+  const translatedYourHealthyBowl = useTranslate('Your Healthy Bowl', currentLang)
+  const translatedBuildYourPerfect = useTranslate('Build your perfect healthy bowl - mix, match, and track nutrition in every bite!', currentLang)
+  const translatedProtein = useTranslate('1. Protein', currentLang)
+  const translatedCarbs = useTranslate('2. Carbs', currentLang)
+  const translatedSide = useTranslate('3. Side', currentLang)
+  const translatedSauce = useTranslate('4. Sauce', currentLang)
 
   return (
     <Box sx={{
@@ -33,7 +43,7 @@ const HealthyChoice = ({ itemHealthy }) => {
           display: 'inline-block',
           width: 'fit-content'
         }}>
-          Your Healthy Bowl
+          {translatedYourHealthyBowl}
         </Typography>
         <Box sx={{ width: '4rem', height: '0.2rem', bgcolor: theme.palette.primary.secondary }} />
         <Typography variant="body1" sx={{
@@ -41,7 +51,7 @@ const HealthyChoice = ({ itemHealthy }) => {
           mb: 1,
           textAlign: 'center'
         }}>
-          Build your perfect healthy bowl - mix, match, and track nutrition in every bite!
+          {translatedBuildYourPerfect}
         </Typography>
       </Box>
 
@@ -75,7 +85,7 @@ const HealthyChoice = ({ itemHealthy }) => {
           }}>
             {selectedItems.protein.length > 0 && (
               <Box>
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium', color: theme.palette.text.primary }}>1. Protein</Typography>
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium', color: theme.palette.text.primary }}>{translatedProtein}</Typography>
                 <Box>
                   <ListCardChoice cards={selectedItems.protein} />
                 </Box>
@@ -83,19 +93,19 @@ const HealthyChoice = ({ itemHealthy }) => {
             )}
             {selectedItems.carbs.length > 0 && (
               <Box>
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium' }}>2. Carbs</Typography>
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium' }}>{translatedCarbs}</Typography>
                 <ListCardChoice cards={selectedItems.carbs} />
               </Box>
             )}
             {selectedItems.side.length > 0 && (
               <Box>
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium' }}>3. Side</Typography>
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium' }}>{translatedSide}</Typography>
                 <ListCardChoice cards={selectedItems.side} />
               </Box>
             )}
             {selectedItems.sauce.length > 0 && (
               <Box>
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium' }}>4. Sauce</Typography>
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'medium' }}>{translatedSauce}</Typography>
                 <ListCardChoice cards={selectedItems.sauce} />
               </Box>
             )}

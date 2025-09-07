@@ -10,6 +10,10 @@ import ItemPopover from './ItemPopover'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
 import LunchDiningIcon from '@mui/icons-material/LunchDining'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
+import useTranslate from '~/hooks/useTranslate'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useTranslation } from 'react-i18next'
 
 const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -71,8 +75,26 @@ const IOSSwitch = styled((props) => (
   }
 }))
 
-
 const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  const translatedCalories = t('nutrition.calories')
+  const translatedProtein = t('nutrition.protein')
+  const translatedCarbs = t('nutrition.carbs')
+  const translatedFat = t('nutrition.fat')
+  const translatedPrice = useTranslate('Price:', currentLang)
+  const translatedCannotOrder = useTranslate('Cannot order this day', currentLang)
+  const translatedSelect = useTranslate('Select', currentLang)
+
+  // Dịch tự động cho title và description của meal (như trong MenuDetail)
+  const translatedMeal1Title = useTranslate(d.meal1?.title || '', currentLang)
+  const translatedMeal1Description = useTranslate(d.meal1?.description || '', currentLang)
+  const translatedMeal2Title = useTranslate(d.meal2?.title || '', currentLang)
+  const translatedMeal2Description = useTranslate(d.meal2?.description || '', currentLang)
+  const translatedMeal3Title = useTranslate(d.meal3?.title || '', currentLang)
+  const translatedMeal3Description = useTranslate(d.meal3?.description || '', currentLang)
+
   // Meal 1
   const [anchorEl1, setAnchorEl1] = useState(null)
   const open1 = Boolean(anchorEl1)
@@ -146,21 +168,6 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
 
   const isDisabled = d.date >= mondayStr && d.date <= todayStr
 
-  // const todayInfo = {
-  //   year: today.getFullYear(),
-  //   month: today.getMonth() + 1,
-  //   day: today.getDate()
-  // }
-
-  // const dateParts = d.date.split('-')
-  // const dateInfo = {
-  //   year: parseInt(dateParts[0], 10),
-  //   month: parseInt(dateParts[1], 10),
-  //   day: parseInt(dateParts[2], 10)
-  // }
-
-  // const isToday = todayInfo.year === dateInfo.year && todayInfo.month === dateInfo.month && todayInfo.day === dateInfo.day
-
   return (
     <Box
       key={idx}
@@ -209,19 +216,20 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <WbSunnyIcon sx={{ color: theme.palette.warning.main, mr: 1 }} />
-            <Typography sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{d.meal1.title}</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{translatedMeal1Title}</Typography>
           </Box>
           {isDisabled && (
             <Typography sx={{ color: 'red', fontSize: '0.95rem', mb: 1 }}>
-              Không thể đặt ngày này
+              {translatedCannotOrder}
             </Typography>
           )}
-          <Typography sx={{ color: theme.palette.text.textSub, mb: 1 }}>{d.meal1.description}</Typography>
+          <Typography sx={{ color: theme.palette.text.textSub, mb: 1 }}>{translatedMeal1Description}</Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            Calories: {d.meal1?.calories ?? '--'} | Protein: {d.meal1?.protein ?? '--'}g | Carbs: {d.meal1?.carbs ?? '--'}g | Fat: {d.meal1?.fat ?? '--'}g
+            {translatedCalories} {d.meal1?.calories ?? '--'} | {translatedProtein} {d.meal1?.protein ?? '--'}g | {translatedCarbs}{' '}
+            {d.meal1?.carbs ?? '--'}g | {translatedFat} {d.meal1?.fat ?? '--'}g
           </Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            Giá: {d.meal1?.price ? `${d.meal1.price}VNĐ` : '--'}
+            {translatedPrice} {d.meal1?.price ? `${d.meal1.price}VNĐ` : '--'}
           </Typography>
         </Box>
         <Popover
@@ -251,7 +259,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
               onChange={e => onSwitchChange && onSwitchChange('mealOrder1', e.target.checked)}
               disabled={isDisabled}
             />
-            <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>Chọn</Typography>
+            <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>{translatedSelect}</Typography>
           </Box>
         )}
       </Box>
@@ -266,19 +274,20 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <LunchDiningIcon sx={{ color: theme.palette.primary.secondary, mr: 1 }} />
-            <Typography sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{d.meal2.title}</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{translatedMeal2Title}</Typography>
           </Box>
           {isDisabled && (
             <Typography sx={{ color: 'red', fontSize: '0.95rem', mb: 1 }}>
-              Không thể đặt ngày này
+              {translatedCannotOrder}
             </Typography>
           )}
-          <Typography sx={{ color: theme.palette.text.textSub, mb: 1 }}>{d.meal2.description}</Typography>
+          <Typography sx={{ color: theme.palette.text.textSub, mb: 1 }}>{translatedMeal2Description}</Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            Calories: {d.meal2?.calories ?? '--'} | Protein: {d.meal2?.protein ?? '--'}g | Carbs: {d.meal2?.carbs ?? '--'}g | Fat: {d.meal2?.fat ?? '--'}g
+            {translatedCalories} {d.meal2?.calories ?? '--'} | {translatedProtein} {d.meal2?.protein ?? '--'}g | {translatedCarbs}{' '}
+            {d.meal2?.carbs ?? '--'}g | {translatedFat} {d.meal2?.fat ?? '--'}g
           </Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            Giá: {d.meal2?.price ? `${d.meal2.price}VNĐ` : '--'}
+            {translatedPrice} {d.meal2?.price ? `${d.meal2.price}VNĐ` : '--'}
           </Typography>
         </Box>
         <Popover
@@ -308,7 +317,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
               onChange={e => onSwitchChange && onSwitchChange('mealOrder2', e.target.checked)}
               disabled={isDisabled}
             />
-            <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>Chọn</Typography>
+            <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>{translatedSelect}</Typography>
           </Box>
         )}
       </Box>
@@ -323,19 +332,20 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <NightsStayIcon sx={{ color: theme.palette.info.main, mr: 1 }} />
-            <Typography sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{d.meal3.title}</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{translatedMeal3Title}</Typography>
           </Box>
           {isDisabled && (
             <Typography sx={{ color: 'red', fontSize: '0.95rem', mb: 1 }}>
-              Không thể đặt ngày này
+              {translatedCannotOrder}
             </Typography>
           )}
-          <Typography sx={{ color: theme.palette.text.textSub, mb: 1 }}>{d.meal3.description}</Typography>
+          <Typography sx={{ color: theme.palette.text.textSub, mb: 1 }}>{translatedMeal3Description}</Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            Calories: {d.meal3?.calories ?? '--'} | Protein: {d.meal3?.protein ?? '--'}g | Carbs: {d.meal3?.carbs ?? '--'}g | Fat: {d.meal3?.fat ?? '--'}g
+            {translatedCalories} {d.meal3?.calories ?? '--'} | {translatedProtein} {d.meal3?.protein ?? '--'}g | {translatedCarbs}{' '}
+            {d.meal3?.carbs ?? '--'}g | {translatedFat} {d.meal3?.fat ?? '--'}g
           </Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            Giá: {d.meal3?.price ? `${d.meal3.price}VNĐ` : '--'}
+            {translatedPrice} {d.meal3?.price ? `${d.meal3.price}VNĐ` : '--'}
           </Typography>
         </Box>
         <Popover
@@ -365,7 +375,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
               onChange={e => onSwitchChange && onSwitchChange('mealOrder3', e.target.checked)}
               disabled={isDisabled}
             />
-            <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>Chọn</Typography>
+            <Typography sx={{ color: theme.palette.text.textSub, ml: 1, mt: 1 }}>{translatedSelect}</Typography>
           </Box>
         )}
       </Box>

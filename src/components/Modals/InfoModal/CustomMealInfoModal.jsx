@@ -6,6 +6,9 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import { useState, useEffect } from 'react'
+import useTranslate from '~/hooks/useTranslate'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const modalStyle = {
   position: 'absolute',
@@ -25,6 +28,12 @@ const modalStyle = {
 const CustomMealInfoModal = ({ open, onClose, onSave, defaultTitle, defaultDesc }) => {
   const [title, setTitle] = useState(defaultTitle || '')
   const [desc, setDesc] = useState(defaultDesc || '')
+  const currentLang = useSelector(selectCurrentLanguage)
+
+  const translatedSaveYourCustomMeal = useTranslate('Save Your Custom Meal', currentLang)
+  const translatedMealName = useTranslate('Meal Name', currentLang)
+  const translatedDescription = useTranslate('Description', currentLang)
+  const translatedSave = useTranslate('Save', currentLang)
 
   useEffect(() => {
     setTitle(defaultTitle || '')
@@ -48,17 +57,17 @@ const CustomMealInfoModal = ({ open, onClose, onSave, defaultTitle, defaultDesc 
           <CloseIcon />
         </IconButton>
         <Typography variant="h6" fontWeight={700} textAlign="center" mb={2}>
-          Save Your Custom Meal
+          {translatedSaveYourCustomMeal}
         </Typography>
         <TextField
-          label="Meal Name"
+          label={translatedMealName}
           value={title}
           onChange={e => setTitle(e.target.value)}
           fullWidth
           sx={{ mb: 2 }}
         />
         <TextField
-          label="Description"
+          label={translatedDescription}
           value={desc}
           onChange={e => setDesc(e.target.value)}
           fullWidth
@@ -74,7 +83,7 @@ const CustomMealInfoModal = ({ open, onClose, onSave, defaultTitle, defaultDesc 
             '&:hover': {
               bgcolor: (theme) => theme.palette.primary.main
             }
-          }}>Save</Button>
+          }}>{translatedSave}</Button>
         </Box>
       </Box>
     </Modal>

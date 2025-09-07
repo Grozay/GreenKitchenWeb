@@ -9,6 +9,9 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import DrawerChoosenMeal from '../DrawerChoosenMeal/DrawerChoosenMeal'
 import ItemWeekPlan from '../ItemWeekPlan/ItemWeekPlan'
 import moment from 'moment'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
   const [openDrawer, setOpenDrawer] = useState(false)
@@ -35,6 +38,19 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
   const canPrev = isValidStartDate && weekDiff > -1
   const canNext = isValidStartDate && weekDiff < 1
 
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  const translatedPrevWeek = t('weekMeal.prevWeek')
+  const translatedNextWeek = t('weekMeal.nextWeek')
+  const translatedOrderNow = t('weekMeal.orderNow')
+  const translatedDay = t('weekMeal.day')
+  const translatedMeal1 = t('weekMeal.meal1')
+  const translatedMeal2 = t('weekMeal.meal2')
+  const translatedMeal3 = t('weekMeal.meal3')
+  const translatedTime1 = t('weekMeal.time1')
+  const translatedTime2 = t('weekMeal.time2')
+  const translatedTime3 = t('weekMeal.time3')
 
   return (
     <Box>
@@ -86,7 +102,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
           >
             <ArrowBackIosNewIcon fontSize='small' className='prev-week-icon' sx={{ mb: 0.3 }} />
             <Typography className="prev-week-text" sx={{ color: theme.palette.text.textSub, fontWeight: 500, transition: 'color 0.2s' }}>
-              TUẦN TRƯỚC
+              {translatedPrevWeek}
             </Typography>
           </IconButton>
           <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', mx: 1 }}>
@@ -113,7 +129,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             }}
           >
             <Typography className="next-week-text" sx={{ color: theme.palette.text.textSub, fontWeight: 500, ml: 1, transition: 'color 0.2s' }}>
-              TUẦN SAU
+              {translatedNextWeek}
             </Typography>
             <ArrowForwardIosIcon fontSize='small' className='next-week-icon' sx={{ mb: 0.3 }} />
           </IconButton>
@@ -133,7 +149,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             onClick={handleOpenDrawer}
             disabled={!(weekDiff === 0 || weekDiff === 1)}
           >
-            Đặt Ngay
+            {translatedOrderNow}
           </Button>
         </Box>
       </Box>
@@ -160,7 +176,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             }
           }}
         >
-          NGÀY
+          {translatedDay}
         </Box>
         <Box
           sx={{
@@ -182,7 +198,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             }
           }}
         >
-          MEAL 1 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(6:00 - 10:00)</Box>
+          {translatedMeal1} <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>{translatedTime1}</Box>
         </Box>
         <Box
           sx={{
@@ -204,7 +220,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             }
           }}
         >
-          MEAL 2 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(11:00 - 14:00)</Box>
+          {translatedMeal2} <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>{translatedTime2}</Box>
         </Box>
         <Box
           sx={{
@@ -216,7 +232,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
             fontSize: '1.2rem'
           }}
         >
-          MEAL 3<Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(17:00 - 20:00)</Box>
+          {translatedMeal3}<Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>{translatedTime3}</Box>
         </Box>
       </Box>
       {weekData.days.map((d, idx) => (

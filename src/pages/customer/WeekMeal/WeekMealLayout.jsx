@@ -8,13 +8,9 @@ import { getWeekMealPlanAPI } from '~/apis'
 import { useEffect, useState } from 'react'
 import moment from 'moment'
 import Skeleton from '@mui/material/Skeleton'
-
-const mealTypes = [
-  { key: 'low', title: 'THỰC ĐƠN LOW CALORIES' },
-  { key: 'balance', title: 'THỰC ĐƠN BALANCE CALORIES' },
-  { key: 'high', title: 'THỰC ĐƠN HIGH CALORIES' },
-  { key: 'vegetarian', title: 'THỰC ĐƠN CHAY', type: 'VEGETARIAN' }
-]
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+// import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const WeekMealLayout = () => {
   const [dates, setDates] = useState({
@@ -35,6 +31,25 @@ const WeekMealLayout = () => {
     high: false,
     vegetarian: false
   })
+  // const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  // Sử dụng translations từ en.js và vi.js
+  const translatedChooseWeekly = t('weekMeal.chooseWeekly')
+  const translatedChooseWeeklyDesc = t('weekMeal.chooseWeeklyDesc')
+  const translatedNoData = t('weekMeal.noData')
+  const translatedLowCalories = t('weekMeal.lowCalories')
+  const translatedBalanceCalories = t('weekMeal.balanceCalories')
+  const translatedHighCalories = t('weekMeal.highCalories')
+  const translatedVegetarian = t('weekMeal.vegetarian')
+
+  // Cập nhật mealTypes để sử dụng translations
+  const mealTypes = [
+    { key: 'low', title: translatedLowCalories },
+    { key: 'balance', title: translatedBalanceCalories },
+    { key: 'high', title: translatedHighCalories },
+    { key: 'vegetarian', title: translatedVegetarian, type: 'VEGETARIAN' }
+  ]
 
   // LOW CALORIES
   useEffect(() => {
@@ -115,7 +130,7 @@ const WeekMealLayout = () => {
               color: theme.palette.text.primary
             }}
           >
-            Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>WEEKLY MEAL PLAN</span>
+            Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>{translatedChooseWeekly}</span>
           </Typography>
           <Box sx={{ width: '7rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 4, borderRadius: 2 }} />
           <Typography
@@ -123,7 +138,7 @@ const WeekMealLayout = () => {
             align="center"
             sx={{ maxWidth: '48rem', mx: 'auto', mb: 6, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
           >
-            Choose a weekly meal plan that suits your needs and preferences. Our plans are designed to help you maintain a balanced diet while enjoying delicious meals every day.
+            {translatedChooseWeeklyDesc}
           </Typography>
         </Box>
 
@@ -148,7 +163,7 @@ const WeekMealLayout = () => {
                   fontSize: '1.1rem'
                 }}
               >
-                Không có dữ liệu cho kế hoạch này.
+                {translatedNoData}
               </Typography>
             )}
           </Box>

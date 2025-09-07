@@ -7,6 +7,7 @@ import MenuList from './MenuList/MenuList'
 import TabMenu from './TabMenu/TabMenu'
 import TabMenuMobile from './TabMenu/TabMenuMobile'
 import Footer from '~/components/Footer/Footer'
+import { useTranslation } from 'react-i18next'  // Thêm import
 
 function MenuLayout() {
   const [mealPackages, setMealPackages] = useState([])
@@ -17,6 +18,8 @@ function MenuLayout() {
   const balanceRef = useRef(null)
   const lowRef = useRef(null)
   const vegetarianRef = useRef(null)
+
+  const { t } = useTranslation()  // Sử dụng t() thay vì useTranslate
 
   const getFilteredMeals = (type) => {
     return mealPackages.filter(meal => meal.type === type)
@@ -114,7 +117,7 @@ function MenuLayout() {
             color: theme.palette.text.primary
           }}
         >
-          Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>MEAL PLAN</span>
+          {t('menu.choose')} <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>{t('menu.mealPlan')}</span>
         </Typography>
         <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 4 }} />
         <Typography
@@ -122,7 +125,7 @@ function MenuLayout() {
           align="center"
           sx={{ maxWidth: '48rem', mx: 'auto', mb: 6, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
         >
-          Green kit provides many meal plans and accompanying foods to meet your needs
+          {t('menu.description')}
         </Typography>
 
         {/* Tab Navigation - Sticky */}
@@ -140,7 +143,6 @@ function MenuLayout() {
             px: 2
           }}
         >
-
           {/* Desktop TabMenu */}
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <TabMenu value={value} handleChange={handleChange} />
@@ -149,10 +151,12 @@ function MenuLayout() {
           <Box sx={{ display: { xs: 'block', md: 'none' } }}>
             <TabMenuMobile value={value} handleChange={handleChange} />
           </Box>
-        </Box>        {/* HIGH PROTEIN Section */}
+        </Box>
+
+        {/* HIGH PROTEIN Section */}
         <Box ref={highRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            HIGH PROTEIN
+            {t('menu.high')}
           </Typography>
           <MenuList pkg={getFilteredMeals('HIGH')} loading={loading} />
         </Box>
@@ -160,7 +164,7 @@ function MenuLayout() {
         {/* BALANCE Section */}
         <Box ref={balanceRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            BALANCE
+            {t('menu.balance')}
           </Typography>
           <MenuList pkg={getFilteredMeals('BALANCE')} loading={loading} />
         </Box>
@@ -168,7 +172,7 @@ function MenuLayout() {
         {/* LOW CARB Section */}
         <Box ref={lowRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            LOW CARB
+            {t('menu.low')}
           </Typography>
           <MenuList pkg={getFilteredMeals('LOW')} loading={loading} />
         </Box>
@@ -176,7 +180,7 @@ function MenuLayout() {
         {/* VEGETARIAN Section */}
         <Box ref={vegetarianRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            VEGETARIAN
+            {t('menu.vegetarian')}
           </Typography>
           <MenuList pkg={getFilteredMeals('VEGETARIAN')} loading={loading} />
         </Box>
