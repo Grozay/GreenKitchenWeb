@@ -64,6 +64,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingOlder, setIsLoadingOlder] = useState(false) // State riêng cho việc load tin nhắn cũ
   const listRef = useRef(null)
+  const awaitingTimeoutRef = useRef(null)
   const PAGE_SIZE = 20
 
   // Initialize conversation ID and status
@@ -189,7 +190,10 @@ export default function ChatPanel({ onMessagesUpdate }) {
 
   // WebSocket incoming handler
   const handleIncoming = useCallback((msg) => {
-    if (msg.conversationId && msg.conversationId !== animationConvId) {
+    if (
+      msg.conversationId &&
+      Number(msg.conversationId) !== Number(animationConvId)
+    ) {
       setAnimationConvId(msg.conversationId)
       if (!isCustomerLoggedIn) {
         localStorage.setItem('conversationId', msg.conversationId)
@@ -265,7 +269,13 @@ export default function ChatPanel({ onMessagesUpdate }) {
     if (chatMode === 'AI' && awaitingAI) return
 
     setInput('')
-    // awaitingAI sẽ được tính lại dựa trên message PENDING và AI PENDING từ server
+    // Hiển thị trạng thái đang chờ AI ngay lập tức để tránh phải F5 lần đầu
+    setAwaitingAI(true)
+    // Fallback: nếu vì lý do nào đó không nhận được phản hồi, tự mở khóa sau 30s
+    if (awaitingTimeoutRef.current) clearTimeout(awaitingTimeoutRef.current)
+    awaitingTimeoutRef.current = setTimeout(() => {
+      setAwaitingAI(false)
+    }, 30000)
     const tempId = `temp-${Date.now()}`
     setMessages(prev => ([
       ...prev,
@@ -289,7 +299,30 @@ export default function ChatPanel({ onMessagesUpdate }) {
     if (isCustomerLoggedIn) params.customerId = customerId
 
     try {
-      await chatAPI.sendMessage(params)
+      const resp = await chatAPI.sendMessage(params)
+      const respConvId = resp?.conversationId
+      if (!animationConvId && respConvId) {
+        setAnimationConvId(respConvId)
+        if (!isCustomerLoggedIn) {
+          localStorage.setItem('conversationId', respConvId)
+        }
+      }
+      // Backfill: lần đầu subscribe có thể chưa kịp nhận tin từ WS → refetch nhanh
+      setTimeout(() => {
+        const cid = respConvId || animationConvId
+        if (!cid) return
+        chatAPI.fetchMessagesPaged(cid, 0, PAGE_SIZE)
+          .then(data => {
+            setMessages([...data.content].reverse())
+            setHasMore(!data.last)
+            // Nếu đã có phản hồi, huỷ fallback lock
+            if (awaitingTimeoutRef.current) {
+              clearTimeout(awaitingTimeoutRef.current)
+              awaitingTimeoutRef.current = null
+            }
+          })
+          .catch(() => {})
+      }, 300)
     } catch (error) {
       setMessages(prev => ([
         ...prev.filter(m => m.id !== tempId),
@@ -307,6 +340,15 @@ export default function ChatPanel({ onMessagesUpdate }) {
 
   return (
     <>
+      {/* Cleanup awaiting timeout on unmount */}
+      {useEffect(() => {
+        return () => {
+          if (awaitingTimeoutRef.current) {
+            clearTimeout(awaitingTimeoutRef.current)
+            awaitingTimeoutRef.current = null
+          }
+        }
+      }, [])}
       <Box
         ref={listRef}
         sx={{
@@ -339,7 +381,13 @@ export default function ChatPanel({ onMessagesUpdate }) {
         {messages
           .filter(m => !(m.senderRole === 'AI' && (m.status === 'PENDING' || m.status === 'pending')))
           .map((message, idx) => {
-            return (
+            const hasMenu = Array.isArray(message.menu) && message.menu.length > 0
+            return hasMenu ? (
+              <ProductMessageBubble
+                key={`${message.id}-${idx}`}
+                message={message}
+              />
+            ) : (
               <MessageBubble
                 key={`${message.id}-${idx}`}
                 message={message}

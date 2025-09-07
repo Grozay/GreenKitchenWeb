@@ -40,6 +40,7 @@ export const useChatLogic = ({
   // Refs
   const listRef = useRef(null)
   const timeoutRefs = useRef(new Map())
+  const awaitingUnlockRef = useRef(null)
   // scrollPositionRef đã được xử lý bởi useInfiniteScroll hook
 
   // Memoize chatAPI để tránh re-render không cần thiết
@@ -176,9 +177,13 @@ export const useChatLogic = ({
     const text = input.trim()
     setInput('')
 
-    // Tạo pending message
+    // Tạo pending message và set awaitingAI ngay để tránh bỏ lỡ AI lần đầu
     const pendingMessage = createPendingMessage(conversationId, text, customerName, customerId)
     setMessages(prev => [...prev, pendingMessage])
+    setAwaitingAI(true)
+    // Fallback unlock sau 30s để lần hỏi thứ 2 không bị khóa nếu miss WS
+    if (awaitingUnlockRef.current) clearTimeout(awaitingUnlockRef.current)
+    awaitingUnlockRef.current = setTimeout(() => setAwaitingAI(false), 30000)
 
     // Tạo timeout cho message
     const timeoutId = createMessageTimeout(pendingMessage.id, 30000, (msgId) => {
@@ -201,10 +206,31 @@ export const useChatLogic = ({
     }
 
     try {
-      await memoizedChatAPI.sendMessage(params)
+      const resp = await memoizedChatAPI.sendMessage(params)
+      const respConvId = resp?.conversationId
+      // Nếu lần đầu chưa có conversationId từ props, đồng bộ lại để subscribe WS đúng topic
+      if (!conversationId && respConvId) {
+        // Không có setter ở hook này, parent nên cập nhật conversationId
+        // Tuy nhiên ta vẫn dùng respConvId để backfill tạm thời
+      }
       // Clear timeout nếu thành công
       clearMessageTimeout(timeoutId)
       timeoutRefs.current.delete(pendingMessage.id)
+      // Backfill nhanh sau khi send để lấy AI message nếu WS chưa kịp
+      setTimeout(() => {
+        const cid = respConvId || conversationId
+        if (!cid) return
+        memoizedChatAPI.fetchMessagesPaged(cid, 0, pageSize)
+          .then((data) => {
+            setMessages([...data.content].reverse())
+            setHasMore(!data.last)
+            if (awaitingUnlockRef.current) {
+              clearTimeout(awaitingUnlockRef.current)
+              awaitingUnlockRef.current = null
+            }
+          })
+          .catch(() => {})
+      }, 300)
     } catch (error) {
       // Clear timeout nếu có lỗi
       clearMessageTimeout(timeoutId)

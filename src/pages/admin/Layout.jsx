@@ -21,6 +21,7 @@ import PaymentIcon from '@mui/icons-material/Payment'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import SecurityIcon from '@mui/icons-material/Security'
+import ChatIcon from '@mui/icons-material/Chat'
 import SupportAgentIcon from '@mui/icons-material/SupportAgent'
 import StorefrontIcon from '@mui/icons-material/Storefront'
 import NotificationsIcon from '@mui/icons-material/Notifications'
@@ -66,6 +67,7 @@ import IngredientEdit from './Ingredient/IngredientEdit'
 import WeekMealList from './WeekMeal/WeekMealList'
 import WeekMealCreate from './WeekMeal/WeekMealCreate'
 import WeekMealEdit from './WeekMeal/WeekMealEdit'
+import Chat from './Chat/Chat'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -144,12 +146,11 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
           { segment: 'create', title: 'Create Week Meal' }
         ]
       },
-      // Support / Tickets
       {
-        segment: 'management/support',
-        title: 'Support',
-        icon: <SupportAgentIcon />,
-        action: <Chip label={7} color="primary" size="small" />
+        segment: 'management/inbox',
+        title: 'Inbox',
+        icon: <ChatIcon />,
+        action: <Chip label="New" color="success" size="small" />
       },
       {
         kind: 'header',
@@ -437,6 +438,15 @@ function Layout(props) {
               element={
                 <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
                   <Coupons />
+                </ProtectedRoute>
+              }
+            />
+            {/* Chat */}
+            <Route 
+              path="inbox" 
+              element={
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
+                  <Chat />
                 </ProtectedRoute>
               }
             />

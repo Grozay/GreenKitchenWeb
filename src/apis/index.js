@@ -1,6 +1,5 @@
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
-import Drawer from '@mui/material/Drawer'
 
 //token
 export const refreshTokenCustomerAPI = async () => {
