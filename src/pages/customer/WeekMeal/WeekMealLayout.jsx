@@ -14,10 +14,10 @@ import { useSelector } from 'react-redux'
 
 const WeekMealLayout = () => {
   const [dates, setDates] = useState({
-    low: moment().startOf('week'), // Đặt ban đầu là Monday của tuần hiện tại
-    balance: moment().startOf('week'),
-    high: moment().startOf('week'),
-    vegetarian: moment().startOf('week')
+    low: moment(),
+    balance: moment(),
+    high: moment(),
+    vegetarian: moment()
   })
   const [weekData, setWeekData] = useState({
     low: null,
@@ -54,41 +54,41 @@ const WeekMealLayout = () => {
   // LOW CALORIES
   useEffect(() => {
     setLoading(prev => ({ ...prev, low: true }))
-    const mondayDate = dates.low.startOf('week').format('YYYY-MM-DD')
-    getWeekMealPlanAPI('low', mondayDate)
+    getWeekMealPlanAPI('low', dates.low.format('YYYY-MM-DD'))
       .then(res => setWeekData(prev => ({ ...prev, low: res })))
       .catch(() => setWeekData(prev => ({ ...prev, low: null })))
       .finally(() => setLoading(prev => ({ ...prev, low: false })))
+    // eslint-disable-next-line
   }, [dates.low])
 
   // BALANCE CALORIES
   useEffect(() => {
     setLoading(prev => ({ ...prev, balance: true }))
-    const mondayDate = dates.balance.startOf('week').format('YYYY-MM-DD')
-    getWeekMealPlanAPI('balance', mondayDate)
+    getWeekMealPlanAPI('balance', dates.balance.format('YYYY-MM-DD'))
       .then(res => setWeekData(prev => ({ ...prev, balance: res })))
       .catch(() => setWeekData(prev => ({ ...prev, balance: null })))
       .finally(() => setLoading(prev => ({ ...prev, balance: false })))
+    // eslint-disable-next-line
   }, [dates.balance])
 
   // HIGH CALORIES
   useEffect(() => {
     setLoading(prev => ({ ...prev, high: true }))
-    const mondayDate = dates.high.startOf('week').format('YYYY-MM-DD')
-    getWeekMealPlanAPI('high', mondayDate)
+    getWeekMealPlanAPI('high', dates.high.format('YYYY-MM-DD'))
       .then(res => setWeekData(prev => ({ ...prev, high: res })))
       .catch(() => setWeekData(prev => ({ ...prev, high: null })))
       .finally(() => setLoading(prev => ({ ...prev, high: false })))
+    // eslint-disable-next-line
   }, [dates.high])
 
   // VEGETARIAN
   useEffect(() => {
     setLoading(prev => ({ ...prev, vegetarian: true }))
-    const mondayDate = dates.vegetarian.startOf('week').format('YYYY-MM-DD')
-    getWeekMealPlanAPI('vegetarian', mondayDate)
+    getWeekMealPlanAPI('vegetarian', dates.vegetarian.format('YYYY-MM-DD'))
       .then(res => setWeekData(prev => ({ ...prev, vegetarian: res })))
       .catch(() => setWeekData(prev => ({ ...prev, vegetarian: null })))
       .finally(() => setLoading(prev => ({ ...prev, vegetarian: false })))
+    // eslint-disable-next-line
   }, [dates.vegetarian])
 
   // Hàm đổi tuần
@@ -105,10 +105,8 @@ const WeekMealLayout = () => {
       const newYear = newDate.year()
 
       const weekDiff = (newYear - currentYear) * 52 + (newWeek - currentWeek)
-      console.log('Week diff for', key, ':', weekDiff) // Debug: kiểm tra weekDiff
 
       if (weekDiff < -1 || weekDiff > 1) {
-        console.log('Blocked change for', key, 'due to weekDiff:', weekDiff) // Debug: lý do bị chặn
         return prev
       }
 
@@ -145,20 +143,30 @@ const WeekMealLayout = () => {
         </Box>
 
         {mealTypes.map(({ key, title }) => (
-          (weekData[key] && weekData[key].days && weekData[key].days.length > 0) && (
-            <Box sx={{ pt: 6 }} key={key}>
-              {loading[key] ? (
-                <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3, mb: 4 }} />
-              ) : (
-                <WeekPlan
-                  weekData={weekData[key]}
-                  title={title}
-                  onPrevWeek={() => handleChangeWeek(key, -7)}
-                  onNextWeek={() => handleChangeWeek(key, 7)}
-                />
-              )}
-            </Box>
-          )
+          <Box sx={{ pt: 6 }} key={key}>
+            {loading[key] ? (
+              <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3, mb: 4 }} />
+            ) : weekData[key] ? (
+              <WeekPlan
+                weekData={weekData[key]}
+                title={title}
+                onPrevWeek={() => handleChangeWeek(key, -7)}
+                onNextWeek={() => handleChangeWeek(key, 7)}
+              />
+            ) : (
+              <Typography
+                variant="body1"
+                align="center"
+                sx={{
+                  py: 4,
+                  color: theme.palette.text.textSub,
+                  fontSize: '1.1rem'
+                }}
+              >
+                {translatedNoData}
+              </Typography>
+            )}
+          </Box>
         ))}
       </Box>
       <Footer />
