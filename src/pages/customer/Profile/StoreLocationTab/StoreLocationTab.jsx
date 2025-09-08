@@ -104,7 +104,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
       const filtered = stores.filter(store =>
         store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         store.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        store.features.some(feature => 
+        store.features.some(feature =>
           feature.toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
@@ -198,15 +198,15 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
         (position) => {
           const { latitude, longitude } = position.coords
           setUserLocation({ lat: latitude, lng: longitude })
-          
+
           if (mapInstanceRef.current && window.L) {
             mapInstanceRef.current.setView([latitude, longitude], 15)
-            
+
             // Add user location marker
             const userMarker = window.L.marker([latitude, longitude])
               .addTo(mapInstanceRef.current)
               .bindPopup('Vị trí của bạn')
-            
+
             // Use custom icon for user location
             userMarker.setIcon(window.L.divIcon({
               className: 'user-location-marker',
@@ -215,7 +215,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
               iconAnchor: [10, 10]
             }))
           }
-          
+
           toast.success('Đã xác định vị trí của bạn!')
         },
         (error) => {
@@ -350,7 +350,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
                 🏪 Danh sách cửa hàng ({filteredStores.length})
               </Typography>
-              
+
               {filteredStores.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -493,73 +493,73 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
           </Card>
         </Grid>
 
-                 {/* Interactive Map */}
-         <Grid size={12}>
-           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
-             <CardContent sx={{ p: 4 }}>
-               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                   🗺️ Bản đồ cửa hàng
-                 </Typography>
-                 <Button
-                   variant="outlined"
-                   startIcon={<MyLocationIcon />}
-                   onClick={getUserLocation}
-                   disabled={!mapLoaded}
-                   sx={{ borderRadius: 2 }}
-                 >
-                   Vị trí của tôi
-                 </Button>
-               </Box>
-               
-               {!mapLoaded ? (
-                 <Box sx={{
-                   height: 400,
-                   backgroundColor: '#f5f5f5',
-                   borderRadius: 2,
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   border: '2px dashed #ccc'
-                 }}>
-                   <Box sx={{ textAlign: 'center' }}>
-                     <CircularProgress size={40} sx={{ mb: 2 }} />
-                     <Typography variant="h6" color="text.secondary" gutterBottom>
-                       Đang tải bản đồ...
-                     </Typography>
-                   </Box>
-                 </Box>
-               ) : (
-                 <Box
-                   ref={mapRef}
-                   sx={{
-                     height: 500,
-                     borderRadius: 2,
-                     border: '1px solid',
-                     borderColor: 'divider',
-                     overflow: 'hidden'
-                   }}
-                 />
-               )}
-               
-                                <Box sx={{ mt: 2, textAlign: 'center' }}>
-                   <Typography variant="body2" color="text.secondary">
-                     💡 Click vào marker trên bản đồ để xem thông tin chi tiết cửa hàng
-                   </Typography>
-                 </Box>
-                 
-                 {/* Custom CSS for user location marker */}
-                 <style>
-                   {`
+        {/* Interactive Map */}
+        <Grid size={12}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+            <CardContent sx={{ p: 4 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  🗺️ Bản đồ cửa hàng
+                </Typography>
+                <Button
+                  variant="outlined"
+                  startIcon={<MyLocationIcon />}
+                  onClick={getUserLocation}
+                  disabled={!mapLoaded}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Vị trí của tôi
+                </Button>
+              </Box>
+
+              {!mapLoaded ? (
+                <Box sx={{
+                  height: 400,
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px dashed #ccc'
+                }}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <CircularProgress size={40} sx={{ mb: 2 }} />
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                      Đang tải bản đồ...
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : (
+                <Box
+                  ref={mapRef}
+                  sx={{
+                    height: 500,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    overflow: 'hidden'
+                  }}
+                />
+              )}
+
+              <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  💡 Click vào marker trên bản đồ để xem thông tin chi tiết cửa hàng
+                </Typography>
+              </Box>
+
+              {/* Custom CSS for user location marker */}
+              <style>
+                {`
                      .user-location-marker {
                        background: transparent !important;
                        border: none !important;
                      }
                    `}
-                 </style>
-             </CardContent>
-           </Card>
-         </Grid>
+              </style>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
       {/* Store Detail Dialog */}

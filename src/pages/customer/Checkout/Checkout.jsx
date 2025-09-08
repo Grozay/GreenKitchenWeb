@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import dayjs from 'dayjs'
@@ -16,7 +16,7 @@ import PaymentMethodForm from './PaymentMethodForm'
 import OrderSummary from './OrderSummary'
 import OrderConfirmDialog from './OrderConfirmDialog'
 import PayPalPaymentForm from './PayPalPaymentForm'
-import { createOrder, customerUseCouponAPI, fetchCustomerDetails } from '~/apis'
+import { createOrder, customerUseCouponAPI, fetchCustomerDetails, getSettingsByTypeAPI } from '~/apis'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { selectCurrentCart, clearCart } from '~/redux/cart/cartSlice'
 
@@ -25,6 +25,7 @@ const Checkout = () => {
   const dispatch = useDispatch()
   const currentCart = useSelector(selectCurrentCart)
   const currentCustomer = useSelector(selectCurrentCustomer)
+  const [shippingSettings, setShippingSettings] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState('cod')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
@@ -53,6 +54,9 @@ const Checkout = () => {
     city: '',
     deliveryTime: null
   })
+
+  // Selected store information
+  const [selectedStore, setSelectedStore] = useState(null)
 
   // Fetch customer details and set default address
   useEffect(() => {
@@ -87,7 +91,7 @@ const Checkout = () => {
             deliveryTime: defaultDeliveryTime
           }))
         }
-      } catch (error) {
+      } catch {
         toast.error('Không thể tải thông tin khách hàng!')
       } finally {
         setLoading(false)
@@ -96,35 +100,106 @@ const Checkout = () => {
     fetch()
   }, [currentCustomer])
 
+  // Load shipping settings from API only when needed
+  // API Response structure: { "shipping.additionalFeePerKm": "4000", "shipping.baseFee": "20000", ... }
+  const loadShippingSettings = useCallback(async () => {
+    try {
+      const data = await getSettingsByTypeAPI('shipping')
+      if (data && Object.keys(data).length > 0) {
+        // Handle flat structure with dot notation keys
+        setShippingSettings({
+          enabled: data['shipping.enabled'] !== undefined ? data['shipping.enabled'] : true,
+          baseFee: parseInt(data['shipping.baseFee']) || 10000,
+          freeShippingThreshold: parseInt(data['shipping.freeShippingThreshold']) || 200000,
+          additionalFeePerKm: parseInt(data['shipping.additionalFeePerKm']) || 5000,
+          maxDistance: parseInt(data['shipping.maxDistance']) || 20
+        })
+      }
+    } catch {
+      toast.error('Không thể tải cài đặt vận chuyển!')
+      // Keep default values if API fails
+    }
+  }, [])
+
+  // Load shipping settings on component mount
   useEffect(() => {
-    // Calculate order summary based on cart items
-    const cartItems = currentCart?.cartItems || []
-    const subtotal = cartItems.reduce((total, item) => {
-      return total + (item.totalPrice || item.basePrice || 0)
-    }, 0)
+    loadShippingSettings()
+  }, [loadShippingSettings])
 
-    // Calculate shipping fee (free if over 100k or RADIANCE member)
-    const shippingFee = subtotal > 100000 || customerDetails?.membership?.currentTier === 'RADIANCE' ? 0 : 30000
+  // Calculate shipping fee based on settings, customer tier, and distance
+  const calculateShippingFee = useCallback(async (subtotal, customerTier, distance) => {
+    let shippingFee = 0
 
-    // Calculate membership discount
-    let membershipDiscount = 0
-    if (customerDetails?.membership?.currentTier === 'RADIANCE') {
-      membershipDiscount = subtotal * 0.1
-    } else if (customerDetails?.membership?.currentTier === 'VITALITY') {
-      membershipDiscount = subtotal * 0.05
+    // Check if shippingSettings is loaded
+    if (!shippingSettings || !shippingSettings.enabled) {
+      return shippingFee
     }
 
-    // Calculate total amount
-    const totalAmount = subtotal + shippingFee - membershipDiscount - couponDiscount
+    // Check if free shipping applies
+    const isFreeShipping = subtotal >= shippingSettings.freeShippingThreshold ||
+                          customerTier === 'RADIANCE'
 
-    setOrderSummary({
-      subtotal,
-      shippingFee,
-      membershipDiscount,
-      couponDiscount,
-      totalAmount
-    })
-  }, [currentCart, customerDetails, appliedCoupon, couponDiscount])
+    if (isFreeShipping) {
+      return 0
+    }
+
+    // Calculate shipping fee: baseFee + distance * additionalFeePerKm
+    shippingFee = shippingSettings.baseFee
+
+    // Add distance-based fee for the entire distance
+    if (distance && distance > 0) {
+      shippingFee += distance * shippingSettings.additionalFeePerKm
+
+      // Check max distance limit
+      if (distance > shippingSettings.maxDistance) {
+        // Use max fee for distances beyond limit
+        shippingFee = shippingSettings.baseFee + (shippingSettings.maxDistance * shippingSettings.additionalFeePerKm)
+      }
+    }
+
+    return shippingFee
+  }, [shippingSettings])
+
+  useEffect(() => {
+    const calculateOrderSummary = async () => {
+      // Calculate order summary based on cart items
+      const cartItems = currentCart?.cartItems || []
+      const subtotal = cartItems.reduce((total, item) => {
+        return total + (item.totalPrice || item.basePrice || 0)
+      }, 0)
+
+      // Calculate shipping fee using the async helper function
+      let shippingFee = 0
+      if (shippingSettings) {
+        shippingFee = await calculateShippingFee(
+          subtotal,
+          customerDetails?.membership?.currentTier,
+          selectedStore?.distance
+        )
+      }
+
+      // Calculate membership discount
+      let membershipDiscount = 0
+      if (customerDetails?.membership?.currentTier === 'RADIANCE') {
+        membershipDiscount = subtotal * 0.1
+      } else if (customerDetails?.membership?.currentTier === 'VITALITY') {
+        membershipDiscount = subtotal * 0.05
+      }
+
+      // Calculate total amount
+      const totalAmount = subtotal + shippingFee - membershipDiscount - couponDiscount
+
+      setOrderSummary({
+        subtotal,
+        shippingFee,
+        membershipDiscount,
+        couponDiscount,
+        totalAmount
+      })
+    }
+
+    calculateOrderSummary()
+  }, [currentCart, customerDetails, appliedCoupon, couponDiscount, shippingSettings, selectedStore, calculateShippingFee])
 
   // Handle apply coupon
   const handleApplyCoupon = (coupon, discountAmount) => {
@@ -389,6 +464,7 @@ const Checkout = () => {
               setDeliveryInfo={setDeliveryInfo}
               errors={errors}
               customerDetails={customerDetails}
+              onStoreSelect={setSelectedStore}
             />
 
             {/* Payment Method Form */}
@@ -414,6 +490,8 @@ const Checkout = () => {
               onRemoveCoupon={handleRemoveCoupon}
               onCouponsUpdated={handleCouponsUpdated}
               customerDetails={customerDetails}
+              selectedStore={selectedStore}
+              shippingSettings={shippingSettings}
             />
 
             {/* Place Order Button */}
