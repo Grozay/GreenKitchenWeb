@@ -108,10 +108,10 @@ const CartItem = ({
   }
 
   const items = [
-    { label: t('nutrition.calories'), value: `${Math.round(nutrition.calories)}` }, // Sửa thành cart.calories
-    { label: t('nutrition.protein'), value: `${Math.round(nutrition.protein)}g` },
-    { label: t('nutrition.carbs'), value: `${Math.round(nutrition.carbs)}g` },
-    { label: t('nutrition.fat'), value: `${Math.round(nutrition.fat)}g` }
+    { label: t('nutrition.calories'), value: `${Math.round(nutrition.calories)}`, perUnit: `${Math.round(nutrition.calories / item.quantity)}` },
+    { label: t('nutrition.protein'), value: `${Math.round(nutrition.protein)}g`, perUnit: `${Math.round(nutrition.protein / item.quantity)}g` },
+    { label: t('nutrition.carbs'), value: `${Math.round(nutrition.carbs)}g`, perUnit: `${Math.round(nutrition.carbs / item.quantity)}g` },
+    { label: t('nutrition.fat'), value: `${Math.round(nutrition.fat)}g`, perUnit: `${Math.round(nutrition.fat / item.quantity)}g` }
   ]
 
   return (
@@ -177,13 +177,13 @@ const CartItem = ({
                       color: '#2c2c2c',
                       fontSize: { xs: '1.1rem', md: '1.25rem' }
                     }}>
-                      {item.totalPrice?.toLocaleString() || '0'} VNĐ
+                      {(item.totalPrice || 0).toLocaleString('en-US')} VNĐ
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{
                       textDecoration: 'line-through',
                       fontSize: { xs: '0.8rem', md: '0.875rem' }
                     }}>
-                      {((item.totalPrice || 0) * 1.2).toLocaleString()} VNĐ
+                      {((item.totalPrice || 0) * 1.2).toLocaleString('en-US')} VND
                     </Typography>
                   </Box>
                 </Box>
@@ -305,6 +305,11 @@ const CartItem = ({
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 400, fontSize: '0.75rem' }}>
                             {nutritionItem.label}
                           </Typography>
+                          {item.quantity > 1 && (
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, fontSize: '0.6rem' }}>
+                              ({nutritionItem.perUnit} per unit)
+                            </Typography>
+                          )}
                         </Grid>
                       ))}
                     </Grid>

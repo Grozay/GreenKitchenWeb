@@ -341,7 +341,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               fontWeight: 800,
               color: theme.palette.text.textSub
             }}>
-              {itemFilter.price} {translatedVnd}
+              {Math.round(itemFilter.price).toLocaleString('en-US')} {translatedVnd}
             </Typography>
             {cartItem ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
