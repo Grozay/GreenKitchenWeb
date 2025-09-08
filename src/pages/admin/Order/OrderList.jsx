@@ -231,7 +231,7 @@ export default function OrderList() {
   }
 
   return (
-    <Container sx={{ minHeight: '90vh' }}>
+    <Container maxWidth="xl" sx={{ minHeight: '90vh' }}>
       <Toolbar disableGutters sx={{ position: 'relative' }}>
         <Typography variant="h4" sx={{ flexGrow: 1, fontWeight: 'bold', py: 2 }}>Order Management</Typography>
         <Badge badgeContent={newOrders.length} color="secondary" sx={{ mr: 2 }}>

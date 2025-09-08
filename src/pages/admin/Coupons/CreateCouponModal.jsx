@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Modal from '@mui/material/Modal'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -12,11 +12,13 @@ import Typography from '@mui/material/Typography'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import CustomerList from '~/pages/admin/Coupons/CustomerList'
+import Chip from '@mui/material/Chip'
 import dayjs from 'dayjs'
-import { createCouponAPI } from '~/apis'
+import { createCouponAPI, getAllUsersAPI, updateCouponAPI, getCouponByIdAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
-export default function CreateCouponModal({ open, onClose, onSuccess }) {
+export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate = false, couponId = null }) {
   const [formData, setFormData] = useState({
     code: '',
     name: '',
@@ -24,14 +26,80 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
     type: 'PERCENTAGE',
     discountValue: '',
     maxDiscount: '',
-    pointsRequired: '',
+    pointsRequired: 0, // Default to 0
     validUntil: dayjs().add(30, 'day'), // Default 30 days from now
     exchangeLimit: '',
-    status: 'ACTIVE'
+    status: 'ACTIVE',
+    couponType: 'GENERAL', // GENERAL or SPECIFIC_CUSTOMER
+    specificCustomers: [] // Array of selected customer IDs
   })
 
+  const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(false)
+  const [loadingCustomers, setLoadingCustomers] = useState(false)
+  const [fetchLoading, setFetchLoading] = useState(false)
   const [errors, setErrors] = useState({})
+
+  // Load customers only when SPECIFIC_CUSTOMER is selected and not in update mode
+  useEffect(() => {
+    if (formData.couponType === 'SPECIFIC_CUSTOMER' && !isUpdate) {
+      loadCustomers()
+    } else {
+      // Clear customers list when switching back to GENERAL or in update mode
+      setCustomers([])
+      setFormData(prev => ({
+        ...prev,
+        specificCustomers: []
+      }))
+    }
+  }, [formData.couponType, isUpdate])
+
+  // Fetch coupon data when in update mode
+  const fetchCouponData = useCallback(async () => {
+    if (!isUpdate || !couponId) return
+
+    setFetchLoading(true)
+    try {
+      const coupon = await getCouponByIdAPI(couponId)
+      setFormData({
+        code: coupon.code || '',
+        name: coupon.name || '',
+        description: coupon.description || '',
+        type: coupon.type || 'PERCENTAGE',
+        discountValue: coupon.discountValue || '',
+        maxDiscount: coupon.maxDiscount || '',
+        pointsRequired: coupon.pointsRequired || 0,
+        validUntil: coupon.validUntil ? dayjs(coupon.validUntil) : dayjs().add(30, 'day'),
+        exchangeLimit: coupon.exchangeLimit || '',
+        status: coupon.status || 'ACTIVE',
+        couponType: coupon.applicability || 'GENERAL', // Set couponType from applicability
+        specificCustomers: [] // Will be loaded separately if needed
+      })
+    } catch {
+      toast.error('Failed to load coupon data')
+      onClose()
+    } finally {
+      setFetchLoading(false)
+    }
+  }, [isUpdate, couponId, onClose])
+
+  useEffect(() => {
+    if (open && isUpdate && couponId) {
+      fetchCouponData()
+    }
+  }, [open, isUpdate, couponId, fetchCouponData])
+
+  const loadCustomers = async () => {
+    setLoadingCustomers(true)
+    try {
+      const response = await getAllUsersAPI()
+      setCustomers(response)
+    } catch {
+      toast.error('Failed to load customers')
+    } finally {
+      setLoadingCustomers(false)
+    }
+  }
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -45,6 +113,24 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
         [field]: ''
       }))
     }
+  }
+
+  const handleCustomerSelect = (customer) => {
+    const isSelected = formData.specificCustomers.includes(customer.id)
+    if (isSelected) {
+      // Remove customer
+      handleInputChange('specificCustomers',
+        formData.specificCustomers.filter(id => id !== customer.id))
+    } else {
+      // Add customer
+      handleInputChange('specificCustomers',
+        [...formData.specificCustomers, customer.id])
+    }
+  }
+
+  const handleCustomerRemove = (customerId) => {
+    handleInputChange('specificCustomers',
+      formData.specificCustomers.filter(id => id !== customerId))
   }
 
   const validateForm = () => {
@@ -66,7 +152,8 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
       newErrors.discountValue = 'Percentage discount cannot exceed 100%'
     }
 
-    if (!formData.pointsRequired || formData.pointsRequired < 0) {
+    // Points required validation - only validate when creating
+    if (!isUpdate && (!formData.pointsRequired || formData.pointsRequired < 0)) {
       newErrors.pointsRequired = 'Points required must be 0 or greater'
     }
 
@@ -76,12 +163,20 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
       newErrors.validUntil = 'Valid until date must be in the future'
     }
 
-    if (formData.exchangeLimit && formData.exchangeLimit < 0) {
+    // Exchange limit validation - only validate when updating
+    if (isUpdate && formData.exchangeLimit && formData.exchangeLimit < 0) {
       newErrors.exchangeLimit = 'Exchange limit must be 0 or greater'
     }
 
     if (formData.maxDiscount && formData.maxDiscount < 0) {
       newErrors.maxDiscount = 'Max discount must be 0 or greater'
+    }
+
+    // Validate specific customers if coupon type is SPECIFIC_CUSTOMER
+    if (formData.couponType === 'SPECIFIC_CUSTOMER') {
+      if (!formData.specificCustomers || formData.specificCustomers.length === 0) {
+        newErrors.specificCustomers = 'At least one customer must be selected for specific customer coupons'
+      }
     }
 
     setErrors(newErrors)
@@ -96,21 +191,38 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
     setLoading(true)
     try {
       const submitData = {
-        ...formData,
         code: formData.code.toUpperCase(),
+        name: formData.name,
+        description: formData.description,
+        type: formData.type,
         discountValue: parseFloat(formData.discountValue),
         maxDiscount: formData.maxDiscount ? parseFloat(formData.maxDiscount) : null,
         pointsRequired: parseFloat(formData.pointsRequired),
         validUntil: formData.validUntil.toISOString(),
-        exchangeLimit: formData.exchangeLimit ? parseInt(formData.exchangeLimit) : null
+        exchangeLimit: formData.exchangeLimit ? parseInt(formData.exchangeLimit) : null,
+        status: formData.status,
+        // Map couponType to applicability for backend (only for create)
+        ...(isUpdate ? {} : { applicability: formData.couponType }),
+        // Include customer IDs if specific customer coupon and not update
+        ...(isUpdate ? {} : { customerIds: formData.couponType === 'SPECIFIC_CUSTOMER' ? formData.specificCustomers : null })
       }
 
-      await createCouponAPI(submitData)
-      toast.success('Coupon created successfully!')
+      if (isUpdate) {
+        await updateCouponAPI(couponId, submitData)
+        toast.success('Coupon updated successfully!')
+      } else {
+        // Create coupon first
+        await createCouponAPI(submitData)
+        
+        // Note: Customer coupons are automatically created by backend when applicability is SPECIFIC_CUSTOMER
+        // No need to call createBulkCustomerCouponsAPI separately
+        toast.success('Coupon created successfully!')
+      }
+
       onSuccess()
       handleClose()
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create coupon')
+      toast.error(error.response?.data?.message || `Failed to ${isUpdate ? 'update' : 'create'} coupon`)
     } finally {
       setLoading(false)
     }
@@ -124,13 +236,40 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
       type: 'PERCENTAGE',
       discountValue: '',
       maxDiscount: '',
-      pointsRequired: '',
+      pointsRequired: 0, // Reset to default 0
       validUntil: dayjs().add(30, 'day'),
       exchangeLimit: '',
-      status: 'ACTIVE'
+      status: 'ACTIVE',
+      couponType: 'GENERAL',
+      specificCustomers: []
     })
     setErrors({})
     onClose()
+  }
+
+  if (fetchLoading) {
+    return (
+      <Modal open={open} onClose={handleClose}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '80%', md: 800 },
+            maxHeight: '90vh',
+            overflow: 'auto',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 4,
+            textAlign: 'center'
+          }}
+        >
+          <Typography>Loading coupon data...</Typography>
+        </Box>
+      </Modal>
+    )
   }
 
   return (
@@ -163,7 +302,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
             fontWeight="bold"
             sx={{ mb: 3 }}
           >
-            Create New Coupon
+            {isUpdate ? 'Update Coupon' : 'Create New Coupon'}
           </Typography>
 
           <Box
@@ -218,12 +357,87 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
                 />
               </Grid>
 
+              {/* Coupon Type Selection - Only show when creating */}
+              {!isUpdate && (
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Coupon Type</InputLabel>
+                    <Select
+                      value={formData.couponType}
+                      label="Coupon Type"
+                      onChange={(e) => handleInputChange('couponType', e.target.value)}
+                    >
+                      <MenuItem value="GENERAL">General (All Customers)</MenuItem>
+                      <MenuItem value="SPECIFIC_CUSTOMER">Specific Customers Only</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              )}
+
+              {/* Customer Selection - Only show if SPECIFIC_CUSTOMER and not update */}
+              {formData.couponType === 'SPECIFIC_CUSTOMER' && !isUpdate && (
+                <Grid size={{ xs: 12 }} sx={{ width: '100%' }}>
+                  <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+                    Chọn khách hàng cụ thể ({formData.specificCustomers.length} đã chọn)
+                  </Typography>
+
+                  <Box sx={{
+                    maxHeight: 300,
+                    overflow: 'auto',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    p: 1,
+                    width: '100%'
+                  }}>
+                    <CustomerList
+                      customers={customers}
+                      loading={loadingCustomers}
+                      onCustomerSelect={handleCustomerSelect}
+                      onCustomerRemove={handleCustomerRemove}
+                      showRemove={false}
+                      emptyMessage="Không có khách hàng nào"
+                    />
+                  </Box>
+
+                  {formData.specificCustomers.length > 0 && (
+                    <Box sx={{ mt: 2, width: '100%' }}>
+                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                        Đã chọn ({formData.specificCustomers.length}):
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, width: '100%' }}>
+                        {formData.specificCustomers.map(customerId => {
+                          const customer = customers.find(c => c.id === customerId)
+                          return customer ? (
+                            <Chip
+                              key={customer.id}
+                              label={`${customer.fullName} (${customer.email || customer.phone || 'No contact'})`}
+                              onDelete={() => handleCustomerRemove(customer.id)}
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                              sx={{ maxWidth: '100%' }}
+                            />
+                          ) : null
+                        })}
+                      </Box>
+                    </Box>
+                  )}
+
+                  {errors.specificCustomers && (
+                    <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                      {errors.specificCustomers}
+                    </Typography>
+                  )}
+                </Grid>
+              )}
+
               <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth error={!!errors.type}>
-                  <InputLabel>Type</InputLabel>
+                  <InputLabel>Discount Type</InputLabel>
                   <Select
                     value={formData.type}
-                    label="Type"
+                    label="Discount Type"
                     onChange={(e) => handleInputChange('type', e.target.value)}
                   >
                     <MenuItem value="PERCENTAGE">Percentage Discount</MenuItem>
@@ -275,6 +489,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
                   onChange={(e) => handleInputChange('pointsRequired', e.target.value)}
                   error={!!errors.pointsRequired}
                   helperText={errors.pointsRequired}
+                  disabled={!isUpdate} // Only enabled when updating
                   slotProps={{
                     htmlInput: { min: 0, step: 1 },
                     inputLabel: { shrink: true }
@@ -311,6 +526,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
                   onChange={(e) => handleInputChange('exchangeLimit', e.target.value)}
                   error={!!errors.exchangeLimit}
                   helperText={errors.exchangeLimit || 'Maximum number of exchanges (leave empty for unlimited)'}
+                  disabled={!isUpdate} // Only enabled when updating
                   slotProps={{
                     htmlInput: { min: 0, step: 1 },
                     inputLabel: { shrink: true }
@@ -328,6 +544,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
                   >
                     <MenuItem value="ACTIVE">Active</MenuItem>
                     <MenuItem value="INACTIVE">Inactive</MenuItem>
+                    {isUpdate && <MenuItem value="EXPIRED">Expired</MenuItem>}
                   </Select>
                 </FormControl>
               </Grid>
@@ -343,7 +560,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess }) {
                 disabled={loading}
                 sx={{ minWidth: 100 }}
               >
-                {loading ? 'Creating...' : 'Create Coupon'}
+                {loading ? (isUpdate ? 'Updating...' : 'Creating...') : (isUpdate ? 'Update Coupon' : 'Create Coupon')}
               </Button>
             </Box>
           </Box>
