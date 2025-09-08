@@ -1,5 +1,10 @@
-import { useEffect, useState, useRef } from 'react'
-import { Box, Typography } from '@mui/material'
+import { useEffect, useState, useRef, useMemo } from 'react'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
 import AppBar from '~/components/AppBar/AppBar'
 import { getMenuMealAPI } from '~/apis'
 import theme from '~/theme'
@@ -7,22 +12,37 @@ import MenuList from './MenuList/MenuList'
 import TabMenu from './TabMenu/TabMenu'
 import TabMenuMobile from './TabMenu/TabMenuMobile'
 import Footer from '~/components/Footer/Footer'
-import { useTranslation } from 'react-i18next'  // Thêm import
+import { useTranslation } from 'react-i18next'
+import FilterListIcon from '@mui/icons-material/FilterList'
 
 function MenuLayout() {
   const [mealPackages, setMealPackages] = useState([])
   const [loading, setLoading] = useState(true)
   const [value, setValue] = useState(0)
+  const [sortOrder, setSortOrder] = useState('asc')
 
   const highRef = useRef(null)
   const balanceRef = useRef(null)
   const lowRef = useRef(null)
   const vegetarianRef = useRef(null)
 
-  const { t } = useTranslation()  // Sử dụng t() thay vì useTranslate
+  const { t } = useTranslation()
 
-  const getFilteredMeals = (type) => {
-    return mealPackages.filter(meal => meal.type === type)
+  const getFilteredMeals = useMemo(() => {
+    // Sort toàn bộ mealPackages theo price trước khi filter
+    const sortedMeals = [...mealPackages].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.price - b.price
+      } else {
+        return b.price - a.price
+      }
+    })
+    // Trả về hàm filter theo type
+    return (type) => sortedMeals.filter(meal => meal.type === type)
+  }, [mealPackages, sortOrder]) // Dependencies: chỉ tính toán lại khi mealPackages hoặc sortOrder thay đổi
+
+  const handleSortChange = (event) => {
+    setSortOrder(event.target.value)
   }
 
   useEffect(() => {
@@ -151,6 +171,43 @@ function MenuLayout() {
           <Box sx={{ display: { xs: 'block', md: 'none' } }}>
             <TabMenuMobile value={value} handleChange={handleChange} />
           </Box>
+        </Box>
+
+        {/* filter price */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <FormControl variant="outlined" size='small' sx={{ minWidth: 150, borderRadius: 5 }}>
+            <InputLabel sx={{ color: theme.palette.primary.main }}>Filter by Price</InputLabel>
+            <Select
+              value={sortOrder}
+              onChange={handleSortChange}
+              label="Filter by Price"
+              MenuProps={{
+                sx: {
+                  '& .MuiPaper-root': {
+                    borderRadius: 3
+                  }
+                } }
+              }
+              sx={{
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: theme.palette.primary.main
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: theme.palette.primary.main
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: theme.palette.primary.main
+                },
+                borderRadius: 5
+              }}
+            >
+              <MenuItem value="asc">Low to High</MenuItem>
+              <MenuItem value="desc">High to Low</MenuItem>
+            </Select>
+          </FormControl>
+          <FilterListIcon sx={{ ml: 1, color: theme.palette.primary.main }} />
         </Box>
 
         {/* HIGH PROTEIN Section */}

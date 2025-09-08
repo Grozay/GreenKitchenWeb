@@ -4,6 +4,8 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +16,13 @@ import { toast } from 'react-toastify'
 import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import { useTranslation } from 'react-i18next'
+import {
+  selectCurrentCart,
+  decreaseQuantity,
+  increaseQuantity,
+  removeFromCart
+} from '~/redux/cart/cartSlice'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 
 const CardMenu = ({ item, typeBasedIndex }) => {
   const navigate = useNavigate()
@@ -22,7 +31,11 @@ const CardMenu = ({ item, typeBasedIndex }) => {
   const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
   const currentLang = useSelector(selectCurrentLanguage)
   const { t } = useTranslation()
-  // Dịch các văn bản từ API
+  const currentCart = useSelector(selectCurrentCart)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [itemToRemove, setItemToRemove] = useState(null)
+
+
   const translatedTitle = useTranslate(item.title, currentLang)
   // const translatedDescription = useTranslate(item.description, currentLang)
   const translatedProtein = t('nutrition.protein')
@@ -75,8 +88,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
         await dispatch(fetchCart(customerId))
       }
       toast.success(translatedAddedToCart)
-      // eslint-disable-next-line no-unused-vars
-    } catch (error) {
+    } catch {
       toast.error(translatedFailedToAddToCart)
     } finally {
       setAddingToCart(false)
@@ -105,6 +117,64 @@ const CardMenu = ({ item, typeBasedIndex }) => {
   }
 
   const label = `${itemFilter.typeShort}${typeBasedIndex || 1}`
+
+  // Tìm cartItem dựa trên menuMealId
+  const cartItem = currentCart?.cartItems?.find(cartItem => cartItem.menuMeal?.id === item.id) || null
+
+  // Hàm tăng quantity
+  const handleIncrease = async () => {
+    if (!cartItem) return
+    try {
+      await dispatch(increaseQuantity({ customerId, itemId: cartItem.id }))
+      if (customerId) {
+        await dispatch(fetchCart(customerId))
+      }
+    } catch {
+      toast.error(translatedFailedToAddToCart)
+    }
+  }
+
+  // Hàm giảm quantity (chỉ giảm nếu quantity > 1, nếu =1 thì hiện modal hỏi)
+  const handleDecrease = async () => {
+    if (!cartItem) return
+    if (cartItem.quantity > 1) {
+      try {
+        await dispatch(decreaseQuantity({ customerId, itemId: cartItem.id }))
+        if (customerId) {
+          await dispatch(fetchCart(customerId))
+        }
+      } catch {
+        toast.error(translatedFailedToAddToCart)
+      }
+    } else {
+      setItemToRemove(cartItem.id)
+      setConfirmDialogOpen(true)
+    }
+  }
+
+  const handleConfirmRemove = async () => {
+    if (itemToRemove) {
+      try {
+        await dispatch(removeFromCart({ customerId, itemId: itemToRemove }))
+        if (customerId) {
+          await dispatch(fetchCart(customerId))
+        }
+      } catch {
+        toast.error(translatedFailedToAddToCart)
+      }
+    }
+    setConfirmDialogOpen(false)
+    setItemToRemove(null)
+  }
+
+  const handleCancelRemove = () => {
+    setConfirmDialogOpen(false)
+    setItemToRemove(null)
+  }
+
+  const translatedConfirmTitle = useTranslate('Confirm Remove Item', currentLang)
+  const translatedConfirmDescription = useTranslate('Are you sure you want to remove this item from the cart?', currentLang)
+  const translatedRemoveBtn = useTranslate('Remove', currentLang)
 
   return (
     <>
@@ -273,25 +343,65 @@ const CardMenu = ({ item, typeBasedIndex }) => {
             }}>
               {itemFilter.price} {translatedVnd}
             </Typography>
-            <IconButton
-              onClick={handleAddToCart}
-              disabled={addingToCart} // Disable khi đang add to cart
-              sx={{
-                color: theme.palette.primary.secondary,
-                '&:hover': {
-                  bgcolor: theme.palette.primary.secondary,
-                  color: 'white'
-                },
-                '&:disabled': {
-                  color: theme.palette.grey[400]
-                }
-              }}
-            >
-              <ShoppingCart fontSize="medium" />
-            </IconButton>
+            {cartItem ? (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton
+                  onClick={handleDecrease}
+                  sx={{
+                    color: theme.palette.primary.secondary,
+                    '&:hover': {
+                      bgcolor: theme.palette.primary.secondary,
+                      color: 'white'
+                    }
+                  }}
+                >
+                  <RemoveIcon fontSize="medium" />
+                </IconButton>
+                <Typography variant="body1" sx={{ mx: 1, fontWeight: 600 }}>
+                  {cartItem.quantity}
+                </Typography>
+                <IconButton
+                  onClick={handleIncrease}
+                  sx={{
+                    color: theme.palette.primary.secondary,
+                    '&:hover': {
+                      bgcolor: theme.palette.primary.secondary,
+                      color: 'white'
+                    }
+                  }}
+                >
+                  <AddIcon fontSize="medium" />
+                </IconButton>
+              </Box>
+            ) : (
+              <IconButton
+                onClick={handleAddToCart}
+                disabled={addingToCart}
+                sx={{
+                  color: theme.palette.primary.secondary,
+                  '&:hover': {
+                    bgcolor: theme.palette.primary.secondary,
+                    color: 'white'
+                  },
+                  '&:disabled': {
+                    color: theme.palette.grey[400]
+                  }
+                }}
+              >
+                <ShoppingCart fontSize="medium" />
+              </IconButton>
+            )}
           </Box>
         </CardContent>
       </Card>
+      <ConfirmModal
+        open={confirmDialogOpen}
+        onClose={handleCancelRemove}
+        onConfirm={handleConfirmRemove}
+        title={translatedConfirmTitle}
+        description={translatedConfirmDescription}
+        btnName={translatedRemoveBtn}
+      />
     </>
   )
 }
