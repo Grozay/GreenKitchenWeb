@@ -33,7 +33,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
           {t('cart.itemCount')} ({itemCount})
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: 500 }}>
-          {totalPrice?.toFixed(2) || '0.00'} VNĐ
+          {(totalPrice || 0).toLocaleString('en-US')} VNĐ
         </Typography>
       </Box>
 
@@ -88,7 +88,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
           {t('cart.total')}
         </Typography>
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          {totalPrice?.toFixed(2) || '0.00'} VNĐ
+          {(totalPrice || 0).toLocaleString('en-US')} VNĐ
         </Typography>
       </Box>
 
