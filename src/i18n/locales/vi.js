@@ -61,7 +61,8 @@ const vi = {
     chooseWeekly: 'CHỌN KẾ HOẠCH BỮA ĂN TUẦN',
     chooseWeeklyDesc: 'Chọn kế hoạch bữa ăn hàng tuần phù hợp với nhu cầu và sở thích của bạn. Các kế hoạch của chúng tôi được thiết kế để giúp bạn duy trì chế độ ăn uống cân bằng trong khi thưởng thức những bữa ăn ngon miệng mỗi ngày.',
     prevWeek: 'TUẦN TRƯỚC',
-    nextWeek: 'TUẦN SAU'
+    nextWeek: 'TUẦN SAU',
+    noWeekData: 'Không có dữ liệu tuần'
   },
   cart: {
     emptyTitle: 'Giỏ hàng của bạn đang trống',

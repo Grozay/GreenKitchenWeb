@@ -61,7 +61,8 @@ const en = {
     highCalories: 'HIGH CALORIES MENU',
     vegetarian: 'VEGETARIAN MENU',
     prevWeek: 'PREVIOUS WEEK',
-    nextWeek: 'NEXT WEEK'
+    nextWeek: 'NEXT WEEK',
+    noWeekData: 'No Week Data'
   },
   cart: {
     ingredients: 'Ingredients',

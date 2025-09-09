@@ -8,10 +8,13 @@ import Paper from '@mui/material/Paper'
 import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
+import Modal from '@mui/material/Modal'
 import { createMenuMealAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import Cropper from 'react-easy-crop'
+import getCroppedImg from '~/utils/getCroppedImg' // Đảm bảo file này tồn tại
 
 const typeOptions = [
   { value: 'BALANCE', label: 'Balance' },
@@ -20,20 +23,8 @@ const typeOptions = [
   { value: 'VEGETARIAN', label: 'Vegetarian' }
 ]
 
-// const uploadImage = async (file) => {
-//   const formData = new FormData()
-//   formData.append('file', file)
-//   formData.append('upload_preset', 'ml_default')
-//   const res = await fetch('https://api.cloudinary.com/v1_1/quyendev/image/upload', {
-//     method: 'POST',
-//     body: formData
-//   })
-//   const data = await res.json()
-//   return data.secure_url
-// }
-
 const MenuMealCreate = () => {
-  const { register, handleSubmit, control, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm({
     defaultValues: {
       title: '',
       description: '',
@@ -49,7 +40,56 @@ const MenuMealCreate = () => {
   })
   const [loading, setLoading] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+  const [imageSrc, setImageSrc] = useState(null)
   const navigate = useNavigate()
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      const img = new Image()
+      img.onload = () => {
+        if (img.width === 600 && img.height === 600) {
+          // Revoke URL cũ nếu có
+          if (imagePreview) URL.revokeObjectURL(imagePreview)
+          // Ảnh đúng kích thước, set trực tiếp
+          setImagePreview(URL.createObjectURL(file))
+          setValue('image', [file])
+        } else {
+          // Ảnh không đúng, mở modal crop
+          setImageSrc(URL.createObjectURL(file))
+          setCropModalOpen(true)
+        }
+      }
+      img.src = URL.createObjectURL(file)
+    }
+  }
+
+  const handleCropSave = async () => {
+    try {
+      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, 600, 600) // Truyền 600x600
+      // Revoke URL cũ
+      if (imagePreview) URL.revokeObjectURL(imagePreview)
+      const previewUrl = URL.createObjectURL(croppedImage)
+      setImagePreview(previewUrl)
+      // Chuyển blob thành file để set vào form
+      const file = new File([croppedImage], 'cropped-image.jpg', { type: 'image/jpeg' })
+      setValue('image', [file])
+      setCropModalOpen(false)
+      // Revoke imageSrc
+      if (imageSrc) URL.revokeObjectURL(imageSrc)
+      setImageSrc(null)
+    } catch (e) {
+      toast.error('Failed to crop image')
+    }
+  }
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -210,12 +250,7 @@ const MenuMealCreate = () => {
                         type="file"
                         accept="image/*"
                         hidden
-                        onChange={e => {
-                          field.onChange(e.target.files)
-                          if (e.target.files && e.target.files[0]) {
-                            setImagePreview(URL.createObjectURL(e.target.files[0]))
-                          }
-                        }}
+                        onChange={handleImageChange} // Thay đổi để kiểm tra kích thước
                       />
                     </Button>
                     {imagePreview && (
@@ -243,6 +278,28 @@ const MenuMealCreate = () => {
           </Grid>
         </form>
       </Paper>
+
+      {/* Modal Crop */}
+      <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
+          <Typography variant="h6" mb={2}>Crop Image to 600x600</Typography>
+          <Box sx={{ position: 'relative', height: 300, width: '100%' }}>
+            <Cropper
+              image={imageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={1} // 1:1 để đảm bảo vuông
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+            />
+          </Box>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+            <Button onClick={() => setCropModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleCropSave} variant="contained">Save Crop</Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   )
 }

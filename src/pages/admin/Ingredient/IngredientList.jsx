@@ -173,9 +173,19 @@ const IngredientList = () => {
         '& .textPrimary': { color: 'text.primary' }
       }}
     >
-      <Typography variant="h4" component="h1" sx={{ mb: 3, fontWeight: 'bold' }}>
-        Ingredient List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+          Ingredient List
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/management/ingredients/create')}
+          sx={{ fontWeight: 'bold' }}
+        >
+          Create New Ingredient
+        </Button>
+      </Box>
       <DataGrid
         rows={rows}
         columns={columns}

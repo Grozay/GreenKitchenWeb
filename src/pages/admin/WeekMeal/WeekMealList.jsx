@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -19,8 +19,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import moment from 'moment'
-import { getWeekMealPlanAPI } from '~/apis' // Assuming API similar to customer
-import { useNavigate } from 'react-router-dom' // Thêm import để navigate
+import { getWeekMealPlanAPI } from '~/apis'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 
@@ -68,11 +68,21 @@ const WeekMealList = () => {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <Box sx={{ p: 4, maxWidth: '1200px', mx: 'auto' }}>
         <Typography variant="h4" gutterBottom>
-          Manage WeekMeal (Admin)
+          Manage WeekMeal
         </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate('/management/week-meals/create')}
+            sx={{ fontWeight: 'bold' }}
+          >
+            Create New Week Meal
+          </Button>
+        </Box>
 
         {/* Select meal type */}
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2}}>
           <InputLabel>Meal Type</InputLabel>
           <Select
             value={selectedType}
@@ -153,13 +163,11 @@ const WeekMealList = () => {
                     <TableCell>{day.meal2?.title || 'N/A'}</TableCell>
                     <TableCell>{day.meal3?.title || 'N/A'}</TableCell>
                     <TableCell>
-                      <Button 
-                        size="small" 
-                        variant="contained" 
+                      <Button
+                        size="small"
+                        variant="contained"
                         onClick={() => {
                           if (weekData && weekData.id && day.id) {
-                            console.log('🚀 ~ if ~ day.id:', day.id)
-                            console.log('🚀 ~ if ~ weekData:', weekData)
                             navigate(`/management/week-meals/edit/${weekData.id}?dayId=${day.id}`)
                           } else {
                             toast.error('WeekMeal ID or Day ID is not available')
