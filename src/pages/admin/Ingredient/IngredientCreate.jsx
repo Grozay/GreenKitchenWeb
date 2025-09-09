@@ -11,10 +11,11 @@ import Grid from '@mui/material/Grid'
 import Modal from '@mui/material/Modal'
 import { createIngredientsAPI } from '~/apis'
 import { toast } from 'react-toastify'
-import { useNavigate } from 'react-router-dom'
-import { useState, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom' // Thêm để lấy query params
+import { useState, useCallback, useEffect } from 'react'
 import Cropper from 'react-easy-crop'
 import getCroppedImg from '~/utils/getCroppedImg' // Tạo file utils để export ảnh đã crop
+import { getByIdIngredientsAPI } from '~/apis' // Giả sử có API này, nếu không có thì tạo
 
 const typeOptions = [
   { value: 'PROTEIN', label: 'Protein' },
@@ -24,6 +25,9 @@ const typeOptions = [
 ]
 
 const IngredientCreate = () => {
+  const [searchParams] = useSearchParams()
+  const cloneId = searchParams.get('clone') // Lấy ID từ query
+
   const { register, handleSubmit, control, formState: { errors }, setValue } = useForm({
     defaultValues: {
       title: '',
@@ -86,7 +90,7 @@ const IngredientCreate = () => {
       // Revoke imageSrc
       if (imageSrc) URL.revokeObjectURL(imageSrc)
       setImageSrc(null)
-    } catch (e) {
+    } catch {
       toast.error('Failed to crop image')
     }
   }
@@ -114,11 +118,46 @@ const IngredientCreate = () => {
     }
   }
 
+  useEffect(() => {
+    if (cloneId) {
+      // Fetch dữ liệu ingredient để clone
+      const fetchCloneData = async () => {
+        try {
+          const data = await getByIdIngredientsAPI(cloneId)
+          console.log('🚀 ~ fetchCloneData ~ data:', data)
+          // Set dữ liệu vào form
+          setValue('title', data.title || '')
+          setValue('description', data.description || '')
+          setValue('calories', data.calories || '')
+          setValue('protein', data.protein || '')
+          setValue('carbs', data.carbs || '')
+          setValue('fat', data.fat || '')
+          setValue('price', data.price || '')
+          setValue('stock', data.stock || '')
+          setValue('type', data.type || 'PROTEIN')
+          // Set image nếu có
+          if (data.image) {
+            setImagePreview(data.image)
+            // Nếu cần, tạo file từ URL để set vào form
+            // const response = await fetch(data.image)
+            // const blob = await response.blob()
+            // const file = new File([blob], 'cloned-image.jpg', { type: 'image/jpeg' })
+            // setValue('image', [file])
+          }
+          toast.info('Data cloned successfully! You can edit before creating.')
+        } catch (error) {
+          toast.error('Failed to clone data')
+        }
+      }
+      fetchCloneData()
+    }
+  }, [cloneId, setValue])
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
       <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, borderRadius: 3 }}>
         <Typography variant="h4" mb={3} align="center" fontWeight={700}>
-          Create New Ingredient
+          {cloneId ? 'Clone Ingredient' : 'Create New Ingredient'} {/* Thay đổi title nếu clone */}
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <Grid container spacing={2}>
