@@ -34,7 +34,7 @@ const MenuMealList = () => {
         const data = await getMenuMealAPI()
         data.sort((a, b) => b.id - a.id)
         setRows(data)
-      } catch (error) {
+      } catch {
         toast.error('Failed to fetch menu meals')
       } finally {
         setLoading(false)
@@ -166,9 +166,19 @@ const MenuMealList = () => {
         '& .textPrimary': { color: 'text.primary' }
       }}
     >
-      <Typography variant="h4" component="h1" sx={{ mb: 3, fontWeight: 'bold' }}>
-        Menu Meal List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+          Menu Meal List
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/management/menu-meals/create')}
+          sx={{ fontWeight: 'bold' }}
+        >
+          Create New Menu Meal
+        </Button>
+      </Box>
       <DataGrid
         rows={rows}
         columns={columns}

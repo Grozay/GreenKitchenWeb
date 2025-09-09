@@ -105,8 +105,8 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
     errorMessage = error?.response?.data
   }
 
-  // Dùng toastify để hiển thị bất kể mọi mã lỗi lên màn hình -- ngoại trừ 410 -- GONE phục vụ việc tự động refresh token
-  if (error?.response?.status !== 410) {
+  // Dùng toastify để hiển thị bất kể mọi mã lỗi lên màn hình -- ngoại trừ 410 (refresh token) và 404 (not found)
+  if (error?.response?.status !== 410 && error?.response?.status !== 404) {
     toast.error(errorMessage)
   }
   return Promise.reject(errorMessage)

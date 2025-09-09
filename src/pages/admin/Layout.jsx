@@ -120,31 +120,19 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
       },
       // Meals / Products
       {
-        segment: 'management/menu-meals',
+        segment: 'management/menu-meals/list',
         title: 'Menu Meals',
-        icon: <RestaurantMenuIcon />,
-        children: [
-          { segment: 'list', title: 'Menu Meals List' },
-          { segment: 'create', title: 'Create Menu Meal' }
-        ]
+        icon: <RestaurantMenuIcon />
       },
       {
-        segment: 'management/ingredients',
+        segment: 'management/ingredients/list',
         title: 'Ingredients',
-        icon: <KitchenIcon />,
-        children: [
-          { segment: 'list', title: 'Ingredients List' },
-          { segment: 'create', title: 'Create Ingredient' }
-        ]
+        icon: <KitchenIcon />
       },
       {
-        segment: 'management/week-meals',
+        segment: 'management/week-meals/list',
         title: 'Week Meals',
-        icon: <CalendarViewWeekIcon />,
-        children: [
-          { segment: 'list', title: 'Week Meals List' },
-          { segment: 'create', title: 'Create Week Meal' }
-        ]
+        icon: <CalendarViewWeekIcon />
       },
       {
         segment: 'management/inbox',
