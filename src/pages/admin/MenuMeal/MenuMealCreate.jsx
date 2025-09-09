@@ -9,10 +9,10 @@ import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import Modal from '@mui/material/Modal'
-import { createMenuMealAPI } from '~/apis'
+import { createMenuMealAPI, getDetailMenuMealAPI } from '~/apis'
 import { toast } from 'react-toastify'
-import { useNavigate } from 'react-router-dom'
-import { useState, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom' // Thêm để lấy query params
+import { useState, useCallback, useEffect } from 'react'
 import Cropper from 'react-easy-crop'
 import getCroppedImg from '~/utils/getCroppedImg' // Đảm bảo file này tồn tại
 
@@ -24,6 +24,9 @@ const typeOptions = [
 ]
 
 const MenuMealCreate = () => {
+  const [searchParams] = useSearchParams()
+  const cloneSlug = searchParams.get('clone') // Lấy slug từ query
+
   const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm({
     defaultValues: {
       title: '',
@@ -114,11 +117,45 @@ const MenuMealCreate = () => {
     }
   }
 
+  useEffect(() => {
+    if (cloneSlug) {
+      // Fetch dữ liệu meal để clone
+      const fetchCloneData = async () => {
+        try {
+          const data = await getDetailMenuMealAPI(cloneSlug)
+          // Set dữ liệu vào form
+          setValue('title', data.title || '')
+          setValue('description', data.description || '')
+          setValue('calories', data.calories || '')
+          setValue('protein', data.protein || '')
+          setValue('carbs', data.carbs || '')
+          setValue('fat', data.fat || '')
+          setValue('price', data.price || '')
+          setValue('stock', data.stock || '')
+          setValue('type', data.type || 'BALANCE')
+          // Set image nếu có
+          if (data.image) {
+            setImagePreview(data.image)
+            // Nếu cần, tạo file từ URL để set vào form
+            // const response = await fetch(data.image)
+            // const blob = await response.blob()
+            // const file = new File([blob], 'cloned-image.jpg', { type: 'image/jpeg' })
+            // setValue('image', [file])
+          }
+          toast.info('Data cloned successfully! You can edit before creating.')
+        } catch (error) {
+          toast.error('Failed to clone data')
+        }
+      }
+      fetchCloneData()
+    }
+  }, [cloneSlug, setValue])
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
       <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, borderRadius: 3 }}>
         <Typography variant="h4" mb={3} align="center" fontWeight={700}>
-          Create New Meal
+          {cloneSlug ? 'Clone Meal' : 'Create New Meal'} {/* Thay đổi title nếu clone */}
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <Grid container spacing={2}>

@@ -22,6 +22,7 @@ import moment from 'moment'
 import { getWeekMealPlanAPI } from '~/apis'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy' // Thêm icon clone
 
 
 const mealTypes = [
@@ -79,6 +80,17 @@ const WeekMealList = () => {
           >
             Create New Week Meal
           </Button>
+          {weekData && (
+            <Button
+              variant="outlined"
+              color="info"
+              startIcon={<ContentCopyIcon />}
+              onClick={() => navigate(`/management/week-meals/create?clone=${weekData.id}`)}
+              sx={{ fontWeight: 'bold' }}
+            >
+              Clone This Week Meal
+            </Button>
+          )}
         </Box>
 
         {/* Select meal type */}
