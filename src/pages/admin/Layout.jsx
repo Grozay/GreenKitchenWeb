@@ -101,13 +101,13 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         action: newOrderCount > 0 ? <Chip label={newOrderCount} color="primary" size="small" /> : null,
         pattern: 'orders{/:orderCode}*'
       },
-      // Notifications
-      {
-        segment: 'management/notifications',
-        title: 'Notifications',
-        icon: <NotificationsIcon />,
-        action: newOrderCount > 0 ? <Chip label={newOrderCount} color="warning" size="small" /> : null
-      },
+      // // Notifications
+      // {
+      //   segment: 'management/notifications',
+      //   title: 'Notifications',
+      //   icon: <NotificationsIcon />,
+      //   action: newOrderCount > 0 ? <Chip label={newOrderCount} color="warning" size="small" /> : null
+      // },
       // Customers
       {
         segment: 'management/customers',
@@ -120,31 +120,19 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
       },
       // Meals / Products
       {
-        segment: 'management/menu-meals',
+        segment: 'management/menu-meals/list',
         title: 'Menu Meals',
-        icon: <RestaurantMenuIcon />,
-        children: [
-          { segment: 'list', title: 'Menu Meals List' },
-          { segment: 'create', title: 'Create Menu Meal' }
-        ]
+        icon: <RestaurantMenuIcon />
       },
       {
-        segment: 'management/ingredients',
+        segment: 'management/ingredients/list',
         title: 'Ingredients',
-        icon: <KitchenIcon />,
-        children: [
-          { segment: 'list', title: 'Ingredients List' },
-          { segment: 'create', title: 'Create Ingredient' }
-        ]
+        icon: <KitchenIcon />
       },
       {
-        segment: 'management/week-meals',
+        segment: 'management/week-meals/list',
         title: 'Week Meals',
-        icon: <CalendarViewWeekIcon />,
-        children: [
-          { segment: 'list', title: 'Week Meals List' },
-          { segment: 'create', title: 'Create Week Meal' }
-        ]
+        icon: <CalendarViewWeekIcon />
       },
       {
         segment: 'management/inbox',
@@ -281,7 +269,7 @@ function Layout(props) {
     })
     client.onConnect = () => {
       client.subscribe('/topic/order/new', (message) => {
-        console.log('New order received:', message)
+        // console.log('New order received:', message)
         setNewOrderCount((prev) => prev + 1)
         setShowOrderAlert(true)
         setTimeout(() => {
@@ -299,18 +287,6 @@ function Layout(props) {
       setNewOrderCount(0)
     }
   }, [location.pathname])
-
-  const handleLogout = async () => {
-    const { confirmed } = await confirmLogout({
-      title: 'Do you want to log out?',
-      description: 'This action cannot be undone!',
-      cancellationText: 'Cancel',
-      confirmationText: 'Confirm'
-    })
-    if (confirmed) {
-      dispatch(logoutEmployeeApi())
-    }
-  }
 
   const [session, setSession] = useState({
     user: {
@@ -331,9 +307,20 @@ function Layout(props) {
           }
         })
       },
-      signOut: handleLogout
+      signOut: () => {
+        const { confirmed } = confirmLogout({
+          title: 'Do you want to log out?',
+          description: 'This action cannot be undone!',
+          cancellationText: 'Cancel',
+          confirmationText: 'Confirm'
+        })
+        if (confirmed) {
+          dispatch(logoutEmployeeApi())
+        }
+      }
     }
-  }, [currentEmployee])
+  }, [currentEmployee, dispatch, confirmLogout])
+
 
   const router = useMemo(() => {
     return {
@@ -366,7 +353,6 @@ function Layout(props) {
           logo: '',
           homeUrl: '/management',
           title: <Typography
-            variant='h6'
             sx={{
               fontWeight: 600,
               fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
@@ -388,7 +374,7 @@ function Layout(props) {
             <Route
               path="settings"
               element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.EMPLOYEE]}>
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
                   <Settings />
                 </ProtectedRoute>
               }
@@ -442,8 +428,8 @@ function Layout(props) {
               }
             />
             {/* Chat */}
-            <Route 
-              path="inbox" 
+            <Route
+              path="inbox"
               element={
                 <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                   <Chat />

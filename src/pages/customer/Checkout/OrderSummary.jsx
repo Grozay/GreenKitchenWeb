@@ -22,16 +22,17 @@ import { getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
 const OrderSummary = ({
-  subtotal,
-  shippingFee,
-  membershipDiscount,
-  couponDiscount,
-  totalAmount,
+  subtotal = 0,
+  shippingFee = 0,
+  membershipDiscount = 0,
+  couponDiscount = 0,
   appliedCoupon = null,
   onApplyCoupon,
   onRemoveCoupon,
   onCouponsUpdated,
-  customerDetails
+  customerDetails,
+  selectedStore,
+  shippingSettings
 }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [exchangeAnchorEl, setExchangeAnchorEl] = useState(null)
@@ -64,9 +65,8 @@ const OrderSummary = ({
     } else if (coupon.couponType === 'FIXED_AMOUNT') {
       discount = coupon.couponDiscountValue
     }
-    console.log('Initial calculated discount:', discount)
+
     const cappedDiscount = coupon.maxDiscount ? Math.min(discount, coupon.maxDiscount) : discount
-    console.log('cappedDiscount:', cappedDiscount)
 
     return cappedDiscount
   }
@@ -90,8 +90,6 @@ const OrderSummary = ({
 
   const handleSelectCoupon = (coupon) => {
     const discountAmount = calculateCouponDiscount(coupon, subtotal)
-    console.log('Selected coupon:', coupon)
-    console.log('Calculated coupon discount:', discountAmount)
     onApplyCoupon && onApplyCoupon(coupon, discountAmount)
     handleCouponClose()
   }
@@ -274,6 +272,30 @@ const OrderSummary = ({
               {shippingFee > 0 ? formatPrice(shippingFee) : 'Miễn phí'}
             </Typography>
           </Box>
+
+          {/* Membership Free Shipping Info */}
+          {shippingFee === 0 && customerDetails?.membership?.currentTier === 'RADIANCE' && shippingSettings && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pl: 2 }}>
+              <Typography variant="caption" sx={{ color: '#00B389', fontWeight: 600 }}>
+                Membership Free Shipping
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#00B389', fontWeight: 600 }}>
+                -{formatPrice(shippingSettings.baseFee || 10000)}
+              </Typography>
+            </Box>
+          )}
+
+          {/* Distance Info */}
+          {selectedStore && shippingFee > 0 && shippingSettings && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pl: 2 }}>
+              <Typography variant="caption" sx={{ color: '#666' }}>
+                Khoảng cách: {selectedStore.distance} km
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#666' }}>
+                +{formatPrice(selectedStore.distance * (shippingSettings.additionalFeePerKm || 5000))}
+              </Typography>
+            </Box>
+          )}
 
           {membershipDiscount > 0 && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>

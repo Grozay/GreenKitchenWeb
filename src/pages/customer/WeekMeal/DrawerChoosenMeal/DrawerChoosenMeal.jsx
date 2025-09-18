@@ -10,12 +10,12 @@ import ItemWeekPlan from '../ItemWeekPlan/ItemWeekPlan'
 import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 import { useDispatch, useSelector } from 'react-redux'
 import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
+import { clearCart } from '~/redux/meal/mealSlice' // Thêm import clearCart nếu cần
 import { toast } from 'react-toastify'
 import { IMAGE_DEFAULT } from '~/utils/constants'
 import { HEALTHY_MESSAGES } from '~/utils/constants'
-
-
-
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   // Mặc định check hết khi mở Drawer
@@ -60,6 +60,24 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   const dispatch = useDispatch()
   const [ordering, setOrdering] = useState(false)
   const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
+  const currentLang = useSelector(selectCurrentLanguage)
+
+  // Thêm translations thủ công
+  const translatedOrderNow = useTranslate('Đặt Ngay', currentLang)
+  const translatedHealthWarning = useTranslate('Cảnh báo sức khỏe', currentLang)
+  const translatedUnderstood = useTranslate('Đã hiểu', currentLang)
+  const translatedDay = useTranslate('NGÀY', currentLang)
+  const translatedMeal1 = useTranslate('MEAL 1', currentLang)
+  const translatedMeal2 = useTranslate('MEAL 2', currentLang)
+  const translatedMeal3 = useTranslate('MEAL 3', currentLang)
+  const translatedTime1 = useTranslate('(6:00 - 10:00)', currentLang)
+  const translatedTime2 = useTranslate('(11:00 - 14:00)', currentLang)
+  const translatedTime3 = useTranslate('(17:00 - 20:00)', currentLang)
+  const translatedAddedToCart = useTranslate('Thêm vào giỏ hàng thành công!', currentLang)
+  const translatedFailedToAdd = useTranslate('Thêm vào giỏ hàng thất bại', currentLang)
+  const translatedWeekMealFrom = useTranslate('Tuần ăn từ', currentLang)
+  const translatedTo = useTranslate('đến', currentLang)
+  const translatedType = useTranslate('loại:', currentLang)
 
   const handleSwitchChange = (idx, mealKey, checked) => {
     setDays(prev =>
@@ -87,13 +105,13 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     })
     .filter(Boolean)
 
-  const totalAmount = filteredDays.reduce((sum, d) => {
+  const totalAmount = Math.round(filteredDays.reduce((sum, d) => {
     let dayTotal = 0
-    if (d.meal1 && d.meal1.price) dayTotal += d.meal1.price
-    if (d.meal2 && d.meal2.price) dayTotal += d.meal2.price
-    if (d.meal3 && d.meal3.price) dayTotal += d.meal3.price
+    if (d.meal1 && d.meal1.price) dayTotal += parseFloat(d.meal1.price) || 0
+    if (d.meal2 && d.meal2.price) dayTotal += parseFloat(d.meal2.price) || 0
+    if (d.meal3 && d.meal3.price) dayTotal += parseFloat(d.meal3.price) || 0
     return sum + dayTotal
-  }, 0)
+  }, 0))
 
   const handleOrder = async () => {
     if (ordering) return
@@ -109,7 +127,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
         unitPrice: totalAmount,
         totalPrice: totalAmount,
         title: title,
-        description: `Tuần ăn từ ${weekData.weekStart} đến ${weekData.weekEnd}, loại: ${weekData.type}`,
+        description: `${translatedWeekMealFrom} ${weekData.weekStart} ${translatedTo} ${weekData.weekEnd}, ${translatedType} ${weekData.type}`,
         image: IMAGE_DEFAULT.IMAGE_WEEK_MEAL,
         itemType: 'WEEK_MEAL'
       }
@@ -119,13 +137,21 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
       if (customerId) {
         await dispatch(fetchCart(customerId))
       }
-      toast.success('Thêm vào giỏ hàng thành công!')
+      toast.success(translatedAddedToCart)
       onClose()
     } catch (error) {
-      toast.error('Thêm vào giỏ hàng thất bại')
+      toast.error(translatedFailedToAdd)
     } finally {
       setOrdering(false)
     }
+  }
+
+  const handleClearSelections = () => {
+    dispatch(clearCart())
+  }
+
+  const handleCloseDrawer = () => {
+    onClose()
   }
 
   return (
@@ -184,7 +210,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
                 }
               }}
             >
-              NGÀY
+              {translatedDay}
             </Box>
             <Box
               sx={{
@@ -206,7 +232,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
                 }
               }}
             >
-              MEAL 1 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(6:00 - 10:00)</Box>
+              {translatedMeal1} <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>{translatedTime1}</Box>
             </Box>
             <Box
               sx={{
@@ -228,7 +254,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
                 }
               }}
             >
-              MEAL 2 <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(11:00 - 14:00)</Box>
+              {translatedMeal2} <Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>{translatedTime2}</Box>
             </Box>
             <Box
               sx={{
@@ -240,7 +266,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
                 fontSize: '1.2rem'
               }}
             >
-              MEAL 3<Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>(17:00 - 20:00)</Box>
+              {translatedMeal3}<Box component="span" sx={{ color: theme.palette.primary.secondary, fontWeight: 400 }}>{translatedTime3}</Box>
             </Box>
           </Box>
           {days.map((d, idx) => (
@@ -259,7 +285,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
               sx={{ bgcolor: theme.palette.primary.secondary, fontWeight: 700, px: 4, py: 1.5, borderRadius: 5, fontSize: '1.1rem', minWidth: '300px', mb: 3 }}
               onClick={handleOrder}
             >
-              Đặt Ngay {totalAmount > 0 ? `(${totalAmount.toLocaleString()} VNĐ)` : ''}
+              {translatedOrderNow} {totalAmount > 0 ? `(${totalAmount.toLocaleString()} VNĐ)` : ''}
             </Button>
           </Box>
         </Box>
@@ -267,9 +293,9 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
           open={openHealthy}
           onClose={() => setOpenHealthy(false)}
           onConfirm={() => setOpenHealthy(false)}
-          title="Cảnh báo sức khỏe"
+          title={translatedHealthWarning}
           description={healthyMsg}
-          btnName="Đã hiểu"
+          btnName={translatedUnderstood}
         />
       </Box>
     </Drawer>

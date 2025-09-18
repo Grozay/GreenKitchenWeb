@@ -26,6 +26,9 @@ import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useTranslation } from 'react-i18next'
 
 const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const [isReviewing, setIsReviewing] = useState(true)
@@ -42,6 +45,25 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
   const nutritionalAdvice = getNutritionalAdvice(customTotal)
   const allSelectedItems = Object.values(selected).flat()
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  const translatedHealthyMeals = useTranslate('Healthy Meals Just For You', currentLang)
+  const translatedReviewSelections = useTranslate('Review My Selections', currentLang)
+  const translatedBalanced = useTranslate('Your meal is well-balanced!', currentLang)
+  const translatedCanOrder = useTranslate('You can now order your custom meal or review your choices.', currentLang)
+  const translatedBackToBuilder = useTranslate('Back to Builder', currentLang)
+  const translatedClearSelections = useTranslate('Clear Selections', currentLang)
+  const translatedOrOrder = useTranslate('Or order your custom meal', currentLang)
+  const translatedCalories = t('nutrition.calories')
+  const translatedProtein = t('nutrition.protein')
+  const translatedCarbs = t('nutrition.carbs')
+  const translatedFat = t('nutrition.fat')
+  const translatedTotalPrice = useTranslate('Total Price:', currentLang)
+  const translatedOrderMeal = useTranslate('Order meal', currentLang)
+  const translatedSaveMeal = useTranslate('Save meal', currentLang)
+  const translatedAdding = useTranslate('Adding...', currentLang)
+  const translatedSaving = useTranslate('Saving...', currentLang)
 
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
   const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
@@ -195,214 +217,234 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   return (
     <Box
       sx={{
-        p: 3,
-        width: '100%',
-        bgcolor: theme.palette.background.default,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: 'rgba(0,0,0,0.5)',
+        zIndex: 1300,
         display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100%'
+        alignItems: 'flex-end'
       }}
-      role="dialog"
-      aria-labelledby="drawer-title"
+      onClick={handleCloseDrawer}
     >
-      <CustomMealInfoModal
-        open={openInfoModal}
-        onClose={() => {
-          setOpenInfoModal(false)
-          setOrderMode(false)
+      <Box
+        sx={{
+          p: 3,
+          width: '100%',
+          bgcolor: theme.palette.background.default,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '80%',
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          maxHeight: '90%',
+          overflow: 'hidden'
         }}
-        onSave={handleModalSave}
-        defaultTitle={mainProtein ? 'My Custom Bowl' : ''}
-        defaultDesc="Custom meal with selected ingredients"
-      />
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <SearchIcon sx={{ color: theme.palette.primary.secondary }} />
-            <Typography id="drawer-title" variant="h6" sx={{ fontWeight: 'medium' }}>
-              Healthy Meals Just For You
-            </Typography>
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-labelledby="drawer-title"
+      >
+        <CustomMealInfoModal
+          open={openInfoModal}
+          onClose={() => {
+            setOpenInfoModal(false)
+            setOrderMode(false)
+          }}
+          onSave={handleModalSave}
+          defaultTitle={mainProtein ? 'My Custom Bowl' : ''}
+          defaultDesc="Custom meal with selected ingredients"
+        />
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <SearchIcon sx={{ color: theme.palette.primary.secondary }} />
+              <Typography id="drawer-title" variant="h6" sx={{ fontWeight: 'medium' }}>
+                {translatedHealthyMeals}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                width: '10rem',
+                height: '0.2rem',
+                bgcolor: theme.palette.primary.secondary,
+                borderRadius: 2
+              }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
+            <IconButton
+              onClick={handleCloseDrawer}
+              aria-label="Close drawer"
+              sx={{
+                color: theme.palette.text.primary,
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                  color: theme.palette.text.primary
+                }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </Box>
+
+        {/* Scrollable Content */}
+        <Box sx={{ flex: 1, overflowY: 'auto', mx: 2, mb: 2, pt: 2 }}>
+          {isReviewing ? (
+            // --- REVIEW VIEW ---
+            <>
+              <Box sx={{ mb: 2 }}>
+                <Grid container spacing={2}>
+                  {allSelectedItems.map(item => (
+                    <Grid size={{ xs: 6, sm: 4, md: 2 }} key={item.id}>
+                      <FoodCard card={item} />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            </>
+          ) : (
+            // --- BUILDER VIEW ---
+            <>
+              {/* Always show review button if there are selected items */}
+              {allSelectedItems.length > 0 && (
+                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<PageviewIcon />}
+                    onClick={() => setIsReviewing(true)}
+                    sx={{ borderRadius: 5 }}
+                  >
+                    {translatedReviewSelections} ({allSelectedItems.length} items)
+                  </Button>
+                </Box>
+              )}
+
+              {/* Show either balanced message or suggestions */}
+              {isBalanced ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <CheckCircleOutlineIcon sx={{ fontSize: 60, color: 'success.main' }} />
+                  <Typography variant="h6" sx={{ mt: 2, fontWeight: 'medium' }}>
+                    {translatedBalanced}
+                  </Typography>
+                  <Typography sx={{ color: 'text.secondary', mb: 3 }}>
+                    {translatedCanOrder}
+                  </Typography>
+                </Box>
+              ) : (
+                // SUGGESTING STATE
+                <>
+                  {nutritionalAdvice && (
+                    <Typography sx={{ mb: 2, fontStyle: 'italic', color: 'text.secondary', textAlign: 'center' }}>
+                      {nutritionalAdvice}
+                    </Typography>
+                  )}
+                  <SuggestFood suggestedMeals={suggestedMeals} />
+                </>
+              )}
+            </>
+          )}
+        </Box>
+
+        {/* Sticky Custom Meal Section */}
+        <Box
+          sx={{
+            borderRadius: 2,
+            position: 'sticky',
+            bottom: 0,
+            zIndex: 1,
+            bgcolor: theme.palette.background.default
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
+            {isReviewing && (
+              <>
+                <Button
+                  variant="outlined"
+                  startIcon={<ArrowBackIcon />}
+                  onClick={() => setIsReviewing(false)}
+                  sx={{ borderRadius: 5, color: theme.palette.text.primary }}
+                  aria-label="Back to Builder"
+                >
+                  {translatedBackToBuilder}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={handleClearSelections}
+                  sx={{
+                    borderRadius: 5,
+                    color: theme.palette.text.primary,
+                    borderColor: theme.palette.text.primary,
+                    fontWeight: 400,
+                    '&:hover': {
+                      bgcolor: '#00000010'
+                    }
+                  }}
+                  aria-label="Clear selections"
+                >
+                  {translatedClearSelections}
+                </Button>
+              </>
+            )}
           </Box>
           <Box
             sx={{
               width: '10rem',
               height: '0.2rem',
-              bgcolor: theme.palette.primary.secondary,
+              mx: 'auto',
+              mb: 1.5,
+              bgcolor: theme.palette.text.primary,
               borderRadius: 2
             }}
           />
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
-          <IconButton
-            onClick={handleCloseDrawer}
-            aria-label="Close drawer"
-            sx={{
-              color: theme.palette.text.primary,
-              '&:hover': {
-                backgroundColor: theme.palette.action.hover,
-                color: theme.palette.text.primary
-              }
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </Box>
-      </Box>
-
-      {/* Scrollable Content */}
-      <Box sx={{ flex: 1, overflowY: 'auto', mx: 2, mb: 2, pt: 2 }}>
-        {isReviewing ? (
-          // --- REVIEW VIEW ---
-          <>
-            <Box sx={{ mb: 2 }}>
-              <Grid container spacing={2}>
-                {allSelectedItems.map(item => (
-                  <Grid size={{ xs: 6, sm: 4, md: 2 }} key={item.id}>
-                    <FoodCard card={item} />
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </>
-        ) : (
-          // --- BUILDER VIEW ---
-          <>
-            {/* Always show review button if there are selected items */}
-            {allSelectedItems.length > 0 && (
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
-                <Button
-                  variant="contained"
-                  startIcon={<PageviewIcon />}
-                  onClick={() => setIsReviewing(true)}
-                  sx={{ borderRadius: 5 }}
-                >
-                  Review My Selections ({allSelectedItems.length} items)
-                </Button>
-              </Box>
-            )}
-
-            {/* Show either balanced message or suggestions */}
-            {isBalanced ? (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <CheckCircleOutlineIcon sx={{ fontSize: 60, color: 'success.main' }} />
-                <Typography variant="h6" sx={{ mt: 2, fontWeight: 'medium' }}>
-                  Your meal is well-balanced!
-                </Typography>
-                <Typography sx={{ color: 'text.secondary', mb: 3 }}>
-                  You can now order your custom meal or review your choices.
-                </Typography>
-              </Box>
-            ) : (
-              // SUGGESTING STATE
-              <>
-                {nutritionalAdvice && (
-                  <Typography sx={{ mb: 2, fontStyle: 'italic', color: 'text.secondary', textAlign: 'center' }}>
-                    {nutritionalAdvice}
-                  </Typography>
-                )}
-                <SuggestFood suggestedMeals={suggestedMeals} />
-              </>
-            )}
-          </>
-        )}
-      </Box>
-
-      {/* Sticky Custom Meal Section */}
-      <Box
-        sx={{
-          borderRadius: 2,
-          position: 'sticky',
-          bottom: 0,
-          zIndex: 1,
-          bgcolor: theme.palette.background.default
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
-          {isReviewing && (
-            <>
-              <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={() => setIsReviewing(false)}
-                sx={{ borderRadius: 5, color: theme.palette.text.primary }}
-                aria-label="Back to Builder"
-              >
-                Back to Builder
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={handleClearSelections}
-                sx={{
-                  borderRadius: 5,
-                  color: theme.palette.text.primary,
-                  borderColor: theme.palette.text.primary,
-                  fontWeight: 400,
-                  '&:hover': {
-                    bgcolor: '#00000010'
-                  }
-                }}
-                aria-label="Clear selections"
-              >
-                Clear Selections
-              </Button>
-            </>
-          )}
-        </Box>
-        <Box
-          sx={{
-            width: '10rem',
-            height: '0.2rem',
-            mx: 'auto',
-            mb: 1.5,
-            bgcolor: theme.palette.text.primary,
-            borderRadius: 2
-          }}
-        />
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
-          <LocalOfferIcon sx={{ color: theme.palette.primary.secondary }} />
-          <Typography variant="h5" sx={{ fontWeight: 'medium' }}>
-            Or order your custom meal
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
-          <TrendingUpIcon sx={{ color: theme.palette.primary.secondary }} />
-          <Typography
-            variant="body1"
-            sx={{ textAlign: 'center', fontSize: { xs: '0.875rem', sm: '1rem' }, whiteSpace: 'nowrap' }}
-          >
-            Calories: {Math.round(customTotal.calories)} kcal | Protein: {Math.round(customTotal.protein)}g | Carbs:{' '}
-            {Math.round(customTotal.carbs)}g | Fat: {Math.round(customTotal.fat)}g
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.primary.secondary }}>
-            Total Price: {totalPrice.toLocaleString()} VNĐ
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<ShoppingCart />}
-            sx={{ borderRadius: 5 }}
-            onClick={handleOrderCustom}
-            disabled={addingToCart}
-            aria-label="Order custom meal"
-          >
-            {addingToCart ? 'Adding...' : 'Order meal'}
-          </Button>
-          <Button
-            variant="outlined"
-            color="success"
-            startIcon={<SaveIcon />}
-            sx={{ borderRadius: 5 }}
-            onClick={handleSaveCustom}
-            disabled={savingMeal}
-            aria-label="Save custom meal"
-          >
-            {savingMeal ? 'Saving...' : 'Save meal'}
-          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
+            <LocalOfferIcon sx={{ color: theme.palette.primary.secondary }} />
+            <Typography variant="h5" sx={{ fontWeight: 'medium' }}>
+              {translatedOrOrder}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
+            <TrendingUpIcon sx={{ color: theme.palette.primary.secondary }} />
+            <Typography
+              variant="body1"
+              sx={{ textAlign: 'center', fontSize: { xs: '0.875rem', sm: '1rem' }, whiteSpace: 'nowrap' }}
+            >
+              {translatedCalories} {Math.round(customTotal.calories)} kcal | {translatedProtein} {Math.round(customTotal.protein)}g | {translatedCarbs}{' '}
+              {Math.round(customTotal.carbs)}g | {translatedFat} {Math.round(customTotal.fat)}g
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.primary.secondary }}>
+              {translatedTotalPrice} {totalPrice.toLocaleString()} VNĐ
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<ShoppingCart />}
+              sx={{ borderRadius: 5 }}
+              onClick={handleOrderCustom}
+              disabled={addingToCart}
+              aria-label="Order custom meal"
+            >
+              {addingToCart ? translatedAdding : translatedOrderMeal}
+            </Button>
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={<SaveIcon />}
+              sx={{ borderRadius: 5 }}
+              onClick={handleSaveCustom}
+              disabled={savingMeal}
+              aria-label="Save custom meal"
+            >
+              {savingMeal ? translatedSaving : translatedSaveMeal}
+            </Button>
+          </Box>
         </Box>
       </Box>
     </Box>

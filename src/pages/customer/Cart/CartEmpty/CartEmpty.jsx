@@ -1,9 +1,11 @@
 import React from 'react'
 import { Box, Typography, Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const CartEmpty = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleBackToMenu = () => {
     navigate('/menu')
@@ -31,10 +33,10 @@ const CartEmpty = () => {
         </Typography>
       </Box>
       <Typography variant="h4" gutterBottom color="text.primary" sx={{ fontWeight: 600 }}>
-        Giỏ hàng của bạn đang trống
+        {t('cart.emptyTitle')}
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: '400px' }}>
-        Có vẻ như bạn chưa thêm món ăn ngon nào vào giỏ hàng. Hãy bắt đầu khám phá thực đơn của chúng tôi!
+        {t('cart.emptyDescription')}
       </Typography>
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
         <Button
@@ -48,7 +50,7 @@ const CartEmpty = () => {
             textTransform: 'none'
           }}
         >
-          Xem Thực Đơn
+          {t('cart.viewMenu')}
         </Button>
         <Button
           variant="outlined"
@@ -61,7 +63,7 @@ const CartEmpty = () => {
             textTransform: 'none'
           }}
         >
-          Tính Calo
+          {t('cart.calculateCalories')}
         </Button>
       </Box>
     </Box>

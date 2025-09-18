@@ -6,9 +6,31 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid'
-import { useState } from 'react'
+import { useState } from 'react' // Bỏ useMemo vì sẽ dùng component nhỏ
 import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
-import React from 'react' // Thêm import React nếu chưa có
+import useTranslate from '~/hooks/useTranslate'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useTranslation } from 'react-i18next'
+
+// Component nhỏ để dịch từng ingredient (tránh gọi hook trong map)
+const IngredientItem = ({ title, currentLang }) => {
+  const translatedTitle = useTranslate(title || '', currentLang)
+  return (
+    <Typography
+      variant="caption"
+      sx={{
+        bgcolor: '#f5f5f5',
+        px: 1,
+        py: 0.5,
+        borderRadius: 1,
+        fontSize: '0.7rem'
+      }}
+    >
+      {translatedTitle}
+    </Typography>
+  )
+}
 
 const CartItem = ({
   item,
@@ -18,10 +40,16 @@ const CartItem = ({
   calculateItemNutrition
 }) => {
   const [confirmDialog, setConfirmDialog] = useState(false)
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
   const nutrition = calculateItemNutrition(item)
 
+  // Dịch tự động cho title và description
+  const translatedTitle = useTranslate(getProductTitle() || '', currentLang)
+  const translatedDescription = useTranslate(getProductDescription() || '', currentLang)
+
   // Lấy title đúng chuẩn (ưu tiên menuMeal, customMeal, weekMeal)
-  const getProductTitle = () => {
+  function getProductTitle() {
     if (item.isCustom) {
       return item.customMeal?.title || item.title || 'Custom Meal'
     } else if (item.itemType === 'WEEK_MEAL') {
@@ -47,7 +75,7 @@ const CartItem = ({
   }
 
   // Lấy description đúng chuẩn
-  const getProductDescription = () => {
+  function getProductDescription() {
     if (item.isCustom) {
       return item.customMeal?.description || item.description || 'Custom meal với các nguyên liệu được lựa chọn'
     } else if (item.itemType === 'WEEK_MEAL') {
@@ -80,10 +108,10 @@ const CartItem = ({
   }
 
   const items = [
-    { label: 'Calories', value: `${Math.round(nutrition.calories)}` },
-    { label: 'Protein', value: `${Math.round(nutrition.protein)}g` },
-    { label: 'Carbs', value: `${Math.round(nutrition.carbs)}g` },
-    { label: 'Fat', value: `${Math.round(nutrition.fat)}g` }
+    { label: t('nutrition.calories'), value: `${Math.round(nutrition.calories)}`, perUnit: `${Math.round(nutrition.calories / item.quantity)}` },
+    { label: t('nutrition.protein'), value: `${Math.round(nutrition.protein)}g`, perUnit: `${Math.round(nutrition.protein / item.quantity)}g` },
+    { label: t('nutrition.carbs'), value: `${Math.round(nutrition.carbs)}g`, perUnit: `${Math.round(nutrition.carbs / item.quantity)}g` },
+    { label: t('nutrition.fat'), value: `${Math.round(nutrition.fat)}g`, perUnit: `${Math.round(nutrition.fat / item.quantity)}g` }
   ]
 
   return (
@@ -113,7 +141,7 @@ const CartItem = ({
             }}>
               <Avatar
                 src={getProductImage()}
-                alt={getProductTitle()}
+                alt={translatedTitle}
                 sx={{
                   width: { xs: 100, md: 120 },
                   height: { xs: 100, md: 120 },
@@ -132,7 +160,7 @@ const CartItem = ({
                     color: '#2c2c2c',
                     fontSize: { xs: '1rem', md: '1.25rem' }
                   }}>
-                    {getProductTitle()}
+                    {translatedTitle}
                   </Typography>
 
                   <Typography variant="body2" sx={{
@@ -140,7 +168,7 @@ const CartItem = ({
                     mb: 2,
                     fontSize: { xs: '0.8rem', md: '0.875rem' }
                   }}>
-                    {getProductDescription()}
+                    {translatedDescription}
                   </Typography>
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
@@ -149,13 +177,13 @@ const CartItem = ({
                       color: '#2c2c2c',
                       fontSize: { xs: '1.1rem', md: '1.25rem' }
                     }}>
-                      {item.totalPrice?.toLocaleString() || '0'} VNĐ
+                      {(item.totalPrice || 0).toLocaleString('en-US')} VNĐ
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{
                       textDecoration: 'line-through',
                       fontSize: { xs: '0.8rem', md: '0.875rem' }
                     }}>
-                      {((item.totalPrice || 0) * 1.2).toLocaleString()} VNĐ
+                      {((item.totalPrice || 0) * 1.2).toLocaleString('en-US')} VND
                     </Typography>
                   </Box>
                 </Box>
@@ -277,6 +305,11 @@ const CartItem = ({
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 400, fontSize: '0.75rem' }}>
                             {nutritionItem.label}
                           </Typography>
+                          {item.quantity > 1 && (
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, fontSize: '0.6rem' }}>
+                              ({nutritionItem.perUnit} per unit)
+                            </Typography>
+                          )}
                         </Grid>
                       ))}
                     </Grid>
@@ -290,25 +323,17 @@ const CartItem = ({
               {item.isCustom && item.customMeal?.details && ( // Sửa item.details thành item.customMeal?.details
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                    Ingredients
+                    {t('cart.ingredients')}
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {item.customMeal.details.slice(0, 5).map((detail) => ( // Sửa item.details thành item.customMeal.details
-                      <Typography
+                    {item.customMeal.details.slice(0, 5).map((detail) => ( // Dùng item.customMeal.details trực tiếp
+                      <IngredientItem
                         key={detail.id}
-                        variant="caption"
-                        sx={{
-                          bgcolor: '#f5f5f5',
-                          px: 1,
-                          py: 0.5,
-                          borderRadius: 1,
-                          fontSize: '0.7rem'
-                        }}
-                      >
-                        {detail.title}
-                      </Typography>
+                        title={detail.title}
+                        currentLang={currentLang}
+                      />
                     ))}
-                    {item.customMeal.details.length > 5 && ( // Sửa item.details thành item.customMeal.details
+                    {item.customMeal.details.length > 5 && ( // Dùng item.customMeal.details
                       <Typography
                         variant="caption"
                         sx={{
@@ -318,7 +343,7 @@ const CartItem = ({
                           fontSize: '0.7rem'
                         }}
                       >
-                        +{item.customMeal.details.length - 5} khác...
+                        {t('cart.moreIngredients', { count: item.customMeal.details.length - 5 })}
                       </Typography>
                     )}
                   </Box>
@@ -334,9 +359,9 @@ const CartItem = ({
         open={confirmDialog}
         onClose={() => setConfirmDialog(false)}
         onConfirm={confirmRemove}
-        title="Xác nhận xóa sản phẩm"
-        description={`Bạn có chắc chắn muốn xóa ${getProductTitle()} khỏi giỏ hàng?`}
-        btnName="Xóa"
+        title={t('cart.confirmRemoveTitle')}
+        description={t('cart.confirmRemoveDescription', { item: translatedTitle })}
+        btnName={t('cart.remove')}
       />
     </>
   )

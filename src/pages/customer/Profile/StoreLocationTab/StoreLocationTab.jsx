@@ -1,704 +1,489 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
+import Stack from '@mui/material/Stack'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
 import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import ListItemIcon from '@mui/material/ListItemIcon'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Avatar from '@mui/material/Avatar'
 import Divider from '@mui/material/Divider'
-import CircularProgress from '@mui/material/CircularProgress'
-import SearchIcon from '@mui/icons-material/Search'
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-import PhoneIcon from '@mui/icons-material/Phone'
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import DirectionsIcon from '@mui/icons-material/Directions'
-import StorefrontIcon from '@mui/icons-material/Storefront'
-import StarIcon from '@mui/icons-material/Star'
-import MyLocationIcon from '@mui/icons-material/MyLocation'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch from '@mui/material/Switch'
+import InputAdornment from '@mui/material/InputAdornment'
+import { createStoreAPI, getStoresAPI, updateStoreAPI, deleteStoreAPI } from '~/apis'
 import { toast } from 'react-toastify'
-import { getStoresAPI } from '~/apis'
+import AddressForm from '~/components/AddressForm'
+import AddIcon from '@mui/icons-material/Add'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import MapIcon from '@mui/icons-material/Map'
 
-export default function StoreLocationTab({ customerDetails, setCustomerDetails }) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedStore, setSelectedStore] = useState(null)
-  const [storeDetailOpen, setStoreDetailOpen] = useState(false)
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`store-tabpanel-${index}`}
+      aria-labelledby={`store-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  )
+}
+
+export default function Stores() {
   const [stores, setStores] = useState([])
-  const [filteredStores, setFilteredStores] = useState([])
-  const [userLocation, setUserLocation] = useState(null)
-  const [mapLoaded, setMapLoaded] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const mapRef = useRef(null)
-  const mapInstanceRef = useRef(null)
-  const markersRef = useRef([])
+  const [restaurantName, setRestaurantName] = useState('')
+  const [autoAddGreenKitchen, setAutoAddGreenKitchen] = useState(true)
+  const [activeTab, setActiveTab] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, store: null })
+  const [editStore, setEditStore] = useState(null)
+  const [isEditMode, setIsEditMode] = useState(false)
 
-  // Fetch stores from API
   useEffect(() => {
-    const fetchStores = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await getStoresAPI()
-        
-        // Transform API data to match component structure
-        const transformedStores = data.map(store => ({
-          id: store.id,
-          name: store.name,
-          address: store.address,
-          phone: '028-1234-5678', // Default phone - có thể thêm vào DB sau
-          rating: 4.5, // Default rating - có thể thêm vào DB sau
-          reviewCount: 100, // Default review count - có thể thêm vào DB sau
-          distance: 'N/A', // Will be calculated based on user location
-          openHours: '7:00 - 22:00', // Default hours - có thể thêm vào DB sau
-          status: store.isActive ? 'OPEN' : 'CLOSED',
-          features: ['Giao hàng', 'Mang đi', 'Dine-in'], // Default features - có thể thêm vào DB sau
-          coordinates: { lat: store.latitude, lng: store.longitude }
-        }))
-        
-        setStores(transformedStores)
-        setFilteredStores(transformedStores)
-      } catch (err) {
-        console.error('Error fetching stores:', err)
-        setError('Không thể tải danh sách cửa hàng')
-        toast.error('Lỗi tải danh sách cửa hàng')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchStores()
+    loadStores()
   }, [])
 
-  useEffect(() => {
-    // Filter stores based on search query
-    if (searchQuery.trim() === '') {
-      setFilteredStores(stores)
-    } else {
-      const filtered = stores.filter(store =>
-        store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        store.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        store.features.some(feature => 
-          feature.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      )
-      setFilteredStores(filtered)
+  const loadStores = async () => {
+    try {
+      setLoading(true)
+      const data = await getStoresAPI()
+      setStores(Array.isArray(data) ? data : [])
+    } catch (e) {
+      toast.error('Lỗi tải danh sách chi nhánh')
+    } finally {
+      setLoading(false)
     }
-  }, [searchQuery, stores])
+  }
 
-  // Load Leaflet (OpenStreetMap) - Miễn phí và không cần API key
-  useEffect(() => {
-    const loadLeaflet = () => {
-      if (window.L) {
-        setMapLoaded(true)
+  const handleAddressReady = async (addressData) => {
+    try {
+      // Validation: Kiểm tra tên nhà hàng
+      const baseName = restaurantName.trim()
+      if (!baseName) {
+        toast.error('Vui lòng nhập tên nhà hàng')
         return
       }
-
-      // Load Leaflet CSS
-      const link = document.createElement('link')
-      link.rel = 'stylesheet'
-      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css'
-      document.head.appendChild(link)
-
-      // Load Leaflet JS
-      const script = document.createElement('script')
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js'
-      script.onload = () => setMapLoaded(true)
-      script.onerror = () => toast.error('Không thể tải bản đồ')
-      document.head.appendChild(script)
-    }
-
-    loadLeaflet()
-  }, [])
-
-  // Initialize map when Leaflet is loaded and stores are available
-  useEffect(() => {
-    if (!mapLoaded || !mapRef.current || !window.L || stores.length === 0) return
-
-    const initMap = () => {
-      // Use first store as center, or default to HCMC
-      const centerLat = stores.length > 0 ? stores[0].coordinates.lat : 10.7769
-      const centerLng = stores.length > 0 ? stores[0].coordinates.lng : 106.7009
       
-      const map = window.L.map(mapRef.current).setView([centerLat, centerLng], 12)
+      // Tự động thêm "GreenKitchen" nếu option được bật
+      const finalName = autoAddGreenKitchen && !baseName.toLowerCase().includes('greenkitchen')
+        ? `GreenKitchen ${baseName}`
+        : baseName
 
-      // Add OpenStreetMap tiles
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map)
+      const finalData = {
+        ...addressData,
+        name: finalName
+      }
 
-      mapInstanceRef.current = map
-
-      // Add markers for all stores
-      addStoreMarkers(map, stores)
-    }
-
-    initMap()
-  }, [mapLoaded, stores])
-
-  // Update map when filtered stores change
-  useEffect(() => {
-    if (!mapInstanceRef.current || !window.L) return
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove())
-    markersRef.current = []
-
-    // Add new markers for filtered stores
-    addStoreMarkers(mapInstanceRef.current, filteredStores)
-  }, [filteredStores])
-
-  const addStoreMarkers = (map, stores) => {
-    stores.forEach(store => {
-      const marker = window.L.marker([store.coordinates.lat, store.coordinates.lng])
-        .addTo(map)
-        .bindPopup(`
-          <div style="padding: 10px; max-width: 200px;">
-            <h3 style="margin: 0 0 8px 0; color: #4CAF50;">${store.name}</h3>
-            <p style="margin: 0 0 5px 0; font-size: 12px;">${store.address}</p>
-            <p style="margin: 0 0 5px 0; font-size: 12px;">⭐ ${store.rating} (${store.reviewCount})</p>
-            <p style="margin: 0; font-size: 12px;">🕒 ${store.openHours}</p>
-          </div>
-        `)
-
-      marker.on('click', () => {
-        setSelectedStore(store)
-        setStoreDetailOpen(true)
-      })
-
-      markersRef.current.push(marker)
-    })
-  }
-
-  const getUserLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          setUserLocation({ lat: latitude, lng: longitude })
-          
-          if (mapInstanceRef.current && window.L) {
-            mapInstanceRef.current.setView([latitude, longitude], 15)
-            
-            // Add user location marker
-            const userMarker = window.L.marker([latitude, longitude])
-              .addTo(mapInstanceRef.current)
-              .bindPopup('Vị trí của bạn')
-            
-            // Use custom icon for user location
-            userMarker.setIcon(window.L.divIcon({
-              className: 'user-location-marker',
-              html: '<div style="background: #2196F3; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
-              iconSize: [20, 20],
-              iconAnchor: [10, 10]
-            }))
-          }
-          
-          toast.success('Đã xác định vị trí của bạn!')
-        },
-        (error) => {
-          toast.error('Không thể xác định vị trí của bạn')
-        }
-      )
-    } else {
-      toast.error('Trình duyệt không hỗ trợ định vị')
+      if (isEditMode && editStore) {
+        // Cập nhật chi nhánh hiện có
+        const updated = await updateStoreAPI(editStore.id, finalData)
+        setStores((prev) => prev.map(store => 
+          store.id === editStore.id ? updated : store
+        ))
+        toast.success('Đã cập nhật chi nhánh thành công')
+        setIsEditMode(false)
+        setEditStore(null)
+        setRestaurantName('')
+      } else {
+        // Tạo chi nhánh mới
+        const created = await createStoreAPI(finalData)
+        setStores((prev) => [created, ...prev])
+        toast.success('Đã lưu chi nhánh thành công')
+      }
+      
+      setActiveTab(1) // Chuyển sang tab danh sách
+    } catch (e) {
+      const errorMessage = e?.response?.data?.message || 
+                          e?.response?.data || 
+                          e?.message || 
+                          'Lỗi lưu chi nhánh'
+      
+      toast.error(`Lỗi: ${errorMessage}`)
     }
   }
 
-  const handleStoreClick = (store) => {
-    setSelectedStore(store)
-    setStoreDetailOpen(true)
-  }
-
-  const handleDirections = (store) => {
-    const { lat, lng } = store.coordinates
-    const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
-    window.open(directionsUrl, '_blank')
-    toast.success(`Mở Google Maps để chỉ đường đến ${store.name}`)
-  }
-
-  const handleCall = (phone) => {
-    window.open(`tel:${phone}`)
-  }
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'OPEN': return 'success'
-      case 'CLOSED': return 'error'
-      case 'BUSY': return 'warning'
-      default: return 'default'
+  const handleDeleteStore = async () => {
+    if (!deleteDialog.store) return
+    
+    try {
+      await deleteStoreAPI(deleteDialog.store.id)
+      setStores(prev => prev.filter(s => s.id !== deleteDialog.store.id))
+      toast.success('Đã xóa chi nhánh thành công')
+      setDeleteDialog({ open: false, store: null })
+    } catch (e) {
+      toast.error('Lỗi xóa chi nhánh')
     }
   }
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'OPEN': return 'Đang mở'
-      case 'CLOSED': return 'Đã đóng'
-      case 'BUSY': return 'Bận rộn'
-      default: return 'Không xác định'
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue)
+    // Reset edit mode khi chuyển tab
+    if (newValue !== 0) {
+      setIsEditMode(false)
+      setEditStore(null)
+      setRestaurantName('')
     }
+  }
+
+  const handleEditStore = (store) => {
+    setEditStore(store)
+    setIsEditMode(true)
+    setRestaurantName(store.name)
+    setActiveTab(0) // Chuyển sang tab thêm/sửa
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false)
+    setEditStore(null)
+    setRestaurantName('')
   }
 
   return (
-    <Box sx={{
-      width: '100%',
-      maxWidth: '1200px',
-      margin: '0 auto'
-    }}>
-      <Grid container spacing={3}>
-        {/* Header Section */}
-        <Grid size={12}>
-          <Card sx={{
-            background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
-            borderRadius: 3,
-            boxShadow: '0 8px 32px rgba(76, 175, 80, 0.3)',
-            textAlign: 'center',
-            color: 'white'
-          }}>
-            <CardContent sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
-              <StorefrontIcon sx={{ fontSize: '80px', mb: 2, opacity: 0.9 }} />
-              <Typography variant="h4" sx={{
-                fontWeight: 'bold',
-                mb: 2,
-                textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-              }}>
-                Tìm Kiếm Cửa Hàng
-              </Typography>
-              <Typography variant="h6" sx={{
-                opacity: 0.9,
-                mb: 3
-              }}>
-                Khám phá các cửa hàng Green Kitchen gần bạn nhất
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+          Quản lý Chi nhánh
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Thêm mới và quản lý các chi nhánh của Green Kitchen
+        </Typography>
+      </Box>
 
-        {/* Search Section */}
-        <Grid size={12}>
-          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                🔍 Tìm kiếm cửa hàng
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Nhập tên cửa hàng, địa chỉ hoặc tính năng..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color="primary" />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 3, fontSize: '1.1rem' }
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main'
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main'
-                    }
-                  }
-                }}
-              />
-              <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
-                {['Giao hàng', 'Mang đi', 'Dine-in', 'Parking', 'Drive-thru'].map((feature) => (
-                  <Chip
-                    key={feature}
-                    label={feature}
-                    variant={searchQuery === feature ? 'filled' : 'outlined'}
-                    color={searchQuery === feature ? 'primary' : 'default'}
-                    onClick={() => setSearchQuery(feature)}
-                    sx={{ cursor: 'pointer' }}
+      {/* Tabs */}
+      <Paper sx={{ borderRadius: 2, boxShadow: 1 }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={activeTab} onChange={handleTabChange} aria-label="store management tabs">
+            <Tab 
+              icon={<AddIcon />} 
+              label="Thêm Chi nhánh" 
+              iconPosition="start"
+              sx={{ minHeight: 64 }}
+            />
+            <Tab 
+              icon={<StorefrontIcon />} 
+              label="Danh sách Chi nhánh" 
+              iconPosition="start"
+              sx={{ minHeight: 64 }}
+            />
+            <Tab 
+              icon={<MapIcon />} 
+              label="Bản đồ Chi nhánh" 
+              iconPosition="start"
+              sx={{ minHeight: 64 }}
+            />
+          </Tabs>
+        </Box>
+
+        {/* Tab 1: Thêm Chi nhánh */}
+        <TabPanel value={activeTab} index={0}>
+          <Grid container spacing={3}>
+            <Grid size={12}>
+              <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
+                <CardContent>
+                  <Typography variant="h6" fontWeight={600} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {isEditMode ? <EditIcon color="primary" /> : <AddIcon color="primary" />}
+                    {isEditMode ? 'Chỉnh sửa Chi nhánh' : 'Thông tin Chi nhánh'}
+                  </Typography>
+                  
+                  <Grid container spacing={3} sx={{ mb: 3 }}>
+                    <Grid size={12}>
+                      <TextField
+                        label="Tên nhà hàng"
+                        value={restaurantName}
+                        onChange={(e) => setRestaurantName(e.target.value)}
+                        fullWidth
+                        placeholder="Ví dụ: Nguyễn Trãi"
+                        InputProps={{
+                          startAdornment: autoAddGreenKitchen ? (
+                            <InputAdornment position="start">
+                              <Chip 
+                                label="GreenKitchen" 
+                                size="small" 
+                                color="primary" 
+                                variant="outlined"
+                              />
+                            </InputAdornment>
+                          ) : null
+                        }}
+                        helperText={autoAddGreenKitchen 
+                          ? "Tên sẽ tự động thêm 'GreenKitchen' ở đầu" 
+                          : "Nhập tên đầy đủ của chi nhánh"
+                        }
+                      />
+                    </Grid>
+                    <Grid size={12}>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={autoAddGreenKitchen}
+                            onChange={(e) => setAutoAddGreenKitchen(e.target.checked)}
+                            color="primary"
+                          />
+                        }
+                        label={
+                          <Box>
+                            <Typography variant="body2" fontWeight={500}>
+                              Tự động thêm "GreenKitchen"
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              Bật để tự động thêm "GreenKitchen" vào đầu tên chi nhánh
+                            </Typography>
+                          </Box>
+                        }
+                        sx={{ alignItems: 'flex-start' }}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  {isEditMode && (
+                    <Box sx={{ mb: 3, p: 2, bgcolor: 'info.light', borderRadius: 2 }}>
+                      <Typography variant="body2" color="info.dark" fontWeight={500}>
+                        📝 Đang chỉnh sửa: {editStore?.name}
+                      </Typography>
+                      <Typography variant="caption" color="info.dark">
+                        Thay đổi thông tin địa chỉ và nhấn "Lưu Vào DB" để cập nhật
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <AddressForm 
+                    onAddressReady={handleAddressReady}
+                    restaurantName={restaurantName}
+                    autoSave={false}
                   />
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
 
-        {/* Store List */}
-        <Grid size={12}>
-          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                🏪 Danh sách cửa hàng ({filteredStores.length})
+                  {isEditMode && (
+                    <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                      <Button
+                        variant="outlined"
+                        onClick={handleCancelEdit}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        Hủy chỉnh sửa
+                      </Button>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </TabPanel>
+
+        {/* Tab 2: Danh sách Chi nhánh */}
+        <TabPanel value={activeTab} index={1}>
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h6" fontWeight={600}>
+                Danh sách Chi nhánh ({stores.length})
+              </Typography>
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => setActiveTab(0)}
+                sx={{ borderRadius: 2 }}
+              >
+                Thêm Chi nhánh
+              </Button>
+            </Box>
+
+            {loading ? (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography>Đang tải...</Typography>
+              </Box>
+            ) : stores.length === 0 ? (
+              <Card sx={{ textAlign: 'center', py: 4 }}>
+                <CardContent>
+                  <StorefrontIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Chưa có chi nhánh nào
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    Hãy thêm chi nhánh đầu tiên để bắt đầu
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setActiveTab(0)}
+                  >
+                    Thêm Chi nhánh
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 1 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: 'grey.50' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Tên Chi nhánh</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Địa chỉ</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Tọa độ</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600 }}>Thao tác</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {stores.map((store) => (
+                      <TableRow key={store.id} hover>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Avatar sx={{ bgcolor: 'primary.main' }}>
+                              <StorefrontIcon />
+                            </Avatar>
+                            <Box>
+                              <Typography fontWeight={600}>{store.name}</Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                ID: {store.id}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                            <Typography variant="body2" sx={{ maxWidth: 300 }}>
+                              {store.address}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontFamily="monospace">
+                            {store.latitude?.toFixed(6)}, {store.longitude?.toFixed(6)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={store.isActive ? 'Hoạt động' : 'Tạm dừng'}
+                            color={store.isActive ? 'success' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Stack direction="row" spacing={1} justifyContent="center">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => handleEditStore(store)}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => setDeleteDialog({ open: true, store })}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Box>
+        </TabPanel>
+
+        {/* Tab 3: Bản đồ Chi nhánh */}
+        <TabPanel value={activeTab} index={2}>
+          <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <MapIcon color="primary" />
+                Bản đồ Chi nhánh
               </Typography>
               
-              {loading ? (
+              {stores.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <CircularProgress size={40} sx={{ mb: 2 }} />
+                  <MapIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Đang tải danh sách cửa hàng...
+                    Chưa có chi nhánh để hiển thị
                   </Typography>
-                </Box>
-              ) : error ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="h6" color="error" gutterBottom>
-                    {error}
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    Thêm chi nhánh để xem trên bản đồ
                   </Typography>
-                  <Button 
-                    variant="outlined" 
-                    onClick={() => window.location.reload()}
-                    sx={{ mt: 2 }}
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setActiveTab(0)}
                   >
-                    Thử lại
+                    Thêm Chi nhánh
                   </Button>
                 </Box>
-              ) : filteredStores.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Không tìm thấy cửa hàng nào
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Hãy thử tìm kiếm với từ khóa khác
-                  </Typography>
-                </Box>
               ) : (
-                <Grid container spacing={3}>
-                  {filteredStores.map((store) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 6 }} key={store.id}>
-                      <Card
-                        sx={{
-                          height: '100%',
-                          borderRadius: 3,
-                          boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-                          transition: 'all 0.3s ease',
-                          cursor: 'pointer',
-                          '&:hover': {
-                            transform: 'translateY(-4px)',
-                            boxShadow: '0 8px 24px rgba(76, 175, 80, 0.2)'
-                          }
-                        }}
-                        onClick={() => handleStoreClick(store)}
-                      >
-                        <CardContent sx={{ p: 3 }}>
-                          {/* Store Header */}
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                            <Box>
-                              <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
-                                {store.name}
-                              </Typography>
-                              <Chip
-                                label={getStatusLabel(store.status)}
-                                color={getStatusColor(store.status)}
-                                size="small"
-                                sx={{ mb: 1 }}
-                              />
-                            </Box>
-                            <Box sx={{ textAlign: 'right' }}>
-                              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                {store.distance}
-                              </Typography>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <StarIcon sx={{ fontSize: 16, color: '#FFD700' }} />
-                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                  {store.rating}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  ({store.reviewCount})
-                                </Typography>
-                              </Box>
-                            </Box>
-                          </Box>
-
-                          {/* Store Info */}
-                          <Box sx={{ mb: 2 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                              <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="body2" sx={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden'
-                              }}>
-                                {store.address}
-                              </Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                              <PhoneIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="body2">{store.phone}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="body2">{store.openHours}</Typography>
-                            </Box>
-                          </Box>
-
-                          {/* Features */}
-                          <Box sx={{ mb: 2 }}>
-                            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                              Tính năng:
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {store.features.slice(0, 3).map((feature, index) => (
-                                <Chip
-                                  key={index}
-                                  label={feature}
-                                  size="small"
-                                  variant="outlined"
-                                  color="primary"
-                                />
-                              ))}
-                              {store.features.length > 3 && (
-                                <Chip
-                                  label={`+${store.features.length - 3}`}
-                                  size="small"
-                                  variant="outlined"
-                                />
-                              )}
-                            </Box>
-                          </Box>
-
-                          {/* Action Buttons */}
-                          <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              startIcon={<DirectionsIcon />}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDirections(store)
-                              }}
-                              sx={{ flex: 1 }}
-                            >
-                              Chỉ đường
-                            </Button>
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              startIcon={<PhoneIcon />}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleCall(store.phone)
-                              }}
-                              sx={{ flex: 1 }}
-                            >
-                              Gọi điện
-                            </Button>
-                          </Box>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
+                <Box sx={{ 
+                  height: 500, 
+                  bgcolor: 'grey.100', 
+                  borderRadius: 2, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  border: '2px dashed',
+                  borderColor: 'grey.300'
+                }}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <MapIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                      Bản đồ sẽ được tích hợp ở đây
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {stores.length} chi nhánh đã được thêm
+                    </Typography>
+                  </Box>
+                </Box>
               )}
             </CardContent>
           </Card>
-        </Grid>
+        </TabPanel>
+      </Paper>
 
-                 {/* Interactive Map */}
-         {!loading && !error && stores.length > 0 && (
-           <Grid size={12}>
-             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
-               <CardContent sx={{ p: 4 }}>
-                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                     🗺️ Bản đồ cửa hàng
-                   </Typography>
-                   <Button
-                     variant="outlined"
-                     startIcon={<MyLocationIcon />}
-                     onClick={getUserLocation}
-                     disabled={!mapLoaded}
-                     sx={{ borderRadius: 2 }}
-                   >
-                     Vị trí của tôi
-                   </Button>
-                 </Box>
-                 
-                 {!mapLoaded ? (
-                   <Box sx={{
-                     height: 400,
-                     backgroundColor: '#f5f5f5',
-                     borderRadius: 2,
-                     display: 'flex',
-                     alignItems: 'center',
-                     justifyContent: 'center',
-                     border: '2px dashed #ccc'
-                   }}>
-                     <Box sx={{ textAlign: 'center' }}>
-                       <CircularProgress size={40} sx={{ mb: 2 }} />
-                       <Typography variant="h6" color="text.secondary" gutterBottom>
-                         Đang tải bản đồ...
-                       </Typography>
-                     </Box>
-                   </Box>
-                 ) : (
-                   <Box
-                     ref={mapRef}
-                     sx={{
-                       height: 500,
-                       borderRadius: 2,
-                       border: '1px solid',
-                       borderColor: 'divider',
-                       overflow: 'hidden'
-                     }}
-                   />
-                 )}
-                 
-                 <Box sx={{ mt: 2, textAlign: 'center' }}>
-                   <Typography variant="body2" color="text.secondary">
-                     💡 Click vào marker trên bản đồ để xem thông tin chi tiết cửa hàng
-                   </Typography>
-                 </Box>
-                 
-                 {/* Custom CSS for user location marker */}
-                 <style>
-                   {`
-                     .user-location-marker {
-                       background: transparent !important;
-                       border: none !important;
-                     }
-                   `}
-                 </style>
-               </CardContent>
-             </Card>
-           </Grid>
-         )}
-      </Grid>
-
-      {/* Store Detail Dialog */}
+      {/* Delete Confirmation Dialog */}
       <Dialog
-        open={storeDetailOpen}
-        onClose={() => setStoreDetailOpen(false)}
-        maxWidth="md"
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, store: null })}
+        maxWidth="sm"
         fullWidth
-        PaperProps={{
-          sx: { borderRadius: 3 }
-        }}
       >
-        {selectedStore && (
-          <>
-            <DialogTitle sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              pb: 1
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <StorefrontIcon sx={{ color: 'primary.main' }} />
-                <Typography variant="h6">
-                  {selectedStore.name}
-                </Typography>
-              </Box>
-              <Chip
-                label={getStatusLabel(selectedStore.status)}
-                color={getStatusColor(selectedStore.status)}
-              />
-            </DialogTitle>
-
-            <DialogContent sx={{ pt: 2 }}>
-              <Grid container spacing={3}>
-                <Grid size={12}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <StarIcon sx={{ color: '#FFD700' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {selectedStore.rating}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      ({selectedStore.reviewCount} đánh giá)
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid size={6}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    📍 Địa chỉ
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 2 }}>
-                    {selectedStore.address}
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    📞 Điện thoại
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 2 }}>
-                    {selectedStore.phone}
-                  </Typography>
-                </Grid>
-
-                <Grid size={6}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    🕒 Giờ mở cửa
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 2 }}>
-                    {selectedStore.openHours}
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    📏 Khoảng cách
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 2 }}>
-                    {selectedStore.distance}
-                  </Typography>
-                </Grid>
-
-                <Grid size={12}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                    ✨ Tính năng
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {selectedStore.features.map((feature, index) => (
-                      <Chip
-                        key={index}
-                        label={feature}
-                        color="primary"
-                        variant="outlined"
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-
-                <Grid size={12}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                    📍 Tọa độ
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Vĩ độ: {selectedStore.coordinates.lat}, Kinh độ: {selectedStore.coordinates.lng}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </DialogContent>
-
-            <DialogActions sx={{ p: 3 }}>
-              <Button
-                variant="outlined"
-                startIcon={<DirectionsIcon />}
-                onClick={() => handleDirections(selectedStore)}
-              >
-                Chỉ đường
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<PhoneIcon />}
-                onClick={() => handleCall(selectedStore.phone)}
-              >
-                Gọi điện
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => setStoreDetailOpen(false)}
-              >
-                Đóng
-              </Button>
-            </DialogActions>
-          </>
-        )}
+        <DialogTitle>Xác nhận xóa</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Bạn có chắc chắn muốn xóa chi nhánh <strong>{deleteDialog.store?.name}</strong>?
+            Hành động này không thể hoàn tác.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialog({ open: false, store: null })}>
+            Hủy
+          </Button>
+          <Button onClick={handleDeleteStore} color="error" variant="contained">
+            Xóa
+          </Button>
+        </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   )
 }

@@ -6,6 +6,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import Typography from '@mui/material/Typography'
 import CartItem from './CartItem/CartItem'
 import CartSummary from '../CartSummary/CartSummary'
+import { useTranslation } from 'react-i18next'
 
 const ListItemCart = ({
   cartItems,
@@ -16,6 +17,7 @@ const ListItemCart = ({
   calculateItemNutrition
 }) => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   return (
     <Box>
@@ -37,7 +39,7 @@ const ListItemCart = ({
           }}>
             <ShoppingCartIcon />
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              Giỏ mua hàng ({cartItems?.length || 0} sản phẩm)
+              {t('cart.cartTitle', { count: cartItems?.length || 0 })}
             </Typography>
           </Box>
         </Box>
@@ -65,10 +67,10 @@ const ListItemCart = ({
                 }}>
                   <ShoppingCartIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
                   <Typography variant="h6">
-                    Giỏ hàng của bạn đang trống
+                    {t('cart.emptyCartTitle')}
                   </Typography>
                   <Typography variant="body2">
-                    Hãy thêm sản phẩm vào giỏ hàng để tiếp tục
+                    {t('cart.emptyCartDescription')}
                   </Typography>
                 </Box>
               )}

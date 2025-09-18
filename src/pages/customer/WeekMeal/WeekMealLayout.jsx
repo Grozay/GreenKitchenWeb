@@ -8,20 +8,16 @@ import { getWeekMealPlanAPI } from '~/apis'
 import { useEffect, useState } from 'react'
 import moment from 'moment'
 import Skeleton from '@mui/material/Skeleton'
-
-const mealTypes = [
-  { key: 'low', title: 'THỰC ĐƠN LOW CALORIES' },
-  { key: 'balance', title: 'THỰC ĐƠN BALANCE CALORIES' },
-  { key: 'high', title: 'THỰC ĐƠN HIGH CALORIES' },
-  { key: 'vegetarian', title: 'THỰC ĐƠN CHAY', type: 'VEGETARIAN' }
-]
-
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+// import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import ItemNoData from '~/pages/customer/WeekMeal/ItemWeekPlan/ItemNoData'
 const WeekMealLayout = () => {
   const [dates, setDates] = useState({
-    low: moment(),
-    balance: moment(),
-    high: moment(),
-    vegetarian: moment()
+    low: moment().isoWeekday(1), // Thứ hai của tuần hiện tại (đảm bảo không phụ thuộc locale)
+    balance: moment().isoWeekday(1),
+    high: moment().isoWeekday(1),
+    vegetarian: moment().isoWeekday(1)
   })
   const [weekData, setWeekData] = useState({
     low: null,
@@ -35,45 +31,64 @@ const WeekMealLayout = () => {
     high: false,
     vegetarian: false
   })
+  // const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  // Sử dụng translations từ en.js và vi.js
+  const translatedChooseWeekly = t('weekMeal.chooseWeekly')
+  const translatedChooseWeeklyDesc = t('weekMeal.chooseWeeklyDesc')
+  const translatedNoData = t('weekMeal.noData')
+  const translatedLowCalories = t('weekMeal.lowCalories')
+  const translatedBalanceCalories = t('weekMeal.balanceCalories')
+  const translatedHighCalories = t('weekMeal.highCalories')
+  const translatedVegetarian = t('weekMeal.vegetarian')
+
+  // Cập nhật mealTypes để sử dụng translations
+  const mealTypes = [
+    { key: 'low', title: translatedLowCalories },
+    { key: 'balance', title: translatedBalanceCalories },
+    { key: 'high', title: translatedHighCalories },
+    { key: 'vegetarian', title: translatedVegetarian, type: 'VEGETARIAN' }
+  ]
 
   // LOW CALORIES
   useEffect(() => {
     setLoading(prev => ({ ...prev, low: true }))
-    getWeekMealPlanAPI('low', dates.low.format('YYYY-MM-DD'))
+    const mondayDate = dates.low.format('YYYY-MM-DD') // Bỏ .startOf('week') vì dates.low đã là Monday
+    getWeekMealPlanAPI('low', mondayDate)
       .then(res => setWeekData(prev => ({ ...prev, low: res })))
       .catch(() => setWeekData(prev => ({ ...prev, low: null })))
       .finally(() => setLoading(prev => ({ ...prev, low: false })))
-    // eslint-disable-next-line
   }, [dates.low])
 
   // BALANCE CALORIES
   useEffect(() => {
     setLoading(prev => ({ ...prev, balance: true }))
-    getWeekMealPlanAPI('balance', dates.balance.format('YYYY-MM-DD'))
+    const mondayDate = dates.balance.format('YYYY-MM-DD') // Bỏ .startOf('week')
+    getWeekMealPlanAPI('balance', mondayDate)
       .then(res => setWeekData(prev => ({ ...prev, balance: res })))
       .catch(() => setWeekData(prev => ({ ...prev, balance: null })))
       .finally(() => setLoading(prev => ({ ...prev, balance: false })))
-    // eslint-disable-next-line
   }, [dates.balance])
 
   // HIGH CALORIES
   useEffect(() => {
     setLoading(prev => ({ ...prev, high: true }))
-    getWeekMealPlanAPI('high', dates.high.format('YYYY-MM-DD'))
+    const mondayDate = dates.high.format('YYYY-MM-DD') // Bỏ .startOf('week')
+    getWeekMealPlanAPI('high', mondayDate)
       .then(res => setWeekData(prev => ({ ...prev, high: res })))
       .catch(() => setWeekData(prev => ({ ...prev, high: null })))
       .finally(() => setLoading(prev => ({ ...prev, high: false })))
-    // eslint-disable-next-line
   }, [dates.high])
 
   // VEGETARIAN
   useEffect(() => {
     setLoading(prev => ({ ...prev, vegetarian: true }))
-    getWeekMealPlanAPI('vegetarian', dates.vegetarian.format('YYYY-MM-DD'))
+    const mondayDate = dates.vegetarian.format('YYYY-MM-DD') // Bỏ .startOf('week')
+    getWeekMealPlanAPI('vegetarian', mondayDate)
       .then(res => setWeekData(prev => ({ ...prev, vegetarian: res })))
       .catch(() => setWeekData(prev => ({ ...prev, vegetarian: null })))
       .finally(() => setLoading(prev => ({ ...prev, vegetarian: false })))
-    // eslint-disable-next-line
   }, [dates.vegetarian])
 
   // Hàm đổi tuần
@@ -90,8 +105,10 @@ const WeekMealLayout = () => {
       const newYear = newDate.year()
 
       const weekDiff = (newYear - currentYear) * 52 + (newWeek - currentWeek)
+      console.log('Week diff for', key, ':', weekDiff) // Debug: kiểm tra weekDiff
 
       if (weekDiff < -1 || weekDiff > 1) {
+        console.log('Blocked change for', key, 'due to weekDiff:', weekDiff) // Debug: lý do bị chặn
         return prev
       }
 
@@ -115,7 +132,7 @@ const WeekMealLayout = () => {
               color: theme.palette.text.primary
             }}
           >
-            Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>WEEKLY MEAL PLAN</span>
+            Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>{translatedChooseWeekly}</span>
           </Typography>
           <Box sx={{ width: '7rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 4, borderRadius: 2 }} />
           <Typography
@@ -123,7 +140,7 @@ const WeekMealLayout = () => {
             align="center"
             sx={{ maxWidth: '48rem', mx: 'auto', mb: 6, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
           >
-            Choose a weekly meal plan that suits your needs and preferences. Our plans are designed to help you maintain a balanced diet while enjoying delicious meals every day.
+            {translatedChooseWeeklyDesc}
           </Typography>
         </Box>
 
@@ -131,7 +148,7 @@ const WeekMealLayout = () => {
           <Box sx={{ pt: 6 }} key={key}>
             {loading[key] ? (
               <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3, mb: 4 }} />
-            ) : weekData[key] ? (
+            ) : weekData[key] && weekData[key].days && weekData[key].days.length > 0 ? (
               <WeekPlan
                 weekData={weekData[key]}
                 title={title}
@@ -139,17 +156,7 @@ const WeekMealLayout = () => {
                 onNextWeek={() => handleChangeWeek(key, 7)}
               />
             ) : (
-              <Typography
-                variant="body1"
-                align="center"
-                sx={{
-                  py: 4,
-                  color: theme.palette.text.textSub,
-                  fontSize: '1.1rem'
-                }}
-              >
-                Không có dữ liệu cho kế hoạch này.
-              </Typography>
+              <ItemNoData title={title} />
             )}
           </Box>
         ))}

@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import EditIcon from '@mui/icons-material/Edit'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy' // Thêm icon clone
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Dialog from '@mui/material/Dialog'
@@ -70,6 +71,13 @@ const IngredientList = () => {
   const handleEditClick = () => {
     if (selectedRow) {
       navigate(`/management/ingredients/edit/${selectedRow.id}`)
+      handleCloseMenu()
+    }
+  }
+
+  const handleCloneClick = () => {
+    if (selectedRow) {
+      navigate(`/management/ingredients/create?clone=${selectedRow.id}`)
       handleCloseMenu()
     }
   }
@@ -173,9 +181,19 @@ const IngredientList = () => {
         '& .textPrimary': { color: 'text.primary' }
       }}
     >
-      <Typography variant="h4" component="h1" sx={{ mb: 3, fontWeight: 'bold' }}>
-        Ingredient List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+          Ingredient List
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/management/ingredients/create')}
+          sx={{ fontWeight: 'bold' }}
+        >
+          Create New Ingredient
+        </Button>
+      </Box>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -201,6 +219,10 @@ const IngredientList = () => {
         <MenuItem onClick={handleEditClick}>
           <EditIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
           Edit
+        </MenuItem>
+        <MenuItem onClick={handleCloneClick}> {/* Thêm menu item Clone */}
+          <ContentCopyIcon fontSize="small" sx={{ mr: 1, color: 'info.main' }} />
+          Clone
         </MenuItem>
         <MenuItem onClick={handleAskDelete}>
           <DeleteIcon fontSize="small" sx={{ mr: 1, color: 'error.main' }} />

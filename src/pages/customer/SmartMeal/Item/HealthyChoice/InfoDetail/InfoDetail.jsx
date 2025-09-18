@@ -14,6 +14,9 @@ import SauceSuggestionDialog from '../DialogSauces/SauceSuggestionDialog'
 import { getSuggestedSauces } from '~/utils/nutrition'
 import { setSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useTranslation } from 'react-i18next'
 
 const InfoDetail = ({ itemHealthy }) => {
   const dispatch = useDispatch()
@@ -24,12 +27,22 @@ const InfoDetail = ({ itemHealthy }) => {
   const [openDrawer, setOpenDrawer] = useState(false)
   const selectedItems = useSelector(selectCurrentMeal)
   const allSauces = itemHealthy.sauce
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  const translatedCalories = t('nutrition.calories')
+  const translatedProtein = t('nutrition.protein')
+  const translatedCarbs = t('nutrition.carbs')
+  const translatedFat = t('nutrition.fat')
+  const translatedClearSelections = useTranslate('Clear Selections', currentLang)
+  const translatedSuggestSauce = useTranslate('Suggest Sauce', currentLang)
+  const translatedOrderNow = useTranslate('Order Now', currentLang)
 
   const items = [
-    { label: 'Calories', value: `${Math.round(totalCalories)}` },
-    { label: 'Protein', value: `${Math.round(totalProtein)}g` },
-    { label: 'Carbs', value: `${Math.round(totalCarbs)}g` },
-    { label: 'Fat', value: `${Math.round(totalFat)}g` }
+    { label: translatedCalories, value: `${Math.round(totalCalories)}` },
+    { label: translatedProtein, value: `${Math.round(totalProtein)}g` },
+    { label: translatedCarbs, value: `${Math.round(totalCarbs)}g` },
+    { label: translatedFat, value: `${Math.round(totalFat)}g` }
   ]
 
   const handleClearSelections = () => {
@@ -127,7 +140,7 @@ const InfoDetail = ({ itemHealthy }) => {
             bgcolor: '#00000010'
           }
         }}>
-          Clear Selections
+          {translatedClearSelections}
         </Box>
         <Box
           onClick={() => {
@@ -150,7 +163,7 @@ const InfoDetail = ({ itemHealthy }) => {
             }
           }}
         >
-          {hasSuggestedSauce ? 'Order Now' : 'Suggest Sauce'}
+          {hasSuggestedSauce ? translatedOrderNow : translatedSuggestSauce}
         </Box>
       </Box>
       <Drawer

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react' // Loại bỏ useLocation khỏi đây
-import { useNavigate, useLocation } from 'react-router-dom' // Thêm useLocation vào đây
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom' // Thêm useLocation vào đây
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -23,7 +23,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import moment from 'moment'
-import { getMenuMealAPI, createWeekMealAPI } from '~/apis'
+import { getMenuMealAPI, createWeekMealAPI, getByIdWeekMealAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
 const mealTypes = [
@@ -44,8 +44,10 @@ const daysOfWeek = [
 const WeekMealCreate = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const cloneId = searchParams.get('clone') // Lấy ID từ query
+
   // Parse query params
-  const searchParams = new URLSearchParams(location.search)
   const typeParam = searchParams.get('type')
   const typeMap = { low: 'LOW', balance: 'BALANCE', high: 'HIGH', vegetarian: 'VEGETARIAN' }
   const initialType = typeMap[typeParam?.toLowerCase()] || 'LOW' // Map lowercase to uppercase
@@ -85,6 +87,34 @@ const WeekMealCreate = () => {
     }
     fetchMenuMeals()
   }, [])
+
+  // Fetch clone data if cloneId exists
+  useEffect(() => {
+    if (cloneId) {
+      const fetchCloneData = async () => {
+        try {
+          const data = await getByIdWeekMealAPI(cloneId)
+          // Set dữ liệu vào state
+          setSelectedType(data.type || 'LOW')
+          setWeekStart(moment(data.weekStart, 'YYYY-MM-DD'))
+          // Set selectedMeals từ data.days
+          const newSelectedMeals = {}
+          data.days.forEach(day => {
+            newSelectedMeals[day.day] = {
+              meal1: day.meal1?.id?.toString() || '',
+              meal2: day.meal2?.id?.toString() || '',
+              meal3: day.meal3?.id?.toString() || ''
+            }
+          })
+          setSelectedMeals(newSelectedMeals)
+          toast.info('Data cloned successfully! You can edit before creating.')
+        } catch (error) {
+          toast.error('Failed to clone data')
+        }
+      }
+      fetchCloneData()
+    }
+  }, [cloneId])
 
   // Handle date change (always set to Monday)
   const handleDateChange = (newDate) => {
@@ -158,7 +188,7 @@ const WeekMealCreate = () => {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <Box sx={{ p: 4, maxWidth: '1200px', mx: 'auto' }}>
         <Typography variant="h4" gutterBottom>
-          Create WeekMeal
+          {cloneId ? 'Clone WeekMeal' : 'Create WeekMeal'} {/* Thay đổi title nếu clone */}
         </Typography>
 
         {/* Form Controls */}

@@ -254,11 +254,6 @@ export const getExchangeableCouponsAPI = async () => {
   return response.data
 }
 
-export const getCouponByIdAPI = async (id) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/${id}`)
-  return response.data
-}
-
 // Admin Coupon APIs
 export const getAllCouponsAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/admin/all`)
@@ -275,8 +270,18 @@ export const createCouponAPI = async (data) => {
   return response.data
 }
 
+export const getCouponByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/${id}`)
+  return response.data
+}
+
 export const updateCouponAPI = async (id, data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/coupons/admin/update/${id}`, data)
+  return response.data
+}
+
+export const getCouponWithCustomersAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/coupons/admin/${id}/with-customers`)
   return response.data
 }
 
@@ -284,6 +289,24 @@ export const updateCouponAPI = async (id, data) => {
 // Customer Coupon APIs
 export const customerUseCouponAPI = async (data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-coupons/use-coupon`, data)
+  return response.data
+}
+
+export const createCustomerCouponAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-coupons/create`, data)
+  return response.data
+}
+
+export const getCustomerCouponsByCouponIdAPI = async (couponId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-coupons/coupon/${couponId}`)
+  return response.data
+}
+
+export const createBulkCustomerCouponsAPI = async (couponId, customerIds) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/coupons/admin/bulk-create-customer-coupons`, {
+    couponId,
+    customerIds
+  })
   return response.data
 }
 
@@ -441,8 +464,6 @@ export const getPostCategoriesAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/post-categories`)
   return response.data
 }
-
-
 
 export const submitFeedbackAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/support/feedback`, data)
@@ -647,5 +668,48 @@ export const adminUpdateHolidayAPI = async (id, data) => {
 
 export const adminDeleteHolidayAPI = async (id) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/holidays/admin/${id}`)
+=======
+// Settings APIs
+export const getSettingsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/settings`)
+  return response.data
+}
+
+export const getSettingsByTypeAPI = async (settingType) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/settings/type/${settingType}`)
+  return response.data
+}
+
+export const saveSettingAPI = async (key, value, settingType) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/settings/save`, {
+    key,
+    value,
+    settingType
+  })
+  return response.data
+}
+
+export const saveSettingsBulkAPI = async (settings, settingType) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/settings/save-bulk`, {
+    settings,
+    settingType
+  })
+  return response.data
+}
+
+export const deleteSettingAPI = async (key) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/settings/${key}`)
+  return response.data
+}
+
+export const deactivateSettingAPI = async (key) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/settings/${key}/deactivate`)
+  return response.data
+}
+
+// Users API
+export const getAllUsersAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customers`)
+
   return response.data
 }

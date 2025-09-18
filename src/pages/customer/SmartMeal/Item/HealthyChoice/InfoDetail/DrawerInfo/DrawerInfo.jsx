@@ -26,6 +26,9 @@ import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
+import useTranslate from '~/hooks/useTranslate'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useTranslation } from 'react-i18next'
 
 const DrawerInfo = ({ onClose, itemHealthy }) => {
   const [openInfoModal, setOpenInfoModal] = useState(false)
@@ -40,6 +43,26 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
   const currentCustomer = useSelector(state => state.customer.currentCustomer)
   const customerId = currentCustomer?.id || null
   const navigate = useNavigate()
+  const currentLang = useSelector(selectCurrentLanguage)
+  const { t } = useTranslation()
+
+  const translatedHealthyMeals = useTranslate('Healthy Meals Just For You', currentLang)
+  const translatedReviewSelections = useTranslate('Review My Selections', currentLang)
+  const translatedBalanced = useTranslate('Your meal is well-balanced!', currentLang)
+  const translatedCanOrder = useTranslate('You can now order your custom meal or review your choices.', currentLang)
+  const translatedGoToBuilder = useTranslate('Go to Builder', currentLang)
+  const translatedOrOrder = useTranslate('Or order your custom meal', currentLang)
+  const translatedCalories = t('nutrition.calories')
+  const translatedProtein = t('nutrition.protein')
+  const translatedCarbs = t('nutrition.carbs')
+  const translatedFat = t('nutrition.fat')
+  const translatedTotalPrice = useTranslate('Total Price:', currentLang)
+  const translatedOrderCustom = useTranslate('Order custom meal', currentLang)
+  const translatedSaveCustom = useTranslate('Save custom meal', currentLang)
+  const translatedAdding = useTranslate('Adding...', currentLang)
+  const translatedSaving = useTranslate('Saving...', currentLang)
+  const translatedFavoriteMix = useTranslate('My favorite mix with quantities', currentLang)
+  const translatedCustomMeal = useTranslate('your custom Meal', currentLang)
 
   const customTotal = calcCustomTotal(selected)
   const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
@@ -76,8 +99,8 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
       try {
         const customMealData = {
           customerId: customerId,
-          title: title || 'My favorite mix with quantities',
-          description: desc || 'your custom Meal',
+          title: title || translatedFavoriteMix,
+          description: desc || translatedCustomMeal,
           calories: Math.round(customTotal.calories),
           protein: Math.round(customTotal.protein),
           carb: Math.round(customTotal.carbs),
@@ -142,8 +165,8 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
       try {
         const customMealData = {
           customerId: customerId,
-          title: title || 'My favorite mix with quantities',
-          description: desc || 'your custom Meal',
+          title: title || translatedFavoriteMix,
+          description: desc || translatedCustomMeal,
           calories: Math.round(customTotal.calories),
           protein: Math.round(customTotal.protein),
           carb: Math.round(customTotal.carbs),
@@ -212,7 +235,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SearchIcon sx={{ color: theme.palette.primary.secondary }} />
             <Typography id="drawer-title" variant="h6" sx={{ fontWeight: 'medium' }}>
-              Healthy Meals Just For You
+              {translatedHealthyMeals}
             </Typography>
           </Box>
           <Box
@@ -268,7 +291,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
                   onClick={() => setIsReviewing(true)}
                   sx={{ borderRadius: 5 }}
                 >
-                  Review My Selections ({allSelectedItems.length} items)
+                  {translatedReviewSelections} ({allSelectedItems.length} items)
                 </Button>
               </Box>
             )}
@@ -278,10 +301,10 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <CheckCircleOutlineIcon sx={{ fontSize: 60, color: 'success.main' }} />
                 <Typography variant="h6" sx={{ mt: 2, fontWeight: 'medium' }}>
-                  Your meal is well-balanced!
+                  {translatedBalanced}
                 </Typography>
                 <Typography sx={{ color: 'text.secondary', mb: 3 }}>
-                  You can now order your custom meal or review your choices.
+                  {translatedCanOrder}
                 </Typography>
               </Box>
             ) : (
@@ -318,7 +341,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
               sx={{ borderRadius: 5, color: theme.palette.text.primary, p: 1 }}
               aria-label="Back to Builder"
             >
-              Go to Builder
+              {translatedGoToBuilder}
             </Button>
           )}
         </Box>
@@ -335,20 +358,20 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
           <LocalOfferIcon sx={{ color: theme.palette.primary.secondary }} />
           <Typography variant="h5" sx={{ fontWeight: 'medium' }}>
-            Or order your custom meal
+            {translatedOrOrder}
           </Typography>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
           <TrendingUpIcon sx={{ color: theme.palette.primary.secondary }} />
           <Typography variant="body1" sx={{ textAlign: 'center' }}>
-            Calories: {Math.round(customTotal.calories)} kcal | Protein: {Math.round(customTotal.protein)}g | Carbs:{' '}
-            {Math.round(customTotal.carbs)}g | Fat: {Math.round(customTotal.fat)}g
+            {translatedCalories} {Math.round(customTotal.calories)} kcal | {translatedProtein} {Math.round(customTotal.protein)}g | {translatedCarbs}{' '}
+            {Math.round(customTotal.carbs)}g | {translatedFat} {Math.round(customTotal.fat)}g
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.primary.secondary }}>
-            Total Price: {totalPrice.toLocaleString()} VNĐ
+            {translatedTotalPrice} {totalPrice.toLocaleString()} VNĐ
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
@@ -361,7 +384,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
             disabled={addingToCart}
             aria-label="Order custom meal"
           >
-            {addingToCart ? 'Adding...' : 'Order custom meal'}
+            {addingToCart ? translatedAdding : translatedOrderCustom}
           </Button>
           <Button
             variant="outlined"
@@ -372,7 +395,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
             disabled={savingMeal}
             aria-label="Save custom meal"
           >
-            {savingMeal ? 'Saving...' : 'Save custom meal'}
+            {savingMeal ? translatedSaving : translatedSaveCustom}
           </Button>
         </Box>
       </Box>

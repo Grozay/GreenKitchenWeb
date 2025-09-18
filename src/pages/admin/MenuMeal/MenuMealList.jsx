@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import EditIcon from '@mui/icons-material/Edit'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy' // Thêm icon clone
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Dialog from '@mui/material/Dialog'
@@ -34,7 +35,7 @@ const MenuMealList = () => {
         const data = await getMenuMealAPI()
         data.sort((a, b) => b.id - a.id)
         setRows(data)
-      } catch (error) {
+      } catch {
         toast.error('Failed to fetch menu meals')
       } finally {
         setLoading(false)
@@ -63,6 +64,13 @@ const MenuMealList = () => {
   const handleEditClick = () => {
     if (selectedRow) {
       navigate(`/management/menu-meals/edit/${selectedRow.slug}`)
+      handleCloseMenu()
+    }
+  }
+
+  const handleCloneClick = () => {
+    if (selectedRow) {
+      navigate(`/management/menu-meals/create?clone=${selectedRow.slug}`)
       handleCloseMenu()
     }
   }
@@ -166,9 +174,19 @@ const MenuMealList = () => {
         '& .textPrimary': { color: 'text.primary' }
       }}
     >
-      <Typography variant="h4" component="h1" sx={{ mb: 3, fontWeight: 'bold' }}>
-        Menu Meal List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+          Menu Meal List
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/management/menu-meals/create')}
+          sx={{ fontWeight: 'bold' }}
+        >
+          Create New Menu Meal
+        </Button>
+      </Box>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -194,6 +212,10 @@ const MenuMealList = () => {
         <MenuItem onClick={handleEditClick}>
           <EditIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
           Edit
+        </MenuItem>
+        <MenuItem onClick={handleCloneClick}> {/* Thêm menu item Clone */}
+          <ContentCopyIcon fontSize="small" sx={{ mr: 1, color: 'info.main' }} />
+          Clone
         </MenuItem>
         <MenuItem onClick={handleAskDelete}>
           <DeleteIcon fontSize="small" sx={{ mr: 1, color: 'error.main' }} />
