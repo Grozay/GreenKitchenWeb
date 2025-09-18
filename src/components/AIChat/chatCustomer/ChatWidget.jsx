@@ -123,21 +123,26 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
       initGuestConversation().then(id => {
         setAnimationConvId(id)
         localStorage.setItem('conversationId', id)
-        // load ngay 0 tin (nếu cần)
+        // FIX: Load messages ngay khi có conversationId
         fetchMessagesPaged(id, 0, 20).then(data => {
-          // Không cần setMessages ở đây vì useChatLogic đã xử lý
+          // useChatLogic sẽ handle setMessages
         })
       })
     }
   }, [animationConvId, isCustomerLoggedIn])
 
   // Xử lý tin nhắn từ websocket
-  useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
+  useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, (msg) => {
+    console.log('📨 Customer WebSocket message received:', animationConvId, msg)
+    handleIncoming(msg)
+  })
   useChatWebSocket('/topic/emp-notify', async (convId) => {
+    console.log('🔔 Customer emp-notify received:', convId)
     const conversationId = typeof convId === 'object' ? convId.conversationId : convId
     if (Number(conversationId) === Number(animationConvId)) {
       try {
         const status = await chatAPI.fetchConversationStatus(animationConvId)
+        console.log('📊 Conversation status updated:', status)
         setConversationStatus(status)
         setChatMode(status === 'EMP' ? 'EMP' : 'AI')
         // Optional: toast thông báo "Nhân viên đã tham gia hỗ trợ"

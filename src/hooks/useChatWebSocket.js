@@ -36,6 +36,31 @@ export function useChatWebSocket(topic, onMessage) {
       console.log('Reusing existing WebSocket connection for topic:', topic)
       clientRef.current = existingConnection.client
       connectionIdRef.current = existingConnection.id
+      
+      // FIX: Re-subscribe to topic to ensure we get messages
+      const topics = Array.isArray(topic) ? topic : [topic]
+      topics.forEach((t) => {
+        if (!existingConnection.subscriptions?.has(t)) {
+          console.log('Re-subscribing to topic:', t)
+          existingConnection.client.subscribe(t, (msg) => {
+            try {
+              if (connectionIdRef.current !== existingConnection.id || !isActiveRef.current) {
+                console.log('Skipping message from outdated connection:', existingConnection.id)
+                return
+              }
+              
+              const data = JSON.parse(msg.body)
+              onMessageRef.current && onMessageRef.current(data)
+            } catch (error) {
+              console.error('Error processing WebSocket message:', error)
+            }
+          })
+          if (!existingConnection.subscriptions) {
+            existingConnection.subscriptions = new Set()
+          }
+          existingConnection.subscriptions.add(t)
+        }
+      })
       return
     }
 
@@ -71,25 +96,37 @@ export function useChatWebSocket(topic, onMessage) {
         }
         
         const topics = Array.isArray(topicRef.current) ? topicRef.current : [topicRef.current]
+        const subscriptions = new Set()
+        
         topics.forEach((t) => {
+          console.log('🔌 Subscribing to topic:', t)
           client.subscribe(t, (msg) => {
             try {
               // FIX: Verify connection is still valid before processing message
               if (connectionIdRef.current !== connectionId || !isActiveRef.current) {
-                console.log('Skipping message from outdated connection:', connectionId)
+                console.log('⏭️ Skipping message from outdated connection:', connectionId)
                 return
               }
               
               const data = JSON.parse(msg.body)
-              onMessageRef.current && onMessageRef.current(data)
+              console.log('📨 Processing WebSocket message from topic:', t, data)
+              console.log('📨 Message handler function:', typeof onMessageRef.current)
+              
+              if (onMessageRef.current) {
+                onMessageRef.current(data)
+                console.log('✅ Message processed successfully')
+              } else {
+                console.log('❌ No message handler function available')
+              }
             } catch (error) {
-              console.error('Error processing WebSocket message:', error)
+              console.error('❌ Error processing WebSocket message:', error)
             }
           })
+          subscriptions.add(t)
         })
         
-        // FIX: Add connection to pool
-        connectionPool.set(topic, { client, id: connectionId })
+        // FIX: Add connection to pool with subscriptions tracking
+        connectionPool.set(topic, { client, id: connectionId, subscriptions })
       },
       onStompError: (error) => {
         console.error('STOMP error:', error)

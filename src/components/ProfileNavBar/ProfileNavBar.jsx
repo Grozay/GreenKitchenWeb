@@ -12,6 +12,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { logoutCustomerApi } from '~/redux/user/customerSlice'
 import { useConfirm } from 'material-ui-confirm'
+import { clearChatData } from '~/utils/chatCleanup'
 
 function ProfileNavBar() {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -39,6 +40,7 @@ function ProfileNavBar() {
     if (confirmed) {
       dispatch(logoutCustomerApi())
         .then(() => {
+          clearChatData() // Clear chat data on logout
           navigate('/login')
         })
     }
