@@ -668,7 +668,7 @@ export const adminUpdateHolidayAPI = async (id, data) => {
 
 export const adminDeleteHolidayAPI = async (id) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/holidays/admin/${id}`)
-=======
+}
 // Settings APIs
 export const getSettingsAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/settings`)
