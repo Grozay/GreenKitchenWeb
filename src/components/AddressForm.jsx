@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography, Alert } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
 import { toast } from 'react-toastify'
 
 const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) => {
@@ -240,62 +241,58 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
       </Typography>
 
       <Stack spacing={3}>
-        {/* Chọn Tỉnh/Thành phố */}
-        <FormControl fullWidth>
-          <InputLabel>Tỉnh/Thành phố</InputLabel>
-          <Select
-            value={selectedProvince}
-            onChange={(e) => {
-              console.log('Province changed to:', e.target.value)
-              setSelectedProvince(e.target.value)
-            }}
-            label="Tỉnh/Thành phố"
-          >
-            {provinces.map((province) => (
-              <MenuItem key={province.code} value={province.code}>
-                {province.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {/* Chọn Tỉnh/Thành phố (Autocomplete để gõ tìm nhanh) */}
+        <Autocomplete
+          fullWidth
+          options={provinces}
+          getOptionLabel={(opt) => opt?.name || ''}
+          isOptionEqualToValue={(opt, val) => opt?.code === val?.code}
+          value={provinces.find(p => p.code === selectedProvince) || null}
+          onChange={(_, newValue) => {
+            const code = newValue?.code || ''
+            console.log('Province changed to:', code)
+            setSelectedProvince(code)
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Tỉnh/Thành phố" placeholder="Nhập để tìm nhanh..." />
+          )}
+        />
 
-        {/* Chọn Quận/Huyện */}
-        <FormControl fullWidth disabled={!selectedProvince}>
-          <InputLabel>Quận/Huyện</InputLabel>
-          <Select
-            value={selectedDistrict}
-            onChange={(e) => {
-              console.log('District changed to:', e.target.value)
-              setSelectedDistrict(e.target.value)
-            }}
-            label="Quận/Huyện"
-          >
-            {districts.map((district) => (
-              <MenuItem key={district.code} value={district.code}>
-                {district.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {/* Chọn Quận/Huyện (Autocomplete để gõ tìm nhanh) */}
+        <Autocomplete
+          fullWidth
+          disabled={!selectedProvince}
+          options={districts}
+          getOptionLabel={(opt) => opt?.name || ''}
+          isOptionEqualToValue={(opt, val) => opt?.code === val?.code}
+          value={districts.find(d => d.code === selectedDistrict) || null}
+          onChange={(_, newValue) => {
+            const code = newValue?.code || ''
+            console.log('District changed to:', code)
+            setSelectedDistrict(code)
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Quận/Huyện" placeholder="Nhập để tìm nhanh..." />
+          )}
+        />
 
-        {/* Chọn Phường/Xã */}
-        <FormControl fullWidth disabled={!selectedDistrict}>
-          <InputLabel>Phường/Xã</InputLabel>
-          <Select
-            value={selectedWard}
-            onChange={(e) => {
-              console.log('Ward changed to:', e.target.value)
-              setSelectedWard(e.target.value)
-            }}
-            label="Phường/Xã"
-          >
-            {wards.map((ward) => (
-              <MenuItem key={ward.code} value={ward.code}>
-                {ward.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {/* Chọn Phường/Xã (Autocomplete để gõ tìm nhanh) */}
+        <Autocomplete
+          fullWidth
+          disabled={!selectedDistrict}
+          options={wards}
+          getOptionLabel={(opt) => opt?.name || ''}
+          isOptionEqualToValue={(opt, val) => opt?.code === val?.code}
+          value={wards.find(w => w.code === selectedWard) || null}
+          onChange={(_, newValue) => {
+            const code = newValue?.code || ''
+            console.log('Ward changed to:', code)
+            setSelectedWard(code)
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Phường/Xã" placeholder="Nhập để tìm nhanh..." />
+          )}
+        />
 
         {/* Nhập số nhà + tên đường */}
         <TextField
