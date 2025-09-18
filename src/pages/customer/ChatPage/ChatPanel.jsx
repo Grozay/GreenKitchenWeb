@@ -219,7 +219,8 @@ export default function ChatPanel({ onMessagesUpdate }) {
     })
   }, [animationConvId, isCustomerLoggedIn])
 
-  useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
+  // FIX: Bỏ duplicate WebSocket subscription - ChatWidget đã handle
+  // useChatWebSocket(animationConvId ? `/topic/conversations/${animationConvId}` : null, handleIncoming)
   useChatWebSocket('/topic/emp-notify', async (convId) => {
     const cid = typeof convId === 'object' ? convId.conversationId : convId
     if (Number(cid) === Number(animationConvId)) {

@@ -262,8 +262,13 @@ export const handleLoadMoreMessages = async (
 
 // ===== WEBSOCKET MESSAGE HANDLING =====
 export const handleWebSocketMessage = (msg, currentConversationId, isCustomerLoggedIn, setMessages, setAnimationConvId) => {
+  console.log('🔧 handleWebSocketMessage called:', msg)
+  console.log('🔧 Current conversationId:', currentConversationId)
+  console.log('🔧 isCustomerLoggedIn:', isCustomerLoggedIn)
+  
   // Cập nhật conversationId nếu cần
   if (msg.conversationId && msg.conversationId !== currentConversationId) {
+    console.log('🔄 Updating conversationId:', currentConversationId, '->', msg.conversationId)
     setAnimationConvId(msg.conversationId)
     if (!isCustomerLoggedIn) {
       localStorage.setItem('conversationId', msg.conversationId)
@@ -272,6 +277,8 @@ export const handleWebSocketMessage = (msg, currentConversationId, isCustomerLog
   
   // Cập nhật messages
   setMessages(prev => {
+    console.log('📝 Current messages count:', prev.length)
+    
     // Xoá pending tạm của CUSTOMER nếu server đã trả về bản thật
     let next = prev.filter(m => !(
       m.status === 'pending' && 
@@ -280,14 +287,22 @@ export const handleWebSocketMessage = (msg, currentConversationId, isCustomerLog
       msg.senderRole === 'CUSTOMER'
     ))
     
-    // Upsert theo id: nếu đã tồn tại -> replace, chưa có -> append
-    const idx = next.findIndex(m => m.id === msg.id)
-    if (idx >= 0) {
-      next = next.map((m, i) => i === idx ? { ...m, ...msg } : m)
-    } else {
-      next = [...next, msg]
+    // FIX: Kiểm tra duplicate trước khi append
+    const isDuplicate = next.some(existingMsg => 
+      existingMsg.id === msg.id || 
+      (existingMsg.content === msg.content && 
+       existingMsg.senderRole === msg.senderRole &&
+       Math.abs(new Date(existingMsg.timestamp) - new Date(msg.timestamp)) < 1000)
+    )
+    
+    if (isDuplicate) {
+      console.log('❌ Message already exists, skipping:', msg.id)
+      return next
     }
-    return next
+    
+    console.log('✅ Adding new message to list:', msg.id, 'Total messages:', next.length + 1)
+    // FIX: Chỉ append nếu chưa tồn tại, không replace
+    return [...next, msg]
   })
 }
 

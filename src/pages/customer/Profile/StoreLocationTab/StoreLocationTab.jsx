@@ -28,73 +28,58 @@ import StorefrontIcon from '@mui/icons-material/Storefront'
 import StarIcon from '@mui/icons-material/Star'
 import MyLocationIcon from '@mui/icons-material/MyLocation'
 import { toast } from 'react-toastify'
+import { getStoresAPI } from '~/apis'
 
 export default function StoreLocationTab({ customerDetails, setCustomerDetails }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedStore, setSelectedStore] = useState(null)
   const [storeDetailOpen, setStoreDetailOpen] = useState(false)
+  const [stores, setStores] = useState([])
   const [filteredStores, setFilteredStores] = useState([])
   const [userLocation, setUserLocation] = useState(null)
   const [mapLoaded, setMapLoaded] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const mapRef = useRef(null)
   const mapInstanceRef = useRef(null)
   const markersRef = useRef([])
 
-  // Mock data - trong thực tế sẽ lấy từ API
-  const stores = [
-    {
-      id: 1,
-      name: 'Green Kitchen Quận 1',
-      address: '123 Đường Nguyễn Huệ, Quận 1, TP.HCM',
-      phone: '028-1234-5678',
-      rating: 4.8,
-      reviewCount: 156,
-      distance: '0.5 km',
-      openHours: '7:00 - 22:00',
-      status: 'OPEN',
-      features: ['Giao hàng', 'Mang đi', 'Dine-in', 'Parking'],
-      coordinates: { lat: 10.7769, lng: 106.7009 }
-    },
-    {
-      id: 2,
-      name: 'Green Kitchen Quận 3',
-      address: '456 Đường Võ Văn Tần, Quận 3, TP.HCM',
-      phone: '028-1234-5679',
-      rating: 4.6,
-      reviewCount: 89,
-      distance: '1.2 km',
-      openHours: '7:00 - 22:00',
-      status: 'OPEN',
-      features: ['Giao hàng', 'Mang đi', 'Dine-in'],
-      coordinates: { lat: 10.7829, lng: 106.7009 }
-    },
-    {
-      id: 3,
-      name: 'Green Kitchen Quận 7',
-      address: '789 Đường Nguyễn Thị Thập, Quận 7, TP.HCM',
-      phone: '028-1234-5680',
-      rating: 4.7,
-      reviewCount: 203,
-      distance: '3.8 km',
-      openHours: '7:00 - 22:00',
-      status: 'OPEN',
-      features: ['Giao hàng', 'Mang đi', 'Dine-in', 'Parking', 'Drive-thru'],
-      coordinates: { lat: 10.7329, lng: 106.7009 }
-    },
-    {
-      id: 4,
-      name: 'Green Kitchen Thủ Đức',
-      address: '321 Đường Võ Văn Ngân, TP. Thủ Đức, TP.HCM',
-      phone: '028-1234-5681',
-      rating: 4.5,
-      reviewCount: 67,
-      distance: '8.5 km',
-      openHours: '7:00 - 22:00',
-      status: 'OPEN',
-      features: ['Giao hàng', 'Mang đi', 'Dine-in'],
-      coordinates: { lat: 10.8329, lng: 106.7009 }
+  // Fetch stores from API
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await getStoresAPI()
+        
+        // Transform API data to match component structure
+        const transformedStores = data.map(store => ({
+          id: store.id,
+          name: store.name,
+          address: store.address,
+          phone: '028-1234-5678', // Default phone - có thể thêm vào DB sau
+          rating: 4.5, // Default rating - có thể thêm vào DB sau
+          reviewCount: 100, // Default review count - có thể thêm vào DB sau
+          distance: 'N/A', // Will be calculated based on user location
+          openHours: '7:00 - 22:00', // Default hours - có thể thêm vào DB sau
+          status: store.isActive ? 'OPEN' : 'CLOSED',
+          features: ['Giao hàng', 'Mang đi', 'Dine-in'], // Default features - có thể thêm vào DB sau
+          coordinates: { lat: store.latitude, lng: store.longitude }
+        }))
+        
+        setStores(transformedStores)
+        setFilteredStores(transformedStores)
+      } catch (err) {
+        console.error('Error fetching stores:', err)
+        setError('Không thể tải danh sách cửa hàng')
+        toast.error('Lỗi tải danh sách cửa hàng')
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
+
+    fetchStores()
+  }, [])
 
   useEffect(() => {
     // Filter stores based on search query
@@ -110,7 +95,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
       )
       setFilteredStores(filtered)
     }
-  }, [searchQuery])
+  }, [searchQuery, stores])
 
   // Load Leaflet (OpenStreetMap) - Miễn phí và không cần API key
   useEffect(() => {
@@ -137,12 +122,16 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
     loadLeaflet()
   }, [])
 
-  // Initialize map when Leaflet is loaded
+  // Initialize map when Leaflet is loaded and stores are available
   useEffect(() => {
-    if (!mapLoaded || !mapRef.current || !window.L) return
+    if (!mapLoaded || !mapRef.current || !window.L || stores.length === 0) return
 
     const initMap = () => {
-      const map = window.L.map(mapRef.current).setView([10.7769, 106.7009], 12)
+      // Use first store as center, or default to HCMC
+      const centerLat = stores.length > 0 ? stores[0].coordinates.lat : 10.7769
+      const centerLng = stores.length > 0 ? stores[0].coordinates.lng : 106.7009
+      
+      const map = window.L.map(mapRef.current).setView([centerLat, centerLng], 12)
 
       // Add OpenStreetMap tiles
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -156,7 +145,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
     }
 
     initMap()
-  }, [mapLoaded])
+  }, [mapLoaded, stores])
 
   // Update map when filtered stores change
   useEffect(() => {
@@ -351,7 +340,27 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                 🏪 Danh sách cửa hàng ({filteredStores.length})
               </Typography>
               
-              {filteredStores.length === 0 ? (
+              {loading ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <CircularProgress size={40} sx={{ mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Đang tải danh sách cửa hàng...
+                  </Typography>
+                </Box>
+              ) : error ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="h6" color="error" gutterBottom>
+                    {error}
+                  </Typography>
+                  <Button 
+                    variant="outlined" 
+                    onClick={() => window.location.reload()}
+                    sx={{ mt: 2 }}
+                  >
+                    Thử lại
+                  </Button>
+                </Box>
+              ) : filteredStores.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="h6" color="text.secondary" gutterBottom>
                     Không tìm thấy cửa hàng nào
@@ -494,55 +503,56 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
         </Grid>
 
                  {/* Interactive Map */}
-         <Grid size={12}>
-           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
-             <CardContent sx={{ p: 4 }}>
-               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                   🗺️ Bản đồ cửa hàng
-                 </Typography>
-                 <Button
-                   variant="outlined"
-                   startIcon={<MyLocationIcon />}
-                   onClick={getUserLocation}
-                   disabled={!mapLoaded}
-                   sx={{ borderRadius: 2 }}
-                 >
-                   Vị trí của tôi
-                 </Button>
-               </Box>
-               
-               {!mapLoaded ? (
-                 <Box sx={{
-                   height: 400,
-                   backgroundColor: '#f5f5f5',
-                   borderRadius: 2,
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   border: '2px dashed #ccc'
-                 }}>
-                   <Box sx={{ textAlign: 'center' }}>
-                     <CircularProgress size={40} sx={{ mb: 2 }} />
-                     <Typography variant="h6" color="text.secondary" gutterBottom>
-                       Đang tải bản đồ...
-                     </Typography>
-                   </Box>
+         {!loading && !error && stores.length > 0 && (
+           <Grid size={12}>
+             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+               <CardContent sx={{ p: 4 }}>
+                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                     🗺️ Bản đồ cửa hàng
+                   </Typography>
+                   <Button
+                     variant="outlined"
+                     startIcon={<MyLocationIcon />}
+                     onClick={getUserLocation}
+                     disabled={!mapLoaded}
+                     sx={{ borderRadius: 2 }}
+                   >
+                     Vị trí của tôi
+                   </Button>
                  </Box>
-               ) : (
-                 <Box
-                   ref={mapRef}
-                   sx={{
-                     height: 500,
+                 
+                 {!mapLoaded ? (
+                   <Box sx={{
+                     height: 400,
+                     backgroundColor: '#f5f5f5',
                      borderRadius: 2,
-                     border: '1px solid',
-                     borderColor: 'divider',
-                     overflow: 'hidden'
-                   }}
-                 />
-               )}
-               
-                                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     border: '2px dashed #ccc'
+                   }}>
+                     <Box sx={{ textAlign: 'center' }}>
+                       <CircularProgress size={40} sx={{ mb: 2 }} />
+                       <Typography variant="h6" color="text.secondary" gutterBottom>
+                         Đang tải bản đồ...
+                       </Typography>
+                     </Box>
+                   </Box>
+                 ) : (
+                   <Box
+                     ref={mapRef}
+                     sx={{
+                       height: 500,
+                       borderRadius: 2,
+                       border: '1px solid',
+                       borderColor: 'divider',
+                       overflow: 'hidden'
+                     }}
+                   />
+                 )}
+                 
+                 <Box sx={{ mt: 2, textAlign: 'center' }}>
                    <Typography variant="body2" color="text.secondary">
                      💡 Click vào marker trên bản đồ để xem thông tin chi tiết cửa hàng
                    </Typography>
@@ -557,9 +567,10 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                      }
                    `}
                  </style>
-             </CardContent>
-           </Card>
-         </Grid>
+               </CardContent>
+             </Card>
+           </Grid>
+         )}
       </Grid>
 
       {/* Store Detail Dialog */}

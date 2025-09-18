@@ -16,6 +16,7 @@ import { selectCurrentCustomer, logoutCustomerApi } from '~/redux/user/customerS
 import { clearCart } from '~/redux/cart/cartSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { Link, useNavigate } from 'react-router-dom'
+import { clearChatData } from '~/utils/chatCleanup'
 
 const Profile = () => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -42,6 +43,7 @@ const Profile = () => {
       dispatch(logoutCustomerApi())
         .then(() => {
           dispatch(clearCart())
+          clearChatData() // Clear chat data on logout
           navigate('/login')
         })
     }

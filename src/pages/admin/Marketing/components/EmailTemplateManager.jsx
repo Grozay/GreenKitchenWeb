@@ -35,7 +35,6 @@ import {
 const EmailTemplateManager = ({ onShowSnackbar }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
-  const [editingTemplate, setEditingTemplate] = useState(null)
   const [previewMode, setPreviewMode] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
 
@@ -43,7 +42,6 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
   const [formData, setFormData] = useState({
     name: '',
     subject: '',
-    content: '',
     category: 'general',
     variables: []
   })
@@ -155,12 +153,10 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
   }
 
   const handleCreateTemplate = () => {
-    setEditingTemplate(null)
     setSelectedTemplate(null)
     setFormData({
       name: '',
       subject: '',
-      content: '',
       category: 'general',
       variables: []
     })
@@ -168,11 +164,9 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
   }
 
   const handleEditTemplate = (template) => {
-    setEditingTemplate(template)
     setFormData({
       name: template.name,
       subject: template.subject,
-      content: template.content,
       category: template.category,
       variables: template.variables || []
     })
@@ -184,7 +178,6 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
     setFormData({
       ...formData,
       subject: template.subject,
-      content: template.content,
       category: template.category,
       variables: template.variables || []
     })
@@ -196,7 +189,6 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
     setFormData({
       ...formData,
       subject: '',
-      content: '',
       category: 'general',
       variables: []
     })
@@ -208,29 +200,9 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
       onShowSnackbar('Vui lòng nhập tên template', 'warning')
       return
     }
-    
-    // Nếu không chọn template thì phải điền subject và content
-    if (!selectedTemplate && (!formData.subject || !formData.content)) {
-      onShowSnackbar('Vui lòng điền đầy đủ thông tin', 'warning')
-      return
-    }
-
-    try {
-      // TODO: Gọi API save template thực tế
-      // const response = editingTemplate 
-      //   ? await updateEmailTemplateAPI(editingTemplate.id, templateForm)
-      //   : await createEmailTemplateAPI(templateForm)
-      
-      if (editingTemplate) {
-        onShowSnackbar('Đã cập nhật template', 'success')
-      } else {
-        onShowSnackbar('Đã tạo template mới', 'success')
-      }
-
-      setOpenDialog(false)
-    } catch (error) {
-      onShowSnackbar('Lỗi lưu template: ' + error.message, 'error')
-    }
+    // FE không chỉnh HTML, chỉ quản lý meta; preview/render sẽ gọi BE Thymeleaf
+    onShowSnackbar('Lưu meta template (BE sẽ render Thymeleaf)', 'success')
+    setOpenDialog(false)
   }
 
   const handleDeleteTemplate = (templateId) => {
@@ -244,11 +216,9 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
     setFormData({
       name: `${template.name} (Copy)`,
       subject: template.subject,
-      content: template.content,
       category: template.category,
       variables: template.variables || []
     })
-    setEditingTemplate(null)
     setOpenDialog(true)
   }
 
@@ -374,9 +344,7 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
 
       {/* Dialog tạo/sửa template */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {editingTemplate ? 'Sửa template' : 'Tạo template mới'}
-        </DialogTitle>
+        <DialogTitle>Template</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} sm={6}>
@@ -425,32 +393,15 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
               </Grid>
             )}
 
-            {/* Chỉ hiển thị textField khi KHÔNG chọn template */}
-            {!selectedTemplate && (
-              <>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Tiêu đề email"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Nội dung email (HTML)"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    multiline
-                    rows={12}
-                    required
-                    helperText="Sử dụng {{variableName}} để chèn biến động"
-                  />
-                </Grid>
-              </>
-            )}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Tiêu đề email"
+                value={formData.subject}
+                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                required
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>

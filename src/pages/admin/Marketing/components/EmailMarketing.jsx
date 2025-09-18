@@ -37,7 +37,9 @@ import SendIcon from '@mui/icons-material/Send'
 import HistoryIcon from '@mui/icons-material/History'
 import AnalyticsIcon from '@mui/icons-material/Analytics'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { triggerEmailSchedulerNowAPI, testEmailSchedulerScheduleAPI, getCartScanStatsAPI, scanAndSendCartEmailsAPI, getSchedulerInfoAPI, broadcastEmailNowAPI, broadcastEmailScheduleAPI, broadcastPreviewAPI, getEmailHistoryAPI, getEmailStatisticsAPI, testEmailSchedulerAPI } from '~/apis'
+import { broadcastEmailNowAPI, broadcastEmailScheduleAPI, broadcastPreviewAPI, getEmailHistoryAPI, getEmailStatisticsAPI, scheduleOneOffEmailAPI } from '~/apis'
+import authorizedAxiosInstance from '~/utils/authorizeAxios'
+import { API_ROOT } from '~/utils/constants'
 
 const EmailMarketing = ({ onShowSnackbar }) => {
   const [emailType, setEmailType] = useState('cart_abandonment')
@@ -48,23 +50,54 @@ const EmailMarketing = ({ onShowSnackbar }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [sendAllCustomers, setSendAllCustomers] = useState(false)
   const [previewEmail, setPreviewEmail] = useState('')
+  const [oneOffRecipient, setOneOffRecipient] = useState('')
+  const [oneOffSendAt, setOneOffSendAt] = useState('')
   const [emailStats, setEmailStats] = useState({
     totalSent: 0,
     opened: 0,
     clicked: 0,
     converted: 0
   })
-  const [cartScanStats, setCartScanStats] = useState(null)
-  const [schedulerInfo, setSchedulerInfo] = useState('')
+  
   const [emailHistory, setEmailHistory] = useState([])
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
 
+  // Recurring email schedules (hourly/daily/weekly) - simple panel
+  const [recurring, setRecurring] = useState({ name: '', frequency: 'DAILY', minuteOfHour: 0, hourOfDay: 9, dayOfWeek: 'MONDAY', subject: '', content: '' })
+  const [recurringList, setRecurringList] = useState([])
+  const [savingRecurring, setSavingRecurring] = useState(false)
+
+  const loadRecurringList = async () => {
+    try {
+      const res = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/recurring-emails`)
+      setRecurringList(Array.isArray(res.data) ? res.data : [])
+    } catch (e) {
+      // silent
+    }
+  }
+
+  React.useEffect(() => { loadRecurringList() }, [])
+
+  const submitRecurring = async () => {
+    if (!recurring.name || !recurring.subject || !recurring.content) {
+      onShowSnackbar('Please fill Name, Subject and Content', 'warning')
+      return
+    }
+    try {
+      setSavingRecurring(true)
+      await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/recurring-emails`, { ...recurring, active: true })
+      onShowSnackbar('Created recurring schedule', 'success')
+      setRecurring({ name: '', frequency: 'DAILY', minuteOfHour: 0, hourOfDay: 9, dayOfWeek: 'MONDAY', subject: '', content: '' })
+      loadRecurringList()
+    } catch (e) {
+      onShowSnackbar('Failed to create schedule', 'error')
+    } finally {
+      setSavingRecurring(false)
+    }
+  }
+
   // Loading states for backend actions
-  const [isTriggering, setIsTriggering] = useState(false)
-  const [isSchedulingAuto, setIsSchedulingAuto] = useState(false)
-  const [isScanning, setIsScanning] = useState(false)
-  const [isFetchingStats, setIsFetchingStats] = useState(false)
-  const [isTestingScheduler, setIsTestingScheduler] = useState(false)
+  
 
   // Email templates - sẽ load từ API thực tế
   const [emailTemplates, setEmailTemplates] = useState([
@@ -177,6 +210,31 @@ const EmailMarketing = ({ onShowSnackbar }) => {
     }
   }
 
+  const handleScheduleOneOff = async () => {
+    if (!oneOffRecipient || !subject || !content || !oneOffSendAt) {
+      onShowSnackbar('Please fill recipient, subject, content and time', 'warning')
+      return
+    }
+    const sendAtIso = new Date(oneOffSendAt).toISOString()
+    try {
+      setIsLoading(true)
+      await scheduleOneOffEmailAPI({
+        recipient: oneOffRecipient,
+        subject,
+        content,
+        sendAt: sendAtIso
+      })
+      onShowSnackbar('Scheduled one-off email successfully', 'success')
+      setOneOffRecipient('')
+      setOneOffSendAt('')
+      loadEmailHistory()
+    } catch (e) {
+      onShowSnackbar('Schedule failed: ' + (e?.message || 'Error'), 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const getStatusText = (status) => {
     switch (status) {
       case 'sent': return 'Đã gửi'
@@ -230,87 +288,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
   }
 
   // Backend integrations
-  const triggerCartAbandonmentEmails = async () => {
-    try {
-      setIsTriggering(true)
-      const res = await triggerEmailSchedulerNowAPI()
-      onShowSnackbar(res || 'Đã trigger gửi email thành công', 'success')
-    } catch (e) {
-      onShowSnackbar(`Lỗi trigger gửi email: ${e.message}`, 'error')
-    } finally {
-      setIsTriggering(false)
-    }
-  }
-
-  const scheduleAutoEmails = async (hours = 2) => {
-    try {
-      setIsSchedulingAuto(true)
-      const res = await testEmailSchedulerScheduleAPI(hours)
-      onShowSnackbar(res || `Đã test lịch tự động mỗi ${hours} giờ`, 'success')
-    } catch (e) {
-      onShowSnackbar(`Lỗi lên lịch: ${e.message}`, 'error')
-    } finally {
-      setIsSchedulingAuto(false)
-    }
-  }
-
-  const getCartScanStats = async () => {
-    try {
-      setIsFetchingStats(true)
-      const data = await getCartScanStatsAPI()
-      setCartScanStats(data)
-      onShowSnackbar(`Scan stats: scanned=${data.totalCustomersScanned ?? 'N/A'}, new=${data.newCustomersFound ?? 'N/A'}`, 'info')
-    } catch (e) {
-      onShowSnackbar(`Lỗi lấy thống kê scan: ${e.message}`, 'error')
-    } finally {
-      setIsFetchingStats(false)
-    }
-  }
-
-  const scanAndSendCartEmails = async () => {
-    try {
-      setIsScanning(true)
-      const data = await scanAndSendCartEmailsAPI()
-      const msg = `Đã quét và gửi email cho ${data.newCustomersFound ?? 'N/A'} khách hàng`
-      onShowSnackbar(msg, 'success')
-      // Cập nhật KPI giả lập
-      setEmailStats(prev => ({
-        ...prev,
-        totalSent: (prev.totalSent || 0) + (data.newCustomersFound || 0),
-        converted: (prev.converted || 0) + Math.round((data.newCustomersFound || 0) * 0.1)
-      }))
-      // Refresh stats sau khi gửi
-      await getCartScanStats()
-    } catch (e) {
-      onShowSnackbar(`Lỗi quét/gửi email: ${e.message}`, 'error')
-    } finally {
-      setIsScanning(false)
-    }
-  }
-
-  const fetchSchedulerInfo = async () => {
-    try {
-      const info = await getSchedulerInfoAPI()
-      setSchedulerInfo(info)
-      onShowSnackbar('Đã tải cấu hình scheduler', 'success')
-    } catch (e) {
-      onShowSnackbar(`Lỗi tải scheduler info: ${e.message}`, 'error')
-    }
-  }
-
-  const testScheduler = async () => {
-    try {
-      setIsTestingScheduler(true)
-      const result = await testEmailSchedulerAPI()
-      onShowSnackbar('Đã test scheduler - kiểm tra email đã lên lịch', 'success')
-      // Reload history để xem email đã được gửi
-      loadEmailHistory()
-    } catch (e) {
-      onShowSnackbar(`Lỗi test scheduler: ${e.message}`, 'error')
-    } finally {
-      setIsTestingScheduler(false)
-    }
-  }
+  
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -497,6 +475,41 @@ const EmailMarketing = ({ onShowSnackbar }) => {
               />
             )}
 
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+              One-off Scheduled Email (Manual)
+            </Typography>
+            <Grid container spacing={2} sx={{ mb: 1 }}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Recipient"
+                  value={oneOffRecipient}
+                  onChange={(e) => setOneOffRecipient(e.target.value)}
+                  placeholder="user@example.com"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Send at"
+                  type="datetime-local"
+                  value={oneOffSendAt}
+                  onChange={(e) => setOneOffSendAt(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+            </Grid>
+            <Button
+              variant="outlined"
+              startIcon={<ScheduleIcon />}
+              onClick={handleScheduleOneOff}
+              disabled={isLoading}
+              sx={{ mb: 2 }}
+            >
+              Schedule one-off
+            </Button>
+
             <Box sx={{ display: 'flex', gap: 2 }}>
               {isScheduled ? (
                 <Button
@@ -606,136 +619,58 @@ const EmailMarketing = ({ onShowSnackbar }) => {
             </Box>
           </Paper>
         </Grid>
+
+        {/* Recurring Scheduler (simple) */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Recurring Emails</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={3}>
+                <TextField fullWidth label="Name" value={recurring.name} onChange={e => setRecurring(r => ({ ...r, name: e.target.value }))} />
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <TextField fullWidth select SelectProps={{ native: true }} label="Frequency" value={recurring.frequency} onChange={e => setRecurring(r => ({ ...r, frequency: e.target.value }))}>
+                  <option value="HOURLY">Hourly</option>
+                  <option value="DAILY">Daily</option>
+                  <option value="WEEKLY">Weekly</option>
+                </TextField>
+              </Grid>
+              <Grid item xs={6} sm={2}>
+                <TextField fullWidth type="number" label="Minute" value={recurring.minuteOfHour} onChange={e => setRecurring(r => ({ ...r, minuteOfHour: Number(e.target.value) }))} />
+              </Grid>
+              <Grid item xs={6} sm={2}>
+                <TextField fullWidth type="number" label="Hour" value={recurring.hourOfDay} onChange={e => setRecurring(r => ({ ...r, hourOfDay: Number(e.target.value) }))} />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField fullWidth select SelectProps={{ native: true }} label="Day of week" value={recurring.dayOfWeek} onChange={e => setRecurring(r => ({ ...r, dayOfWeek: e.target.value }))}>
+                  {['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'].map(d => <option key={d} value={d}>{d}</option>)}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Subject" value={recurring.subject} onChange={e => setRecurring(r => ({ ...r, subject: e.target.value }))} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Content" value={recurring.content} onChange={e => setRecurring(r => ({ ...r, content: e.target.value }))} />
+              </Grid>
+              <Grid item xs={12}>
+                <Button variant="contained" onClick={submitRecurring} disabled={savingRecurring}>{savingRecurring ? 'Saving…' : 'Create recurring'}</Button>
+              </Grid>
+            </Grid>
+
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Existing schedules</Typography>
+            <List>
+              {recurringList.map(item => (
+                <ListItem key={item.id} sx={{ px: 0 }}>
+                  <ListItemText primary={`${item.name} • ${item.frequency}`} secondary={`next: ${item.nextRunAt || 'N/A'}`} />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
+        </Grid>
       </Grid>
 
-      {/* Cart Abandonment Section */}
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-          <ShoppingCartIcon sx={{ mr: 1 }} />
-          Quản lý Cart Abandonment
-        </Typography>
-
-        <Grid container spacing={3}>
-                  <Grid item xs={12} md={4}>
-          <Card sx={{ bgcolor: '#fff3e0', border: '1px solid #ffb74d' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#e65100' }}>
-                Cart Abandonment Rate
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#e65100', mb: 1 }}>
-                {cartScanStats?.abandonmentRate || 'N/A'}%
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Tỷ lệ giỏ hàng bị bỏ quên trong tháng này
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Card sx={{ bgcolor: '#e8f5e8', border: '1px solid #81c784' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#2e7d32' }}>
-                Recovery Emails Sent
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 1 }}>
-                {cartScanStats?.totalEmailsSent || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Email khôi phục đã được gửi
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Card sx={{ bgcolor: '#e3f2fd', border: '1px solid #64b5f6' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#1565c0' }}>
-                Recovered Revenue
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1565c0', mb: 1 }}>
-                ₫{cartScanStats?.recoveredRevenue || '0'}M
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Doanh thu được khôi phục từ cart abandonment
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        </Grid>
-
-        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-          <Button
-            variant="contained"
-            startIcon={<EmailIcon />}
-            onClick={triggerCartAbandonmentEmails}
-            disabled={isTriggering}
-          >
-            {isTriggering ? <CircularProgress size={20} /> : 'Gửi Email Cart Abandonment'}
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<ScheduleIcon />}
-            onClick={() => scheduleAutoEmails(2)}
-            disabled={isSchedulingAuto}
-          >
-            {isSchedulingAuto ? 'Đang thiết lập...' : 'Lên lịch gửi tự động'}
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={fetchSchedulerInfo}
-          >
-            Xem cấu hình Scheduler
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={getCartScanStats}
-            disabled={isFetchingStats}
-          >
-            {isFetchingStats ? 'Đang lấy thống kê...' : 'Lấy thống kê quét'}
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={scanAndSendCartEmails}
-            disabled={isScanning}
-          >
-            {isScanning ? <CircularProgress size={20} /> : 'Quét và gửi email'}
-          </Button>
-          <Button
-            variant="outlined"
-            color="info"
-            onClick={testScheduler}
-            disabled={isTestingScheduler}
-          >
-            {isTestingScheduler ? <CircularProgress size={20} /> : 'Test Scheduler'}
-          </Button>
-        </Box>
-      </Paper>
-      {!!schedulerInfo && (
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
-            Cấu hình Scheduler
-          </Typography>
-          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-            {schedulerInfo}
-          </Typography>
-        </Paper>
-      )}
-      {!!cartScanStats && (
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
-            Thống kê Quét Cart
-          </Typography>
-          <Typography variant="body2">
-            Tổng đã quét: {cartScanStats.totalCustomersScanned ?? 'N/A'}
-          </Typography>
-          <Typography variant="body2">
-            Khách hàng mới phát hiện: {cartScanStats.newCustomersFound ?? 'N/A'}
-          </Typography>
-        </Paper>
-      )}
+      
     </Box>
   )
 }

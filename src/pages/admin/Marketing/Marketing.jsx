@@ -17,7 +17,6 @@ import Snackbar from '@mui/material/Snackbar'
 
 // Icons - import từng cái
 import EmailIcon from '@mui/icons-material/Email'
-import LocalOfferIcon from '@mui/icons-material/LocalOffer'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import TemplateIcon from '@mui/icons-material/Description'
 import AnalyticsIcon from '@mui/icons-material/Analytics'
@@ -25,11 +24,11 @@ import ScheduleIcon from '@mui/icons-material/Schedule'
 
 // Marketing Components
 import EmailMarketing from './components/EmailMarketing'
-import CouponManagement from './components/CouponManagement'
 import EmailCampaignManager from './components/EmailCampaignManager'
 import EmailTemplateManager from './components/EmailTemplateManager'
 import EmailAnalytics from './components/EmailAnalytics'
 import CartAbandonmentScheduler from './components/CartAbandonmentScheduler'
+import HolidayPlanner from './components/HolidayPlanner'
 
 // Tab Panel Component
 function TabPanel({ children, value, index, ...other }) {
@@ -82,83 +81,13 @@ function MarketingDashboard() {
           Marketing Dashboard
         </Typography>
         <Typography variant="body1" sx={{ opacity: 0.9 }}>
-          Quản lý chiến dịch marketing, coupon và phân tích khách hàng
+          Quản lý chiến dịch marketing và phân tích khách hàng
         </Typography>
       </Box>
 
 
 
-      {/* Quick Actions */}
-      <Box sx={{ px: 3, pb: 2 }}>
-        <Paper sx={{ p: 2, bgcolor: '#f8f9fa' }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-            Hành động nhanh
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item>
-              <Button
-                variant="contained"
-                startIcon={<EmailIcon />}
-                onClick={() => setActiveTab(0)}
-                sx={{ bgcolor: 'primary.main' }}
-              >
-                Gửi Email Marketing
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                startIcon={<CampaignIcon />}
-                onClick={() => setActiveTab(1)}
-                sx={{ borderColor: 'primary.main', color: 'primary.main' }}
-              >
-                Quản lý Chiến dịch
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                startIcon={<TemplateIcon />}
-                onClick={() => setActiveTab(2)}
-                sx={{ borderColor: 'primary.main', color: 'primary.main' }}
-              >
-                Quản lý Template
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                startIcon={<AnalyticsIcon />}
-                onClick={() => setActiveTab(3)}
-                sx={{ borderColor: 'primary.main', color: 'primary.main' }}
-              >
-                Analytics
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                startIcon={<ScheduleIcon />}
-                onClick={() => setActiveTab(4)}
-                sx={{ borderColor: 'primary.main', color: 'primary.main' }}
-              >
-                Lịch Cart Abandonment
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                startIcon={<LocalOfferIcon />}
-                onClick={() => setActiveTab(5)}
-                sx={{ borderColor: 'primary.main', color: 'primary.main' }}
-              >
-                Quản lý Coupon
-              </Button>
-            </Grid>
-
-          </Grid>
-        </Paper>
-      </Box>
+      
 
       {/* Tabs */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -182,12 +111,12 @@ function MarketingDashboard() {
             <Tab icon={<TemplateIcon />} label="Quản lý Template" iconPosition="start" />
             <Tab icon={<AnalyticsIcon />} label="Analytics" iconPosition="start" />
             <Tab icon={<ScheduleIcon />} label="Lịch Cart Abandonment" iconPosition="start" />
-            <Tab icon={<LocalOfferIcon />} label="Quản lý Coupon" iconPosition="start" />
+            <Tab icon={<ScheduleIcon />} label="Holiday Planner" iconPosition="start" />
           </Tabs>
         </Paper>
 
         {/* Tab Content */}
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
           <TabPanel value={activeTab} index={0}>
             <EmailMarketing onShowSnackbar={showSnackbar} />
           </TabPanel>
@@ -209,8 +138,9 @@ function MarketingDashboard() {
           </TabPanel>
           
           <TabPanel value={activeTab} index={5}>
-            <CouponManagement onShowSnackbar={showSnackbar} />
+            <HolidayPlanner onShowSnackbar={showSnackbar} />
           </TabPanel>
+          
         </Box>
       </Box>
 

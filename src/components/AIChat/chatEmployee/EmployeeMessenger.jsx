@@ -8,6 +8,10 @@ import Alert from '@mui/material/Alert'
 import Skeleton from '@mui/material/Skeleton'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import Badge from '@mui/material/Badge'
+
 
 // Lazy load components với preloading để cải thiện LCP
 const Sidebar = lazy(() => import('./Sidebar'))
@@ -116,6 +120,7 @@ const ChatInputSkeleton = () => (
 const EmployeeMessenger = memo(() => {
   const employee = useSelector(selectCurrentEmployee)
   const employeeId = employee?.id
+  console.log('employeeId', employeeId)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -135,6 +140,7 @@ const EmployeeMessenger = memo(() => {
   const [lastSendTime, setLastSendTime] = useState(0) // Track last send time to prevent double send
   const [isInitialized, setIsInitialized] = useState(false) // Track initialization
   const [isWebSocketReady, setIsWebSocketReady] = useState(false) // Track WebSocket readiness
+  const [activeTab, setActiveTab] = useState('QUEUE')
 
   // Performance optimization states
   const [isPendingSelection, startSelectionTransition] = useTransition()
@@ -156,12 +162,13 @@ const EmployeeMessenger = memo(() => {
   const currentConversationRef = useRef(null) // Track current conversation
   
   // Memoized computed values để tránh re-calculation
-  const isEmpCanChat = useMemo(() => 
-    deferredSelectedConv?.status === 'EMP' || 
-    deferredSelectedConv?.status === 'WAITING_EMP' || 
-    deferredSelectedConv?.status === 'AI', 
-    [deferredSelectedConv?.status]
-  )
+  const isEmpCanChat = useMemo(() => {
+    const canChat = deferredSelectedConv?.status === 'EMP' || 
+      deferredSelectedConv?.status === 'WAITING_EMP' || 
+      deferredSelectedConv?.status === 'AI'
+    console.log('💬 isEmpCanChat check - status:', deferredSelectedConv?.status, 'canChat:', canChat)
+    return canChat
+  }, [deferredSelectedConv?.status])
 
   // Memoized conversation ID for WebSocket
   const selectedConvId = useMemo(() => 
@@ -175,6 +182,22 @@ const EmployeeMessenger = memo(() => {
     canChat: isEmpCanChat,
     isDisabled: !deferredSelectedConv || !isEmpCanChat || isSending
   }), [deferredSelectedConv, isEmpCanChat, isSending])
+
+  const queueConvs = useMemo(() => (
+    (deferredConvs || []).filter(c => c.status === 'WAITING_EMP')
+  ), [deferredConvs])
+
+  const myConvs = useMemo(() => (
+    (deferredConvs || []).filter(c => c.status === 'EMP' && c.employeeId === employeeId)
+  ), [deferredConvs, employeeId])
+
+  const handleTabChange = useCallback((e, val) => {
+    setActiveTab(val)
+    // reset selection when switching tabs
+    setSelectedConv(null)
+    setMessages([])
+    setPage(0)
+  }, [])
 
   // Memoized styles
   const mobileContainerStyles = useMemo(() => ({
@@ -223,21 +246,27 @@ const EmployeeMessenger = memo(() => {
     width: '100%',
     height: '100%',
     zIndex: 1200,
-    display: !showChat ? 'block' : 'none',
+    // FIX: Hiển thị sidebar khi không có selectedConv hoặc showChat = false
+    display: (!selectedConv && !showChat) ? 'block' : 'none',
     bgcolor: 'white'
-  }), [showChat])
+  }), [selectedConv, showChat])
 
-  const chatViewStyles = useMemo(() => ({
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    zIndex: 1300,
-    display: showChat ? 'flex' : 'none',
-    flexDirection: 'column',
-    bgcolor: 'white'
-  }), [showChat])
+  const chatViewStyles = useMemo(() => {
+    const shouldShow = selectedConv || showChat
+    console.log('🎨 Chat view styles - selectedConv:', selectedConv, 'showChat:', showChat, 'shouldShow:', shouldShow)
+    return {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      zIndex: 1300,
+      // FIX: Hiển thị chat khi có selectedConv hoặc showChat = true
+      display: shouldShow ? 'flex' : 'none',
+      flexDirection: 'column',
+      bgcolor: 'white'
+    }
+  }, [selectedConv, showChat])
 
   // Memoized snackbar state
   const snackbarState = useMemo(() => ({
@@ -285,12 +314,37 @@ const EmployeeMessenger = memo(() => {
       }
     }, 300)
     
+    // FIX: Fallback polling để đảm bảo nhận được updates (mỗi 10 giây)
+    const pollTimer = setInterval(() => {
+      if (isMounted.current && isInitialized) {
+        console.log('🔄 Polling conversations for updates...')
+        loadConvs()
+      }
+    }, 10000)
+    
+    // FIX: Polling tin nhắn cho conversation đang mở (mỗi 2 giây để nhanh hơn)
+    const messagePollTimer = setInterval(() => {
+      if (isMounted.current && selectedConvId && isInitialized) {
+        console.log('🔄 Polling messages for conversation:', selectedConvId)
+        fetchMessagesPaged(selectedConvId, 0, PAGE_SIZE).then(data => {
+          if (isMounted.current) {
+            setMessages([...data.content].reverse())
+            setHasMore(!data.last)
+          }
+        }).catch(err => {
+          console.error('Error polling messages:', err)
+        })
+      }
+    }, 2000) // Tăng tần suất lên 2 giây để nhanh hơn
+    
     return () => { 
       isMounted.current = false
       clearTimeout(renderTimer)
       clearTimeout(wsTimer)
+      clearInterval(pollTimer)
+      clearInterval(messagePollTimer)
     }
-  }, [loadConvs])
+  }, [loadConvs, isInitialized])
 
   // FIX: Cleanup WebSocket connection khi chuyển conversation
   useEffect(() => {
@@ -318,34 +372,69 @@ const EmployeeMessenger = memo(() => {
     }
   }, [selectedConvId])
 
+  // Optimistic update for conversation status changes (moved up to avoid TDZ)
+  const updateConversationStatus = useCallback((convId, newStatus, newEmployeeId = null) => {
+    setConvs(prev => prev.map(conv => 
+      conv.conversationId === convId 
+        ? { ...conv, status: newStatus, employeeId: newEmployeeId }
+        : conv
+    ))
+  }, [])
+
   // Optimized conversation selection with transitions
   const handleSelectConversation = useCallback(async (conv) => {
-    // Start transition for conversation selection
-    startSelectionTransition(() => {
-      setSelectedConv(conv)
-      setMessages([])
-      setPage(0)
-      setIsLoading(true)
-      
-      // Trên mobile, chuyển sang view chat
-      if (isMobile) {
-        setShowChat(true)
-      }
-    })
-
+    console.log('🎯 Selecting conversation:', conv)
     try {
-      // If not EMP status, claim first
+      // FIX: Claim trước, chỉ setSelectedConv sau khi claim thành công
       if (conv.status !== 'EMP') {
-        await claimConversationAsEmp(conv.conversationId, employeeId)
+        console.log('📝 Claiming conversation:', conv.conversationId)
+        // Optimistic update: move from Queue to My immediately
+        updateConversationStatus(conv.conversationId, 'EMP', employeeId)
+        try {
+          await claimConversationAsEmp(conv.conversationId, employeeId)
+          console.log('✅ Conversation claimed successfully')
+        } catch (error) {
+          console.log('❌ Failed to claim conversation:', error)
+          // Revert on error
+          updateConversationStatus(conv.conversationId, conv.status, null)
+          
+          // FIX: Handle specific error cases với better user feedback
+          if (error.response?.status === 409) {
+            const errorMsg = error.response?.data?.error || 'Conversation đã được claim bởi nhân viên khác'
+            setSnackbar({ open: true, msg: errorMsg, sev: 'warning' })
+            // Refresh conversation list to show current state
+            await loadConvs()
+            return // Don't proceed to select conversation
+          }
+          
+          throw error
+        }
+        // Refresh to get latest data
         await loadConvs()
       }
+
+      // FIX: Chỉ setSelectedConv sau khi claim thành công
+      console.log('🎨 Setting selected conversation and starting chat view')
+      startSelectionTransition(() => {
+        setSelectedConv(conv)
+        setMessages([])
+        setPage(0)
+        setIsLoading(true)
+        
+        // Trên mobile, chuyển sang view chat
+        if (isMobile) {
+          setShowChat(true)
+        }
+      })
 
       // Start transition for messages loading
       startMessagesTransition(async () => {
         try {
+          console.log('📥 Loading messages for conversation:', conv.conversationId)
           const data = await fetchMessagesPaged(conv.conversationId, 0, PAGE_SIZE)
           if (!isMounted.current) return
 
+          console.log('📥 Loaded messages:', data.content.length, 'messages')
           setMessages([...data.content].reverse())
           setHasMore(!data.last)
           setIsLoading(false)
@@ -379,7 +468,7 @@ const EmployeeMessenger = memo(() => {
         setIsLoading(false)
       }
     }
-  }, [loadConvs, employeeId, isMobile])
+  }, [loadConvs, employeeId, isMobile, updateConversationStatus, startSelectionTransition, startMessagesTransition])
 
   // Xử lý quay lại danh sách chat
   const handleBackToList = useCallback(() => {
@@ -400,7 +489,7 @@ const EmployeeMessenger = memo(() => {
       sentMessagesRef.current.clear()
       currentConversationRef.current = null
     })
-  }, [])
+  }, [startSelectionTransition])
 
   // Load more messages for infinite scroll
   const handleLoadMore = useCallback(() => {
@@ -425,7 +514,13 @@ const EmployeeMessenger = memo(() => {
   // FIX: Cải thiện send message với duplicate prevention mạnh mẽ
   const handleSend = useCallback(async () => {
     const text = input.trim()
-    if (!text || !deferredSelectedConv || !isEmpCanChat || isSending) return
+    console.log('💬 Attempting to send message:', text)
+    console.log('💬 Conditions - text:', !!text, 'selectedConv:', !!deferredSelectedConv, 'canChat:', isEmpCanChat, 'sending:', isSending)
+    
+    if (!text || !deferredSelectedConv || !isEmpCanChat || isSending) {
+      console.log('❌ Send blocked - missing conditions')
+      return
+    }
     if (text.length > 2000) {
       setSnackbar({ open: true, msg: 'Tối đa 2000 ký tự.', sev: 'warning' })
       return
@@ -466,6 +561,7 @@ const EmployeeMessenger = memo(() => {
     sentMessagesRef.current.add(messageHash)
     
     try {
+      console.log('📤 Sending message to API...')
       const resp = await sendMessage({
         conversationId: deferredSelectedConv.conversationId,
         senderRole: 'EMP',
@@ -473,39 +569,91 @@ const EmployeeMessenger = memo(() => {
         content: text,
         lang: 'vi'
       })
+      console.log('✅ Message sent successfully:', resp)
       if (isMounted.current) {
-        setMessages(prev => [...prev, resp])
+        // FIX: Không append local echo vì WebSocket sẽ đẩy lại
+        // setMessages(prev => [...prev, resp])
         setInput('')
+        // FIX: Unlock send button ngay sau khi gửi thành công
+        setIsSending(false)
+        
+        // FIX: Force refresh messages sau khi gửi để đảm bảo realtime
+        setTimeout(() => {
+          if (isMounted.current && selectedConvId) {
+            console.log('🔄 Force refreshing messages after send')
+            fetchMessagesPaged(selectedConvId, 0, PAGE_SIZE).then(data => {
+              if (isMounted.current) {
+                setMessages([...data.content].reverse())
+                setHasMore(!data.last)
+              }
+            }).catch(err => {
+              console.error('Error force refreshing messages:', err)
+            })
+          }
+        }, 200) // Giảm delay xuống 200ms để nhanh hơn
+        
+        // FIX: Thêm một lần refresh nữa sau 1 giây để đảm bảo sync
+        setTimeout(() => {
+          if (isMounted.current && selectedConvId) {
+            console.log('🔄 Second force refresh after send')
+            fetchMessagesPaged(selectedConvId, 0, PAGE_SIZE).then(data => {
+              if (isMounted.current) {
+                setMessages([...data.content].reverse())
+                setHasMore(!data.last)
+              }
+            }).catch(err => {
+              console.error('Error second force refreshing messages:', err)
+            })
+          }
+        }, 1000)
       }
     } catch (e) {
+      console.log('❌ Failed to send message:', e)
       if (isMounted.current) {
         setSnackbar({ open: true, msg: 'Gửi thất bại.', sev: 'error' })
         // FIX: Remove failed message from tracking
         sentMessagesRef.current.delete(messageHash)
+        // FIX: Unlock send button khi gửi thất bại
+        setIsSending(false)
       }
       console.error(e)
-    }
-    if (isMounted.current) {
-      setIsSending(false)
     }
   }, [input, deferredSelectedConv, isEmpCanChat, isSending, employeeId, lastSendTime])
 
   // Release conversation to AI
   const handleReleaseToAI = useCallback(async () => {
     if (!deferredSelectedConv) return
+    const convId = deferredSelectedConv.conversationId
+    const originalStatus = deferredSelectedConv.status
+    
     try {
-      await releaseConversationToAI(deferredSelectedConv.conversationId)
+      // Optimistic update: move from My back to Queue or remove
+      updateConversationStatus(convId, 'WAITING_EMP', null)
+      
+      await releaseConversationToAI(convId)
       if (isMounted.current) {
         setSnackbar({ open: true, msg: 'Đã chuyển về AI!', sev: 'info' })
+        
+        // FIX: Reset UI state ngay sau khi release thành công
         setSelectedConv(null)
-        loadConvs()
+        setMessages([])
+        setPage(0)
+        setHasMore(true)
+        setIsLoading(false)
+        setIsSending(false)
+        setInput('')
+        
+        // Refresh to get latest data
+        await loadConvs()
       }
     } catch (e) {
+      // Revert on error
+      updateConversationStatus(convId, originalStatus, employeeId)
       if (isMounted.current) {
         setSnackbar({ open: true, msg: 'Không thể chuyển về AI!', sev: 'error' })
       }
     }
-  }, [deferredSelectedConv, loadConvs])
+  }, [deferredSelectedConv, employeeId, updateConversationStatus, loadConvs])
 
   // Memoized snackbar close handler
   const handleSnackbarClose = useCallback(() => {
@@ -535,62 +683,122 @@ const EmployeeMessenger = memo(() => {
 
   // FIX: Cải thiện WebSocket message handler với duplicate prevention mạnh mẽ
   const handleWebSocketMessage = useCallback((msg) => {
+    console.log('🔧 Processing WebSocket message:', msg)
+    
     // FIX: Prevent duplicate messages by checking if message already exists
     if (isProcessingMessageRef.current) {
       console.log('Skipping duplicate WebSocket message:', msg.id)
       return
     }
     
-    // FIX: Verify conversation hasn't changed
-    if (currentConversationRef.current !== msg.conversationId) {
+    // FIX: Verify conversation hasn't changed (normalize id to number)
+    const currentId = currentConversationRef.current != null ? Number(currentConversationRef.current) : null
+    const incomingId = msg && msg.conversationId != null ? Number(msg.conversationId) : null
+    if (currentId == null || incomingId == null || currentId !== incomingId) {
       console.log('Conversation changed, skipping message:', msg.id)
       return
     }
     
     isProcessingMessageRef.current = true
     
+    // FIX: Process message immediately without delay
     setMessages(prev => {
       const messageExists = prev.some(existingMsg => 
         existingMsg.id === msg.id || 
         (existingMsg.content === msg.content && 
          existingMsg.senderRole === msg.senderRole &&
-         Math.abs(new Date(existingMsg.createdAt) - new Date(msg.createdAt)) < 1000)
+         Math.abs(new Date(existingMsg.timestamp) - new Date(msg.timestamp)) < 1000)
       )
       
       if (messageExists) {
         console.log('Message already exists, skipping:', msg.id)
+        isProcessingMessageRef.current = false
         return prev
       }
       
+      console.log('✅ Adding new message to list:', msg.id)
       return [...prev, msg]
     })
     
+    // FIX: Refresh conversations immediately
     if (isMounted.current) {
       loadConvs() // Refresh conversations to update status 
     }
     
-    // Reset processing flag after a short delay
-    setTimeout(() => {
-      isProcessingMessageRef.current = false
-    }, 100)
+    // FIX: Reset processing flag immediately
+    isProcessingMessageRef.current = false
   }, [loadConvs])
 
   // FIX: WebSocket listeners với cleanup và connection tracking - CHỈ SỬ DỤNG 1 TOPIC
   const wsTopic = useMemo(() => {
-    // FIX: Chỉ sử dụng 1 WebSocket connection cho tất cả notifications
-    if (!isInitialized || !isWebSocketReady) return null
+    // FIX: Subscribe ngay khi component mount, không chờ isWebSocketReady
+    if (!isInitialized) return null
     
     // FIX: Sử dụng topic chung cho employee notifications
     return '/topic/emp-notify'
-  }, [isInitialized, isWebSocketReady])
+  }, [isInitialized])
 
   // FIX: WebSocket listeners - chỉ khởi tạo 1 connection
   useChatWebSocket(wsTopic, (data) => {
-    // FIX: Handle cả notification và message trong 1 handler
-    if (data.type === 'MESSAGE' && data.conversationId === selectedConvId) {
-      handleWebSocketMessage(data)
-    } else if (data.type === 'NOTIFICATION') {
-      handleWebSocketNotification(data.conversationId)
+    console.log('🔔 WebSocket emp-notify received:', data)
+    
+    // Chấp nhận cả payload cũ (convId thuần) và mới (JSON có conversationId, status,...)
+    const convId = typeof data === 'object' ? data.conversationId : data
+    
+    // Nếu payload mới có status → cập nhật danh sách conversations ngay để tránh chậm
+    if (data && typeof data === 'object' && data.status) {
+      console.log('📝 Updating conversation status:', convId, '->', data.status)
+      setConvs(prev => prev.map(c => c.conversationId === convId ? { ...c, status: data.status } : c))
+      
+      // FIX: Refresh conversations list để đảm bảo data consistency
+      setTimeout(() => {
+        if (isMounted.current) {
+          loadConvs()
+        }
+      }, 100)
+    }
+    
+    if (convId) {
+      handleWebSocketNotification(convId)
+    }
+  })
+
+  // Subscribe realtime tin nhắn của conversation đang mở (không chờ isWebSocketReady)
+  const convTopic = useMemo(() => {
+    const topic = selectedConvId ? `/topic/conversations/${selectedConvId}` : null
+    console.log('🔄 WebSocket topic changed:', topic, 'for conversation:', selectedConvId)
+    return topic
+  }, [selectedConvId])
+
+  useChatWebSocket(convTopic, (msg) => {
+    console.log('📨 WebSocket message received for conversation:', selectedConvId, msg)
+    console.log('📨 Current selectedConv:', selectedConv)
+    console.log('📨 Current selectedConvId:', selectedConvId)
+    
+    // FIX: Verify message belongs to current conversation
+    const incomingId = msg && msg.conversationId != null ? Number(msg.conversationId) : null
+    const currentId = selectedConvId != null ? Number(selectedConvId) : null
+    if (!msg || incomingId == null || currentId == null || incomingId !== currentId) {
+      console.log('❌ Message rejected - conversation mismatch:', msg?.conversationId, 'vs', selectedConvId)
+      return
+    }
+    
+    console.log('✅ Message accepted, processing...')
+    
+    // FIX: Process message immediately và force UI update
+    handleWebSocketMessage(msg)
+    
+    // FIX: Force refresh ngay lập tức để đảm bảo UI sync
+    if (isMounted.current && selectedConvId) {
+      console.log('🔄 Immediate force refresh after WebSocket message')
+      fetchMessagesPaged(selectedConvId, 0, PAGE_SIZE).then(data => {
+        if (isMounted.current) {
+          setMessages([...data.content].reverse())
+          setHasMore(!data.last)
+        }
+      }).catch(err => {
+        console.error('Error force refreshing after WebSocket:', err)
+      })
     }
   })
 
@@ -610,16 +818,31 @@ const EmployeeMessenger = memo(() => {
     if (found) setSelectedConv(found)
   }, [deferredConvs, deferredSelectedConv])
 
+  const conversationsToShow = activeTab === 'QUEUE' ? queueConvs : myConvs
+
   // Responsive layout cho mobile
   if (isMobile) {
     return (
       <>
         <Box sx={mobileContainerStyles}>
+          {/* Tabs Header */}
+          <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'white', px: 2 }}>
+            <Tabs value={activeTab} onChange={handleTabChange} aria-label="chat tabs">
+              <Tab
+                value="QUEUE"
+                label={<Badge color="error" badgeContent={queueConvs.length}>Queue</Badge>}
+              />
+              <Tab
+                value="MY"
+                label={<Badge color="primary" badgeContent={myConvs.length}>My</Badge>}
+              />
+            </Tabs>
+          </Box>
           {/* Sidebar - hiển thị khi không có chat hoặc khi toggle */}
           <Box sx={sidebarDisplayStyles}>
-            <Suspense fallback={<SidebarSkeleton />}>
+            <Suspense fallback={<SidebarSkeleton />}> 
               <Sidebar
-                conversations={deferredConvs}
+                conversations={conversationsToShow}
                 selectedConv={deferredSelectedConv}
                 onSelectConversation={handleSelectConversation}
                 isOpen={true}
@@ -645,15 +868,17 @@ const EmployeeMessenger = memo(() => {
               />
             </Suspense>
             
-            <Suspense fallback={<ChatInputSkeleton />}>
-              <ChatInput
-                input={input}
-                setInput={setInput}
-                onSend={handleSend}
-                disabled={conversationSelectionState.isDisabled}
-                isSending={isSending}
-              />
-            </Suspense>
+            {deferredSelectedConv && (
+              <Suspense fallback={<ChatInputSkeleton />}>
+                <ChatInput
+                  input={input}
+                  setInput={setInput}
+                  onSend={handleSend}
+                  disabled={conversationSelectionState.isDisabled}
+                  isSending={isSending}
+                />
+              </Suspense>
+            )}
           </Box>
         </Box>
 
@@ -676,9 +901,22 @@ const EmployeeMessenger = memo(() => {
       <Box sx={desktopContainerStyles}>
         {/* Sidebar */}
         <Box sx={sidebarStyles}>
-          <Suspense fallback={<SidebarSkeleton />}>
+          {/* Tabs Header */}
+          <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'white', px: 2 }}>
+            <Tabs value={activeTab} onChange={handleTabChange} aria-label="chat tabs">
+              <Tab
+                value="QUEUE"
+                label={<Badge color="error" badgeContent={queueConvs.length}>Queue</Badge>}
+              />
+              <Tab
+                value="MY"
+                label={<Badge color="primary" badgeContent={myConvs.length}>My</Badge>}
+              />
+            </Tabs>
+          </Box>
+          <Suspense fallback={<SidebarSkeleton />}> 
             <Sidebar
-              conversations={deferredConvs}
+              conversations={conversationsToShow}
               selectedConv={deferredSelectedConv}
               onSelectConversation={handleSelectConversation}
               isOpen={sidebarOpen}
@@ -704,15 +942,17 @@ const EmployeeMessenger = memo(() => {
             />
           </Suspense>
           
-          <Suspense fallback={<ChatInputSkeleton />}>
-            <ChatInput
-              input={input}
-              setInput={setInput}
-              onSend={handleSend}
-              disabled={conversationSelectionState.isDisabled}
-              isSending={isSending}
-            />
-          </Suspense>
+          {deferredSelectedConv && (
+            <Suspense fallback={<ChatInputSkeleton />}>
+              <ChatInput
+                input={input}
+                setInput={setInput}
+                onSend={handleSend}
+                disabled={conversationSelectionState.isDisabled}
+                isSending={isSending}
+              />
+            </Suspense>
+          )}
         </Box>
       </Box>
 

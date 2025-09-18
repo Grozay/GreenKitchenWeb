@@ -99,7 +99,9 @@ const Sidebar = memo(({
     flexDirection: 'column',
     minHeight: 0,
     transition: 'all 0.3s cubic-bezier(.4,0,.2,1)',
-    borderRadius: { xs: 0, md: '8px 0 0 8px' }
+    borderRadius: { xs: 0, md: '8px 0 0 8px' },
+    outline: 'none',
+    border: 'none'
   }), [isOpen])
 
   const headerStyles = useMemo(() => ({

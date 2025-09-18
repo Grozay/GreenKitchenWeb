@@ -206,6 +206,27 @@ export const deleteAddressAPI = async (id) => {
   return response.data
 }
 
+// Stores
+export const getStoresAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/stores`)
+  return response.data
+}
+
+export const createStoreAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/stores`, data)
+  return response.data
+}
+
+export const updateStoreAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/stores/${id}`, data)
+  return response.data
+}
+
+export const deleteStoreAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/stores/${id}`)
+  return response.data
+}
+
 // Customer TDEE APIs
 export const saveCustomerTDEEAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-tdees`, data)
@@ -509,6 +530,13 @@ export const testEmailSchedulerAPI = async () => {
   return response.data
 }
 
+// One-off Scheduled Email API
+export const scheduleOneOffEmailAPI = async (data) => {
+  // Backend endpoint base is /emails/schedule
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/emails/schedule`, data)
+  return response.data
+}
+
 // Cart Abandonment Schedule APIs
 export const createCartAbandonmentScheduleAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/cart-abandonment-schedule`, data)
@@ -589,5 +617,35 @@ export const fetchRecentOrdersAPI = async () => {
 
 export const fetchWeeklyTrendingMenusAPI = async (date) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/dashboard/weekly-trending-menus?date=${date}`)
+  return response.data
+}
+
+// Holidays APIs
+export const getUpcomingHolidaysAPI = async (fromDate = null, daysAhead = 120) => {
+  const params = new URLSearchParams()
+  if (fromDate) params.append('fromDate', fromDate)
+  if (daysAhead) params.append('daysAhead', daysAhead.toString())
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/upcoming?${params}`)
+  return response.data
+}
+
+// Holiday Admin CRUD
+export const adminListHolidaysAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/admin`)
+  return response.data
+}
+
+export const adminCreateHolidayAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/holidays/admin`, data)
+  return response.data
+}
+
+export const adminUpdateHolidayAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/holidays/admin/${id}`, data)
+  return response.data
+}
+
+export const adminDeleteHolidayAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/holidays/admin/${id}`)
   return response.data
 }

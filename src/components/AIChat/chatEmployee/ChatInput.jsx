@@ -206,6 +206,18 @@ const ChatInput = memo(({
     [isMobile]
   )
 
+  // Auto focus lại input khi gửi xong (isSending: true -> false)
+  const prevIsSendingRef = useRef(isSending)
+  useEffect(() => {
+    const wasSending = prevIsSendingRef.current
+    if (wasSending && !isSending && !isInputDisabled) {
+      if (inputRef.current && typeof inputRef.current.focus === 'function') {
+        inputRef.current.focus()
+      }
+    }
+    prevIsSendingRef.current = isSending
+  }, [isSending, isInputDisabled])
+
   // Memoized SendIcon size
   const sendIconSize = useMemo(() => 
     isMobile ? 16 : 18, 
@@ -288,9 +300,9 @@ const ChatInput = memo(({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       
-      // FIX: Prevent double send on Enter key
-      if (isProcessingRef.current) {
-        console.log('Preventing Enter key double send - already processing')
+      // FIX: Use same disabled logic as button
+      if (isSendDisabled) {
+        console.log('Preventing Enter key send - disabled or no input')
         return
       }
       
@@ -298,7 +310,7 @@ const ChatInput = memo(({
       flushInputChanges()
       handleSend()
     }
-  }, [handleSend, flushInputChanges])
+  }, [handleSend, flushInputChanges, isSendDisabled])
 
   // Use layout effect to prevent flickering and optimize input performance
   useLayoutEffect(() => {
@@ -336,7 +348,6 @@ const ChatInput = memo(({
     <Box sx={containerStyles}>
       <Box sx={inputContainerStyles}>
         <TextField
-          ref={inputRef}
           fullWidth
           multiline
           maxRows={isMobile ? 3 : 4}
@@ -350,6 +361,7 @@ const ChatInput = memo(({
           disabled={isInputDisabled}
           inputProps={inputProps}
           InputProps={{
+            inputRef: inputRef,
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton

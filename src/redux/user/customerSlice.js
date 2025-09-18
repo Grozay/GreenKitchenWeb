@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { toast } from 'react-toastify'
+import { clearChatData } from '~/utils/chatCleanup'
 //khởi tạo gía trị state của 1 cái slice trong redux
 const initialState = {
   currentCustomer: null
@@ -39,6 +40,8 @@ export const logoutCustomerApi = createAsyncThunk(
     if (showSuccessMessage) {
       toast.info('You have been logged out')
     }
+    // Clear chat data on logout
+    clearChatData()
     return response.data
   }
 )

@@ -50,19 +50,41 @@ export const useChatLogic = ({
   useEffect(() => {
     if (!conversationId) return
     
+    console.log('📥 Loading initial messages for conversation:', conversationId)
     setIsLoading(true)
     setPage(0)
     
     memoizedChatAPI.fetchMessagesPaged(conversationId, 0, pageSize).then((data) => {
+      console.log('📥 Loaded initial messages:', data.content.length)
       setMessages([...data.content].reverse())
       setPage(0)
       setHasMore(!data.last)
       setIsLoading(false)
     }).catch(error => {
-      console.error('Failed to load messages:', error)
+      console.error('❌ Failed to load messages:', error)
       setIsLoading(false)
     })
   }, [conversationId, chatMode, memoizedChatAPI, pageSize])
+  
+  // FIX: Fallback polling để đảm bảo customer nhận được tin nhắn (mỗi 10 giây)
+  useEffect(() => {
+    if (!conversationId) return
+    
+    const pollTimer = setInterval(() => {
+      console.log('🔄 Customer polling messages for conversation:', conversationId)
+      memoizedChatAPI.fetchMessagesPaged(conversationId, 0, pageSize).then((data) => {
+        setMessages(prev => {
+          const newMessages = [...data.content].reverse()
+          console.log('🔄 Polled messages count:', newMessages.length, 'Current count:', prev.length)
+          return newMessages
+        })
+      }).catch(error => {
+        console.error('❌ Polling failed:', error)
+      })
+    }, 10000)
+    
+    return () => clearInterval(pollTimer)
+  }, [conversationId, memoizedChatAPI, pageSize])
 
   // Auto scroll cuối khi messages thay đổi - chỉ khi có messages mới
   useEffect(() => {
@@ -144,6 +166,10 @@ export const useChatLogic = ({
 
   // Xử lý tin nhắn từ websocket - memoize dependencies
   const handleIncoming = useCallback((msg) => {
+    console.log('🔧 Customer handleIncoming processing:', msg)
+    console.log('🔧 Current conversationId:', conversationId)
+    console.log('🔧 Current conversationStatus:', conversationStatus)
+    
     handleWebSocketMessage(
       msg,
       conversationId,
@@ -151,7 +177,13 @@ export const useChatLogic = ({
       setMessages,
       () => {} // setAnimationConvId không cần thiết ở đây
     )
-  }, [conversationId, isCustomerLoggedIn])
+    
+    // FIX: Cập nhật conversationStatus khi nhận WebSocket message
+    if (msg.conversationStatus && msg.conversationStatus !== conversationStatus) {
+      console.log('📊 Updating conversation status:', conversationStatus, '->', msg.conversationStatus)
+      setConversationStatus(msg.conversationStatus)
+    }
+  }, [conversationId, isCustomerLoggedIn, conversationStatus])
 
   // Tính awaitingAI dựa trên trạng thái của tin nhắn cuối cùng - memoize để tránh tính toán lại
   const nextAwaitingAI = useMemo(() => {
@@ -159,8 +191,9 @@ export const useChatLogic = ({
     const lastMsg = messages[messages.length - 1]
     const lastIsAiPending = lastMsg && lastMsg.senderRole === 'AI' && isPending(lastMsg.status)
     const lastCustomerPending = lastMsg && lastMsg.senderRole === 'CUSTOMER' && isPending(lastMsg.status)
-    return lastIsAiPending || (chatMode === 'AI' && lastCustomerPending)
-  }, [messages, chatMode])
+    // FIX: Chỉ hiển thị typing indicator khi ở chế độ AI và conversation status là AI
+    return lastIsAiPending || (chatMode === 'AI' && conversationStatus === 'AI' && lastCustomerPending)
+  }, [messages, chatMode, conversationStatus])
 
   // Update awaitingAI chỉ khi cần thiết
   useEffect(() => {
