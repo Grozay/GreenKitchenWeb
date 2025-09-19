@@ -71,6 +71,54 @@ export const decreaseQuantity = createAsyncThunk(
   }
 )
 
+// Thêm asyncThunk để sync local cart lên DB sau login
+export const syncCartAfterLogin = createAsyncThunk(
+  'cart/syncCartAfterLogin',
+  async (customerId, { getState, dispatch }) => {
+    const state = getState()
+    const localCartItems = state.cart.currentCart?.cartItems || []
+
+    if (!customerId || localCartItems.length === 0) {
+      return
+    }
+
+    // Chỉ clear nếu có local items
+    if (localCartItems.length > 0) {
+      dispatch(clearCart())
+    }
+
+    // Gọi API addMealToCart cho từng item trong local cart
+    for (const item of localCartItems) {
+      try {
+        await addMealToCartAPI(customerId, {
+          menuMealId: item.menuMealId || item.id, // Sử dụng menuMealId nếu có, fallback id
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice,
+          title: item.title,
+          image: item.image,
+          description: item.description,
+          calories: item.calories,
+          protein: item.protein,
+          carbs: item.carbs,
+          fat: item.fat,
+          itemType: item.itemType,
+          isCustom: item.isCustom,
+          // Thêm customMeal nếu là custom meal
+          customMeal: item.customMeal || null,
+        })
+      } catch (error) {
+        console.error('Error syncing item:', item.id, error)
+        // Có thể bỏ qua lỗi hoặc handle (e.g., show toast)
+      }
+    }
+
+    // Sau khi sync, fetch lại cart từ DB
+    const updatedCart = await getCartByCustomerIdAPI(customerId)
+    return updatedCart
+  }
+)
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
@@ -164,6 +212,15 @@ const cartSlice = createSlice({
         state.currentCart.totalItems = state.currentCart.cartItems.length
         state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
         state.currentCart.totalQuantity = state.currentCart.cartItems.reduce((sum, item) => sum + item.quantity, 0)
+      })
+      // Thêm case cho syncCartAfterLogin
+      .addCase(syncCartAfterLogin.fulfilled, (state, action) => {
+        if (action.payload && Array.isArray(action.payload.cartItems)) {
+          state.currentCart = action.payload // Update với cart đã merge từ DB
+        } else {
+          // Nếu không có payload, giữ nguyên hoặc set rỗng
+          state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
+        }
       })
   }
 })

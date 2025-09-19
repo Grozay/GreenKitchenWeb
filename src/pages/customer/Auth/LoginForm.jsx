@@ -18,8 +18,9 @@ import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE
 } from '~/utils/validators'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux' // Thêm useSelector
 import { loginCustomerApi, googleLoginAPI } from '~/redux/user/customerSlice'
+import { syncCartAfterLogin } from '~/redux/cart/cartSlice' // Thêm import syncCartAfterLogin
 import { resendVerifyEmailApi } from '~/apis'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { toast } from 'react-toastify'
@@ -38,6 +39,9 @@ function LoginForm() {
   const navigate = useNavigate()
   const location = useLocation()
   const { register, handleSubmit, formState: { errors } } = useForm()
+
+  // Lấy customerId từ Redux state (ở top level)
+  const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
 
   let [searchParams] = useSearchParams()
   const registeredEmail = searchParams.get('registeredEmail')
@@ -63,6 +67,18 @@ function LoginForm() {
         setOpenResendVerifyPanel(true)
       }
       if (!res.error) {
+        // Lấy customerId từ response payload
+        const responseCustomerId = res.payload?.id
+        if (responseCustomerId) {
+          dispatch(syncCartAfterLogin(responseCustomerId))
+        } else if (customerId) {
+          // Fallback: Sử dụng customerId từ state (đã update sau login)
+          dispatch(syncCartAfterLogin(customerId))
+        } else {
+          // Nếu không có customerId, log error và skip sync
+          console.error('Customer ID not found after login, skipping cart sync')
+          toast.error('Login successful, but cart sync failed. Please refresh.')
+        }
         toast.success('Login successful!')
         // Redirect về trang user muốn truy cập trước đó
         navigate(from, { replace: true })
@@ -93,6 +109,15 @@ function LoginForm() {
       }
     ).then(response => {
       if (!response.error) {
+        const responseCustomerId = response.payload?.id
+        if (responseCustomerId) {
+          dispatch(syncCartAfterLogin(responseCustomerId))
+        } else if (customerId) {
+          // Fallback: Sử dụng customerId từ state (đã update sau login)
+          dispatch(syncCartAfterLogin(customerId))
+        } else {
+          toast.error('Google login successful, but cart sync failed. Please refresh.')
+        }
         // Redirect về trang user muốn truy cập trước đó
         navigate(from, { replace: true })
       }

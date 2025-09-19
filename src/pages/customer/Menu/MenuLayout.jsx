@@ -176,11 +176,11 @@ function MenuLayout() {
         {/* filter price */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <FormControl variant="outlined" size='small' sx={{ minWidth: 150, borderRadius: 5 }}>
-            <InputLabel sx={{ color: theme.palette.primary.main }}>Filter by Price</InputLabel>
+            <InputLabel sx={{ color: theme.palette.primary.main }}>{t('menu.filter')}</InputLabel>
             <Select
               value={sortOrder}
               onChange={handleSortChange}
-              label="Filter by Price"
+              label={t('menu.filter')}
               MenuProps={{
                 sx: {
                   '& .MuiPaper-root': {
@@ -203,8 +203,8 @@ function MenuLayout() {
                 borderRadius: 5
               }}
             >
-              <MenuItem value="asc">Low to High</MenuItem>
-              <MenuItem value="desc">High to Low</MenuItem>
+              <MenuItem value="asc">{t('menu.priceAsc')}</MenuItem>
+              <MenuItem value="desc">{t('menu.priceDesc')}</MenuItem>
             </Select>
           </FormControl>
           <FilterListIcon sx={{ ml: 1, color: theme.palette.primary.main }} />

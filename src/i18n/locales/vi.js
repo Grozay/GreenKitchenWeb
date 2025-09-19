@@ -29,7 +29,13 @@ const vi = {
     high: 'CALO CAO',
     balance: 'CALO CÂN BẰNG',
     low: 'CALO THẤP',
-    vegetarian: 'CHAY'
+    vegetarian: 'CHAY',
+    all: 'tất cả',
+    filter: 'Lọc theo giá',
+    sortBy: 'Sắp xếp theo',
+    default: 'Mặc định',
+    priceAsc: 'Giá: Thấp đến Cao',
+    priceDesc: 'Giá: Cao đến Thấp'
   },
   smartMeal: {
     protein: 'CHẤT ĐẠM',
