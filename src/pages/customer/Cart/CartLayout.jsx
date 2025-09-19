@@ -26,7 +26,6 @@ const Cart = () => {
 
   // Lấy currentCart từ Redux
   const currentCart = useSelector(selectCurrentCart)
-  console.log('🚀 ~ Cart ~ currentCart:', currentCart)
   const cartItems = currentCart?.cartItems || []
 
   const handleBackToMenu = () => {

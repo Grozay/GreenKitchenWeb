@@ -29,7 +29,13 @@ const en = {
     high: 'HIGH CALORIE',
     balance: 'BALANCE CALORIE',
     low: 'LOW CALORIE',
-    vegetarian: 'VEGETARIAN'
+    vegetarian: 'VEGETARIAN',
+    all: 'all',
+    filter: 'Filter by Price',
+    sortBy: 'Sort By',
+    default: 'Default',
+    priceAsc: 'Price: Low to High',
+    priceDesc: 'Price: High to Low'
   },
   smartMeal: {
     protein: 'PROTEIN',
