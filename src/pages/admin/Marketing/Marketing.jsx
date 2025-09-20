@@ -69,18 +69,25 @@ function MarketingDashboard() {
   }
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      bgcolor: 'background.default',
+      minHeight: '100vh'
+    }}>
       {/* Header */}
-      <Box sx={{ 
-        p: 3, 
-        bgcolor: 'primary.main', 
-        color: 'white',
+      <Box sx={{
+        p: 3,
+        bgcolor: 'background.paper',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
         borderRadius: '8px 8px 0 0'
       }}>
         <Typography variant="h4" component="h1" sx={{ mb: 1, fontWeight: 'bold' }}>
           Marketing Dashboard
         </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
           Quản lý chiến dịch marketing và phân tích khách hàng
         </Typography>
       </Box>

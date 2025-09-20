@@ -72,11 +72,12 @@ const ConversationItem = memo(({ conversation, isSelected, onSelect, isPending =
   const listItemStyles = useMemo(() => ({
     px: { xs: 1, sm: 1.5, md: 2 },
     py: { xs: 1, sm: 1.25, md: 1.5 },
-    borderBottom: '1px solid #f0f0f0',
+    borderBottom: '1px solid',
+    borderColor: 'divider',
     opacity: isPending ? 0.7 : 1,
     transition: 'all 0.2s ease-in-out',
     '&:hover': {
-      bgcolor: '#f8fdf8',
+      bgcolor: 'action.hover',
       transform: 'translateY(-1px)',
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
     },
