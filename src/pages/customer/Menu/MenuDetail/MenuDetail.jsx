@@ -115,8 +115,8 @@ const MenuDetail = () => {
         const sortedReviews = response.reviews.sort((a, b) => {
           // Nếu có customerId, ưu tiên tuyệt đối review của user hiện tại
           if (customerId) {
-            if (a.customerId === customerId && b.customerId !== customerId) return -1
-            if (b.customerId === customerId && a.customerId !== customerId) return 1
+            if (a.customer?.id === customerId && b.customer?.id !== customerId) return -1
+            if (b.customer?.id === customerId && a.customer?.id !== customerId) return 1
           }
           // Với các review khác, sắp xếp theo thời gian tạo (mới nhất trước)
           return new Date(b.createdAt) - new Date(a.createdAt)
@@ -230,7 +230,12 @@ const MenuDetail = () => {
       }
 
       if (editingReview) {
-        await updateMenuMealReviewAPI(editingReview.id, reviewData)
+        await updateMenuMealReviewAPI(editingReview.id, {
+          menuMealId: menuMeal.id,
+          customerId: customerId,
+          rating: editingReview.rating,  // Giữ nguyên rating cũ
+          comment: comment.trim()
+        })
         toast.success('Review updated successfully!')
         setEditingReview(null)
       } else {
@@ -280,8 +285,8 @@ const MenuDetail = () => {
           const sortedReviews = detailData.reviews.sort((a, b) => {
             // Ưu tiên tuyệt đối review của user hiện tại
             if (customerId) {
-              if (a.customerId === customerId && b.customerId !== customerId) return -1
-              if (b.customerId === customerId && a.customerId !== customerId) return 1
+              if (a.customer?.id === customerId && b.customer?.id !== customerId) return -1
+              if (b.customer?.id === customerId && a.customer?.id !== customerId) return 1
             }
             // Sắp xếp theo thời gian tạo (mới nhất trước)
             return new Date(b.createdAt) - new Date(a.createdAt)
@@ -436,6 +441,9 @@ const MenuDetail = () => {
   const relatedMeals = mealPackages
     .filter((item) => item.slug !== slug)
     .slice(0, 3)
+
+  // Thêm biến kiểm tra user đã review chưa
+  const userHasReviewed = reviews.some(review => review.customer?.id === customerId)
 
   return (
     <Box sx={{ bgcolor: theme.palette.background.default, color: theme.palette.text.primary, minHeight: '100vh', fontFamily: '"Poppins", sans-serif' }}>
@@ -624,7 +632,72 @@ const MenuDetail = () => {
 
           {/* Review form - chỉ hiển thị khi đã login VÀ đã mua sản phẩm */}
           {customerId ? (
-            checkingPurchase ? (
+            userHasReviewed ? (
+              // Nếu đã review, hiển thị form luôn
+              <Box id="review-form" sx={{ mb: 6, p: 3, bgcolor: theme.palette.primary.card, borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
+                  {editingReview ? translatedUpdateReview : translatedWriteReview}
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 1, color: theme.palette.text.primary }}>
+                  {translatedYourRating}:
+                </Typography>
+                <Rating
+                  value={rating}
+                  onChange={(event, newValue) => setRating(newValue)}
+                  precision={0.5}
+                  sx={{ mb: 2 }}
+                  disabled={editingReview}  // Disable khi edit
+                />
+                {editingReview && (
+                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary, mb: 2, display: 'block' }}>
+                    {translatedRatingCannotChange}
+                  </Typography>
+                )}
+                <TextareaAutosize
+                  minRows={4}
+                  placeholder={editingReview ? 'Update your comment...' : translatedWriteReview}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: `1px solid ${theme.palette.grey[300]}`,
+                    fontFamily: '"Poppins", sans-serif',
+                    fontSize: '1rem',
+                    resize: 'vertical',
+                    color: theme.palette.text.primary,
+                    backgroundColor: theme.palette.background.default
+                  }}
+                />
+                <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      bgcolor: theme.palette.primary.secondary,
+                      color: 'white',
+                      '&:hover': { bgcolor: theme.palette.primary.main }
+                    }}
+                    onClick={handleCommentSubmit}
+                    disabled={!comment.trim() || !rating || submittingReview}
+                  >
+                    {submittingReview
+                      ? (editingReview ? translatedUpdating : translatedSubmitting)
+                      : (editingReview ? translatedUpdateReview : translatedSubmitReview)
+                    }
+                  </Button>
+                  {editingReview && (
+                    <Button
+                      variant="outlined"
+                      onClick={handleCancelEdit}
+                      sx={{ color: theme.palette.text.primary }}
+                    >
+                      {translatedCancel}
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            ) : checkingPurchase ? (
               // Loading state khi đang kiểm tra purchase
               <Box sx={{ mb: 6, p: 3, bgcolor: theme.palette.primary.card, borderRadius: 2, textAlign: 'center' }}>
                 <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
@@ -747,12 +820,12 @@ const MenuDetail = () => {
                   sx={{
                     mb: 3,
                     p: 3,
-                    bgcolor: review.customerId === customerId
+                    bgcolor: review.customer?.id === customerId
                       ? theme.palette.primary.main + '15' // Highlight cho review của user
                       : theme.palette.primary.card,
                     borderRadius: '8px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    border: review.customerId === customerId
+                    border: review.customer?.id === customerId
                       ? `2px solid ${theme.palette.primary.secondary}`
                       : 'none'
                   }}
@@ -760,10 +833,11 @@ const MenuDetail = () => {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Avatar
+                        src={review.customer?.avatar}  // Thêm src để hiển thị ảnh avatar nếu có
                         sx={{
                           width: 40,
                           height: 40,
-                          bgcolor: review.customerId === customerId
+                          bgcolor: review.customer?.id === customerId
                             ? theme.palette.primary.secondary
                             : theme.palette.grey[500],
                           fontSize: '1rem',
@@ -777,7 +851,7 @@ const MenuDetail = () => {
                           <Typography variant="body1" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                             {review.customerName}
                           </Typography>
-                          {review.customerId === customerId && (
+                          {review.customer?.id === customerId && (
                             <Typography
                               variant="caption"
                               sx={{
@@ -799,7 +873,7 @@ const MenuDetail = () => {
                         </Typography>
                       </Box>
                     </Box>
-                    {customerId === review.customerId && (
+                    {customerId === review.customer?.id && (
                       <IconButton
                         size="small"
                         onClick={() => handleEditReview(review)}
