@@ -109,7 +109,7 @@ const MenuMealCreate = () => {
       toast.success('Meal created successfully!')
       reset()
       setImagePreview(null)
-      navigate('/management/meals/list')
+      navigate('/management/menu-meals/list')
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to create meal')
     } finally {
