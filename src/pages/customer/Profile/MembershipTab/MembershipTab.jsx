@@ -9,8 +9,13 @@ import CouponModal from './CouponModal'
 import { useState, useEffect } from 'react'
 import { getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function MembershipTab({ customerDetails, setcustomerDetails }) {
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
   const [historyModalOpen, setHistoryModalOpen] = useState(false)
   const [couponModalOpen, setCouponModalOpen] = useState(false)
   const [selectedTier, setSelectedTier] = useState(null)
@@ -47,7 +52,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
   // Handle coupon exchange
   const handleExchangeCoupon = (couponId) => {
     if (!customerDetails?.id) {
-      toast.error('Không tìm thấy thông tin khách hàng')
+      toast.error(t('profile.membershipTab.errors.customerNotFound'))
       return
     }
 
@@ -59,8 +64,8 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
         couponId: couponId
       }),
       {
-        pending: 'Đang xử lý đổi coupon...',
-        success: 'Đổi coupon thành công! 🎉'
+        pending: t('profile.membershipTab.messages.exchangePending'),
+        success: t('profile.membershipTab.messages.exchangeSuccess')
       }
     ).then(() => {
       // Tìm coupon đã đổi từ danh sách exchangeableCoupons
@@ -79,7 +84,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
           transactionType: 'USED',
           pointsEarned: -exchangedCoupon.pointsRequired,
           earnedAt: new Date().toISOString(),
-          description: `Đổi coupon: ${exchangedCoupon.name}`,
+          description: `${t('profile.membershipTab.exchangeCoupon')}: ${exchangedCoupon.name}`,
           spentAmount: 0
         }
 
@@ -165,7 +170,10 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
       displayName: 'Energy',
       minSpent: 0,
       maxSpent: 2000000,
-      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt'],
+      benefits: [
+        t('profile.membershipTab.tierBenefits.earnPoints'),
+        t('profile.membershipTab.tierBenefits.promotionNotifications')
+      ],
       color: '#32CD32',
       bgColor: '#F5F5F5'
     },
@@ -174,7 +182,12 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
       displayName: 'Vitality',
       minSpent: 2000000,
       maxSpent: 5000000,
-      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt', 'Giảm giá 5% cho tất cả đơn hàng', 'Ưu tiên hỗ trợ khách hàng'],
+      benefits: [
+        t('profile.membershipTab.tierBenefits.earnPoints'),
+        t('profile.membershipTab.tierBenefits.promotionNotifications'),
+        t('profile.membershipTab.tierBenefits.discount5Percent'),
+        t('profile.membershipTab.tierBenefits.prioritySupport')
+      ],
       color: '#FF7043',
       bgColor: '#FBE9E7'
     },
@@ -183,7 +196,14 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
       displayName: 'Radiance',
       minSpent: 5000000,
       maxSpent: null,
-      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt', 'Giảm giá 10% cho tất cả đơn hàng', 'Ưu tiên hỗ trợ khách hàng', 'Miễn phí giao hàng', 'Tặng món khai vị miễn phí'],
+      benefits: [
+        t('profile.membershipTab.tierBenefits.earnPoints'),
+        t('profile.membershipTab.tierBenefits.promotionNotifications'),
+        t('profile.membershipTab.tierBenefits.discount10Percent'),
+        t('profile.membershipTab.tierBenefits.prioritySupport'),
+        t('profile.membershipTab.tierBenefits.freeShipping'),
+        t('profile.membershipTab.tierBenefits.freeAppetizer')
+      ],
       color: '#FFB300',
       bgColor: '#FFF8E1'
     }

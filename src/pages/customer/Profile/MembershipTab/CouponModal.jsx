@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -18,6 +19,8 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import StarsIcon from '@mui/icons-material/Stars'
 
 export default function CouponModal({ open, onClose, couponsLoading, exchangeableCoupons, membership, exchangeLoading, handleExchangeCoupon }) {
+  const { t } = useTranslation()
+
   const getDiscountDisplay = (type, value) => {
     if (type === 'PERCENTAGE') {
       return `${value}%`
@@ -72,14 +75,14 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
               fontSize: '1.1rem',
               letterSpacing: '0.5px'
             }}>
-              🎁 ĐỔI COUPON
+              🎁 {t('profile.membershipTab.exchangeCoupon').toUpperCase()}
             </Typography>
             <Typography variant="caption" sx={{
               color: 'rgba(255,255,255,0.8)',
               fontSize: '0.875rem',
               mt: 0.25
             }}>
-              Đổi điểm lấy ưu đãi hấp dẫn
+              {t('profile.membershipTab.exchangePointsForOffers')}
             </Typography>
           </Box>
         </Box>
@@ -115,14 +118,14 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
               color: '#666',
               fontSize: '1rem'
             }}>
-              Đang tải danh sách coupon...
+              {t('profile.membershipTab.loadingCoupons')}...
             </Typography>
             <Typography variant="body2" sx={{
               color: '#888',
               fontSize: '0.875rem',
               mt: 0.5
             }}>
-              Vui lòng đợi trong giây lát
+              {t('profile.membershipTab.pleaseWait')}
             </Typography>
           </Box>
         ) : exchangeableCoupons.length > 0 ? (

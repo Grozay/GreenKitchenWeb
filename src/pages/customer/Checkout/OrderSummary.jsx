@@ -16,6 +16,7 @@ import WarningIcon from '@mui/icons-material/Warning'
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useConfirm } from 'material-ui-confirm'
+import { useTranslation } from 'react-i18next'
 import { selectCurrentCart } from '~/redux/cart/cartSlice'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
@@ -34,6 +35,7 @@ const OrderSummary = ({
   selectedStore,
   shippingSettings
 }) => {
+  const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = useState(null)
   const [exchangeAnchorEl, setExchangeAnchorEl] = useState(null)
   const [exchangeableCoupons, setExchangeableCoupons] = useState([])
@@ -202,7 +204,7 @@ const OrderSummary = ({
         borderBottom: '1px solid #e0e0e0'
       }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c2c2c' }}>
-          TÓM TẮT ĐƠN HÀNG
+          {t('checkout.orderSummary.title')}
         </Typography>
       </Box>
 
@@ -211,7 +213,7 @@ const OrderSummary = ({
         {/* Danh sách món ăn */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-            Món ăn đã chọn ({items.length} món)
+            {t('checkout.orderSummary.selectedItems', { count: items.length })}
           </Typography>
 
           {items.map((item, index) => (

@@ -33,6 +33,9 @@ import { useConfirm } from 'material-ui-confirm'
 import { createNewAddressAPI, updateAddressAPI, deleteAddressAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import { useTranslation } from 'react-i18next'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { useSelector } from 'react-redux'
 
 export default function AddressList({ addressList, setAddressList, customerDetails }) {
   const [openDialog, setOpenDialog] = useState(false)
@@ -49,6 +52,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
   const [loadingWards, setLoadingWards] = useState(false)
   
   const confirm = useConfirm()
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
 
   // Gọi API để lấy danh sách quận/huyện khi component mount
   useEffect(() => {
@@ -113,7 +118,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
   const handleShowAddForm = () => {
     // Kiểm tra giới hạn 4 địa chỉ
     if (addressList && addressList.length >= 4) {
-      toast.error('Bạn không thể thêm quá 4 địa chỉ!')
+      toast.error(t('accountTab.addressList.maxAddressLimit'))
       return
     }
 
@@ -168,10 +173,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
 
   const handleDeleteAddress = async (addressId) => {
     const { confirmed } = await confirm({
-      title: 'Xác nhận xóa địa chỉ',
-      description: 'Bạn có chắc chắn muốn xóa địa chỉ này không?',
-      confirmationText: 'Xóa',
-      cancellationText: 'Hủy',
+      title: t('accountTab.addressList.deleteConfirmTitle'),
+      description: t('accountTab.addressList.deleteConfirmDesc'),
+      confirmationText: t('common.delete'),
+      cancellationText: t('common.cancel'),
       confirmationButtonProps: { color: 'error' }
     })
 
@@ -184,7 +189,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
           ...prev,
           addresses: updatedAddresses
         }))
-        toast.success('Địa chỉ đã được xóa thành công!')
+        toast.success(t('accountTab.addressList.successDeleted'))
       })
     }
   }
@@ -192,7 +197,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
   const onSubmit = async (data) => {
     // Kiểm tra giới hạn 4 địa chỉ khi tạo mới
     if (!editingAddress && addressList && addressList.length >= 4) {
-      alert('Mỗi khách hàng chỉ được có tối đa 4 địa chỉ!')
+      alert(t('accountTab.addressList.maxAddressAlert'))
       return
     }
 
@@ -305,14 +310,14 @@ export default function AddressList({ addressList, setAddressList, customerDetai
             mb: 2
           }}>
             <Typography variant="h6" component="h3">
-              Số địa chỉ
+              {t('accountTab.addressList.title')}
             </Typography>
             <Button
               variant="outlined"
               size="small"
               onClick={handleOpenDialog}
             >
-              Quản lý
+              {t('accountTab.addressList.manage')}
             </Button>
           </Box>
 
@@ -337,7 +342,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                 color: 'primary.main',
                 fontWeight: 500
               }}>
-                {addressList?.length ? 'Địa chỉ đã lưu' : 'Chưa có địa chỉ nào'}
+                {addressList?.length ? (currentLang === 'vi' ? 'Địa chỉ đã lưu' : 'Saved addresses') : (currentLang === 'vi' ? 'Chưa có địa chỉ nào' : 'No addresses')}
               </Typography>
             </Box>
           </Box>
@@ -376,7 +381,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                   mb: 2
                 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Danh sách địa chỉ đã lưu
+                    {t('accountTab.addressList.savedAddressList')}
                   </Typography>
                   <Button
                     variant="contained"
@@ -387,7 +392,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       '&:hover': { backgroundColor: '#45a049' }
                     }}
                   >
-                    Thêm địa chỉ mới
+                    {t('accountTab.addressList.addNewAddress')}
                   </Button>
                 </Box>
 
@@ -396,10 +401,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                     <Table>
                       <TableHead>
                         <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                          <TableCell sx={{ fontWeight: 600 }}>Người nhận</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Địa chỉ</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }} align="center">Trạng thái</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }} align="center">Thao tác</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>{t('accountTab.addressList.recipient')}</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>{t('accountTab.addressList.address')}</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }} align="center">{t('accountTab.addressList.status')}</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }} align="center">{t('accountTab.addressList.actions')}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -407,10 +412,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           <TableRow key={address.id} hover>
                             <TableCell>
                               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                {address.recipientName || 'Chưa có tên'}
+                                {address.recipientName || t('accountTab.addressList.noName')}
                               </Typography>
                               <Typography variant="caption" color="text.secondary">
-                                {address.recipientPhone || 'Chưa có SĐT'}
+                                {address.recipientPhone || t('accountTab.addressList.noPhone')}
                               </Typography>
                             </TableCell>
                             <TableCell>
@@ -420,7 +425,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             </TableCell>
                             <TableCell align="center">
                               <Chip
-                                label={address.isDefault ? 'Mặc định' : 'Không mặc định'}
+                                label={address.isDefault ? t('accountTab.addressList.default') : t('accountTab.addressList.notDefault')}
                                 color={address.isDefault ? 'success' : 'default'}
                                 size="small"
                                 variant={address.isDefault ? 'filled' : 'outlined'}
@@ -469,7 +474,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       filter: 'drop-shadow(0 2px 4px rgba(255,107,107,0.3))'
                     }} />
                     <Typography variant="body2" color="text.secondary">
-                      Chưa có địa chỉ nào được lưu
+                      {t('accountTab.addressList.noAddressesSaved')}
                     </Typography>
                   </Box>
                 )}
@@ -493,7 +498,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                   }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, color: '#2e7d32' }}>
                       <AddIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                      Thêm địa chỉ mới
+                      {t('accountTab.addressList.addNewAddress')}
                     </Typography>
                     <Button
                       variant="outlined"
@@ -505,7 +510,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                         '&:hover': { borderColor: '#999' }
                       }}
                     >
-                      Hủy
+                      {t('common.cancel')}
                     </Button>
                   </Box>
 
@@ -513,8 +518,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                     <Grid container spacing={2}>
                       <Grid size={6}>
                         <TextField
-                          {...register('recipientName', { required: 'Vui lòng nhập tên người nhận' })}
-                          label="Tên người nhận"
+                          {...register('recipientName', { required: t('accountTab.addressList.validation.recipientNameRequired') })}
+                          label={t('accountTab.addressList.recipientName')}
                           fullWidth
                           size="small"
                           error={!!errors.recipientName}
@@ -524,13 +529,13 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       <Grid size={6}>
                         <TextField
                           {...register('recipientPhone', {
-                            required: 'Vui lòng nhập số điện thoại',
+                            required: t('accountTab.addressList.validation.phoneRequired'),
                             pattern: {
                               value: /^[0-9]{10,11}$/,
-                              message: 'Số điện thoại phải có 10-11 chữ số'
+                              message: t('accountTab.addressList.validation.phonePattern')
                             }
                           })}
-                          label="Số điện thoại người nhận"
+                          label={t('accountTab.addressList.recipientPhone')}
                           fullWidth
                           size="small"
                           error={!!errors.recipientPhone}
@@ -539,8 +544,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       </Grid>
                       <Grid size={6}>
                         <TextField
-                          {...register('street', { required: 'Vui lòng nhập địa chỉ' })}
-                          label="Địa chỉ"
+                          {...register('street', { required: t('accountTab.addressList.validation.streetRequired') })}
+                          label={t('accountTab.addressList.street')}
                           fullWidth
                           size="small"
                           error={!!errors.street}
@@ -643,7 +648,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                               '&:hover': { borderColor: '#999' }
                             }}
                           >
-                            Hủy
+                            {t('common.cancel')}
                           </Button>
                           <Button
                             type="submit"
@@ -654,7 +659,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                               '&:hover': { backgroundColor: '#45a049' }
                             }}
                           >
-                            Thêm địa chỉ
+                            {t('accountTab.addressList.addNewAddress')}
                           </Button>
                         </Box>
                       </Grid>

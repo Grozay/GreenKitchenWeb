@@ -21,9 +21,14 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import { formatDate } from '~/utils/formatter'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function BasicInfo({ basicInfo, setBasicInfo }) {
   const [openDialog, setOpenDialog] = useState(false)
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -86,14 +91,14 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 mb: 3
               }}>
                 <Typography variant="h6" component="h2">
-                  Thông tin cá nhân
+                  {t('accountTab.basicInfo.title')}
                 </Typography>
                 <Button
                   variant="contained"
                   size="small"
                   onClick={handleOpenDialog}
                 >
-                  Cập nhật
+                  {t('common.update')}
                 </Button>
               </Box>
 
@@ -101,10 +106,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Họ tên:
+                      {t('accountTab.basicInfo.fullName')}:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.fullName || 'Chưa cập nhật'}
+                      {basicInfo?.fullName || t('accountTab.basicInfo.notUpdated')}
                     </Typography>
                   </Box>
                 </Grid>
@@ -112,10 +117,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Số điện thoại:
+                      {t('accountTab.basicInfo.phone')}:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.phone || 'Chưa cập nhật'}
+                      {basicInfo?.phone || t('accountTab.basicInfo.notUpdated')}
                     </Typography>
                   </Box>
                 </Grid>
@@ -123,10 +128,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Email:
+                      {t('accountTab.basicInfo.email')}:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.email || 'Chưa cập nhật'}
+                      {basicInfo?.email || t('accountTab.basicInfo.notUpdated')}
                     </Typography>
                   </Box>
                 </Grid>
@@ -134,10 +139,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Giới tính:
+                      {t('accountTab.basicInfo.gender')}:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.gender == 'UNDEFINED' ? 'Chưa cập nhật' : basicInfo?.gender == 'MALE' ? 'Nam' : 'Nữ'}
+                      {basicInfo?.gender == 'UNDEFINED' ? t('accountTab.basicInfo.notUpdated') : basicInfo?.gender == 'MALE' ? (currentLang === 'vi' ? 'Nam' : 'Male') : (currentLang === 'vi' ? 'Nữ' : 'Female')}
                     </Typography>
                   </Box>
                 </Grid>
@@ -145,10 +150,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Ngày sinh:
+                      {t('accountTab.basicInfo.birthDate')}:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.birthDate ? formatDate(basicInfo.birthDate) : 'Chưa cập nhật'}
+                      {basicInfo?.birthDate ? formatDate(basicInfo.birthDate) : t('accountTab.basicInfo.notUpdated')}
                     </Typography>
                   </Box>
                 </Grid>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
@@ -6,6 +7,8 @@ import Chip from '@mui/material/Chip'
 import Box from '@mui/material/Box'
 
 export default function TierCards({ tierInfo, membership, selectedTier, handleTierClick, displayTier }) {
+  const { t } = useTranslation()
+
   return (
     <Grid size={12} sx={{
       backgroundColor: '#ffffff',
@@ -19,7 +22,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
         m: 2,
         textAlign: 'center'
       }}>
-        🏆 {membership ? 'Các hạng thành viên' : 'Các hạng thành viên - Ưu đãi đang chờ bạn!'}
+        🏆 {membership ? t('profile.membershipTab.membershipTiers') : t('profile.membershipTab.membershipTiersPromo')}
       </Typography>
       <Grid container spacing={1.5}>
         {tierInfo.map((tier) => {
@@ -64,15 +67,15 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
                       {tier.maxSpent
-                        ? `Chi tiêu từ ${tier.minSpent.toLocaleString()} - ${tier.maxSpent.toLocaleString()} VNĐ`
-                        : `Chi tiêu từ ${tier.minSpent.toLocaleString()} VNĐ trở lên`
+                        ? `${t('profile.membershipTab.spendingRange')}: ${tier.minSpent.toLocaleString()} - ${tier.maxSpent.toLocaleString()} VNĐ`
+                        : `${t('profile.membershipTab.spendingFrom')}: ${tier.minSpent.toLocaleString()} VNĐ ${t('profile.membershipTab.orMore')}`
                       }
                     </Typography>
                   </Box>
                   {!membership && (
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="body2" sx={{ fontWeight: 'bold', color: tier.color, mb: 1 }}>
-                        🎁 Ưu đãi chính:
+                        🎁 {t('profile.membershipTab.mainBenefits')}:
                       </Typography>
                       {tier.benefits.map((benefit, index) => (
                         <Typography key={index} variant="body2" sx={{ fontSize: '0.875rem', mb: 0.5, color: 'text.secondary' }}>
@@ -83,7 +86,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                   )}
                   {isCurrentTier && (
                     <Chip
-                      label="HẠNG HIỆN TẠI"
+                      label={t('profile.membershipTab.currentTier')}
                       sx={{ width: '100%', margin: '0 auto', backgroundColor: tier.color, color: 'white', fontWeight: 'bold', fontSize: '0.875rem', zIndex: 1 }}
                     />
                   )}
@@ -98,10 +101,10 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
           <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h5" sx={{ fontWeight: 'bold', color: displayTier.color }}>
-                🎁 Ưu đãi cho hạng {displayTier.displayName}
+                🎁 {t('profile.membershipTab.benefitsForTier', { tier: displayTier.displayName })}
                 {displayTier.name === membership?.currentTier && (
                   <Chip
-                    label="HẠNG HIỆN TẠI"
+                    label={t('profile.membershipTab.currentTier')}
                     sx={{ ml: 2, backgroundColor: displayTier.color, color: 'white', fontSize: '0.875rem' }}
                   />
                 )}

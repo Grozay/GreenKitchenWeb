@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import LoginForm from './LoginForm'
@@ -11,6 +12,7 @@ import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { useEffect } from 'react'
 
 function Auth() {
+  const { t } = useTranslation()
   const location = useLocation()
   const isLogin = location.pathname === '/login'
   const isRegister = location.pathname === '/register'
@@ -31,12 +33,12 @@ function Auth() {
 
   const confirmBack = async (e) => {
     e.preventDefault()
-    const warningMessage = 'Ban có chắc chắn muốn quay lại trang chủ không?'
+    const warningMessage = t('auth.confirmBackMessage')
     const { confirmed } = await confirm({
-      title: 'Xác nhận quay lại trang chủ',
+      title: t('auth.confirmBackTitle'),
       description: warningMessage,
-      confirmationText: 'Quay lại',
-      cancellationText: 'Tiếp tục'
+      confirmationText: t('auth.goBack'),
+      cancellationText: t('auth.continue')
     })
     if (confirmed) navigate('/')
   }

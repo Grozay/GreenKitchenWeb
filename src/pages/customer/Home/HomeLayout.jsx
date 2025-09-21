@@ -15,8 +15,10 @@ import BowlSection from './BowlSection/BowlSection'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
 import VideoTop from './VideoTop/VideoTop'
+import { useTranslation } from 'react-i18next'
 const HomeLayout = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   return (
     <Box>
       <AppBar />
@@ -45,7 +47,7 @@ const HomeLayout = () => {
               color: theme.palette.primary.main
             }}
           >
-            SERVICES FOR GREEN KITCHEN
+            {t('home.servicesTitle')}
           </Typography>
 
           <Grid container spacing={4}>
@@ -72,10 +74,10 @@ const HomeLayout = () => {
                   }}
                 />
                 <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
-                  Dine-in
+                  {t('home.services.dineIn.title')}
                 </Typography>
                 <Typography sx={{ mb: 3, color: theme.palette.text.textSub }}>
-                  Enjoy delicious and healthy meals in Green Kitchen&apos;s fresh and green space.
+                  {t('home.services.dineIn.description')}
                 </Typography>
                 <Button
                   variant="outlined"
@@ -89,7 +91,7 @@ const HomeLayout = () => {
                     }
                   }}
                 >
-                  Visit our store
+                  {t('home.services.dineIn.button')}
                 </Button>
               </Card>
             </Grid>
@@ -117,10 +119,10 @@ const HomeLayout = () => {
                   }}
                 />
                 <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
-                  Delivery
+                  {t('home.services.delivery.title')}
                 </Typography>
                 <Typography sx={{ mb: 3, color: theme.palette.text.textSub }}>
-                  Enjoy convenient healthy meals delivered right to your door.
+                  {t('home.services.delivery.description')}
                 </Typography>
                 <Button
                   variant="outlined"
@@ -135,7 +137,7 @@ const HomeLayout = () => {
                     }
                   }}
                 >
-                  Order now
+                  {t('home.services.delivery.button')}
                 </Button>
               </Card>
             </Grid>
@@ -163,10 +165,10 @@ const HomeLayout = () => {
                   }}
                 />
                 <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
-                  Catering
+                  {t('home.services.catering.title')}
                 </Typography>
                 <Typography sx={{ mb: 3, color: theme.palette.text.textSub }}>
-                  Premium, healthy, and nutritious catering solutions for businesses.
+                  {t('home.services.catering.description')}
                 </Typography>
                 <Button
                   variant="outlined"
@@ -181,7 +183,7 @@ const HomeLayout = () => {
                     }
                   }}
                 >
-                  Learn more
+                  {t('home.services.catering.button')}
                 </Button>
               </Card>
             </Grid>
@@ -212,7 +214,7 @@ const HomeLayout = () => {
               fontWeight: 'bold'
             }}
           >
-            Still hesitating? Let Green Kitchen take care of it.
+            {t('home.cta.title')}
           </Typography>
           <Typography
             variant="h5"
@@ -221,7 +223,7 @@ const HomeLayout = () => {
               opacity: 0.9
             }}
           >
-            Personalized healthy meal feature!
+            {t('home.cta.subtitle')}
           </Typography>
           <Button
             variant="contained"
@@ -240,7 +242,7 @@ const HomeLayout = () => {
               borderRadius: 10
             }}
           >
-            Experience now
+            {t('home.cta.button')}
           </Button>
         </Container>
       </Box>
@@ -258,7 +260,7 @@ const HomeLayout = () => {
                   fontSize: '0.9rem'
                 }}
               >
-                OUR MISSION
+                {t('home.mission.label')}
               </Typography>
               <Typography
                 variant="h3"
@@ -268,7 +270,7 @@ const HomeLayout = () => {
                   color: theme.palette.primary.main
                 }}
               >
-                Together with you, nurturing a healthy relationship with food
+                {t('home.mission.title')}
               </Typography>
               <Typography
                 variant="body1"
@@ -279,9 +281,7 @@ const HomeLayout = () => {
                   color: theme.palette.text.textSub
                 }}
               >
-                Through well-balanced, nutritious dishes carefully prepared for you,
-                Green Kitchen hopes to accompany you in cherishing your health and
-                starting your journey of healthy eating – green living.
+                {t('home.mission.description')}
               </Typography>
               <Typography
                 variant="h6"
@@ -291,7 +291,7 @@ const HomeLayout = () => {
                   color: theme.palette.primary.main
                 }}
               >
-                Eating is not just to satisfy hunger, but also a way to understand and love yourself.
+                {t('home.mission.quote')}
               </Typography>
               <Button
                 variant="outlined"
@@ -310,7 +310,7 @@ const HomeLayout = () => {
                   }
                 }}
               >
-                Learn more
+                {t('home.mission.button')}
               </Button>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>

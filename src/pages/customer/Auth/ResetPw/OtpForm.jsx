@@ -10,6 +10,7 @@ import SecurityIcon from '@mui/icons-material/Security'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { useForm } from 'react-hook-form'
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FIELD_REQUIRED_MESSAGE,
   OTP_RULE,
@@ -21,6 +22,7 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import BackToLoginConfirm from '~/components/BackToLoginConfirm/BackToLoginConfirm'
 
 function OtpForm({ onNext, email }) {
+  const { t } = useTranslation()
   const { register, handleSubmit, formState: { errors } } = useForm()
   const [timeLeft, setTimeLeft] = useState(300) // 5 minutes = 300 seconds
   const [isExpired, setIsExpired] = useState(false)
@@ -57,14 +59,14 @@ function OtpForm({ onNext, email }) {
   if (!email) {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography color="error">Email is required. Please go back and enter your email.</Typography>
+        <Typography color="error">{t('auth.resetPassword.otpForm.emailRequired')}</Typography>
       </Box>
     )
   }
 
   const submitLogIn = (data) => {
     if (isExpired) {
-      toast.error('OTP đã hết hạn. Vui lòng yêu cầu mã OTP mới.')
+      toast.error(t('auth.resetPassword.otpForm.otpExpiredError'))
       return
     }
 
@@ -75,8 +77,8 @@ function OtpForm({ onNext, email }) {
     }
     toast.promise(
       verifyOtpCodeAPI(requestData), {
-        pending: 'Verifying OTP...',
-        success: 'OTP verified successfully!'
+        pending: t('auth.resetPassword.otpForm.verifyingOtp'),
+        success: t('auth.resetPassword.otpForm.otpVerifiedSuccess')
       }
     ).then(res => {
       //Đoạn này phải kiểm tra không có lỗi mới redirect về route /
@@ -103,12 +105,12 @@ function OtpForm({ onNext, email }) {
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Avatar sx={{ bgcolor: 'primary.main' }}><SecurityIcon /></Avatar>
-              <Typography variant="h4" align="center">VERIFY OTP</Typography>
+              <Typography variant="h4" align="center">{t('auth.resetPassword.otpForm.title')}</Typography>
             </Box>
           </Box>
           <Box sx={{ padding: '0 1em', textAlign: 'center', mb: 2 }}>
             <Typography variant="body2" color="text.secondary">
-              Enter the OTP code sent to: <strong>{email}</strong>
+              {t('auth.resetPassword.otpForm.description', { email })}
             </Typography>
 
             {/* OTP Timer */}
@@ -133,12 +135,12 @@ function OtpForm({ onNext, email }) {
                     color: isExpired ? '#f44336' : '#4caf50'
                   }}
                 >
-                  {isExpired ? 'OTP đã hết hạn' : `Thời gian còn lại: ${formatTime(timeLeft)}`}
+                  {isExpired ? t('auth.resetPassword.otpForm.otpExpired') : t('auth.resetPassword.otpForm.timeRemaining', { time: formatTime(timeLeft) })}
                 </Typography>
               </Box>
               {isExpired && (
                 <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                  Vui lòng yêu cầu mã OTP mới
+                  {t('auth.resetPassword.otpForm.requestNewOtp')}
                 </Typography>
               )}
             </Box>
@@ -149,7 +151,7 @@ function OtpForm({ onNext, email }) {
                 // autoComplete="nope"
                 autoFocus
                 fullWidth
-                label="Please enter your OTP..."
+                label={t('auth.resetPassword.otpForm.otpLabel')}
                 type="text"
                 variant="outlined"
                 error={!!errors['otpCode']}
@@ -181,15 +183,13 @@ function OtpForm({ onNext, email }) {
                 }
               }}
             >
-              {isExpired ? 'OTP đã hết hạn' : 'Proceed'}
+              {isExpired ? t('auth.resetPassword.otpForm.otpExpired') : t('auth.resetPassword.otpForm.proceedButton')}
             </Button>
           </CardActions>
 
           <BackToLoginConfirm
-            stepName="quá trình xác thực OTP"
-            customMessage="Bạn có chắc chắn muốn quay lại trang đăng nhập?
-
-Mã OTP hiện tại sẽ hết hiệu lực và bạn sẽ cần phải yêu cầu mã OTP mới để đặt lại mật khẩu."
+            stepName={t('auth.resetPassword.otpForm.stepName')}
+            customMessage={t('auth.resetPassword.otpForm.backConfirmMessage')}
           />
         </MuiCard>
       </Zoom>

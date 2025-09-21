@@ -21,10 +21,12 @@ import FilterMobile from './FilterMobile'
 import theme from '~/theme'
 import AppBar from '~/components/AppBar/AppBar'
 import Footer from '~/components/Footer/Footer'
+import { useTranslation } from 'react-i18next'
 
 
 export default function PostLayout() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [categories, setCategories] = useState([])
   const [searchParams, setSearchParams] = useSearchParams()
   const initialPage = parseInt(searchParams.get('page') || '1', 10)
@@ -215,7 +217,7 @@ export default function PostLayout() {
                         {p.title}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        {p.categoryName || 'Uncategorized'} - {p.publishedAt ? formatDate(p.publishedAt) : ''}
+                        {p.categoryName || t('posts.postLayout.uncategorized')} - {p.publishedAt ? formatDate(p.publishedAt) : ''}
                       </Typography>
                       <Box
                         sx={{
@@ -243,7 +245,7 @@ export default function PostLayout() {
                         <CircularProgress size={40} />
                       </Box>
                     ) : (
-                      'No posts found'
+                      t('posts.postLayout.noPostsFound')
                     )}
                   </Box>
                 </Grid>

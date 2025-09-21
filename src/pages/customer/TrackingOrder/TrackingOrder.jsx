@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../redux/translations/translationSlice'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
@@ -20,6 +23,8 @@ import OrderDetailsCard from './components/OrderDetailsCard'
 import OrderItemsList from './components/OrderItemsList'
 
 const TrackingOrder = () => {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
   const theme = useTheme()
   const navigate = useNavigate()
   const [orderId, setOrderId] = useState('')
@@ -31,7 +36,7 @@ const TrackingOrder = () => {
 
   const handleSearch = async () => {
     if (!orderId.trim()) {
-      setError('Vui lòng nhập mã đơn hàng')
+      setError(t('trackingOrder.errors.pleaseEnterOrderCode'))
       return
     }
 
@@ -44,7 +49,7 @@ const TrackingOrder = () => {
       const data = await getOrderByCodeAPI(orderId)
       setOrderData(data)
     } catch (err) {
-      setError('Không tìm thấy đơn hàng với mã này')
+      setError(t('trackingOrder.errors.orderNotFound'))
       setOrderData(null)
     } finally {
       setLoading(false)
@@ -78,7 +83,7 @@ const TrackingOrder = () => {
           }
         }}
       >
-        Quay lại trang chủ
+        {t('trackingOrder.backToHome')}
       </Button>
 
       <Box textAlign="center" mb={4}>
@@ -91,14 +96,14 @@ const TrackingOrder = () => {
             mb: 2
           }}
         >
-          Theo Dõi Đơn Hàng
+          {t('trackingOrder.title')}
         </Typography>
         <Typography
           variant="body1"
           color="text.secondary"
           sx={{ mb: 4 }}
         >
-          Nhập mã đơn hàng để xem trạng thái và chi tiết đơn hàng của bạn
+          {t('trackingOrder.description')}
         </Typography>
 
         {/* Search Section */}
@@ -116,8 +121,8 @@ const TrackingOrder = () => {
             <Box display="flex" gap={2} alignItems="center">
               <TextField
                 fullWidth
-                label="Mã đơn hàng"
-                placeholder="Nhập mã đơn hàng (VD: GK-123456789)"
+                label={t('trackingOrder.orderCodeLabel')}
+                placeholder={t('trackingOrder.orderCodePlaceholder')}
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -140,7 +145,7 @@ const TrackingOrder = () => {
                   py: 1.5
                 }}
               >
-                {loading ? 'Đang tìm...' : 'Tìm kiếm'}
+                {loading ? t('trackingOrder.searching') : t('trackingOrder.search')}
               </Button>
             </Box>
           </Paper>
@@ -153,7 +158,7 @@ const TrackingOrder = () => {
               onClick={resetSearch}
               sx={{ borderRadius: 2 }}
             >
-              Tìm đơn hàng khác
+              {t('trackingOrder.searchOtherOrder')}
             </Button>
           </Box>
         )}
@@ -184,10 +189,10 @@ const TrackingOrder = () => {
           <Card sx={{ maxWidth: 600, mx: 'auto', textAlign: 'center', p: 3 }}>
             <CardContent>
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                Không tìm thấy đơn hàng
+                {t('trackingOrder.orderNotFound')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Vui lòng kiểm tra lại mã đơn hàng và thử lại
+                {t('trackingOrder.checkOrderCodeAndRetry')}
               </Typography>
             </CardContent>
           </Card>

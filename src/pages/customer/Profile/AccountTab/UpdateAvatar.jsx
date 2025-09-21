@@ -10,10 +10,15 @@ import PhotoCameraIcon from '@mui/icons-material/PhotoCamera'
 import { toast } from 'react-toastify'
 import { useState, useRef } from 'react'
 import { updateAvatarAPI } from '~/apis'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef(null)
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
 
   const handleFileSelect = () => {
     fileInputRef.current?.click()
@@ -26,21 +31,21 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Chỉ chấp nhận file JPG, PNG')
+      toast.error(t('accountTab.updateAvatar.fileTypeError'))
       return
     }
 
     // Validate file size (5MB)
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
-      toast.error('Kích thước file không được vượt quá 5MB')
+      toast.error(t('accountTab.updateAvatar.fileSizeError'))
       return
     }
 
     setUploading(true)
 
     await toast.promise(updateAvatarAPI(customerDetails.email, file), {
-      pending: 'Đang tải lên ảnh đại diện...',
+      pending: t('accountTab.updateAvatar.uploading'),
       success: {
         render({ data }) {
           // Update customer details with new avatar
@@ -48,10 +53,10 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
             ...prev,
             avatar: data.avatar
           }))
-          return 'Cập nhật ảnh đại diện thành công!'
+          return t('accountTab.updateAvatar.uploadSuccess')
         }
       },
-      error: 'Có lỗi xảy ra khi tải lên ảnh'
+      error: t('accountTab.updateAvatar.uploadError')
     }).then(() => {
       setUploading(false)
       if (fileInputRef.current) {
@@ -76,7 +81,7 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
             mb: 2
           }}>
             <Typography variant="h6" component="h3">
-              Hình đại diện
+              {t('accountTab.updateAvatar.title')}
             </Typography>
             <Button
               variant="outlined"
@@ -85,7 +90,7 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
               disabled={uploading}
               startIcon={<PhotoCameraIcon />}
             >
-              {uploading ? 'Đang tải...' : 'Thay đổi'}
+              {uploading ? t('accountTab.updateAvatar.uploading') : t('accountTab.updateAvatar.changePhoto')}
             </Button>
           </Box>
 
@@ -110,13 +115,13 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
                 fontWeight: 500,
                 mb: 0.5
               }}>
-                Tải lên ảnh đại diện của bạn
+                {t('accountTab.updateAvatar.uploadInstruction')}
               </Typography>
               <Typography variant="caption" sx={{
                 color: 'text.secondary',
                 fontSize: '0.75rem'
               }}>
-                Định dạng: JPG, PNG. Kích thước tối đa: 5MB
+                {t('accountTab.updateAvatar.formatInstructions')}
               </Typography>
             </Box>
           </Box>

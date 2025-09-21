@@ -8,6 +8,7 @@ import Zoom from '@mui/material/Zoom'
 import Avatar from '@mui/material/Avatar'
 import LockResetIcon from '@mui/icons-material/LockReset'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import {
   FIELD_REQUIRED_MESSAGE,
   EMAIL_RULE,
@@ -19,14 +20,15 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import BackToLoginConfirm from '~/components/BackToLoginConfirm/BackToLoginConfirm'
 
 function AccountForm({ onNext }) {
+  const { t } = useTranslation()
   const { register, handleSubmit, formState: { errors } } = useForm()
 
   const submitLogIn = (data) => {
     const { email } = data
     toast.promise(
       sendOtpCodeAPI({ email }), {
-        pending: 'Sending OTP code...',
-        success: 'OTP code sent successfully!'
+        pending: t('auth.resetPassword.sendingOtp'),
+        success: t('auth.resetPassword.otpSentSuccess')
       }
     ).then(res => {
       if (!res.error) {
@@ -49,10 +51,10 @@ function AccountForm({ onNext }) {
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Avatar sx={{ bgcolor: 'primary.main' }}><LockResetIcon /></Avatar>
-              <Typography variant="h4" align="center">RESET PASSWORD</Typography>
+              <Typography variant="h4" align="center">{t('auth.resetPassword.accountForm.title')}</Typography>
             </Box>
             <Typography variant="body2" align="center" sx={{ color: 'text.secondary', marginTop: '0.5em' }}>
-              Please enter your email address to begin the password reset process
+              {t('auth.resetPassword.accountForm.description')}
             </Typography>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
@@ -61,7 +63,7 @@ function AccountForm({ onNext }) {
                 // autoComplete="nope"
                 autoFocus
                 fullWidth
-                label="Enter your Email Address..."
+                label={t('auth.resetPassword.accountForm.emailLabel')}
                 type="text"
                 error={!!errors['email']}
                 {...register('email', {
@@ -84,15 +86,13 @@ function AccountForm({ onNext }) {
               size="large"
               fullWidth
             >
-              Proceed
+              {t('auth.resetPassword.accountForm.proceedButton')}
             </Button>
           </CardActions>
 
           <BackToLoginConfirm
-            stepName="quá trình nhập email để đặt lại mật khẩu"
-            customMessage="Bạn có chắc chắn muốn quay lại trang đăng nhập?
-
-Thông tin email đã nhập sẽ bị mất và bạn sẽ cần phải bắt đầu lại quá trình đặt lại mật khẩu."
+            stepName={t('auth.resetPassword.accountForm.stepName')}
+            customMessage={t('auth.resetPassword.accountForm.backConfirmMessage')}
           />
         </MuiCard>
       </Zoom>

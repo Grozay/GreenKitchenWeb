@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
@@ -21,6 +22,7 @@ import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { selectCurrentCart, clearCart } from '~/redux/cart/cartSlice'
 
 const Checkout = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const currentCart = useSelector(selectCurrentCart)
@@ -92,7 +94,7 @@ const Checkout = () => {
           }))
         }
       } catch {
-        toast.error('Không thể tải thông tin khách hàng!')
+        toast.error(t('checkout.errorLoadingCustomerInfo'))
       } finally {
         setLoading(false)
       }
@@ -116,7 +118,7 @@ const Checkout = () => {
         })
       }
     } catch {
-      toast.error('Không thể tải cài đặt vận chuyển!')
+      toast.error(t('checkout.errorLoadingShippingSettings'))
       // Keep default values if API fails
     }
   }, [])
@@ -232,40 +234,40 @@ const Checkout = () => {
 
     // Validate delivery information
     if (!deliveryInfo.recipientName.trim()) {
-      newErrors.recipientName = 'Vui lòng nhập tên người nhận'
+      newErrors.recipientName = t('checkout.validation.recipientNameRequired')
     }
 
     if (!deliveryInfo.recipientPhone.trim()) {
-      newErrors.recipientPhone = 'Vui lòng nhập số điện thoại'
+      newErrors.recipientPhone = t('checkout.validation.recipientPhoneRequired')
     }
 
     if (!deliveryInfo.street.trim()) {
-      newErrors.street = 'Vui lòng nhập địa chỉ'
+      newErrors.street = t('checkout.validation.streetRequired')
     }
 
     if (!deliveryInfo.ward.trim()) {
-      newErrors.ward = 'Vui lòng nhập phường/xã'
+      newErrors.ward = t('checkout.validation.wardRequired')
     }
 
     if (!deliveryInfo.district.trim()) {
-      newErrors.district = 'Vui lòng nhập quận/huyện'
+      newErrors.district = t('checkout.validation.districtRequired')
     }
 
     if (!deliveryInfo.city.trim()) {
-      newErrors.city = 'Vui lòng nhập thành phố'
+      newErrors.city = t('checkout.validation.cityRequired')
     }
 
     if (!deliveryInfo.deliveryTime) {
-      newErrors.deliveryTime = 'Vui lòng chọn thời gian giao hàng'
+      newErrors.deliveryTime = t('checkout.validation.deliveryTimeRequired')
     }
 
     if (!paymentMethod) {
-      newErrors.paymentMethod = 'Vui lòng chọn phương thức thanh toán'
+      newErrors.paymentMethod = t('checkout.validation.paymentMethodRequired')
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-      toast.error('Vui lòng điền đầy đủ thông tin!')
+      toast.error(t('checkout.pleaseCompleteInfo'))
       return
     }
 
@@ -321,7 +323,7 @@ const Checkout = () => {
           }
 
           dispatch(clearCart())
-          toast.success('Đặt hàng thành công!')
+          toast.success(t('checkout.orderSuccessMessage'))
           navigate('/profile/order-history')
         }
       } else if (paymentMethod?.toLowerCase() === 'paypal') {
@@ -331,7 +333,7 @@ const Checkout = () => {
         return
       }
     } catch {
-      toast.error('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
+      toast.error(t('checkout.orderErrorMessage'))
     } finally {
       setLoading(false)
     }
@@ -383,11 +385,11 @@ const Checkout = () => {
         }
 
         dispatch(clearCart())
-        toast.success('Đặt hàng và thanh toán thành công!')
+        toast.success(t('checkout.orderAndPaymentSuccessMessage'))
         navigate('/profile/order-history')
       }
     } catch {
-      toast.error('Có lỗi xảy ra sau khi thanh toán PayPal')
+      toast.error(t('checkout.paypalErrorMessage'))
     } finally {
       setShowPayPalForm(false)
       setLoading(false)
@@ -421,7 +423,7 @@ const Checkout = () => {
               }
             }}
           >
-            Quay lại giỏ hàng
+            {t('checkout.backToCart')}
           </Button>
 
           <Typography variant="h4" sx={{
@@ -430,14 +432,14 @@ const Checkout = () => {
             textAlign: 'center',
             mb: 1
           }}>
-            Thanh toán
+            {t('checkout.title')}
           </Typography>
 
           <Typography variant="body1" sx={{
             color: '#666',
             textAlign: 'center'
           }}>
-            Hoàn tất thông tin để đặt hàng
+            {t('checkout.subtitle')}
           </Typography>
         </Box>
 
@@ -476,7 +478,7 @@ const Checkout = () => {
             {/* Error Alert */}
             {Object.keys(errors).length > 0 && (
               <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                Vui lòng kiểm tra lại thông tin đã nhập
+                {t('checkout.pleaseCheckInfo')}
               </Alert>
             )}
           </Grid>
@@ -515,7 +517,7 @@ const Checkout = () => {
                 }
               }}
             >
-              {loading ? 'Đang xử lý...' : 'Đặt hàng ngay'}
+              {loading ? t('checkout.processing') : t('checkout.placeOrderNow')}
             </Button>
           </Grid>
         </Grid>
@@ -576,7 +578,7 @@ const Checkout = () => {
                   }
                 }}
               >
-                Hủy thanh toán
+                {t('checkout.cancelPayment')}
               </Button>
             </Box>
           </Box>

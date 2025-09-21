@@ -242,7 +242,7 @@ const CartItem = ({
                   ) : (
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography>
-                        <Box component="span" fontWeight="bold">Quantity:</Box>
+                        <Box component="span" fontWeight="bold">{t('cart.quantity')}:</Box>
                       </Typography>
                       <Typography variant="h6" sx={{
                         mx: 2,

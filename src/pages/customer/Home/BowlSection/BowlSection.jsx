@@ -5,33 +5,35 @@ import Typography from '@mui/material/Typography'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
 import Button from '@mui/material/Button'
+import { useTranslation } from 'react-i18next'
 
 const BowlSection = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const content = {
     protein: {
       step: 1,
-      title: 'Protein',
-      description: 'Choose your favorite protein to start building your bowl.',
+      title: t('home.bowlBuilder.protein.title'),
+      description: t('home.bowlBuilder.protein.description'),
       image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2070&auto=format&fit=crop'
     },
     carbs: {
       step: 2,
-      title: 'Carbs',
-      description: 'Choose your favorite carbs to complete your bowl.',
+      title: t('home.bowlBuilder.carbs.title'),
+      description: t('home.bowlBuilder.carbs.description'),
       image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=2070&auto=format&fit=crop'
     },
     side: {
       step: 3,
-      title: 'Side',
-      description: 'Choose your favorite side to enrich your bowl.',
+      title: t('home.bowlBuilder.side.title'),
+      description: t('home.bowlBuilder.side.description'),
       image: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?q=80&w=2070&auto=format&fit=crop'
     },
     sauce: {
       step: 4,
-      title: 'Sauce',
-      description: 'Choose your favorite sauce to perfect your bowl.',
+      title: t('home.bowlBuilder.sauce.title'),
+      description: t('home.bowlBuilder.sauce.description'),
       image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop'
     }
   }
@@ -48,7 +50,7 @@ const BowlSection = () => {
               color: theme.palette.primary.main
             }}
           >
-            Build your own healthy bowl
+            {t('home.bowlBuilder.title')}
           </Typography>
           <Typography
             variant="h5"
@@ -57,7 +59,7 @@ const BowlSection = () => {
               fontWeight: 'bold'
             }}
           >
-            & CONTROL THE CALORIES YOU CONSUME
+            {t('home.bowlBuilder.subtitle')}
           </Typography>
         </Box>
 
@@ -142,7 +144,7 @@ const BowlSection = () => {
                   }}
                 >
                   <Typography variant="h6" sx={{ fontWeight: 600, color: '#fff', mb: 2 }}>
-                    Food Made with Love
+                    {t('home.bowlBuilder.foodMadeWithLove')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
                     {content.protein.description}
@@ -232,7 +234,7 @@ const BowlSection = () => {
                   }}
                 >
                   <Typography variant="h6" sx={{ fontWeight: 600, color: '#fff', mb: 2 }}>
-                    Food Made with Love
+                    {t('home.bowlBuilder.foodMadeWithLove')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
                     {content.carbs.description}
@@ -322,7 +324,7 @@ const BowlSection = () => {
                   }}
                 >
                   <Typography variant="h6" sx={{ fontWeight: 600, color: '#fff', mb: 2 }}>
-                    Food Made with Love
+                    {t('home.bowlBuilder.foodMadeWithLove')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
                     {content.side.description}
@@ -412,7 +414,7 @@ const BowlSection = () => {
                   }}
                 >
                   <Typography variant="h6" sx={{ fontWeight: 600, color: '#fff', mb: 2 }}>
-                    Food Made with Love
+                    {t('home.bowlBuilder.foodMadeWithLove')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#fff' }}>
                     {content.sauce.description}
@@ -437,7 +439,7 @@ const BowlSection = () => {
               fontWeight: 'bold'
             }}
           >
-            Calculate Calories Now
+            {t('home.bowlBuilder.button')}
           </Button>
         </Box>
       </Container>

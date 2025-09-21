@@ -20,9 +20,14 @@ import PasswordStrengthIndicator from '~/components/Form/PasswordStrengthIndicat
 import { FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_CONFIRMATION_MESSAGE } from '~/utils/validators'
 import { changePasswordAPI } from '~/apis'
 import { formatDate } from '~/utils/formatter'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function ChangePassword({ customerDetails, setCustomerDetails }) {
   const [open, setOpen] = useState(false)
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
   const { register, handleSubmit, formState: { errors }, getValues, watch, reset } = useForm()
 
   const watchNewPassword = watch('newPassword', '')
@@ -39,9 +44,9 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
   const onSubmit = async (data) => {
     const { oldPassword, newPassword } = data
     await toast.promise(changePasswordAPI({ email: customerDetails.email, oldPassword, newPassword }), {
-      pending: 'Đang thay đổi mật khẩu...',
-      success: 'Mật khẩu đã được thay đổi thành công!',
-      error: 'Có lỗi xảy ra khi thay đổi mật khẩu'
+      pending: t('accountTab.changePassword.processing'),
+      success: t('accountTab.changePassword.success'),
+      error: t('accountTab.changePassword.error')
     }).then(res => {
       if (!res.error) {
         setCustomerDetails(prev => ({
@@ -69,14 +74,14 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               mb: 2
             }}>
               <Typography variant="h6" component="h3">
-                Mật khẩu
+                {t('accountTab.changePassword.title')}
               </Typography>
               <Button
                 variant="outlined"
                 size="small"
                 onClick={handleClickOpen}
               >
-                Đổi mật khẩu
+                {t('accountTab.changePassword.button')}
               </Button>
             </Box>
 
@@ -94,14 +99,14 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
                   color: 'primary.main',
                   fontWeight: 500
                 }}>
-                  Thay đổi mật khẩu tài khoản
+                  {t('accountTab.changePassword.dialogTitle')}
                 </Typography>
                 <Typography variant="body2" sx={{
                   color: '#666',
                   fontStyle: 'italic',
                   fontSize: '0.75rem'
                 }}>
-                  {customerDetails?.passwordUpdatedAt ? `Cập nhật lần cuối: ${formatDate(customerDetails.passwordUpdatedAt)}` : 'Chưa cập nhật mật khẩu'}
+                  {customerDetails?.passwordUpdatedAt ? `${t('accountTab.changePassword.lastChanged')}: ${formatDate(customerDetails.passwordUpdatedAt)}` : t('accountTab.changePassword.neverChanged')}
                 </Typography>
               </Box>
             </Box>
@@ -129,7 +134,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LockIcon sx={{ color: '#FF6B35' }} />
             <Typography variant="h6">
-              Thay đổi mật khẩu
+              {t('accountTab.changePassword.title')}
             </Typography>
           </Box>
           <IconButton
@@ -146,7 +151,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               {/* Current Password */}
               <Box>
                 <PasswordField
-                  label="Mật khẩu hiện tại"
+                  label={t('accountTab.changePassword.currentPassword')}
                   error={!!errors['oldPassword']}
                   register={register}
                   registerName="oldPassword"
@@ -161,7 +166,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               {/* New Password */}
               <Box>
                 <PasswordField
-                  label="Mật khẩu mới"
+                  label={t('accountTab.changePassword.newPassword')}
                   error={!!errors['newPassword']}
                   register={register}
                   registerName="newPassword"
@@ -181,7 +186,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               {/* Confirm New Password */}
               <Box>
                 <PasswordField
-                  label="Xác nhận mật khẩu mới"
+                  label={t('accountTab.changePassword.confirmPassword')}
                   error={!!errors['confirmNewPassword']}
                   register={register}
                   registerName="confirmNewPassword"
@@ -201,13 +206,13 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               onClick={handleClose}
               variant="outlined"
             >
-              Hủy
+              {t('accountTab.changePassword.cancel')}
             </Button>
             <Button
               type="submit"
               variant="contained"
             >
-              Thay đổi mật khẩu
+              {t('accountTab.changePassword.save')}
             </Button>
           </DialogActions>
         </form>

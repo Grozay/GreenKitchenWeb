@@ -5,13 +5,18 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import Button from '@mui/material/Button'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function FavoriteProducts({ favoriteProducts = [] }) {
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
   const hasFavorites = favoriteProducts.length > 0
   return (
     <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
       <CardContent sx={{ p: 2, minHeight: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography variant="h6">Món Ăn yêu thích</Typography>
+        <Typography variant="h6">{t('profile.overviewTab.favorites.title')}</Typography>
         <Divider sx={{ my: 1 }} />
         {hasFavorites ? (
           <Box>
@@ -24,7 +29,7 @@ export default function FavoriteProducts({ favoriteProducts = [] }) {
         ) : (
           <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              Bạn chưa có món ăn yêu thích? Hãy thêm ngay!
+              {t('profile.overviewTab.favorites.noFavorites')}
             </Typography>
             <Button
               component={Link}
@@ -33,7 +38,7 @@ export default function FavoriteProducts({ favoriteProducts = [] }) {
               size="small"
               sx={{ borderColor: 'primary.main', color: 'primary.main', alignSelf: 'center' }}
             >
-              Tới menu món
+              {t('profile.overviewTab.favorites.goToMenu')}
             </Button>
           </Box>
         )}

@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../../redux/translations/translationSlice'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
@@ -16,6 +19,8 @@ import { useState } from 'react'
 import OrderCard from './OrderCard'
 
 export default function OrderHistoryTab({ customerDetails }) {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [startDate, setStartDate] = useState(dayjs().subtract(30, 'day'))
   const [endDate, setEndDate] = useState(dayjs())
@@ -37,12 +42,12 @@ export default function OrderHistoryTab({ customerDetails }) {
   }
 
   const statusOptions = [
-    { key: 'all', label: 'Tất cả', color: 'default' },
-    { key: 'PENDING', label: 'Chờ xác nhận', color: 'warning' },
-    { key: 'CONFIRMED', label: 'Đã xác nhận', color: 'info' },
-    { key: 'SHIPPING', label: 'Đang giao hàng', color: 'primary' },
-    { key: 'DELIVERED', label: 'Đã giao hàng', color: 'success' },
-    { key: 'CANCELLED', label: 'Đã hủy', color: 'error' }
+    { key: 'all', label: t('profile.orderHistoryTab.statusOptions.all'), color: 'default' },
+    { key: 'PENDING', label: t('profile.orderHistoryTab.statusOptions.pending'), color: 'warning' },
+    { key: 'CONFIRMED', label: t('profile.orderHistoryTab.statusOptions.confirmed'), color: 'info' },
+    { key: 'SHIPPING', label: t('profile.orderHistoryTab.statusOptions.shipping'), color: 'primary' },
+    { key: 'DELIVERED', label: t('profile.orderHistoryTab.statusOptions.delivered'), color: 'success' },
+    { key: 'CANCELLED', label: t('profile.orderHistoryTab.statusOptions.cancelled'), color: 'error' }
   ]
 
   // Lấy dữ liệu orders từ customerDetails
@@ -66,7 +71,7 @@ export default function OrderHistoryTab({ customerDetails }) {
 
   const handleViewOrderDetails = (order) => {
     // TODO: Implement view details functionality
-    alert(`Xem chi tiết đơn hàng #${order.id}`)
+    alert(`${t('profile.orderHistoryTab.viewOrderDetails')} #${order.id}`)
   }
 
   return (
@@ -82,7 +87,7 @@ export default function OrderHistoryTab({ customerDetails }) {
             {/* Filter theo trạng thái */}
             <Grid size={12}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: '#666', fontSize: '14px' }}>
-                Trạng thái đơn hàng
+                {t('profile.orderHistoryTab.orderStatus')}
               </Typography>
               <Box sx={{
                 display: 'flex',
@@ -115,12 +120,12 @@ export default function OrderHistoryTab({ customerDetails }) {
             {/* Filter theo ngày tháng */}
             <Grid size={12}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: '#666', fontSize: '14px' }}>
-                Thời gian đặt hàng
+                {t('profile.orderHistoryTab.orderTime')}
               </Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
                   <DatePicker
-                    label="Từ ngày"
+                    label={t('profile.orderHistoryTab.fromDate')}
                     value={startDate}
                     onChange={handleStartDateChange}
                     slotProps={{
@@ -140,7 +145,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                     }}
                   />
                   <DatePicker
-                    label="Đến ngày"
+                    label={t('profile.orderHistoryTab.toDate')}
                     value={endDate}
                     onChange={handleEndDateChange}
                     minDate={startDate}
@@ -177,7 +182,7 @@ export default function OrderHistoryTab({ customerDetails }) {
             mb: 2
           }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#2e7d32', fontSize: '14px' }}>
-              Lịch sử đơn hàng ({filteredOrders.length} đơn)
+              {t('profile.orderHistoryTab.orderHistory')} ({filteredOrders.length} {t('profile.orderHistoryTab.orders')})
             </Typography>
             <IconButton
               onClick={() => setIsOrderHistoryOpen(!isOrderHistoryOpen)}
@@ -193,7 +198,7 @@ export default function OrderHistoryTab({ customerDetails }) {
             {filteredOrders.length === 0 ? (
               <Box sx={{ textAlign: 'center', py: 3 }}>
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '14px' }}>
-                  Không có đơn hàng nào phù hợp với bộ lọc
+                  {t('profile.orderHistoryTab.noOrdersMatch')}
                 </Typography>
               </Box>
             ) : (
@@ -210,7 +215,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                 {visibleCount < filteredOrders.length && (
                   <Box sx={{ textAlign: 'center', mt: 2 }}>
                     <Chip
-                      label="Xem thêm"
+                      label={t('profile.orderHistoryTab.viewMore')}
                       color="primary"
                       clickable
                       onClick={() => setVisibleCount((prev) => prev + 5)}

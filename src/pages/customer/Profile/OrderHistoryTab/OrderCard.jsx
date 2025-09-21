@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../../redux/translations/translationSlice'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -10,6 +13,9 @@ import { useNavigate } from 'react-router-dom'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 export default function OrderCard({ order, onViewDetails }) {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
+
   const getStatusColor = (status) => {
     switch (status) {
     case 'PENDING': return 'warning'
@@ -23,17 +29,17 @@ export default function OrderCard({ order, onViewDetails }) {
 
   const getStatusLabel = (status) => {
     switch (status) {
-    case 'PENDING': return 'Chờ xác nhận'
-    case 'CONFIRMED': return 'Đã xác nhận'
-    case 'SHIPPING': return 'Đang giao hàng'
-    case 'DELIVERED': return 'Đã giao hàng'
-    case 'CANCELLED': return 'Đã hủy'
+    case 'PENDING': return t('profile.orderHistoryTab.statusOptions.pending')
+    case 'CONFIRMED': return t('profile.orderHistoryTab.statusOptions.confirmed')
+    case 'SHIPPING': return t('profile.orderHistoryTab.statusOptions.shipping')
+    case 'DELIVERED': return t('profile.orderHistoryTab.statusOptions.delivered')
+    case 'CANCELLED': return t('profile.orderHistoryTab.statusOptions.cancelled')
     default: return status
     }
   }
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(currentLanguage === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
       currency: 'VND'
     }).format(price)
@@ -52,7 +58,7 @@ export default function OrderCard({ order, onViewDetails }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#2e7d32', fontSize: '14px' }}>
-              Đơn hàng #{order.id}
+              {t('profile.orderHistoryTab.order')} #{order.id}
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '14px' }}>
               {dayjs(order.deliveryTime).format('DD/MM/YYYY HH:mm')}
@@ -67,21 +73,21 @@ export default function OrderCard({ order, onViewDetails }) {
         {/* Order Items */}
         <Box sx={{ mb: 1.5 }}>
           <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#666', fontSize: '14px' }}>
-            Sản phẩm đã đặt ({order.orderItems?.length || 0} món)
+            {t('profile.orderHistoryTab.orderedProducts')} ({order.orderItems?.length || 0} {t('profile.orderHistoryTab.items')})
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
             {order.orderItems?.slice(0, 3).map((item, idx) => (
               <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 0.75, backgroundColor: '#f9f9f9', borderRadius: 1 }}>
                 <Avatar src={item.image} sx={{ width: 32, height: 32, backgroundColor: '#4caf50' }} variant="rounded">{!item.image && (item.itemType === 'MENU_MEAL' ? 'M' : 'C')}</Avatar>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '14px' }}>{item.title || 'Tên Món Ăn'}</Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '14px' }}>SL: {item.quantity} × {formatPrice(item.unitPrice)}</Typography>
+                  <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '14px' }}>{item.title || t('profile.orderHistoryTab.dishName')}</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '14px' }}>{t('profile.orderHistoryTab.quantity')}: {item.quantity} × {formatPrice(item.unitPrice)}</Typography>
                 </Box>
                 <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '14px' }}>{formatPrice(item.totalPrice)}</Typography>
               </Box>
             ))}
             {order.orderItems?.length > 3 && (
-              <Typography variant="caption" sx={{ fontStyle: 'italic', color: '#666', textAlign: 'center', mt: 0.5, fontSize: '14px' }}>+{order.orderItems.length - 3} sản phẩm khác</Typography>
+              <Typography variant="caption" sx={{ fontStyle: 'italic', color: '#666', textAlign: 'center', mt: 0.5, fontSize: '14px' }}>+{order.orderItems.length - 3} {t('profile.orderHistoryTab.otherProducts')}</Typography>
             )}
           </Box>
         </Box>
@@ -96,7 +102,7 @@ export default function OrderCard({ order, onViewDetails }) {
               height: '28px',
               fontSize: '14px'
             }}>
-              Xem chi tiết  <ArrowForwardIosIcon sx={{ fontSize: 10, ml: 0.5 }} />
+              {t('profile.orderHistoryTab.viewDetails')}  <ArrowForwardIosIcon sx={{ fontSize: 10, ml: 0.5 }} />
           </Button>
         </Box>
       </CardContent>

@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../../redux/translations/translationSlice'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
@@ -25,6 +28,8 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { getOrderByCodeAPI, getCustomMealByIdAPI } from '~/apis'
 
 export default function OrderDetails({ orderCode: propOrderCode }) {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const { orderId } = useParams()
   const navigate = useNavigate()
@@ -88,11 +93,11 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
   // progress helper removed — UI now shows step dots instead of a progress bar
   // Stepper status config
   const statusSteps = [
-    { key: 'PENDING', label: 'Chờ xác nhận', icon: <ScheduleIcon /> },
-    { key: 'CONFIRMED', label: 'Đã xác nhận', icon: <CheckCircleIcon /> },
-    { key: 'PREPARING', label: 'Đang chuẩn bị', icon: <RestaurantIcon /> },
-    { key: 'SHIPPING', label: 'Đang giao hàng', icon: <LocalShippingIcon /> },
-    { key: 'DELIVERED', label: 'Đã giao hàng', icon: <CheckCircleOutlineIcon /> }
+    { key: 'PENDING', label: t('profile.orderHistoryTab.orderDetails.steps.pending'), icon: <ScheduleIcon /> },
+    { key: 'CONFIRMED', label: t('profile.orderHistoryTab.orderDetails.steps.confirmed'), icon: <CheckCircleIcon /> },
+    { key: 'PREPARING', label: t('profile.orderHistoryTab.orderDetails.steps.preparing'), icon: <RestaurantIcon /> },
+    { key: 'SHIPPING', label: t('profile.orderHistoryTab.orderDetails.steps.shipping'), icon: <LocalShippingIcon /> },
+    { key: 'DELIVERED', label: t('profile.orderHistoryTab.orderDetails.steps.delivered'), icon: <CheckCircleOutlineIcon /> }
   ]
   const currentStep = statusSteps.findIndex(s => s.key === order?.status)
 

@@ -14,10 +14,12 @@ import EventIcon from '@mui/icons-material/Event'
 import ArticleIcon from '@mui/icons-material/Article'
 import CookieIcon from '@mui/icons-material/Cookie';
 import theme from '~/theme'
+import { useTranslation } from 'react-i18next'
 
 export default function CategoryFilter({ categories = [], category, setCategory }) {
+  const { t } = useTranslation()
   const selected = categories.find(c => String(c.id) === String(category))
-  const heading = selected ? selected.name : 'Topics'
+  const heading = selected ? selected.name : t('posts.categoryFilter.topics')
 
   const getIconForCategory = (name, active) => {
     const color = active ? '#fff' : 'rgba(0,0,0,0.54)'
@@ -66,7 +68,7 @@ export default function CategoryFilter({ categories = [], category, setCategory 
             '&:hover': { bgcolor: category === '' ? theme.palette.primary.secondary : 'action.hover' }
           }}
         >
-          All Topics
+          {t('posts.categoryFilter.allTopics')}
         </Button>
 
         {categories.map(c => (

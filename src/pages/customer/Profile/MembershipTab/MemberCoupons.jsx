@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
@@ -6,6 +7,8 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 
 export default function MemberCoupons({ membership, customerCoupons }) {
+  const { t } = useTranslation()
+
   return (
     <Grid size={12} sx={{
       width: '100%',
@@ -20,7 +23,7 @@ export default function MemberCoupons({ membership, customerCoupons }) {
         textAlign: 'center',
         m: 2
       }}>
-        Ưu đãi của bạn
+        {t('profile.membershipTab.yourOffers')}
       </Typography>
       {customerCoupons && customerCoupons.length > 0 ? (
         <Grid container spacing={2} sx={{ p: 2 }}>
@@ -49,33 +52,33 @@ export default function MemberCoupons({ membership, customerCoupons }) {
                   </Box>
                   <Box sx={{ textAlign: 'left', mb: 1.5 }}>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Mã:</strong> {customerCoupon.couponCode}
+                      <strong>{t('profile.membershipTab.couponCode')}:</strong> {customerCoupon.couponCode}
                     </Typography>
                     {customerCoupon.couponDescription && (
                       <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                        <strong>Mô tả:</strong> {customerCoupon.couponDescription}
+                        <strong>{t('profile.membershipTab.description')}:</strong> {customerCoupon.couponDescription}
                       </Typography>
                     )}
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Giảm:</strong>{' '}
+                      <strong>{t('profile.membershipTab.discount')}:</strong>{' '}
                       {customerCoupon.couponType === 'PERCENTAGE'
                         ? `${customerCoupon.couponDiscountValue}%`
                         : `${customerCoupon.couponDiscountValue?.toLocaleString()} VNĐ`}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Ngày đổi:</strong> {new Date(customerCoupon.exchangedAt).toLocaleDateString('vi-VN')}
+                      <strong>{t('profile.membershipTab.exchangeDate')}:</strong> {new Date(customerCoupon.exchangedAt).toLocaleDateString('vi-VN')}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Hạn sử dụng:</strong> {new Date(customerCoupon.expiresAt).toLocaleDateString('vi-VN')}
+                      <strong>{t('profile.membershipTab.expirationDate')}:</strong> {new Date(customerCoupon.expiresAt).toLocaleDateString('vi-VN')}
                     </Typography>
                     {customerCoupon.usedAt && (
                       <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                        <strong>Ngày sử dụng:</strong> {new Date(customerCoupon.usedAt).toLocaleDateString('vi-VN')}
+                        <strong>{t('profile.membershipTab.usedDate')}:</strong> {new Date(customerCoupon.usedAt).toLocaleDateString('vi-VN')}
                       </Typography>
                     )}
                     {customerCoupon.orderId && (
                       <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                        <strong>Đơn hàng:</strong> #{customerCoupon.orderId}
+                        <strong>{t('profile.membershipTab.order')}:</strong> #{customerCoupon.orderId}
                       </Typography>
                     )}
                   </Box>
@@ -88,10 +91,10 @@ export default function MemberCoupons({ membership, customerCoupons }) {
                         sx={{ borderRadius: 2, px: 2, fontWeight: 'bold', fontSize: '0.875rem' }}
                         onClick={() => {
                           // TODO: Implement use coupon functionality
-                          alert('Chức năng sử dụng coupon sẽ được triển khai trong đơn hàng')
+                          alert(t('profile.membershipTab.useCouponMessage'))
                         }}
                       >
-                        Sử dụng ngay
+                        {t('profile.membershipTab.useNow')}
                       </Button>
                     ) : (
                       <Button
@@ -100,7 +103,7 @@ export default function MemberCoupons({ membership, customerCoupons }) {
                         size="small"
                         sx={{ borderRadius: 2, px: 2, fontSize: '0.875rem' }}
                       >
-                        {customerCoupon.status === 'USED' ? 'Đã sử dụng' : 'Hết hạn'}
+                        {customerCoupon.status === 'USED' ? t('profile.membershipTab.used') : t('profile.membershipTab.expired')}
                       </Button>
                     )}
                   </Box>
@@ -115,10 +118,10 @@ export default function MemberCoupons({ membership, customerCoupons }) {
             <Typography sx={{ fontSize: '80px' }}>🎁</Typography>
           </Box>
           <Typography variant="body2" color="text.secondary">
-            Bạn đang chưa có ưu đãi nào
+            {t('profile.membershipTab.noOffers')}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontSize: '0.875rem' }}>
-            Hãy đổi điểm lấy coupon để nhận ưu đãi nhé!
+            {t('profile.membershipTab.exchangePointsForCoupons')}
           </Typography>
         </Box>
       )}

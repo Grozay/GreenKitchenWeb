@@ -7,8 +7,10 @@ import Radio from '@mui/material/Radio'
 import Paper from '@mui/material/Paper'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import PaymentIcon from '@mui/icons-material/Payment'
+import { useTranslation } from 'react-i18next'
 
 const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
+  const { t } = useTranslation()
   const handlePaymentChange = (event) => {
     setPaymentMethod(event.target.value)
   }
@@ -16,14 +18,14 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
   const paymentOptions = [
     {
       value: 'cod',
-      label: 'Thanh toán khi nhận hàng (COD)',
-      description: 'Thanh toán bằng tiền mặt khi nhận hàng',
+      label: t('checkout.payment.cod.label'),
+      description: t('checkout.payment.cod.description'),
       icon: <LocalShippingIcon sx={{ color: '#4C082A', fontSize: 28 }} />
     },
     {
       value: 'paypal',
-      label: 'Thanh toán qua PayPal',
-      description: 'Thanh toán an toàn qua PayPal với thẻ hoặc tài khoản PayPal',
+      label: t('checkout.payment.paypal.label'),
+      description: t('checkout.payment.paypal.description'),
       icon: <PaymentIcon sx={{ color: '#0070ba', fontSize: 28 }} />
     }
   ]
@@ -44,7 +46,7 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
         borderBottom: '1px solid #e0e0e0'
       }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c2c2c' }}>
-          PHƯƠNG THỨC THANH TOÁN
+          {t('checkout.payment.title')}
         </Typography>
       </Box>
 
@@ -121,7 +123,7 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
             border: '1px solid #0070ba'
           }}>
             <Typography variant="body2" sx={{ color: '#0070ba', textAlign: 'center' }}>
-              💰 Thanh toán an toàn qua PayPal. Hỗ trợ thẻ Visa, Mastercard và tài khoản PayPal
+              {t('checkout.payment.paypal.secureInfo')}
             </Typography>
           </Box>
         )}
@@ -135,7 +137,7 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
             border: '1px solid #e0e0e0'
           }}>
             <Typography variant="body2" sx={{ color: '#666', textAlign: 'center' }}>
-              🚚 Vui lòng chuẩn bị tiền mặt để thanh toán khi nhận hàng
+              {t('checkout.payment.cod.cashInfo')}
             </Typography>
           </Box>
         )}

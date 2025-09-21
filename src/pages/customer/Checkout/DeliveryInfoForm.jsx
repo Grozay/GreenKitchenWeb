@@ -18,6 +18,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import dayjs from 'dayjs'
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // Mock store locations in Ho Chi Minh City
 const MOCK_STORES = [
@@ -152,6 +153,7 @@ const DeliveryInfoForm = ({
   customerDetails,
   onStoreSelect
 }) => {
+  const { t } = useTranslation()
   const [showCustomForm, setShowCustomForm] = useState(false)
 
   // State cho quận/huyện và phường/xã
@@ -665,7 +667,7 @@ const DeliveryInfoForm = ({
         borderBottom: '1px solid #e0e0e0'
       }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c2c2c' }}>
-          THÔNG TIN GIAO HÀNG
+          {t('checkout.deliveryInfo.title')}
         </Typography>
       </Box>
 
@@ -677,7 +679,7 @@ const DeliveryInfoForm = ({
             {/* Default Address Display */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-                Thông tin giao hàng
+                {t('checkout.deliveryInfo.subtitle')}
               </Typography>
 
               <Card variant="outlined" sx={{ mb: 2 }}>

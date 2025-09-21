@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../../redux/translations/translationSlice'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -21,11 +24,13 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import { useState } from 'react'
 
 export default function HistoryModal({ open, onClose, pointHistories }) {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
   const getTransactionIcon = (transactionType, description) => {
-    if (description?.includes('Đổi coupon')) {
+    if (description?.includes(t('profile.membershipTab.exchangeCoupon'))) {
       return <CardGiftcardIcon sx={{ fontSize: '1.5rem', color: '#FF7043' }} />
     }
     if (transactionType === 'USED') {

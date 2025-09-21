@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../../redux/translations/translationSlice'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -16,10 +19,12 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { PAYMENT_METHOD, PAYMENT_STATUS } from '~/utils/constants'
 
 const OrderDetailsCard = ({ order }) => {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
   const theme = useTheme()
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(currentLanguage === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
       currency: 'VND'
     }).format(amount)
@@ -28,7 +33,7 @@ const OrderDetailsCard = ({ order }) => {
   const formatDate = (dateString) => {
     if (!dateString) return ''
     const date = new Date(dateString)
-    return date.toLocaleString('vi-VN', {
+    return date.toLocaleString(currentLanguage === 'vi' ? 'vi-VN' : 'en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -39,7 +44,7 @@ const OrderDetailsCard = ({ order }) => {
 
   const getPaymentMethodLabel = (method) => {
     const labels = {
-      [PAYMENT_METHOD.COD]: 'Thanh toán khi nhận hàng',
+      [PAYMENT_METHOD.COD]: t('trackingOrder.orderDetails.paymentMethods.cod'),
       [PAYMENT_METHOD.PAYPAL]: 'PayPal'
     }
     return labels[method] || method

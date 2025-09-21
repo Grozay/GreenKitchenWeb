@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -35,6 +36,7 @@ import RememberMeCheckbox from '~/components/Form/RememberMeCheckbox'
 import theme from '~/theme'
 
 function LoginForm() {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
@@ -59,7 +61,7 @@ function LoginForm() {
     const { email, password } = data
     toast.promise(
       dispatch(loginCustomerApi({ email, password })), {
-        pending: 'Logging in...'
+        pending: t('auth.loginForm.loggingIn')
       }
     ).then(res => {
       if (res.error?.message?.includes('not active')) {
@@ -77,9 +79,9 @@ function LoginForm() {
         } else {
           // Nếu không có customerId, log error và skip sync
           console.error('Customer ID not found after login, skipping cart sync')
-          toast.error('Login successful, but cart sync failed. Please refresh.')
+          toast.error(t('auth.loginForm.loginSuccessCartSyncFailed'))
         }
-        toast.success('Login successful!')
+        toast.success(t('auth.loginForm.loginSuccessful'))
         // Redirect về trang user muốn truy cập trước đó
         navigate(from, { replace: true })
       }
@@ -90,8 +92,8 @@ function LoginForm() {
     const email = resendEmail.trim()
     toast.promise(
       resendVerifyEmailApi({ email }), {
-        pending: 'Resending verification email...',
-        success: 'Verification email resent successfully!'
+        pending: t('auth.loginForm.resendingVerificationEmail'),
+        success: t('auth.loginForm.verificationEmailResentSuccessfully')
       }
     ).then(() => {
       setOpenResendVerifyPanel(false)

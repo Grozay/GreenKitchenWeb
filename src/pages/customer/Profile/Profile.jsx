@@ -30,6 +30,9 @@ import StorefrontIcon from '@mui/icons-material/Storefront'
 import PolicyIcon from '@mui/icons-material/Policy'
 import BottomProfileNav from '~/components/BottomProfileNav/BottomProfileNav'
 import OrderDetails from './OrderHistoryTab/OrderDetails'
+import { useTranslation } from 'react-i18next'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import useTranslate from '~/hooks/useTranslate'
 
 // Khai báo đống tabs ra biến const để dùng lại cho gọn
 const TABS = {
@@ -48,6 +51,8 @@ function Profile() {
   const [customerDetails, setCustomerDetails] = useState(null)
   const [loading, setLoading] = useState(false)
   const currentCustomer = useSelector(selectCurrentCustomer)
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
 
   // Function đơn giản có nhiệm vụ lấy ra cái tab mặc định dựa theo url.
   const getDefaultTab = useCallback(() => {
@@ -177,35 +182,35 @@ function Profile() {
             <Divider />
             <Box sx={{ height: 16 }} />
             <Tab
-              label="Tổng Quan"
+              label={t('profile.tabs.overview')}
               value={TABS.OVERVIEW}
               icon={<AssessmentIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/overview"/>
             <Tab
-              label="Thông Tin Tài Khoản"
+              label={t('profile.tabs.accountInfo')}
               value={TABS.ACCOUNT}
               icon={<ManageAccountsIcon fontSize='medium'/>}
               iconPosition='start'
               component={Link}
               to="/profile/account" />
             <Tab
-              label="Hạng Thành Viên"
+              label={t('profile.tabs.membership')}
               value={TABS.MEMBERSHIP}
               icon={<LoyaltyIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/membership" />
             <Tab
-              label="Lịch Sử Đặt Hàng"
+              label={t('profile.tabs.orderHistory')}
               value={TABS.ORDERHISTORY}
               icon={<LocalShippingIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/order-history" />
             <Tab
-              label="Thông tin TDEE"
+              label={t('profile.tabs.tdeeInfo')}
               value={TABS.TDEEPROFILE}
               icon={<FitnessCenterIcon fontSize='medium'/>}
               iconPosition="start"
@@ -216,21 +221,21 @@ function Profile() {
             <Divider />
             <Box sx={{ height: 16 }} />
             <Tab
-              label="Hỗ trợ và Phản hồi"
+              label={t('profile.tabs.supportFeedback')}
               value={TABS.FEEDBACK}
               icon={<RateReviewIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/feedback" />
                          <Tab
-               label="Tìm kiếm cửa hàng"
+               label={t('profile.tabs.storeLocation')}
                value={TABS.STORELOCATION}
                icon={<StorefrontIcon fontSize='medium'/>}
                iconPosition="start"
                component={Link}
                to="/profile/store-location" />
              <Tab
-               label="Chính sách sử dụng"
+               label={t('profile.tabs.policy')}
                value={TABS.POLICY}
                icon={<PolicyIcon fontSize='medium'/>}
                iconPosition="start"

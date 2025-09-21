@@ -8,6 +8,7 @@ import Zoom from '@mui/material/Zoom'
 import Avatar from '@mui/material/Avatar'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import {
   PASSWORD_RULE_MESSAGE,
   FIELD_REQUIRED_MESSAGE,
@@ -20,6 +21,7 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import BackToLoginConfirm from '~/components/BackToLoginConfirm/BackToLoginConfirm'
 
 function ResetPwForm({ onSubmit, email }) {
+  const { t } = useTranslation()
   const { register, handleSubmit, formState: { errors }, getValues } = useForm()
   // const userId = location.state?.userId
 
@@ -27,8 +29,8 @@ function ResetPwForm({ onSubmit, email }) {
     const { password } = data
     toast.promise(
       resetPasswordAPI({ email, password }), {
-        pending: 'Updating password...',
-        success: 'Password updated successfully!'
+        pending: t('auth.resetPassword.resetPwForm.updatingPassword'),
+        success: t('auth.resetPassword.resetPwForm.passwordUpdatedSuccess')
       }
     ).then(res => {
       // console.log(res)
@@ -54,10 +56,10 @@ function ResetPwForm({ onSubmit, email }) {
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Avatar sx={{ bgcolor: 'primary.main' }}><VpnKeyIcon /></Avatar>
-              <Typography variant="h4" align="center">NEW PASSWORD</Typography>
+              <Typography variant="h4" align="center">{t('auth.resetPassword.resetPwForm.title')}</Typography>
             </Box>
             <Typography variant="body2" align="center" sx={{ color: 'text.secondary', marginTop: '0.5em' }}>
-              Create a strong password for your account security
+              {t('auth.resetPassword.resetPwForm.description')}
             </Typography>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
@@ -66,7 +68,7 @@ function ResetPwForm({ onSubmit, email }) {
                 // autoComplete="nope"
                 autoFocus
                 fullWidth
-                label="Enter your new password..."
+                label={t('auth.resetPassword.resetPwForm.passwordLabel')}
                 type="password"
                 variant="outlined"
                 error={!!errors['password']}
@@ -85,7 +87,7 @@ function ResetPwForm({ onSubmit, email }) {
                 // autoComplete="nope"
                 autoFocus
                 fullWidth
-                label="Enter confirm password..."
+                label={t('auth.resetPassword.resetPwForm.confirmPasswordLabel')}
                 type="password"
                 variant="outlined"
                 error={!!errors['passwordConfirmation']}
@@ -105,15 +107,13 @@ function ResetPwForm({ onSubmit, email }) {
               size="large"
               fullWidth
             >
-              Proceed
+              {t('auth.resetPassword.resetPwForm.proceedButton')}
             </Button>
           </CardActions>
 
           <BackToLoginConfirm
-            stepName="quá trình đặt lại mật khẩu mới"
-            customMessage="Bạn có chắc chắn muốn quay lại trang đăng nhập?
-
-Mật khẩu mới bạn đã nhập sẽ không được lưu và bạn sẽ cần phải bắt đầu lại toàn bộ quá trình đặt lại mật khẩu từ đầu."
+            stepName={t('auth.resetPassword.resetPwForm.stepName')}
+            customMessage={t('auth.resetPassword.resetPwForm.backConfirmMessage')}
           />
         </MuiCard>
       </Zoom>

@@ -4,16 +4,21 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import GreenyAvt from '~/assets/images/greeny.png'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function FoodReferenceList({ customerDetails, vegetarianTypes, setPrefill, setEditMode, setDialogOpen, setUserDeclined }) {
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
   const reference = customerDetails?.customerReference
   // Helper để lấy label chế độ ăn
-  const vegetarianLabel = vegetarianTypes.find(v => v.value === reference?.vegetarianType)?.label || 'Không xác định'
+  const vegetarianLabel = vegetarianTypes.find(v => v.value === reference?.vegetarianType)?.label || t('profile.overviewTab.foodReferenceList.unknown')
 
   // Render list as Chips for nicer UI
   const renderChips = (arr, key, color = 'default') => {
     if (!Array.isArray(arr) || arr.length === 0) {
-      return <Typography sx={{ color: 'text.disabled' }}>Chưa có thông tin</Typography>
+      return <Typography sx={{ color: 'text.disabled' }}>{t('profile.overviewTab.foodReferenceList.noInfo')}</Typography>
     }
     return (
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -41,7 +46,7 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
               justifyContent: 'space-between'
             })}>
               <Typography variant="h6" sx={{ fontWeight: 'bold', letterSpacing: 0.3, color: 'white' }}>
-                🌟 SỞ THÍCH THỰC PHẨM CỦA TÔI
+                🌟 {t('profile.overviewTab.foodReferenceList.title')}
               </Typography>
               <Button
                 variant="outlined"
@@ -71,14 +76,14 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
                   setDialogOpen(true)
                 }}
               >
-                ✏️ Chỉnh sửa
+                ✏️ {t('common.edit')}
               </Button>
             </Box>
             {/* Card body */}
             <Box sx={{ p: { xs: 2, sm: 3 } }}>
               {/* Chế độ ăn uống */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥗 Chế độ ăn uống:</Typography>
+                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥗 {t('profile.overviewTab.foodReferenceList.dietType')}:</Typography>
                 <Chip
                   label={vegetarianLabel}
                   size="small"
@@ -88,10 +93,10 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
                 {(reference.canEatEggs || reference.canEatDairy) && (
                   <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
                     {reference.canEatEggs && (
-                      <Chip label="Ăn được trứng" color="success" size="small" icon={<span>🥚</span>} />
+                      <Chip label={t('profile.overviewTab.foodReferenceList.canEatEggs')} color="success" size="small" icon={<span>🥚</span>} />
                     )}
                     {reference.canEatDairy && (
-                      <Chip label="Ăn được sữa" color="success" size="small" icon={<span>🥛</span>} />
+                      <Chip label={t('profile.overviewTab.foodReferenceList.canEatDairy')} color="success" size="small" icon={<span>🥛</span>} />
                     )}
                   </Box>
                 )}
@@ -100,7 +105,7 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
               {/* Ghi chú */}
               {reference.note && (
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                  <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>💭 Ghi chú:</Typography>
+                  <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>💭 {t('profile.overviewTab.foodReferenceList.notes')}:</Typography>
                   <Typography sx={{ ml: 1 }}>{reference.note}</Typography>
                 </Box>
               )}
@@ -108,18 +113,18 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
               {/* Dị ứng thực phẩm */}
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap' }}>
                 <Typography sx={{ fontWeight: 'bold', minWidth: 140, color: 'error.main' }}>
-                  ⚠️ Dị ứng thực phẩm:
+                  ⚠️ {t('profile.overviewTab.foodReferenceList.allergies')}:
                 </Typography>
                 <Box sx={{ ml: 1 }}>
                   {Array.isArray(reference.allergies) && reference.allergies.length > 0
                     ? renderChips(reference.allergies, 'allergyName', 'error')
-                    : <Typography sx={{ color: '#43a047', fontWeight: 500 }}>Không có dị ứng nào</Typography>}
+                    : <Typography sx={{ color: '#43a047', fontWeight: 500 }}>{t('profile.overviewTab.foodReferenceList.noAllergies')}</Typography>}
                 </Box>
               </Box>
 
               {/* Protein yêu thích */}
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥩 Protein yêu thích:</Typography>
+                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥩 {t('profile.overviewTab.foodReferenceList.favoriteProteins')}:</Typography>
                 <Box sx={{ ml: 1 }}>
                   {renderChips(reference.favoriteProteins, 'proteinName', 'secondary')}
                 </Box>
@@ -127,7 +132,7 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
 
               {/* Carbs yêu thích */}
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🍚 Carbs yêu thích:</Typography>
+                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🍚 {t('profile.overviewTab.foodReferenceList.favoriteCarbs')}:</Typography>
                 <Box sx={{ ml: 1 }}>
                   {renderChips(reference.favoriteCarbs, 'carbName', 'info')}
                 </Box>
@@ -135,7 +140,7 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
 
               {/* Rau củ yêu thích */}
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥬 Rau củ yêu thích:</Typography>
+                <Typography sx={{ fontWeight: 'bold', minWidth: 140 }}>🥬 {t('profile.overviewTab.foodReferenceList.favoriteVegetables')}:</Typography>
                 <Box sx={{ ml: 1 }}>
                   {renderChips(reference.favoriteVegetables, 'vegetableName', 'success')}
                 </Box>
@@ -147,10 +152,10 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
         <Box sx={{ textAlign: 'center', py: 8, backgroundColor: 'white' }}>
           <img src={GreenyAvt} alt="green kitchen" style={{ height: 120 }} />
           <Typography variant="h5" gutterBottom>
-            Chào mừng bạn đến với Green Kitchen!
+            {t('profile.overviewTab.foodReferenceList.welcomeTitle')}
           </Typography>
           <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-            Hãy chia sẻ sở thích ẩm thực để chúng tôi có thể phục vụ bạn tốt hơn
+            {t('profile.overviewTab.foodReferenceList.welcomeDescription')}
           </Typography>
           <Button
             variant="contained"
@@ -160,7 +165,7 @@ export default function FoodReferenceList({ customerDetails, vegetarianTypes, se
             }}
             sx={{ px: 4, py: 1.5 }}
           >
-            📝 Thiết lập sở thích ẩm thực
+            📝 {t('profile.overviewTab.foodReferenceList.setupButton')}
           </Button>
         </Box>
       )}

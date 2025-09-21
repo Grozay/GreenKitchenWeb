@@ -1,4 +1,5 @@
 // TrungQuanDev: https://youtube.com/@trungquandev
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -22,6 +23,7 @@ import PasswordField from '~/components/Form/PasswordField'
 import PasswordStrengthIndicator from '~/components/Form/PasswordStrengthIndicator'
 
 function RegisterForm() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { register, handleSubmit, formState: { errors }, getValues, watch } = useForm()
@@ -31,7 +33,7 @@ function RegisterForm() {
   const submitRegister = (data) => {
     const { firstName, lastName, email, password } = data
     toast.promise(registerCustomerAPI({ firstName, lastName, email, password }), {
-      pending: 'Registering...'
+      pending: t('auth.registerForm.registering')
     }).then(user => {
       navigate(`/login?registeredEmail=${user.email}`)
     })
@@ -41,9 +43,9 @@ function RegisterForm() {
     toast.promise(
       dispatch(googleLoginAPI({ idToken: credentialResponse.credential })),
       {
-        pending: 'Signing in with Google...',
-        success: 'Google login successful!',
-        error: 'Google login failed'
+        pending: t('auth.registerForm.signingInWithGoogle'),
+        success: t('auth.registerForm.googleLoginSuccessful'),
+        error: t('auth.registerForm.googleLoginFailed')
       }
     ).then(response => {
       if (!response.error) {

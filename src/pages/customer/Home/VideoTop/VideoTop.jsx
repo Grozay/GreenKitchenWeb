@@ -4,9 +4,11 @@ import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import { useNavigate } from 'react-router-dom'
 import videoSrc from '~/assets/videos/video_title.mp4'
+import { useTranslation } from 'react-i18next'
 
 const VideoTop = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   return (
     <Box
       sx={{
@@ -65,7 +67,7 @@ const VideoTop = () => {
             position: 'relative'
           }}
         >
-          GREEN KITCHEN EXPERIENCE
+          {t('home.hero.subtitle')}
         </Typography>
         <Typography
           sx={{
@@ -75,7 +77,7 @@ const VideoTop = () => {
             position: 'relative'
           }}
         >
-          Your healthy food soulmate
+          {t('home.hero.title')}
         </Typography>
       </Container>
       <Box
@@ -101,7 +103,7 @@ const VideoTop = () => {
           }}
           onClick={() => navigate('/menu')}
         >
-          Go to Menu
+          {t('home.hero.button')}
         </Button>
         <Typography
           sx={{
@@ -110,7 +112,7 @@ const VideoTop = () => {
             ml: 2
           }}
         >
-          Discover our healthy meal packages!
+          {t('home.hero.description')}
         </Typography>
       </Box>
     </Box>

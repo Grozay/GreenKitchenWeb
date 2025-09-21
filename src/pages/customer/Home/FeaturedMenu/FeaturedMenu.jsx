@@ -13,6 +13,7 @@ import { getMenuMealAPI } from '~/apis'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const VISIBLE_COUNT = 4
 const TRANSITION_DURATION = 500 // ms
@@ -24,6 +25,7 @@ const FeaturedMenu = () => {
   const [isLooping, setIsLooping] = useState(false)
   const [loading, setLoading] = useState(true) // Add loading state
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   useEffect(() => {
     const fetchMealPackages = async () => {
@@ -116,7 +118,7 @@ const FeaturedMenu = () => {
             color: theme.palette.primary.main
           }}
         >
-          Green-made bowls
+          {t('home.featuredMenu.title')}
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
@@ -211,7 +213,7 @@ const FeaturedMenu = () => {
             }}
             onClick={() => { navigate('/menu') }}
           >
-            View all meal packages
+            {t('home.featuredMenu.button')}
           </Button>
         </Box>
       </Container>

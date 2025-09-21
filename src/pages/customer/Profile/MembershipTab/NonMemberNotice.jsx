@@ -1,9 +1,12 @@
+import { useTranslation } from 'react-i18next'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
 export default function NonMemberNotice({ customerDetails }) {
+  const { t } = useTranslation()
+
   return (
     <Card sx={{
       background: 'linear-gradient(135deg, #782d0aff 0%, #764ba2 100%)',
@@ -19,7 +22,7 @@ export default function NonMemberNotice({ customerDetails }) {
           mb: 2,
           textShadow: '0 2px 4px rgba(0,0,0,0.3)'
         }}>
-          Chào {customerDetails?.fullName}!
+          {t('profile.membershipTab.greetingNonMember', { name: customerDetails?.fullName })}!
         </Typography>
         <Typography variant="h5" sx={{
           fontWeight: 'bold',
@@ -27,14 +30,14 @@ export default function NonMemberNotice({ customerDetails }) {
           mb: 3,
           textShadow: '0 2px 4px rgba(0,0,0,0.3)'
         }}>
-          Bạn chưa là hội viên!
+          {t('profile.membershipTab.notMemberYet')}!
         </Typography>
         <Typography variant="h6" sx={{
           color: 'white',
           mb: 4,
           opacity: 0.9
         }}>
-          Hãy order một món bất kỳ để nhận ưu đãi hội viên nhé! 🌟
+          {t('profile.membershipTab.orderToBecomeMember')} 🌟
         </Typography>
         <Button
           variant="contained"
@@ -57,7 +60,7 @@ export default function NonMemberNotice({ customerDetails }) {
           }}
           onClick={() => window.location.href = '/menu'}
         >
-          🍽️ See Menu
+          🍽️ {t('profile.membershipTab.seeMenu')}
         </Button>
       </CardContent>
     </Card>

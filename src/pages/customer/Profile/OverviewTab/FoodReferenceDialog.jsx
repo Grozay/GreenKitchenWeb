@@ -21,6 +21,9 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import { toast } from 'react-toastify'
 import { createCustomerReferenceAPI } from '~/apis'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function FoodReferenceDialog({
   open,
@@ -32,6 +35,8 @@ export default function FoodReferenceDialog({
   prefill = null,
   onSubmit
 }) {
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     vegetarianType: '',
@@ -82,29 +87,46 @@ export default function FoodReferenceDialog({
 
   // Options for food preferences
   const proteinOptions = [
-    'Thịt bò', 'Thịt gà', 'Thịt heo', 'Cá hồi', 'Cá thu', 'Tôm', 'Cua', 'Mực',
-    'Đậu phụ', 'Tempeh', 'Đậu đen', 'Đậu xanh', 'Trứng gà', 'Trứng vịt'
+    t('profile.overviewTab.foodPreferences.proteins.beef'),
+    t('profile.overviewTab.foodPreferences.proteins.chicken'),
+    t('profile.overviewTab.foodPreferences.proteins.pork'),
+    t('profile.overviewTab.foodPreferences.proteins.salmon'),
+    t('profile.overviewTab.foodPreferences.proteins.mackerel'),
+    t('profile.overviewTab.foodPreferences.proteins.shrimp'),
+    t('profile.overviewTab.foodPreferences.proteins.crab')
   ]
 
   const carbOptions = [
-    'Cơm trắng', 'Cơm gạo lức', 'Cơm tím', 'Khoai lang', 'Khoai tây', 'Bí đỏ',
-    'Bún', 'Phở', 'Mì ý', 'Yến mạch', 'Quinoa', 'Bánh mì nguyên cám'
+    t('profile.overviewTab.foodPreferences.carbs.whiteRice'),
+    t('profile.overviewTab.foodPreferences.carbs.brownRice'),
+    t('profile.overviewTab.foodPreferences.carbs.purpleRice'),
+    t('profile.overviewTab.foodPreferences.carbs.sweetPotato'),
+    t('profile.overviewTab.foodPreferences.carbs.potato')
   ]
 
   const vegetableOptions = [
-    'Salad xanh', 'Cà rót', 'Bông cải xanh', 'Bông cải trắng', 'Rau muống',
-    'Rau cải', 'Cà chua', 'Dưa chuột', 'Ớt chuông', 'Nấm', 'Giá đỗ', 'Cần tây'
+    t('profile.overviewTab.foodPreferences.vegetables.greenSalad'),
+    t('profile.overviewTab.foodPreferences.vegetables.eggplant'),
+    t('profile.overviewTab.foodPreferences.vegetables.broccoli'),
+    t('profile.overviewTab.foodPreferences.vegetables.cauliflower'),
+    t('profile.overviewTab.foodPreferences.vegetables.spinach')
   ]
 
   const allergyOptions = [
-    'Đậu phộng', 'Hạt điều', 'Tôm cua', 'Sữa', 'Trứng', 'Gluten',
-    'Đậu nành', 'Hạt mè', 'Cá', 'Shellfish'
+    t('profile.overviewTab.foodPreferences.allergies.peanuts'),
+    t('profile.overviewTab.foodPreferences.allergies.cashews'),
+    t('profile.overviewTab.foodPreferences.allergies.shellfish'),
+    t('profile.overviewTab.foodPreferences.allergies.milk'),
+    t('profile.overviewTab.foodPreferences.allergies.soy'),
+    t('profile.overviewTab.foodPreferences.allergies.sesame'),
+    t('profile.overviewTab.foodPreferences.allergies.fish'),
+    t('profile.overviewTab.foodPreferences.allergies.seafood')
   ]
 
   const vegetarianTypes = [
-    { value: 'NEVER', label: 'Ăn mặn' },
-    { value: 'VEGAN', label: 'Ăn thuần chay' },
-    { value: 'LUNAR_VEGAN', label: 'Ăn chay 2 ngày rằm mỗi tháng' }
+    { value: 'NEVER', label: t('profile.overviewTab.vegetarianTypes.never') },
+    { value: 'VEGAN', label: t('profile.overviewTab.vegetarianTypes.vegan') },
+    { value: 'LUNAR_VEGAN', label: t('profile.overviewTab.vegetarianTypes.lunarVegan') }
   ]
 
   // Handle checkbox changes
@@ -152,7 +174,7 @@ export default function FoodReferenceDialog({
       if (editMode && onSubmit) {
         await onSubmit(formData)
         onClose()
-        toast.success('Đã cập nhật thông tin sở thích!')
+        toast.success(t('profile.overviewTab.foodPreferences.updateSuccess'))
       } else {
         // Prepare data for API
         const referenceData = {
@@ -176,10 +198,10 @@ export default function FoodReferenceDialog({
         }))
 
         onClose()
-        toast.success('Đã lưu thông tin sở thích thành công!')
+        toast.success(t('profile.overviewTab.foodPreferences.saveSuccess'))
       }
     } catch {
-      toast.error('Có lỗi xảy ra khi lưu thông tin!')
+      toast.error(t('profile.overviewTab.foodPreferences.saveError'))
     } finally {
       setLoading(false)
     }
@@ -195,10 +217,10 @@ export default function FoodReferenceDialog({
     >
       <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-          {editMode ? '✏️ Chỉnh sửa sở thích ẩm thực' : '🌟 Thiết lập sở thích ẩm thực'}
+          {editMode ? t('profile.overviewTab.foodPreferences.editTitle') : t('profile.overviewTab.foodPreferences.setupTitle')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Chia sẻ với chúng tôi về sở thích ẩm thực để nhận được đề xuất phù hợp nhất
+          {t('profile.overviewTab.foodPreferences.description')}
         </Typography>
       </DialogTitle>
 
@@ -208,7 +230,7 @@ export default function FoodReferenceDialog({
           <Grid size={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend" sx={{ fontWeight: 'bold', mb: 1 }}>
-                🥗 Chế độ ăn của bạn
+                🥗 {t('profile.overviewTab.foodPreferences.dietType')}
               </FormLabel>
               <RadioGroup
                 value={formData.vegetarianType}
@@ -239,7 +261,7 @@ export default function FoodReferenceDialog({
           {formData.vegetarianType && formData.vegetarianType !== 'NEVER' && (
             <Grid size={12}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                💡 <strong>Lưu ý:</strong> Một số món chay có thể chứa trứng hoặc sữa. Hãy cho chúng tôi biết bạn có thể ăn những thực phẩm này không để chúng tôi đề xuất món ăn phù hợp.
+                💡 <strong>{t('profile.overviewTab.foodPreferences.note')}:</strong> {t('profile.overviewTab.foodPreferences.eggsDairyNote')}
               </Typography>
               <FormGroup>
                 <FormControlLabel
@@ -249,7 +271,7 @@ export default function FoodReferenceDialog({
                       onChange={(e) => setFormData(prev => ({ ...prev, canEatEggs: e.target.checked }))}
                     />
                   }
-                  label="🥚 Tôi có thể ăn trứng"
+                  label={t('profile.overviewTab.foodPreferences.canEatEggs')}
                 />
                 <FormControlLabel
                   control={
@@ -258,7 +280,7 @@ export default function FoodReferenceDialog({
                       onChange={(e) => setFormData(prev => ({ ...prev, canEatDairy: e.target.checked }))}
                     />
                   }
-                  label="🥛 Tôi có thể ăn sữa và chế phẩm từ sữa"
+                  label={t('profile.overviewTab.foodPreferences.canEatDairy')}
                 />
               </FormGroup>
             </Grid>
@@ -268,19 +290,19 @@ export default function FoodReferenceDialog({
           <Grid size={12}>
             <TextField
               fullWidth
-              label="Ghi chú thêm"
+              label={t('profile.overviewTab.foodPreferences.additionalNotes')}
               multiline
               rows={3}
               value={formData.note}
               onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
-              placeholder="Ví dụ: Không ăn cay, thích món nhạt..."
+              placeholder={t('profile.overviewTab.foodPreferences.notePlaceholder')}
             />
           </Grid>
 
           {/* Favorite Proteins */}
           <Grid size={12}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-              🥩 Protein yêu thích
+              🥩 {t('profile.overviewTab.foodPreferences.favoriteProteins')}
             </Typography>
             <FormGroup sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
               {proteinOptions.map((protein) => (
@@ -300,7 +322,7 @@ export default function FoodReferenceDialog({
             <Box sx={{ mt: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField
                 size="small"
-                label="Protein khác"
+                label={t('profile.overviewTab.foodPreferences.customProtein')}
                 value={formData.customProtein}
                 onChange={(e) => handleCustomInputChange('customProtein', e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addCustomItem('favoriteProteins', 'customProtein')}
@@ -309,7 +331,7 @@ export default function FoodReferenceDialog({
                 variant="outlined"
                 onClick={() => addCustomItem('favoriteProteins', 'customProtein')}
               >
-                Thêm
+                {t('profile.overviewTab.foodPreferences.addButton')}
               </Button>
             </Box>
             {formData.favoriteProteins.length > 0 && (
@@ -331,7 +353,7 @@ export default function FoodReferenceDialog({
           {/* Favorite Carbs */}
           <Grid size={12}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-              🍚 Carbs yêu thích
+              🍚 {t('profile.overviewTab.foodPreferences.favoriteCarbs')}
             </Typography>
             <FormGroup sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
               {carbOptions.map((carb) => (
@@ -351,7 +373,7 @@ export default function FoodReferenceDialog({
             <Box sx={{ mt: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField
                 size="small"
-                label="Carb khác"
+                label={t('profile.overviewTab.foodPreferences.customCarb')}
                 value={formData.customCarb}
                 onChange={(e) => handleCustomInputChange('customCarb', e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addCustomItem('favoriteCarbs', 'customCarb')}
@@ -360,7 +382,7 @@ export default function FoodReferenceDialog({
                 variant="outlined"
                 onClick={() => addCustomItem('favoriteCarbs', 'customCarb')}
               >
-                Thêm
+                {t('profile.overviewTab.foodPreferences.addButton')}
               </Button>
             </Box>
             {formData.favoriteCarbs.length > 0 && (
@@ -382,7 +404,7 @@ export default function FoodReferenceDialog({
           {/* Favorite Vegetables */}
           <Grid size={12}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-              🥬 Rau củ yêu thích
+              🥬 {t('profile.overviewTab.foodPreferences.favoriteVegetables')}
             </Typography>
             <FormGroup sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
               {vegetableOptions.map((vegetable) => (
@@ -402,7 +424,7 @@ export default function FoodReferenceDialog({
             <Box sx={{ mt: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField
                 size="small"
-                label="Rau củ khác"
+                label={t('profile.overviewTab.foodPreferences.customVegetable')}
                 value={formData.customVegetable}
                 onChange={(e) => handleCustomInputChange('customVegetable', e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addCustomItem('favoriteVegetables', 'customVegetable')}
@@ -411,7 +433,7 @@ export default function FoodReferenceDialog({
                 variant="outlined"
                 onClick={() => addCustomItem('favoriteVegetables', 'customVegetable')}
               >
-                Thêm
+                {t('profile.overviewTab.foodPreferences.addButton')}
               </Button>
             </Box>
             {formData.favoriteVegetables.length > 0 && (
@@ -433,10 +455,10 @@ export default function FoodReferenceDialog({
           {/* Allergies */}
           <Grid size={12}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'error.main' }}>
-              ⚠️ Dị ứng thực phẩm
+              ⚠️ {t('profile.overviewTab.foodPreferences.allergies')}
             </Typography>
             <Alert severity="info" sx={{ mb: 2 }}>
-              Vui lòng chọn các thực phẩm mà bạn bị dị ứng để chúng tôi có thể đề xuất món ăn phù hợp.
+              {t('profile.overviewTab.foodPreferences.allergiesNote')}
             </Alert>
             <FormGroup sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
               {allergyOptions.map((allergy) => (
@@ -456,7 +478,7 @@ export default function FoodReferenceDialog({
             <Box sx={{ mt: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField
                 size="small"
-                label="Dị ứng khác"
+                label={t('profile.overviewTab.foodPreferences.customAllergy')}
                 value={formData.customAllergy}
                 onChange={(e) => handleCustomInputChange('customAllergy', e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addCustomItem('allergies', 'customAllergy')}
@@ -465,7 +487,7 @@ export default function FoodReferenceDialog({
                 variant="outlined"
                 onClick={() => addCustomItem('allergies', 'customAllergy')}
               >
-                Thêm
+                {t('profile.overviewTab.foodPreferences.addButton')}
               </Button>
             </Box>
             {formData.allergies.length > 0 && (
@@ -503,10 +525,10 @@ export default function FoodReferenceDialog({
                 {loading ? (
                   <>
                     <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                    Đang lưu...
+                    {t('profile.overviewTab.foodPreferences.saving')}
                   </>
                 ) : (
-                  '💾 Lưu thông tin sở thích'
+                  t('profile.overviewTab.foodPreferences.savePreferences')
                 )}
               </Button>
             </Box>
@@ -515,7 +537,7 @@ export default function FoodReferenceDialog({
       </DialogContent>
       <DialogActions sx={{ p: 3 }}>
         <Button onClick={onCancel} color="secondary">
-          Hủy
+          {t('common.cancel')}
         </Button>
       </DialogActions>
     </Dialog>

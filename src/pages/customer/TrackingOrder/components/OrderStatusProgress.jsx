@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../../redux/translations/translationSlice'
 import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
@@ -19,6 +22,8 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import { ORDER_STATUS } from '~/utils/constants'
 
 const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
   const theme = useTheme()
   const [activeStep, setActiveStep] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -26,46 +31,46 @@ const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
 
   const statusConfig = {
     [ORDER_STATUS.PENDING]: {
-      label: 'Chờ xác nhận',
+      label: t('trackingOrder.statusProgress.pending'),
       icon: <ScheduleIcon />,
       color: '#ff9800',
       bgColor: '#fff3e0',
-      description: 'Đơn hàng đang chờ nhân viên xác nhận'
+      description: t('trackingOrder.statusProgress.pendingDescription')
     },
     [ORDER_STATUS.CONFIRMED]: {
-      label: 'Đã xác nhận',
+      label: t('trackingOrder.statusProgress.confirmed'),
       icon: <CheckCircleIcon />,
       color: '#2196f3',
       bgColor: '#e3f2fd',
-      description: 'Đơn hàng đã được xác nhận và chuẩn bị chế biến'
+      description: t('trackingOrder.statusProgress.confirmedDescription')
     },
     [ORDER_STATUS.PREPARING]: {
-      label: 'Đang chuẩn bị',
+      label: t('trackingOrder.statusProgress.preparing'),
       icon: <RestaurantIcon />,
       color: '#9c27b0',
       bgColor: '#f3e5f5',
-      description: 'Bếp đang chế biến món ăn cho bạn'
+      description: t('trackingOrder.statusProgress.preparingDescription')
     },
     [ORDER_STATUS.SHIPPING]: {
-      label: 'Đang giao hàng',
+      label: t('trackingOrder.statusProgress.shipping'),
       icon: <LocalShippingIcon />,
       color: '#ff5722',
       bgColor: '#fbe9e7',
-      description: 'Shipper đang trên đường giao hàng đến bạn'
+      description: t('trackingOrder.statusProgress.shippingDescription')
     },
     [ORDER_STATUS.DELIVERED]: {
-      label: 'Đã giao hàng',
+      label: t('trackingOrder.statusProgress.delivered'),
       icon: <CheckCircleOutlineIcon />,
       color: '#4caf50',
       bgColor: '#e8f5e8',
-      description: 'Đơn hàng đã được giao thành công'
+      description: t('trackingOrder.statusProgress.deliveredDescription')
     },
     [ORDER_STATUS.CANCELLED]: {
-      label: 'Đã hủy',
+      label: t('trackingOrder.statusProgress.cancelled'),
       icon: <CancelIcon />,
       color: '#f44336',
       bgColor: '#ffebee',
-      description: 'Đơn hàng đã bị hủy'
+      description: t('trackingOrder.statusProgress.cancelledDescription')
     }
   }
 

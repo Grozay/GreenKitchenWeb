@@ -8,18 +8,23 @@ import CouponsSummaryCard from './CouponsSummaryCard'
 import RecentOrdersCard from './RecentOrdersCard'
 import MembershipSummaryCard from './MembershipSummaryCard'
 import TopBanner from '~/components/Banners/TopBanner'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function OverviewTab({ customerDetails, setCustomerDetails }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [prefill, setPrefill] = useState(null)
   const [userDeclined, setUserDeclined] = useState(false)
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
   // theme available if needed by children
 
   const vegetarianTypes = [
-    { value: 'NEVER', label: 'Ăn mặn' },
-    { value: 'VEGAN', label: 'Ăn thuần chay' },
-    { value: 'LUNAR_VEGAN', label: 'Ăn chay 2 ngày rằm mỗi tháng' }
+    { value: 'NEVER', label: t('profile.overviewTab.vegetarianTypes.never') },
+    { value: 'VEGAN', label: t('profile.overviewTab.vegetarianTypes.vegan') },
+    { value: 'LUNAR_VEGAN', label: t('profile.overviewTab.vegetarianTypes.lunarVegan') }
   ]
 
   // Handle cancel dialog
@@ -110,14 +115,14 @@ export default function OverviewTab({ customerDetails, setCustomerDetails }) {
   const getStatusColor = (status) => statusColorMap[status] || 'default'
 
   const statusLabelMap = {
-    PENDING: 'Chờ xác nhận',
-    CONFIRMED: 'Đã xác nhận',
-    SHIPPING: 'Đang giao hàng',
-    DELIVERED: 'Đã giao hàng',
-    CANCELLED: 'Đã hủy'
+    PENDING: t('profile.overviewTab.orderStatus.pending'),
+    CONFIRMED: t('profile.overviewTab.orderStatus.confirmed'),
+    SHIPPING: t('profile.overviewTab.orderStatus.shipping'),
+    DELIVERED: t('profile.overviewTab.orderStatus.delivered'),
+    CANCELLED: t('profile.overviewTab.orderStatus.cancelled')
   }
 
-  const getStatusLabel = (status) => statusLabelMap[status] || status || 'Không xác định'
+  const getStatusLabel = (status) => statusLabelMap[status] || status || t('profile.overviewTab.orderStatus.unknown')
 
 
   // Auto open form on first visit if no reference yet

@@ -18,6 +18,9 @@ import { useDispatch } from 'react-redux'
 import { logoutCustomerApi } from '~/redux/user/customerSlice'
 import { useNavigate } from 'react-router-dom'
 import { useConfirm } from 'material-ui-confirm'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 
 export default function GoogleSync({ customerDetails, setCustomerDetails }) {
@@ -25,6 +28,8 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
   const [openEmailMismatchDialog, setOpenEmailMismatchDialog] = useState(false)
   const [googleEmailMismatch, setGoogleEmailMismatch] = useState(null)
   const isLinkedWithGoogle = customerDetails?.isOauthUser && customerDetails?.oauthProvider === 'google'
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -33,9 +38,9 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
   const handleUnlinkGoogle = async () => {
     setOpenUnlinkDialog(false)
     await toast.promise(unlinkGoogleAPI({ email: customerDetails.email }), {
-      pending: 'Đang hủy liên kết với Google...',
-      success: 'Đã hủy liên kết với Google thành công!',
-      error: 'Có lỗi xảy ra khi hủy liên kết'
+      pending: t('accountTab.linkGoogleAccount.unlinking'),
+      success: t('accountTab.linkGoogleAccount.unlinkingSuccess'),
+      error: t('accountTab.linkGoogleAccount.unlinkingError')
     })
 
     setCustomerDetails(prev => ({
@@ -90,9 +95,9 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
       email: customerDetails.email,
       idToken: credential
     }), {
-      pending: 'Đang liên kết với Google...',
-      success: 'Liên kết với Google thành công!',
-      error: 'Có lỗi xảy ra khi liên kết với Google'
+      pending: t('accountTab.linkGoogleAccount.linking'),
+      success: t('accountTab.linkGoogleAccount.linkingSuccess'),
+      error: t('accountTab.linkGoogleAccount.linkingError')
     })
 
     setCustomerDetails(prev => ({
@@ -124,7 +129,7 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
       // Nếu email trùng khớp, thực hiện link bình thường
       await performGoogleLink(credentialResponse.credential)
     } catch {
-      toast.error('Có lỗi xảy ra khi xử lý đăng nhập Google')
+      toast.error(t('accountTab.linkGoogleAccount.googleLoginError'))
     }
   }
 
@@ -143,7 +148,7 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
             mb: 2
           }}>
             <Typography variant="h6" component="h3">
-              Liên kết Google
+              {t('accountTab.linkGoogleAccount.title')}
             </Typography>
 
             {isLinkedWithGoogle ? (
@@ -153,13 +158,13 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
                 color="error"
                 onClick={handleOpenUnlinkDialog}
               >
-                Hủy liên kết
+                {t('accountTab.linkGoogleAccount.unlinkButton')}
               </Button>
             ) : (
               <GoogleLogin
                 onSuccess={handleGoogleLoginSuccess}
                 onError={() => {
-                  toast.error('Google login failed')
+                  toast.error(t('accountTab.linkGoogleAccount.googleLoginFailed'))
                 }}
                 text="signin"
                 shape="rectangular"
@@ -182,14 +187,14 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
                 color: isLinkedWithGoogle ? 'primary.main' : 'text.secondary',
                 fontWeight: 500
               }}>
-                Đăng nhập bằng Google
+                {t('accountTab.linkGoogleAccount.googleLogin')}
               </Typography>
               <Typography variant="body2" sx={{
                 color: isLinkedWithGoogle ? 'primary.main' : 'text.disabled',
                 fontWeight: 600,
                 fontSize: '0.875rem'
               }}>
-                {isLinkedWithGoogle ? '✓ Đã liên kết' : '○ Chưa liên kết'}
+                {isLinkedWithGoogle ? `✓ ${t('accountTab.linkGoogleAccount.linkedStatus')}` : `○ ${t('accountTab.linkGoogleAccount.notLinkedStatus')}`}
               </Typography>
             </Box>
           </Box>
@@ -204,20 +209,19 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
         aria-describedby="unlink-dialog-description"
       >
         <DialogTitle id="unlink-dialog-title">
-          Xác nhận hủy liên kết
+          {t('accountTab.linkGoogleAccount.unlinkConfirmTitle')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="unlink-dialog-description">
-            Bạn có chắc chắn muốn hủy liên kết tài khoản Google không?
-            Sau khi hủy liên kết, dữ liệu liên kết với tài khoản Google có thể bị mất!
+            {t('accountTab.linkGoogleAccount.unlinkConfirmContent')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseUnlinkDialog} color="primary">
-            Hủy
+            {t('accountTab.linkGoogleAccount.cancel')}
           </Button>
           <Button onClick={handleUnlinkGoogle} color="error" variant="contained">
-            Xác nhận
+            {t('accountTab.linkGoogleAccount.confirmUnlink')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -236,25 +240,24 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
           alignItems: 'center',
           gap: 1
         }}>
-          ⚠️ Email không khớp
+          ⚠️ {t('accountTab.linkGoogleAccount.emailMismatchTitle')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            <strong>Email tài khoản hiện tại:</strong> {googleEmailMismatch?.currentEmail}
+            <strong>{t('accountTab.linkGoogleAccount.currentAccountEmail')}:</strong> {googleEmailMismatch?.currentEmail}
           </DialogContentText>
           <DialogContentText sx={{ mb: 2 }}>
-            <strong>Email Google bạn đang đăng nhập:</strong> {googleEmailMismatch?.googleEmail}
+            <strong>{t('accountTab.linkGoogleAccount.googleAccountEmail')}:</strong> {googleEmailMismatch?.googleEmail}
           </DialogContentText>
           <DialogContentText sx={{ color: 'text.secondary' }}>
-            Để đảm bảo bảo mật, chúng tôi chỉ cho phép liên kết Google với cùng email tài khoản.
-            Bạn có thể:
+            {t('accountTab.linkGoogleAccount.emailMismatchExplanation')}
           </DialogContentText>
           <Box sx={{ mt: 2, pl: 2 }}>
             <Typography variant="body2" sx={{ mb: 1 }}>
-              • <strong>Đăng xuất</strong> và đăng nhập lại bằng email Google ({googleEmailMismatch?.googleEmail})
+              • <strong>{t('accountTab.linkGoogleAccount.logoutOption')}</strong> {t('accountTab.linkGoogleAccount.logoutDescription')} ({googleEmailMismatch?.googleEmail})
             </Typography>
             <Typography variant="body2">
-              • <strong>Hủy</strong> và tiếp tục sử dụng tài khoản hiện tại
+              • <strong>{t('accountTab.linkGoogleAccount.cancelOption')}</strong> {t('accountTab.linkGoogleAccount.cancelDescription')}
             </Typography>
           </Box>
         </DialogContent>
@@ -264,14 +267,14 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
             color="primary"
             variant="outlined"
           >
-            Hủy liên kết
+            {t('accountTab.linkGoogleAccount.understood')}
           </Button>
           <Button
             onClick={handleSwitchToGoogleAccount}
             color="warning"
             variant="contained"
           >
-            Đăng nhập lại
+            {t('accountTab.linkGoogleAccount.loginAgain')}
           </Button>
         </DialogActions>
       </Dialog>

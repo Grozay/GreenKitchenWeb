@@ -15,10 +15,12 @@ import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
 import ButtonBase from '@mui/material/ButtonBase'
+import { useTranslation } from 'react-i18next'
 
 export default function PostDetails() {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(false)
   const [relatedPosts, setRelatedPosts] = useState([])
@@ -70,7 +72,7 @@ export default function PostDetails() {
         px: { xs: 3, sm: 4, md: 5, lg: 7 }
       }}>
         <Box sx={{ mt: 1, py: 1 }}>
-          <Button startIcon={<ArrowBackIosIcon fontSize='small' />} variant="text" size="medium" onClick={() => navigate('/blog')}>Back to Blogs</Button>
+          <Button startIcon={<ArrowBackIosIcon fontSize='small' />} variant="text" size="medium" onClick={() => navigate('/blog')}>{t('posts.postDetails.backToBlogs')}</Button>
         </Box>
         <Box sx={{ p: 3 }}>
           <Skeleton variant="text" width="60%" height={40} />
@@ -83,7 +85,7 @@ export default function PostDetails() {
       </Box>
     </Box>
   )
-  if (!post) return <Container sx={{ py: 4 }}><Box sx={{ p: 3 }}>Post not found</Box></Container>
+  if (!post) return <Container sx={{ py: 4 }}><Box sx={{ p: 3 }}>{t('posts.postDetails.postNotFound')}</Box></Container>
 
   return (
     <Box>
@@ -95,7 +97,7 @@ export default function PostDetails() {
         px: { xs: 3, sm: 4, md: 10 }
       }}>
         <Box sx={{ mt: 1, py: 1 }}>
-          <Button startIcon={<ArrowBackIosIcon fontSize='small' />} variant="text" size="medium" onClick={() => navigate('/blog')}>Back to Blogs</Button>
+          <Button startIcon={<ArrowBackIosIcon fontSize='small' />} variant="text" size="medium" onClick={() => navigate('/blog')}>{t('posts.postDetails.backToBlogs')}</Button>
         </Box>
 
         <Box sx={{ p: 1 }}>
@@ -118,7 +120,7 @@ export default function PostDetails() {
           {/* Related posts slider */}
           {relatedPosts.length > 0 && (
             <Box sx={{ mt: 4 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Related posts</Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>{t('posts.postDetails.relatedPosts')}</Typography>
               <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1 }}>
                 {relatedPosts.map(r => (
                   <ButtonBase key={r.id} onClick={() => navigate(`/blog/${r.slug || r.id}`)} sx={{ minWidth: 260 }}>

@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
 import { getExchangeRateAPI, capturePayPalOrderAPI } from '~/apis'
 
@@ -14,6 +15,7 @@ const PayPalPaymentForm = ({
   onError,
   loading: parentLoading
 }) => {
+  const { t } = useTranslation()
   const [{ isPending, isRejected }] = usePayPalScriptReducer()
   const [loading, setLoading] = useState(false)
   const [exchangeRate, setExchangeRate] = useState(26000)
@@ -65,7 +67,7 @@ const PayPalPaymentForm = ({
       })
     } catch (error) {
       // console.error('Error in createOrder:', error)
-      toast.error(`Không thể tạo đơn thanh toán: ${error.message}`)
+      toast.error(t('checkout.paypal.createOrderError', { error: error.message }))
     }
   }
 
@@ -81,7 +83,7 @@ const PayPalPaymentForm = ({
       })
 
       // Thành công
-      toast.success('Thanh toán thành công!')
+      toast.success(t('checkout.paypal.paymentSuccess'))
       onSuccess({
         id: data.orderID,
         status: 'COMPLETED',
@@ -89,7 +91,7 @@ const PayPalPaymentForm = ({
       })
 
     } catch (error) {
-      toast.error(`Thanh toán thất bại: ${error.message}`)
+      toast.error(t('checkout.paypal.paymentFailed', { error: error.message }))
       onError(error)
     } finally {
       setLoading(false)
@@ -97,12 +99,12 @@ const PayPalPaymentForm = ({
   }
 
   const onCancel = () => {
-    toast.info('Thanh toán đã được hủy')
+    toast.info(t('checkout.paypal.paymentCancelled'))
     onError(new Error('Payment cancelled'))
   }
 
   const onErrorHandler = (err) => {
-    toast.error(`Lỗi PayPal: ${err.message || 'Có lỗi xảy ra với PayPal'}`)
+    toast.error(t('checkout.paypal.paypalError', { error: err.message || t('checkout.paypal.genericError') }))
     onError(err)
   }
 
@@ -110,7 +112,7 @@ const PayPalPaymentForm = ({
     return (
       <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
         <CircularProgress sx={{ mb: 2 }} />
-        <Typography>Đang tải PayPal...</Typography>
+        <Typography>{t('checkout.paypal.loadingPaypal')}</Typography>
       </Paper>
     )
   }
@@ -119,7 +121,7 @@ const PayPalPaymentForm = ({
     return (
       <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
         <Alert severity="error">
-          <Typography>Không thể tải PayPal. Vui lòng thử lại sau.</Typography>
+          <Typography>{t('checkout.paypal.cannotLoadPaypal')}</Typography>
         </Alert>
       </Paper>
     )
@@ -128,17 +130,17 @@ const PayPalPaymentForm = ({
   return (
     <Paper sx={{ p: 3, borderRadius: 2, position: 'relative', height: '100%' }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-        💰 Thanh toán qua cổng thanh toán PayPal
+        {t('checkout.paypal.title')}
       </Typography>
 
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>Số tiền gốc:</strong> {orderData.totalAmount?.toLocaleString('vi-VN')}₫
+          <strong>{t('checkout.paypal.originalAmount')}:</strong> {orderData.totalAmount?.toLocaleString('vi-VN')}₫
           <br />
-          <strong>Thanh toán PayPal:</strong> ${convertToUSD(orderData.totalAmount)} USD
+          <strong>{t('checkout.paypal.paypalAmount')}:</strong> ${convertToUSD(orderData.totalAmount)} USD
           <br />
           <Typography variant="caption" color="text.secondary">
-            Tỷ giá: 1 USD = {exchangeRate.toLocaleString('vi-VN')} VND
+            {t('checkout.paypal.exchangeRate', { rate: exchangeRate.toLocaleString('vi-VN') })}
           </Typography>
         </Typography>
       </Alert>

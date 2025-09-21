@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '../../../../redux/translations/translationSlice'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -10,10 +13,12 @@ import RestaurantIcon from '@mui/icons-material/Restaurant'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 const OrderItemsList = ({ order }) => {
+  const { t } = useTranslation()
+  const currentLanguage = useSelector(selectCurrentLanguage)
   const theme = useTheme()
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(currentLanguage === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
       currency: 'VND'
     }).format(amount)
@@ -24,7 +29,7 @@ const OrderItemsList = ({ order }) => {
       <Card elevation={3}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" color="text.secondary" textAlign="center">
-            Không có thông tin món ăn
+            {t('trackingOrder.orderItems.noItemInfo')}
           </Typography>
         </CardContent>
       </Card>
@@ -39,7 +44,7 @@ const OrderItemsList = ({ order }) => {
         <CardContent sx={{ p: 3, textAlign: 'center' }}>
           <RestaurantIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="text.secondary">
-            Không có thông tin món ăn
+            {t('trackingOrder.orderItems.noItemInfo')}
           </Typography>
         </CardContent>
       </Card>

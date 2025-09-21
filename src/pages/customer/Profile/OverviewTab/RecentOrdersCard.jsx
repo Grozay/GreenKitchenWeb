@@ -11,8 +11,14 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import MuiLink from '@mui/material/Link'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import Divider from '@mui/material/Divider'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStatusColor, formatVND }) {
+  const { t } = useTranslation()
+  const currentLang = useSelector(selectCurrentLanguage)
+  
   return (
     <Card sx={{ borderRadius: 2, boxShadow: 2, minHeight: 280 }}>
       <CardContent sx={{ p: 2 }}>
@@ -20,7 +26,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocalShippingIcon sx={{ fontSize: 20, mr: 0.5 }} />
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              Đơn hàng gần đây
+              {t('profile.overviewTab.recentOrders.title')}
             </Typography>
           </Box>
           <Button
@@ -37,7 +43,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
               '&:visited': { color: 'primary.main' }
             }}
           >
-            Xem tất cả
+            {t('profile.overviewTab.recentOrders.viewAll')}
           </Button>
         </Box>
         {recentOrders.length > 0 ? (
@@ -56,9 +62,9 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                 }}>
                 <Grid size={8}>
                   <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>Đơn hàng: #{o.id}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{t('profile.overviewTab.recentOrders.orderLabel')}: #{o.id}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Ngày đặt hàng: {new Date(o.createdAt || o.deliveryTime).toLocaleDateString('vi-VN')}
+                      {t('profile.overviewTab.recentOrders.orderDate')}: {new Date(o.createdAt || o.deliveryTime).toLocaleDateString(currentLang === 'vi' ? 'vi-VN' : 'en-US')}
                     </Typography>
                   </Box>
                   {/* Items preview: show up to 2 product images + names */}
@@ -85,13 +91,13 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                             }}
                             title={item.title}
                           >
-                            {item.title || 'Tên món'}
+                            {item.title || t('profile.overviewTab.recentOrders.defaultItemName')}
                           </Typography>
                         </Box>
                       ))}
                       {o.orderItems.length > 2 && (
                         <Typography variant="caption" color="text.secondary">
-                          +{o.orderItems.length - 2} món khác
+                          +{o.orderItems.length - 2} {t('profile.overviewTab.recentOrders.moreItems')}
                         </Typography>
                       )}
                     </Box>
@@ -120,7 +126,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                         '&:visited': { color: 'primary.main' }
                       }}
                     >
-                      Xem chi tiết
+                      {t('profile.overviewTab.recentOrders.viewDetails')}
                       <KeyboardArrowRightIcon sx={{ fontSize: 14, ml: 0.25 }} />
                     </MuiLink>
                   </Box>
@@ -129,7 +135,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
             ))}
           </Box>
         ) : (
-          <Typography variant="body2" color="text.secondary">Chưa có đơn hàng nào</Typography>
+          <Typography variant="body2" color="text.secondary">{t('profile.overviewTab.recentOrders.noOrders')}</Typography>
         )}
       </CardContent>
     </Card>

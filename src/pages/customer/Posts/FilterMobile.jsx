@@ -4,8 +4,10 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import CloseIcon from '@mui/icons-material/Close'
 import theme from '~/theme'
+import { useTranslation } from 'react-i18next'
 
 export default function FilterMobile({ categories = [], category, setCategory }) {
+  const { t } = useTranslation()
   const selectedCategory = categories.find(c => String(c.id) === String(category))
   return (
     <Box sx={{
@@ -20,7 +22,7 @@ export default function FilterMobile({ categories = [], category, setCategory })
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, textAlign: 'left', color: 'text.primary', mr: 2 }}>
-          Choose Topic:
+          {t('posts.filterMobile.chooseTopic')}
         </Typography>
         {selectedCategory && (
           <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: theme.palette.primary.secondary, borderRadius: 2, px: 2, py: 0.5, fontWeight: 700 }}>

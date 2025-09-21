@@ -8,13 +8,20 @@ import ResetPwForm from './ResetPwForm'
 import OtpForm from './OtpForm'
 import AccountForm from './AccountForm'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import theme from '~/theme'
-const steps = ['Account Verify', 'OTP Verify', 'New Password']
 
 const ResetPw = () => {
+  const { t } = useTranslation()
   const [activeStep, setActiveStep] = useState(0)
   const [email, setEmail] = useState(null)
   const navigate = useNavigate()
+
+  const steps = [
+    t('auth.resetPassword.steps.accountVerify'),
+    t('auth.resetPassword.steps.otpVerify'),
+    t('auth.resetPassword.steps.newPassword')
+  ]
 
   const handleNext = (data) => {
     setEmail(data)
@@ -38,7 +45,7 @@ const ResetPw = () => {
     case 2:
       return <ResetPwForm onSubmit={handleSubmit} email={email} />
     default:
-      return 'Unknown step'
+      return t('auth.resetPassword.unknownStep')
     }
   }
 

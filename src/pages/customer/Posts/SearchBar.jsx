@@ -7,9 +7,11 @@ import SearchIcon from '@mui/icons-material/Search'
 import ClearIcon from '@mui/icons-material/Clear'
 import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
+import { useTranslation } from 'react-i18next'
 // no navigate needed here
 
 export default function SearchBar({ query, setQuery, isSearching }) {
+  const { t } = useTranslation()
 
   const handleClear = () => setQuery('')
 
@@ -26,18 +28,18 @@ export default function SearchBar({ query, setQuery, isSearching }) {
           color: theme.palette.text.primary
         }}
       >
-        Green <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>ARTICLES</span>
+        Green <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>{t('posts.searchBar.articles')}</span>
       </Typography>
       <Box sx={{ width: '5rem', height: '0.36rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 3 }} />
       <Typography variant="body1" align="center" sx={{ maxWidth: '48rem', mx: 'auto', mb: 4, fontSize: { xs: '0.95rem', md: '1.05rem' }, color: theme.palette.text.textSub }}>
-        Read helpful articles, recipes and tips from our community.
+        {t('posts.searchBar.description')}
       </Typography>
 
       <Box sx={{ position: 'relative', width: { xs: '100%', sm: '70%', md: '50%' }, mx: 'auto' }}>
         <TextField
           variant="outlined"
           size="small"
-          placeholder="Search articles, recipes, topics..."
+          placeholder={t('posts.searchBar.placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -68,7 +70,7 @@ export default function SearchBar({ query, setQuery, isSearching }) {
         {isSearching ? (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', my: 2, gap: 1 }}>
             <CircularProgress size={16} thickness={4} />
-            <Typography variant="body2" sx={{ color: theme.palette.text.textSub }}>Searching...</Typography>
+            <Typography variant="body2" sx={{ color: theme.palette.text.textSub }}>{t('posts.searchBar.searching')}</Typography>
           </Box>
         ) : null}
       </Box>
