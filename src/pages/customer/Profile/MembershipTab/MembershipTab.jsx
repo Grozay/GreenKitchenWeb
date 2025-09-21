@@ -6,7 +6,7 @@ import TierCards from './TierCards'
 import Grid from '@mui/material/Grid'
 import HistoryModal from './HistoryModal'
 import CouponModal from './CouponModal'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getExchangeableCouponsAPI, exchangeCouponAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
