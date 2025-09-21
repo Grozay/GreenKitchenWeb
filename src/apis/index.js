@@ -154,6 +154,11 @@ export const createCustomerHealthyInfoAPI = async (data) => {
   return response.data
 }
 
+export const updateCustomMealAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/custom-meals/${id}`, data)
+  return response.data
+}
+
 // MenuMeal
 export const getMenuMealAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers`)

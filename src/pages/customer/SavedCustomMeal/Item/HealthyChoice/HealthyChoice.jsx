@@ -6,7 +6,7 @@ import EmptyBowl from './EmptyBowl/EmptyBowl'
 import ListCardChoice from './ListCardChoice/ListCardChoice'
 import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import SaveInfoDetail from '~/pages/customer/SavedCustomMeal/Item/HealthyChoice/InfoDetail/SaveInfoDetail'
+import SaveInfoDetail from './InfoDetail/SaveInfoDetail'
 
 const HealthyChoice = ({ itemHealthy }) => {
   const selectedItems = useSelector(selectCurrentMeal)

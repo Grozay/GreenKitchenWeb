@@ -268,7 +268,7 @@ const MenuDetail = () => {
             borderRadius: 5,
             '&:hover': { bgcolor: theme.palette.primary.main, color: 'white' }
           }}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/menu')}
         >
           {translatedBackToMenu}
         </Button>

@@ -30,7 +30,7 @@ import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import { useTranslation } from 'react-i18next'
 
-const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
+const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const [isReviewing, setIsReviewing] = useState(true)
   const [addingToCart, setAddingToCart] = useState(false)
   const [savingMeal, setSavingMeal] = useState(false)
@@ -52,7 +52,6 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const translatedReviewSelections = useTranslate('Review My Selections', currentLang)
   const translatedBalanced = useTranslate('Your meal is well-balanced!', currentLang)
   const translatedCanOrder = useTranslate('You can now order your custom meal or review your choices.', currentLang)
-  const translatedBackToBuilder = useTranslate('Back to Builder', currentLang)
   const translatedClearSelections = useTranslate('Clear Selections', currentLang)
   const translatedOrOrder = useTranslate('Or order your custom meal', currentLang)
   const translatedCalories = t('nutrition.calories')
@@ -359,37 +358,6 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
             bgcolor: theme.palette.background.default
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
-            {isReviewing && (
-              <>
-                <Button
-                  variant="outlined"
-                  startIcon={<ArrowBackIcon />}
-                  onClick={() => setIsReviewing(false)}
-                  sx={{ borderRadius: 5, color: theme.palette.text.primary }}
-                  aria-label="Back to Builder"
-                >
-                  {translatedBackToBuilder}
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={handleClearSelections}
-                  sx={{
-                    borderRadius: 5,
-                    color: theme.palette.text.primary,
-                    borderColor: theme.palette.text.primary,
-                    fontWeight: 400,
-                    '&:hover': {
-                      bgcolor: '#00000010'
-                    }
-                  }}
-                  aria-label="Clear selections"
-                >
-                  {translatedClearSelections}
-                </Button>
-              </>
-            )}
-          </Box>
           <Box
             sx={{
               width: '10rem',
@@ -451,4 +419,4 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   )
 }
 
-export default DrawerInfoMobile
+export default SaveDrawerInfoMobile

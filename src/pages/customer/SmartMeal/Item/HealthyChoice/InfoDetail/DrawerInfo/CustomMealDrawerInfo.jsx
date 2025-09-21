@@ -30,7 +30,7 @@ import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import { useTranslation } from 'react-i18next'
 
-const DrawerInfo = ({ onClose, itemHealthy }) => {
+const CustomMealDrawerInfo = ({ onClose, itemHealthy }) => {
   const [openInfoModal, setOpenInfoModal] = useState(false)
 
   const [isReviewing, setIsReviewing] = useState(true)
@@ -403,4 +403,4 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
   )
 }
 
-export default DrawerInfo
+export default CustomMealDrawerInfo

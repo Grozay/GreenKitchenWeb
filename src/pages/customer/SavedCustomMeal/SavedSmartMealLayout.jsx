@@ -5,7 +5,7 @@ import theme from '~/theme'
 import TabCal from './Item/TabCal/TabCal'
 import ChoiceCal from './Item/HealthyChoice/HealthyChoice'
 import ListCard from './Item/ListCard/ListCard'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import Footer from '~/components/Footer/Footer'
 import TabCalMobile from './Item/TabCal/TabCalMobile'
 import { useSelector, useDispatch } from 'react-redux'
@@ -16,8 +16,8 @@ import { setSuggestedSauces, setShowSauceHint, clearSuggestions } from '~/redux/
 import { getSuggestedSauces } from '~/utils/nutrition'
 import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { selectIsCustomerLoggedIn } from '~/redux/user/customerSlice' // Thêm import selector
-import { useNavigate } from 'react-router-dom'
+// import { selectIsCustomerLoggedIn } from '~/redux/user/customerSlice' // Thêm import selector
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 
 const SmartMealLayout = () => {
   const dispatch = useDispatch()
@@ -31,13 +31,14 @@ const SmartMealLayout = () => {
   const sauceRef = useRef(null)
   const selectedItems = useSelector(selectCurrentMeal)
   const currentLang = useSelector(selectCurrentLanguage)
-  const isLoggedIn = useSelector(selectIsCustomerLoggedIn) // Lấy trạng thái đăng nhập
+  // const isLoggedIn = useSelector(selectIsCustomerLoggedIn) // Lấy trạng thái đăng nhập
+
 
   const translatedSelectProtein = useTranslate('SELECT PROTEIN', currentLang)
   const translatedSelectCarbs = useTranslate('SELECT CARBS', currentLang)
   const translatedSelectSide = useTranslate('SELECT SIDE', currentLang)
   const translatedSelectSauce = useTranslate('SELECT SAUCE', currentLang)
-  const translatedYourSavedCustomMeals = useTranslate('Your saved custom meals', currentLang)
+  // const translatedYourSavedCustomMeals = useTranslate('Your saved custom meals', currentLang)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -115,7 +116,7 @@ const SmartMealLayout = () => {
               mb: { xs: 3, md: 0 }
             }}
           >
-            <Box sx={{ textAlign: 'center', mb: 2, fontSize: { xs: '18px', md: '20px' }, fontWeight: 'bold', borderRadius: 5 }}>
+            {/* <Box sx={{ textAlign: 'center', mb: 2, fontSize: { xs: '18px', md: '20px' }, fontWeight: 'bold', borderRadius: 5 }}>
               {isLoggedIn && ( // Chỉ hiển thị nút nếu đã đăng nhập
                 <Button
                   variant="contained"
@@ -126,7 +127,7 @@ const SmartMealLayout = () => {
                   {translatedYourSavedCustomMeals}
                 </Button>
               )}
-            </Box>
+            </Box> */}
             <Box
               sx={{
                 position: 'sticky',

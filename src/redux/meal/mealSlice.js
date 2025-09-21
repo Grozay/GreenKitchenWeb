@@ -13,7 +13,8 @@ const initialState = {
   totalCalories: 0,
   totalProtein: 0,
   totalCarbs: 0,
-  totalFat: 0
+  totalFat: 0,
+  meal: null // Thêm state meal
 }
 
 const mealSlice = createSlice({
@@ -73,11 +74,44 @@ const mealSlice = createSlice({
       state.totalProtein = 0
       state.totalCarbs = 0
       state.totalFat = 0
+    },
+    setMealFromCustom: (state, action) => {
+      const { details, title, price, description, image } = action.payload // Thêm title, price, description, image
+      // Clear current selection
+      state.selectedItems = {
+        protein: [],
+        carbs: [],
+        side: [],
+        sauce: []
+      }
+      state.totalCalories = 0
+      state.totalProtein = 0
+      state.totalCarbs = 0
+      state.totalFat = 0
+      state.title = title || ''
+      state.price = price || 0
+      state.description = description || ''
+      state.image = image || 'https://res.cloudinary.com/quyendev/image/upload/v1750922086/Top-blade-beef-steak-300x300_fvv3fj.png'
+
+      // Add each detail as item
+      details.forEach(detail => {
+        const typeKey = detail.type.toLowerCase()
+        if (state.selectedItems[typeKey]) {
+          state.selectedItems[typeKey].push({
+            ...detail,
+            quantity: detail.quantity || 1,
+            price: detail.calories * 10 // Thêm price, ví dụ calories * 10
+          })
+        }
+      })
+    },
+    setMeal: (state, action) => {
+      state.meal = action.payload // Thêm action setMeal
     }
   }
 })
 
-export const { addItem, removeItem, clearCart } = mealSlice.actions
+export const { addItem, removeItem, clearCart, setMealFromCustom, setMeal } = mealSlice.actions
 
 export const selectCurrentMeal = (state) => {
   return state.meal.selectedItems
