@@ -21,7 +21,23 @@ const ConversationItem = memo(({ conversation, isSelected, onSelect, isPending =
     if (!time) return ''
     
     const now = dayjs()
-    const messageTime = dayjs(time)
+    let messageTime
+    
+    // Xử lý cả timestamp thô từ backend và string đã format
+    try {
+      messageTime = dayjs(time)
+      if (!messageTime.isValid()) {
+        // Nếu dayjs không parse được, thử parse như ISO string
+        messageTime = dayjs(new Date(time))
+      }
+    } catch (error) {
+      console.warn('Invalid time format:', time, error)
+      return ''
+    }
+    
+    if (!messageTime.isValid()) {
+      return ''
+    }
     
     if (now.isSame(messageTime, 'day')) {
       return messageTime.format('HH:mm')
