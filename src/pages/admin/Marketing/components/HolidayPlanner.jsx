@@ -176,8 +176,23 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         )
       })
 
-      // Sort by date
-      filteredHolidays.sort((a, b) => new Date(a.date) - new Date(b.date))
+      // Sort by date - past holidays at the end
+      filteredHolidays.sort((a, b) => {
+        const aDate = new Date(a.date)
+        const bDate = new Date(b.date)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        const aIsPast = aDate < today
+        const bIsPast = bDate < today
+        
+        // If one is past and one is not, past goes to end
+        if (aIsPast && !bIsPast) return 1
+        if (!aIsPast && bIsPast) return -1
+        
+        // If both are past or both are future, sort by date
+        return aDate - bDate
+      })
 
       setPublicHolidays(filteredHolidays)
       const scheduledCount = allPublicHolidays.length - filteredHolidays.length
@@ -1284,152 +1299,250 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                 {loading ? 'Loading...' : `Refresh ${selectedYear} Holidays`}
               </Button>
 
-              {publicHolidays
-                .filter(h => new Date(h.date).getFullYear() === selectedYear)
-                .map(h => {
-                  const isPassed = isHolidayPassed(h.date)
-                  return (
-                    <Card key={h.id} variant="outlined" sx={{ 
-                      mb: 1, 
-                      opacity: isPassed ? 0.6 : 1,
-                      bgcolor: isPassed ? 'action.hover' : 'background.paper',
-                      borderColor: isPassed ? 'divider' : 'divider',
-                      '&:hover': {
-                        bgcolor: isPassed ? 'action.hover' : 'action.hover'
-                      }
-                    }}>
-                      <CardContent sx={{ py: 1 }}>
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={selectedHolidays.has(h.id)}
-                                onChange={() => handleHolidaySelection(h.id)}
-                                size="small"
-                                disabled={isPassed}
-                                sx={{
-                                  ...(isPassed && {
-                                    color: 'text.disabled',
-                                    '&.Mui-disabled': {
-                                      color: 'text.disabled'
-                                    }
-                                  })
-                                }}
-                              />
+              {(() => {
+                const currentYearHolidays = publicHolidays.filter(h => new Date(h.date).getFullYear() === selectedYear)
+                const futureHolidays = currentYearHolidays.filter(h => !isHolidayPassed(h.date))
+                const pastHolidays = currentYearHolidays.filter(h => isHolidayPassed(h.date))
+                
+                return (
+                  <>
+                    {/* Future Holidays */}
+                    {futureHolidays.length > 0 && (
+                      <>
+                        <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'success.main' }}>
+                          Upcoming Holidays ({futureHolidays.length})
+                        </Typography>
+                        {futureHolidays.map(h => (
+                          <Card key={h.id} variant="outlined" sx={{ 
+                            mb: 1, 
+                            bgcolor: 'background.paper',
+                            borderColor: 'divider',
+                            '&:hover': {
+                              bgcolor: 'action.hover'
                             }
-                            label=""
-                            sx={{ 
-                              minWidth: 'auto', 
-                              mr: 0,
-                              ...(isPassed && {
-                                opacity: 0.6
-                              })
-                            }}
-                          />
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="subtitle1" sx={{ 
-                              fontWeight: 'bold',
-                              color: isPassed ? 'text.disabled' : 'text.primary'
-                            }}>
-                              {h.name}
-                              {isPassed && (
-                                <Chip 
-                                  label="Đã qua" 
-                                  size="small" 
-                                  color="default" 
-                                  variant="outlined"
-                                  sx={{ 
-                                    ml: 1,
-                                    bgcolor: 'action.disabled',
-                                    color: 'text.disabled',
-                                    borderColor: 'divider'
-                                  }}
+                          }}>
+                            <CardContent sx={{ py: 1 }}>
+                              <Stack direction="row" alignItems="center" spacing={2}>
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      checked={selectedHolidays.has(h.id)}
+                                      onChange={() => handleHolidaySelection(h.id)}
+                                      size="small"
+                                    />
+                                  }
+                                  label=""
+                                  sx={{ minWidth: 'auto', mr: 0 }}
                                 />
-                              )}
-                  </Typography>
-                            <Typography variant="body2" color={isPassed ? 'text.disabled' : 'text.secondary'}>
-                              {new Date(h.date).toLocaleDateString('vi-VN')} • {h.country}
-                              {h.lunar && (
-                                <Chip 
-                                  label="Lunar" 
-                                  size="small" 
-                                  color="warning" 
-                                  sx={{ 
-                                    ml: 1,
-                                    ...(isPassed && {
-                                      opacity: 0.6,
-                                      bgcolor: 'action.disabled',
-                                      color: 'text.disabled'
-                                    })
-                                  }} 
-                                />
-                              )}
-                              {h.source && (
-                                <Chip 
-                                  label="Public API" 
-                                  size="small" 
-                                  color="info" 
-                                  sx={{ 
-                                    ml: 1,
-                                    ...(isPassed && {
-                                      opacity: 0.6,
-                                      bgcolor: 'action.disabled',
-                                      color: 'text.disabled'
-                                    })
-                                  }} 
-                                />
-                              )}
-                              {h.year && (
-                                <Chip
-                                  label={`Year: ${h.year}`}
+                                <Box sx={{ flex: 1 }}>
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                    {h.name}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    {new Date(h.date).toLocaleDateString('vi-VN')} • {h.country}
+                                    {h.lunar && (
+                                      <Chip 
+                                        label="Lunar" 
+                                        size="small" 
+                                        color="warning" 
+                                        sx={{ ml: 1 }} 
+                                      />
+                                    )}
+                                    {h.source && (
+                                      <Chip 
+                                        label="Public API" 
+                                        size="small" 
+                                        color="info" 
+                                        sx={{ ml: 1 }} 
+                                      />
+                                    )}
+                                    {h.year && (
+                                      <Chip
+                                        label={`Year: ${h.year}`}
+                                        size="small"
+                                        color="default"
+                                        variant="outlined"
+                                        sx={{ ml: 1 }}
+                                      />
+                                    )}
+                                  </Typography>
+                                  {h.description && (
+                                    <Typography variant="caption" color="text.secondary">
+                                      {h.description}
+                                    </Typography>
+                                  )}
+                                </Box>
+                                <Button
                                   size="small"
-                                  color="default"
                                   variant="outlined"
-                                  sx={{ 
-                                    ml: 1,
-                                    ...(isPassed && {
-                                      opacity: 0.6,
-                                      bgcolor: 'action.disabled',
-                                      color: 'text.disabled',
-                                      borderColor: 'divider'
-                                    })
-                                  }}
-                                />
-                              )}
-                  </Typography>
-                            {h.description && (
-                              <Typography variant="caption" color={isPassed ? 'text.disabled' : 'text.secondary'}>
-                                {h.description}
-                  </Typography>
-                            )}
-                          </Box>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => openScheduleDialog(h)}
-                            color="secondary"
-                            disabled={isPassed}
-                            startIcon={<Typography></Typography>}
-                            sx={{
-                              ...(isPassed && {
-                                bgcolor: 'action.disabled',
-                                color: 'text.disabled',
-                                borderColor: 'divider',
-                                '&:hover': {
-                                  bgcolor: 'action.disabled',
-                                  color: 'text.disabled',
-                                  borderColor: 'divider'
-                                }
-                              })
-                            }}
-                          >
-                            {isPassed ? 'Đã qua' : 'Schedule'}
-                          </Button>
-                        </Stack>
-                </CardContent>
-              </Card>
-                  )
-                })}
+                                  onClick={() => openScheduleDialog(h)}
+                                  color="secondary"
+                                  startIcon={<Typography></Typography>}
+                                >
+                                  Schedule
+                                </Button>
+                              </Stack>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </>
+                    )}
+                    
+                    {/* Past Holidays */}
+                    {pastHolidays.length > 0 && (
+                      <>
+                        <Typography variant="h6" sx={{ mt: 3, mb: 1, color: 'text.disabled' }}>
+                          Past Holidays ({pastHolidays.length})
+                        </Typography>
+                        {pastHolidays.map(h => {
+                          const isPassed = isHolidayPassed(h.date)
+                          return (
+                            <Card key={h.id} variant="outlined" sx={{ 
+                              mb: 1, 
+                              opacity: isPassed ? 0.6 : 1,
+                              bgcolor: isPassed ? 'action.hover' : 'background.paper',
+                              borderColor: isPassed ? 'divider' : 'divider',
+                              '&:hover': {
+                                bgcolor: isPassed ? 'action.hover' : 'action.hover'
+                              }
+                            }}>
+                              <CardContent sx={{ py: 1 }}>
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                  <FormControlLabel
+                                    control={
+                                      <Checkbox
+                                        checked={selectedHolidays.has(h.id)}
+                                        onChange={() => handleHolidaySelection(h.id)}
+                                        size="small"
+                                        disabled={isPassed}
+                                        sx={{
+                                          ...(isPassed && {
+                                            color: 'text.disabled',
+                                            '&.Mui-disabled': {
+                                              color: 'text.disabled'
+                                            }
+                                          })
+                                        }}
+                                      />
+                                    }
+                                    label=""
+                                    sx={{ 
+                                      minWidth: 'auto', 
+                                      mr: 0,
+                                      ...(isPassed && {
+                                        opacity: 0.6
+                                      })
+                                    }}
+                                  />
+                                  <Box sx={{ flex: 1 }}>
+                                    <Typography variant="subtitle1" sx={{ 
+                                      fontWeight: 'bold',
+                                      color: isPassed ? 'text.disabled' : 'text.primary'
+                                    }}>
+                                      {h.name}
+                                      {isPassed && (
+                                        <Chip 
+                                          label="Đã qua" 
+                                          size="small" 
+                                          color="default" 
+                                          variant="outlined"
+                                          sx={{ 
+                                            ml: 1,
+                                            bgcolor: 'action.disabled',
+                                            color: 'text.disabled',
+                                            borderColor: 'divider'
+                                          }}
+                                        />
+                                      )}
+                                    </Typography>
+                                    <Typography variant="body2" color={isPassed ? 'text.disabled' : 'text.secondary'}>
+                                      {new Date(h.date).toLocaleDateString('vi-VN')} • {h.country}
+                                      {h.lunar && (
+                                        <Chip 
+                                          label="Lunar" 
+                                          size="small" 
+                                          color="warning" 
+                                          sx={{ 
+                                            ml: 1,
+                                            ...(isPassed && {
+                                              opacity: 0.6,
+                                              bgcolor: 'action.disabled',
+                                              color: 'text.disabled'
+                                            })
+                                          }} 
+                                        />
+                                      )}
+                                      {h.source && (
+                                        <Chip 
+                                          label="Public API" 
+                                          size="small" 
+                                          color="info" 
+                                          sx={{ 
+                                            ml: 1,
+                                            ...(isPassed && {
+                                              opacity: 0.6,
+                                              bgcolor: 'action.disabled',
+                                              color: 'text.disabled'
+                                            })
+                                          }} 
+                                        />
+                                      )}
+                                      {h.year && (
+                                        <Chip
+                                          label={`Year: ${h.year}`}
+                                          size="small"
+                                          color="default"
+                                          variant="outlined"
+                                          sx={{ 
+                                            ml: 1,
+                                            ...(isPassed && {
+                                              opacity: 0.6,
+                                              bgcolor: 'action.disabled',
+                                              color: 'text.disabled',
+                                              borderColor: 'divider'
+                                            })
+                                          }}
+                                        />
+                                      )}
+                                    </Typography>
+                                    {h.description && (
+                                      <Typography variant="caption" color={isPassed ? 'text.disabled' : 'text.secondary'}>
+                                        {h.description}
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => openScheduleDialog(h)}
+                                    color="secondary"
+                                    disabled={isPassed}
+                                    startIcon={<Typography></Typography>}
+                                    sx={{
+                                      ...(isPassed && {
+                                        bgcolor: 'action.disabled',
+                                        color: 'text.disabled',
+                                        borderColor: 'divider',
+                                        '&:hover': {
+                                          bgcolor: 'action.disabled',
+                                          color: 'text.disabled',
+                                          borderColor: 'divider'
+                                        }
+                                      })
+                                    }}
+                                  >
+                                    {isPassed ? 'Đã qua' : 'Schedule'}
+                                  </Button>
+                                </Stack>
+                              </CardContent>
+                            </Card>
+                          )
+                        })}
+                      </>
+                    )}
+                  </>
+                )
+              })()}
 
               {publicHolidays.length === 0 && !loading && (
                 <Alert severity="warning">
