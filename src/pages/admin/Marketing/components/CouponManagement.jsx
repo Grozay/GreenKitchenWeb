@@ -203,10 +203,11 @@ const CouponManagement = ({ onShowSnackbar }) => {
       {/* Coupon Statistics */}
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
             <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <LocalOfferIcon sx={{ fontSize: 32, mr: 2, color: 'primary.main' }} />
+                <Box>
                   <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                     {couponStats.totalCoupons}
                   </Typography>
@@ -220,10 +221,11 @@ const CouponManagement = ({ onShowSnackbar }) => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
             <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <TrendingUpIcon sx={{ fontSize: 32, mr: 2, color: 'success.main' }} />
+                <Box>
                   <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                     {couponStats.activeCoupons}
                   </Typography>
@@ -237,10 +239,11 @@ const CouponManagement = ({ onShowSnackbar }) => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
             <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <PeopleIcon sx={{ fontSize: 32, mr: 2, color: 'warning.main' }} />
+                <Box>
                   <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                     {couponStats.totalUsage.toLocaleString()}
                   </Typography>
@@ -254,10 +257,11 @@ const CouponManagement = ({ onShowSnackbar }) => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
             <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <AttachMoneyIcon sx={{ fontSize: 32, mr: 2, color: 'info.main' }} />
+                <Box>
                   <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                     {formatCurrency(couponStats.totalDiscount)}
                   </Typography>
@@ -272,7 +276,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
       </Grid>
 
       {/* Actions */}
-      <Paper sx={{ p: 2, bgcolor: 'background.paper' }}>
+      <Paper sx={{ p: 2, bgcolor: '#f8f9fa' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
             Quản lý Coupon
@@ -281,6 +285,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenCreateDialog(true)}
+            sx={{ bgcolor: 'primary.main' }}
           >
             Tạo Coupon Mới
           </Button>
@@ -292,14 +297,14 @@ const CouponManagement = ({ onShowSnackbar }) => {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{ bgcolor: 'background.paper' }}>
-                <TableCell sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Mã Coupon</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Tên</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Loại giảm giá</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Giá trị</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Sử dụng</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Trạng thái</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider' }}>Hành động</TableCell>
+              <TableRow sx={{ bgcolor: 'primary.main' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Mã Coupon</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Tên</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Loại giảm giá</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Giá trị</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Sử dụng</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Trạng thái</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Hành động</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
