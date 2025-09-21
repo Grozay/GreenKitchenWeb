@@ -505,6 +505,22 @@ export const uploadPostImageAPI = async (file) => {
   return response.data
 }
 
+// AI Content Generation APIs
+export const generateAIContentAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/generate`, data)
+  return response.data
+}
+
+export const generateAITitleAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/generate-title`, data)
+  return response.data
+}
+
+export const generateAIContentOnlyAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/generate-content`, data)
+  return response.data
+}
+
 // Marketing - Email Scheduler & Cart Scan
 export const triggerEmailSchedulerNowAPI = async () => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-scheduler/trigger-now`)
