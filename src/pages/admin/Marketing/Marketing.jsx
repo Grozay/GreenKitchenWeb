@@ -18,14 +18,13 @@ import Snackbar from '@mui/material/Snackbar'
 // Icons - import từng cái
 import EmailIcon from '@mui/icons-material/Email'
 import CampaignIcon from '@mui/icons-material/Campaign'
-import TemplateIcon from '@mui/icons-material/Description'
 import AnalyticsIcon from '@mui/icons-material/Analytics'
 import ScheduleIcon from '@mui/icons-material/Schedule'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 
 // Marketing Components
 import EmailMarketing from './components/EmailMarketing'
 import EmailCampaignManager from './components/EmailCampaignManager'
-import EmailTemplateManager from './components/EmailTemplateManager'
 import EmailAnalytics from './components/EmailAnalytics'
 import CartAbandonmentScheduler from './components/CartAbandonmentScheduler'
 import HolidayPlanner from './components/HolidayPlanner'
@@ -115,10 +114,9 @@ function MarketingDashboard() {
           >
             <Tab icon={<EmailIcon />} label="Email Marketing" iconPosition="start" />
             <Tab icon={<CampaignIcon />} label="Quản lý Chiến dịch" iconPosition="start" />
-            <Tab icon={<TemplateIcon />} label="Quản lý Template" iconPosition="start" />
             <Tab icon={<AnalyticsIcon />} label="Analytics" iconPosition="start" />
             <Tab icon={<ScheduleIcon />} label="Lịch Cart Abandonment" iconPosition="start" />
-            <Tab icon={<ScheduleIcon />} label="Holiday Planner" iconPosition="start" />
+            <Tab icon={<CalendarTodayIcon />} label="Holiday Planner" iconPosition="start" />
           </Tabs>
         </Paper>
 
@@ -133,18 +131,14 @@ function MarketingDashboard() {
           </TabPanel>
           
           <TabPanel value={activeTab} index={2}>
-            <EmailTemplateManager onShowSnackbar={showSnackbar} />
-          </TabPanel>
-          
-          <TabPanel value={activeTab} index={3}>
             <EmailAnalytics onShowSnackbar={showSnackbar} />
           </TabPanel>
           
-          <TabPanel value={activeTab} index={4}>
+          <TabPanel value={activeTab} index={3}>
             <CartAbandonmentScheduler onShowSnackbar={showSnackbar} />
           </TabPanel>
           
-          <TabPanel value={activeTab} index={5}>
+          <TabPanel value={activeTab} index={4}>
             <HolidayPlanner onShowSnackbar={showSnackbar} />
           </TabPanel>
           

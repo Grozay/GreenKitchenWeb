@@ -1311,7 +1311,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                       <>
                         <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'success.main' }}>
                           Upcoming Holidays ({futureHolidays.length})
-                        </Typography>
+                  </Typography>
                         {futureHolidays.map(h => (
                           <Card key={h.id} variant="outlined" sx={{ 
                             mb: 1, 
@@ -1337,7 +1337,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                 <Box sx={{ flex: 1 }}>
                                   <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                     {h.name}
-                                  </Typography>
+                  </Typography>
                                   <Typography variant="body2" color="text.secondary">
                                     {new Date(h.date).toLocaleDateString('vi-VN')} • {h.country}
                                     {h.lunar && (
@@ -1367,9 +1367,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     )}
                                   </Typography>
                                   {h.description && (
-                                    <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary">
                                       {h.description}
-                                    </Typography>
+                  </Typography>
                                   )}
                                 </Box>
                                 <Button
@@ -1382,8 +1382,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                   Schedule
                                 </Button>
                               </Stack>
-                            </CardContent>
-                          </Card>
+                </CardContent>
+              </Card>
                         ))}
                       </>
                     )}
@@ -1393,7 +1393,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                       <>
                         <Typography variant="h6" sx={{ mt: 3, mb: 1, color: 'text.disabled' }}>
                           Past Holidays ({pastHolidays.length})
-                        </Typography>
+                  </Typography>
                         {pastHolidays.map(h => {
                           const isPassed = isHolidayPassed(h.date)
                           return (
@@ -1454,7 +1454,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                           }}
                                         />
                                       )}
-                                    </Typography>
+                  </Typography>
                                     <Typography variant="body2" color={isPassed ? 'text.disabled' : 'text.secondary'}>
                                       {new Date(h.date).toLocaleDateString('vi-VN')} • {h.country}
                                       {h.lunar && (
@@ -1504,7 +1504,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                           }}
                                         />
                                       )}
-                                    </Typography>
+                  </Typography>
                                     {h.description && (
                                       <Typography variant="caption" color={isPassed ? 'text.disabled' : 'text.secondary'}>
                                         {h.description}
@@ -1534,8 +1534,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     {isPassed ? 'Đã qua' : 'Schedule'}
                                   </Button>
                                 </Stack>
-                              </CardContent>
-                            </Card>
+                </CardContent>
+              </Card>
                           )
                         })}
                       </>
@@ -1573,7 +1573,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                 </Stack>
                 </CardContent>
               </Card>
-          ))}
+            ))}
 
           {adminHolidays.length === 0 && (
             <Alert severity="info">

@@ -877,3 +877,30 @@ export const updateScheduledHolidayEmailAPI = async (scheduleId, data) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/holidays/email/scheduled/${scheduleId}`, data)
   return response.data
 }
+
+// Email Tracking APIs
+export const getEmailTrackingStatsAPI = async (emailType) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-tracking/stats/${emailType}`)
+  return response.data
+}
+
+export const getCustomerTrackingStatsAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-tracking/customer-stats/${customerId}`)
+  return response.data
+}
+
+export const getEmailTrackingInfoAPI = async (trackingId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-tracking/info/${trackingId}`)
+  return response.data
+}
+
+// Email Admin Tracking APIs
+export const getCartAbandonmentTrackingStatsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/tracking-stats/cart-abandonment`)
+  return response.data
+}
+
+export const getCustomerEmailTrackingStatsAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/tracking-stats/customer/${customerId}`)
+  return response.data
+}

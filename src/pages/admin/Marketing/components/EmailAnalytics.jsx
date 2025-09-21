@@ -5,92 +5,149 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
 import Chip from '@mui/material/Chip'
 import LinearProgress from '@mui/material/LinearProgress'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
+import Divider from '@mui/material/Divider'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Avatar from '@mui/material/Avatar'
 import {
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
-  Email as EmailIcon,
-  OpenInNew as OpenIcon,
   Mouse as ClickIcon,
-  ShoppingCart as ConvertIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  Link as LinkIcon,
+  ShoppingCart as CartIcon,
+  Payment as PaymentIcon,
+  Unsubscribe as UnsubscribeIcon,
+  Settings as SettingsIcon,
+  Facebook as FacebookIcon,
+  Instagram as InstagramIcon,
+  Twitter as TwitterIcon,
+  Analytics as AnalyticsIcon,
+  Timeline as TimelineIcon,
+  Assessment as AssessmentIcon
 } from '@mui/icons-material'
-import { getEmailStatisticsAPI, getEmailHistoryAPI } from '~/apis'
+import { 
+  getEmailStatisticsAPI, 
+  getEmailHistoryAPI,
+  getCartAbandonmentTrackingStatsAPI,
+  getEmailTrackingStatsAPI
+} from '~/apis'
 
 const EmailAnalytics = ({ onShowSnackbar }) => {
-  const [analytics, setAnalytics] = useState({})
-  const [recentCampaigns, setRecentCampaigns] = useState([])
+  const [trackingStats, setTrackingStats] = useState({})
+  const [emailHistory, setEmailHistory] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [timeRange, setTimeRange] = useState('30days')
 
   useEffect(() => {
-    loadAnalytics()
+    loadTrackingData()
   }, [timeRange])
 
-  const loadAnalytics = async () => {
+  const loadTrackingData = async () => {
     try {
       setIsLoading(true)
-      const [statsData, campaignsData] = await Promise.all([
-        getEmailStatisticsAPI(),
-        getEmailHistoryAPI(0, 10)
+      const [cartTrackingData, historyData] = await Promise.all([
+        getCartAbandonmentTrackingStatsAPI(),
+        getEmailHistoryAPI(0, 20)
       ])
       
-      setAnalytics(statsData)
-      setRecentCampaigns(campaignsData.content || [])
+      setTrackingStats(cartTrackingData)
+      setEmailHistory(historyData.content || [])
     } catch (error) {
-      onShowSnackbar('Lỗi tải dữ liệu analytics', 'error')
+      console.error('Error loading tracking data:', error)
+      onShowSnackbar('Lỗi tải dữ liệu tracking', 'error')
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Analytics data sẽ được load từ API thực tế
-  const [analyticsData, setAnalyticsData] = useState({
-    totalEmails: 0,
-    totalOpened: 0,
-    totalClicked: 0,
-    totalConverted: 0,
-    openRate: 0,
-    clickRate: 0,
-    conversionRate: 0,
-    emailTypeCounts: {
-      broadcast: 0,
-      preview: 0,
-      cart_abandonment: 0
-    },
-    monthlyStats: []
-  })
-
-  const getPerformanceColor = (rate) => {
-    if (rate >= 70) return 'success'
-    if (rate >= 50) return 'warning'
-    return 'error'
+  // Tính toán dữ liệu tracking
+  const trackingData = {
+    totalClicks: trackingStats.totalClicks || 0,
+    clicksLast24h: trackingStats.clicksLast24h || 0,
+    clicksLast7Days: trackingStats.clicksLast7Days || 0,
+    clicksByLinkType: trackingStats.clicksByLinkType || {},
+    totalEmails: emailHistory.length,
+    recentEmails: emailHistory.slice(0, 10)
   }
 
-  const getPerformanceIcon = (rate) => {
-    return rate >= 50 ? <TrendingUpIcon /> : <TrendingDownIcon />
+  const getLinkTypeIcon = (linkType) => {
+    switch (linkType) {
+      case 'CART': return <CartIcon />
+      case 'CHECKOUT': return <PaymentIcon />
+      case 'UNSUBSCRIBE': return <UnsubscribeIcon />
+      case 'PREFERENCES': return <SettingsIcon />
+      case 'SOCIAL_FACEBOOK': return <FacebookIcon />
+      case 'SOCIAL_INSTAGRAM': return <InstagramIcon />
+      case 'SOCIAL_TWITTER': return <TwitterIcon />
+      default: return <LinkIcon />
+    }
+  }
+
+  const getLinkTypeLabel = (linkType) => {
+    switch (linkType) {
+      case 'CART': return 'Giỏ hàng'
+      case 'CHECKOUT': return 'Thanh toán'
+      case 'UNSUBSCRIBE': return 'Hủy đăng ký'
+      case 'PREFERENCES': return 'Tùy chọn'
+      case 'SOCIAL_FACEBOOK': return 'Facebook'
+      case 'SOCIAL_INSTAGRAM': return 'Instagram'
+      case 'SOCIAL_TWITTER': return 'Twitter'
+      default: return linkType
+    }
+  }
+
+  const getLinkTypeColor = (linkType) => {
+    switch (linkType) {
+      case 'CART': return 'primary'
+      case 'CHECKOUT': return 'success'
+      case 'UNSUBSCRIBE': return 'error'
+      case 'PREFERENCES': return 'warning'
+      case 'SOCIAL_FACEBOOK': return 'info'
+      case 'SOCIAL_INSTAGRAM': return 'secondary'
+      case 'SOCIAL_TWITTER': return 'default'
+      default: return 'default'
+    }
   }
 
   return (
     <Box>
       {/* Header với time range selector */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper 
+        sx={{ 
+          p: 3, 
+          mb: 3, 
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider'
+        }}
+      >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">Email Analytics</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar sx={{ bgcolor: 'grey.100', color: 'text.primary' }}>
+              <AnalyticsIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                Email Tracking Analytics
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Phân tích hiệu quả email marketing qua tracking links
+              </Typography>
+            </Box>
+          </Box>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Thời gian</InputLabel>
@@ -107,7 +164,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}
-              onClick={loadAnalytics}
+              onClick={loadTrackingData}
               disabled={isLoading}
             >
               Làm mới
@@ -118,48 +175,32 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
 
       {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
+          <CircularProgress size={60} />
         </Box>
       ) : (
         <>
-          {/* KPI Cards */}
-          <Grid container spacing={3} sx={{ mb: 3 }}>
+          {/* Tracking Overview Cards */}
+          <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: 'background.paper' }}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <EmailIcon sx={{ fontSize: 32, mr: 2, color: 'primary.main' }} />
+                    <Avatar sx={{ bgcolor: 'grey.100', mr: 2 }}>
+                      <ClickIcon sx={{ color: 'text.primary' }} />
+                    </Avatar>
                     <Box>
-                      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                        {analyticsData.totalEmails.toLocaleString()}
+                      <Typography variant="h4" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        {trackingData.totalClicks.toLocaleString()}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Tổng email đã gửi
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: 'background.paper' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <OpenIcon sx={{ fontSize: 32, mr: 2, color: 'success.main' }} />
-                    <Box>
-                      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                        {analyticsData.openRate.toFixed(1)}%
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Tỷ lệ mở email
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Tổng clicks
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                    {getPerformanceIcon(analyticsData.openRate)}
-                    <Typography variant="caption" color={getPerformanceColor(analyticsData.openRate) + '.main'}>
-                      {analyticsData.totalOpened.toLocaleString()} đã mở
+                    <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      Tất cả tracking links
                     </Typography>
                   </Box>
                 </CardContent>
@@ -167,23 +208,25 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: 'background.paper' }}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <ClickIcon sx={{ fontSize: 32, mr: 2, color: 'warning.main' }} />
+                    <Avatar sx={{ bgcolor: 'grey.100', mr: 2 }}>
+                      <TimelineIcon sx={{ color: 'text.primary' }} />
+                    </Avatar>
                     <Box>
-                      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                        {analyticsData.clickRate.toFixed(1)}%
+                      <Typography variant="h4" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        {trackingData.clicksLast24h.toLocaleString()}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Tỷ lệ click
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Clicks 24h qua
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                    {getPerformanceIcon(analyticsData.clickRate)}
-                    <Typography variant="caption" color={getPerformanceColor(analyticsData.clickRate) + '.main'}>
-                      {analyticsData.totalClicked.toLocaleString()} đã click
+                    <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      Hoạt động gần đây
                     </Typography>
                   </Box>
                 </CardContent>
@@ -191,23 +234,51 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: 'background.paper' }}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <ConvertIcon sx={{ fontSize: 32, mr: 2, color: 'info.main' }} />
+                    <Avatar sx={{ bgcolor: 'grey.100', mr: 2 }}>
+                      <AssessmentIcon sx={{ color: 'text.primary' }} />
+                    </Avatar>
                     <Box>
-                      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                        {analyticsData.conversionRate.toFixed(1)}%
+                      <Typography variant="h4" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        {trackingData.clicksLast7Days.toLocaleString()}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Tỷ lệ chuyển đổi
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Clicks 7 ngày qua
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                    {getPerformanceIcon(analyticsData.conversionRate)}
-                    <Typography variant="caption" color={getPerformanceColor(analyticsData.conversionRate) + '.main'}>
-                      {analyticsData.totalConverted.toLocaleString()} đã mua
+                    <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      Xu hướng tuần
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Avatar sx={{ bgcolor: 'grey.100', mr: 2 }}>
+                      <LinkIcon sx={{ color: 'text.primary' }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h4" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        {Object.keys(trackingData.clicksByLinkType).length}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Loại links
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                    <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      Đa dạng tương tác
                     </Typography>
                   </Box>
                 </CardContent>
@@ -215,142 +286,199 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             </Grid>
           </Grid>
 
-          {/* Email Type Breakdown */}
-          <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Phân loại Email
-                </Typography>
-                {Object.entries(analyticsData.emailTypeCounts).map(([type, count]) => (
-                  <Box key={type} sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="body2">
-                        {type === 'broadcast' ? 'Broadcast' : 
-                         type === 'preview' ? 'Preview' : 
-                         'Cart Abandonment'}
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                        {count.toLocaleString()}
+          {/* Link Type Analysis */}
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            <Grid item xs={12} md={8}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
+                <CardHeader
+                  title="Phân tích Clicks theo Loại Link"
+                  subheader="Hiểu rõ user behavior khi tương tác với email"
+                  avatar={
+                    <Avatar sx={{ bgcolor: 'grey.100' }}>
+                      <LinkIcon sx={{ color: 'text.primary' }} />
+                    </Avatar>
+                  }
+                />
+                <CardContent>
+                  {Object.keys(trackingData.clicksByLinkType).length > 0 ? (
+                    <List>
+                      {Object.entries(trackingData.clicksByLinkType)
+                        .sort(([,a], [,b]) => b - a)
+                        .map(([linkType, count], index) => (
+                        <ListItem key={linkType} sx={{ px: 0 }}>
+                          <ListItemIcon>
+                            <Avatar sx={{ bgcolor: 'grey.100' }}>
+                              {getLinkTypeIcon(linkType)}
+                            </Avatar>
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={getLinkTypeLabel(linkType)}
+                            secondary={
+                              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                <Typography variant="body2" sx={{ mr: 2, fontWeight: 600 }}>
+                                  {count.toLocaleString()} clicks
+                                </Typography>
+                                <LinearProgress 
+                                  variant="determinate" 
+                                  value={trackingData.totalClicks > 0 ? (count / trackingData.totalClicks) * 100 : 0}
+                                  sx={{ 
+                                    width: 100, 
+                                    height: 6, 
+                                    borderRadius: 3,
+                                    bgcolor: 'grey.200'
+                                  }}
+                                />
+                                <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary' }}>
+                                  {trackingData.totalClicks > 0 ? ((count / trackingData.totalClicks) * 100).toFixed(1) : 0}%
+                                </Typography>
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  ) : (
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="body1" color="text.secondary">
+                        Chưa có dữ liệu tracking
                       </Typography>
                     </Box>
-                    <LinearProgress 
-                      variant="determinate" 
-                      value={analyticsData.totalEmails > 0 ? (count / analyticsData.totalEmails) * 100 : 0}
-                      sx={{ height: 8, borderRadius: 4 }}
-                    />
-                  </Box>
-                ))}
-              </Paper>
+                  )}
+                </CardContent>
+              </Card>
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Hiệu suất theo tháng
-                </Typography>
-                {analyticsData.monthlyStats.map((stat, index) => (
-                  <Box key={index} sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                      {stat.month}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
+                <CardHeader
+                  title="Tổng quan Tracking"
+                  subheader="Thống kê tổng hợp"
+                  avatar={
+                    <Avatar sx={{ bgcolor: 'grey.100' }}>
+                      <AnalyticsIcon sx={{ color: 'text.primary' }} />
+                    </Avatar>
+                  }
+                />
+                <CardContent>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                      {trackingData.totalClicks.toLocaleString()}
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
-                      <Chip label={`Gửi: ${stat.sent}`} size="small" color="primary" variant="outlined" />
-                      <Chip label={`Mở: ${stat.opened}`} size="small" color="success" variant="outlined" />
-                      <Chip label={`Click: ${stat.clicked}`} size="small" color="warning" variant="outlined" />
-                      <Chip label={`Mua: ${stat.converted}`} size="small" color="info" variant="outlined" />
-                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Tổng clicks
+                    </Typography>
                     <LinearProgress 
                       variant="determinate" 
-                      value={(stat.converted / stat.sent) * 100}
-                      sx={{ height: 6, borderRadius: 3 }}
+                      value={100}
+                      sx={{ height: 8, borderRadius: 4, mt: 1, bgcolor: 'grey.200' }}
                     />
                   </Box>
-                ))}
-              </Paper>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                      {trackingData.clicksLast24h.toLocaleString()}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Clicks 24h qua
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={trackingData.totalClicks > 0 ? (trackingData.clicksLast24h / trackingData.totalClicks) * 100 : 0}
+                      sx={{ height: 8, borderRadius: 4, mt: 1, bgcolor: 'grey.200' }}
+                    />
+                  </Box>
+
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                      {trackingData.clicksLast7Days.toLocaleString()}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Clicks 7 ngày qua
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={trackingData.totalClicks > 0 ? (trackingData.clicksLast7Days / trackingData.totalClicks) * 100 : 0}
+                      sx={{ height: 8, borderRadius: 4, mt: 1, bgcolor: 'grey.200' }}
+                    />
+                  </Box>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  <Box>
+                    <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                      {Object.keys(trackingData.clicksByLinkType).length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Loại links được track
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
             </Grid>
           </Grid>
 
-          {/* Recent Campaigns Performance */}
-          <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Hiệu suất Chiến dịch Gần đây
-            </Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Chiến dịch</TableCell>
-                    <TableCell>Loại</TableCell>
-                    <TableCell>Đã gửi</TableCell>
-                    <TableCell>Tỷ lệ mở</TableCell>
-                    <TableCell>Tỷ lệ click</TableCell>
-                    <TableCell>Chuyển đổi</TableCell>
-                    <TableCell>Ngày</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {recentCampaigns.map((campaign) => (
-                    <TableRow key={campaign.id}>
-                      <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                          {campaign.subject}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={campaign.emailType} 
-                          size="small" 
-                          color="primary" 
-                          variant="outlined"
+          {/* Recent Email History */}
+          <Card sx={{ border: '1px solid', borderColor: 'divider' }}>
+            <CardHeader
+              title="Lịch sử Email Gần đây"
+              subheader="Các email đã gửi và tracking data"
+              avatar={
+                <Avatar sx={{ bgcolor: 'grey.100' }}>
+                  <TimelineIcon sx={{ color: 'text.primary' }} />
+                </Avatar>
+              }
+            />
+            <CardContent>
+              {trackingData.recentEmails.length > 0 ? (
+                <List>
+                  {trackingData.recentEmails.map((email, index) => (
+                    <React.Fragment key={email.id || index}>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon>
+                          <Avatar sx={{ bgcolor: 'grey.100' }}>
+                            <ClickIcon sx={{ color: 'text.primary' }} />
+                          </Avatar>
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                                {email.subject || 'Email không có tiêu đề'}
+                              </Typography>
+                              <Chip 
+                                label={email.emailType || 'Unknown'} 
+                                size="small" 
+                                variant="outlined"
+                                sx={{ borderColor: 'grey.300', color: 'text.secondary' }}
+                              />
+                            </Box>
+                          }
+                          secondary={
+                            <Box sx={{ mt: 1 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                Gửi: {email.totalSent || 0} emails | 
+                                Trạng thái: {email.status || 'Unknown'} | 
+                                Ngày: {email.sentAt ? new Date(email.sentAt).toLocaleDateString('vi-VN') : 'N/A'}
+                              </Typography>
+                            </Box>
+                          }
                         />
-                      </TableCell>
-                      <TableCell>{campaign.totalSent || 0}</TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography variant="body2" sx={{ mr: 1 }}>
-                            {Math.floor(Math.random() * 30 + 50).toFixed(1)}%
-                          </Typography>
-                          <LinearProgress 
-                            variant="determinate" 
-                            value={Math.floor(Math.random() * 30 + 50)}
-                            sx={{ width: 50, height: 4 }}
-                          />
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography variant="body2" sx={{ mr: 1 }}>
-                            {Math.floor(Math.random() * 15 + 5).toFixed(1)}%
-                          </Typography>
-                          <LinearProgress 
-                            variant="determinate" 
-                            value={Math.floor(Math.random() * 15 + 5)}
-                            sx={{ width: 50, height: 4 }}
-                          />
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography variant="body2" sx={{ mr: 1 }}>
-                            {Math.floor(Math.random() * 5 + 1).toFixed(1)}%
-                          </Typography>
-                          <LinearProgress 
-                            variant="determinate" 
-                            value={Math.floor(Math.random() * 5 + 1)}
-                            sx={{ width: 50, height: 4 }}
-                          />
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(campaign.createdAt).toLocaleDateString('vi-VN')}
-                      </TableCell>
-                    </TableRow>
+                      </ListItem>
+                      {index < trackingData.recentEmails.length - 1 && <Divider />}
+                    </React.Fragment>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
+                </List>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    Chưa có lịch sử email
+                  </Typography>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
     </Box>
