@@ -195,6 +195,22 @@ export const deleteMenuMealAPI = async (id) => {
   return response.data
 }
 
+//review menu meal
+export const getMenuMealReviewsAPI = async (menuMealId, page = 0, size = 10) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meal-reviews/menu-meal/${menuMealId}?page=${page}&size=${size}`)
+  return response.data
+}
+
+export const createMenuMealReviewAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/menu-meal-reviews`, data)
+  return response.data
+}
+
+export const updateMenuMealReviewAPI = async (reviewId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/menu-meal-reviews/${reviewId}`, data)
+  return response.data
+}
+
 // Address
 export const createNewAddressAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/addresses/create`, data)
@@ -536,7 +552,7 @@ export const getEmailHistoryAPI = async (page = 0, size = 10, emailType = null, 
   const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
   if (emailType) params.append('emailType', emailType)
   if (status) params.append('status', status)
-  
+
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/history?${params}`)
   return response.data
 }
