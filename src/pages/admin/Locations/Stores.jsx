@@ -164,7 +164,8 @@ export default function Stores() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 3 }}>
+      <Container maxWidth="xl">
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
@@ -262,11 +263,11 @@ export default function Stores() {
                   </Grid>
 
                   {isEditMode && (
-                    <Box sx={{ mb: 3, p: 2, bgcolor: 'info.light', borderRadius: 2 }}>
-                      <Typography variant="body2" color="info.dark" fontWeight={500}>
+                    <Box sx={{ mb: 3, p: 2, bgcolor: 'info.main', borderRadius: 2 }}>
+                      <Typography variant="body2" sx={{ color: 'text.primary' }} fontWeight={500}>
                         📝 Đang chỉnh sửa: {editStore?.name}
                       </Typography>
-                      <Typography variant="caption" color="info.dark">
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                         Thay đổi thông tin địa chỉ và nhấn "Lưu Vào DB" để cập nhật
                       </Typography>
                     </Box>
@@ -339,7 +340,7 @@ export default function Stores() {
               <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 1 }}>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ bgcolor: 'grey.50' }}>
+                    <TableRow sx={{ bgcolor: 'background.paper' }}>
                       <TableCell sx={{ fontWeight: 600 }}>Tên Chi nhánh</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Địa chỉ</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Tọa độ</TableCell>
@@ -437,15 +438,15 @@ export default function Stores() {
                   </Button>
                 </Box>
               ) : (
-                <Box sx={{ 
-                  height: 500, 
-                  bgcolor: 'grey.100', 
-                  borderRadius: 2, 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <Box sx={{
+                  height: 500,
+                  bgcolor: 'background.default',
+                  borderRadius: 2,
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
                   border: '2px dashed',
-                  borderColor: 'grey.300'
+                  borderColor: 'divider'
                 }}>
                   <Box sx={{ textAlign: 'center' }}>
                     <MapIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
@@ -486,6 +487,7 @@ export default function Stores() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+      </Container>
+    </Box>
   )
 }

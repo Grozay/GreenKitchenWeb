@@ -102,7 +102,7 @@ const ChatInput = memo(({
     p: { xs: 1, sm: 1.5, md: 2 },
     borderTop: 1,
     borderColor: 'grey.200',
-    bgcolor: 'white',
+    bgcolor: 'background.paper',
     display: 'flex',
     flexDirection: 'column',
     gap: { xs: 0.5, sm: 0.75, md: 1 },
@@ -134,11 +134,11 @@ const ChatInput = memo(({
   }), [disabled, isSending, localInput])
 
   const textFieldStyles = useMemo(() => ({
-    bgcolor: '#f8fdf8',
+    bgcolor: 'background.default',
     borderRadius: { xs: 2, sm: 2.5, md: 3 },
     fontSize: { xs: '0.875rem', sm: '0.875rem', md: '1rem' },
     '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#c8e6c9'
+      borderColor: 'success.light'
     },
     '&:hover .MuiOutlinedInput-notchedOutline': {
       borderColor: 'primary.main'

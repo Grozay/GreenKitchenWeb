@@ -30,6 +30,7 @@ import Snackbar from '@mui/material/Snackbar'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentEmployee } from '~/redux/user/employeeSlice'
 import { logoutEmployeeApi } from '~/redux/user/employeeSlice'
+import { selectTotalChatCount } from '~/redux/chat/chatCountSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
@@ -79,7 +80,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
 }
 
 // Custom Navigation
-const NAVIGATION = (currentEmployee, newOrderCount) => {
+const NAVIGATION = (currentEmployee, newOrderCount, totalChatCount) => {
   const baseNav = []
   if (currentEmployee?.role === EMPLOYEE_ROLES.ADMIN) {
     baseNav.push(
@@ -138,7 +139,7 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         segment: 'management/inbox',
         title: 'Inbox',
         icon: <ChatIcon />,
-        action: <Chip label="New" color="success" size="small" />
+        action: totalChatCount > 0 ? <Chip label={totalChatCount} color="error" size="small" /> : null
       },
       {
         kind: 'header',
@@ -255,6 +256,7 @@ function Layout(props) {
   const { window } = props
   const dispatch = useDispatch()
   const currentEmployee = useSelector(selectCurrentEmployee)
+  const totalChatCount = useSelector(selectTotalChatCount)
   const confirmLogout = useConfirm()
   const navigate = useNavigate()
   const location = useLocation()
@@ -345,7 +347,7 @@ function Layout(props) {
       <AppProvider
         session={session}
         authentication={authentication}
-        navigation={NAVIGATION(currentEmployee, newOrderCount)}
+        navigation={NAVIGATION(currentEmployee, newOrderCount, totalChatCount)}
         theme={customTheme}
         router={router}
         window={window}
