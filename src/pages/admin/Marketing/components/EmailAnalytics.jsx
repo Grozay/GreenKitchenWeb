@@ -127,7 +127,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
           {/* KPI Cards */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <Card>
+              <Card sx={{ bgcolor: 'background.paper' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <EmailIcon sx={{ fontSize: 32, mr: 2, color: 'primary.main' }} />
@@ -145,7 +145,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card>
+              <Card sx={{ bgcolor: 'background.paper' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <OpenIcon sx={{ fontSize: 32, mr: 2, color: 'success.main' }} />
@@ -169,7 +169,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card>
+              <Card sx={{ bgcolor: 'background.paper' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <ClickIcon sx={{ fontSize: 32, mr: 2, color: 'warning.main' }} />
@@ -193,7 +193,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card>
+              <Card sx={{ bgcolor: 'background.paper' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <ConvertIcon sx={{ fontSize: 32, mr: 2, color: 'info.main' }} />
@@ -220,7 +220,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
           {/* Email Type Breakdown */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3 }}>
+              <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Phân loại Email
                 </Typography>
@@ -247,7 +247,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3 }}>
+              <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Hiệu suất theo tháng
                 </Typography>
@@ -274,7 +274,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
           </Grid>
 
           {/* Recent Campaigns Performance */}
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
               Hiệu suất Chiến dịch Gần đây
             </Typography>

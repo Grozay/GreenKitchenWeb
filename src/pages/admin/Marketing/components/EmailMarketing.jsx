@@ -42,7 +42,7 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
 const EmailMarketing = ({ onShowSnackbar }) => {
-  const [emailType, setEmailType] = useState('cart_abandonment')
+  // TODO: Implement emailType when templates are available
   const [subject, setSubject] = useState('')
   const [content, setContent] = useState('')
   const [scheduledTime, setScheduledTime] = useState('')
@@ -99,37 +99,8 @@ const EmailMarketing = ({ onShowSnackbar }) => {
   // Loading states for backend actions
   
 
-  // Email templates - sẽ load từ API thực tế
-  const [emailTemplates, setEmailTemplates] = useState([
-    {
-      id: 'cart_abandonment',
-      name: 'Cart Abandonment Recovery',
-      description: 'Khôi phục giỏ hàng bị bỏ quên',
-      icon: <ShoppingCartIcon />,
-      color: '#f093fb'
-    },
-    {
-      id: 'welcome',
-      name: 'Welcome Series',
-      description: 'Chào mừng khách hàng mới',
-      icon: <PeopleIcon />,
-      color: '#4facfe'
-    },
-    {
-      id: 'promotional',
-      name: 'Promotional Offers',
-      description: 'Khuyến mãi và ưu đãi đặc biệt',
-      icon: <TrendingUpIcon />,
-      color: '#43e97b'
-    },
-    {
-      id: 'newsletter',
-      name: 'Newsletter',
-      description: 'Tin tức và cập nhật sản phẩm',
-      icon: <NotificationsIcon />,
-      color: '#667eea'
-    }
-  ])
+  // TODO: Implement email templates from API
+  // Email templates sẽ được load từ API backend sau này
 
   // Load email history và statistics khi component mount
   React.useEffect(() => {
@@ -295,7 +266,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
       {/* Email Statistics */}
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
+          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <EmailIcon sx={{ fontSize: 32, mr: 2, color: 'primary.main' }} />
@@ -313,7 +284,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
+          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <AnalyticsIcon sx={{ fontSize: 32, mr: 2, color: 'success.main' }} />
@@ -331,7 +302,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
+          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <TrendingUpIcon sx={{ fontSize: 32, mr: 2, color: 'warning.main' }} />
@@ -349,7 +320,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: '#f8f9fa' }}>
+          <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <PeopleIcon sx={{ fontSize: 32, mr: 2, color: 'info.main' }} />
@@ -370,45 +341,13 @@ const EmailMarketing = ({ onShowSnackbar }) => {
       <Grid container spacing={3}>
         {/* Email Creation Form */}
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, height: 'fit-content' }}>
+          <Paper sx={{ p: 3, height: 'fit-content', bgcolor: 'background.paper' }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
               <EmailIcon sx={{ mr: 1 }} />
               Tạo Email Marketing
             </Typography>
 
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
-                Loại Email
-              </Typography>
-              <Grid container spacing={2}>
-                {emailTemplates.map((template) => (
-                  <Grid item xs={6} key={template.id}>
-                    <Card 
-                      sx={{ 
-                        cursor: 'pointer',
-                        border: emailType === template.id ? 2 : 1,
-                        borderColor: emailType === template.id ? 'primary.main' : 'divider',
-                        bgcolor: emailType === template.id ? 'primary.light' : 'background.paper',
-                        '&:hover': { bgcolor: 'action.hover' }
-                      }}
-                      onClick={() => setEmailType(template.id)}
-                    >
-                      <CardContent sx={{ p: 2, textAlign: 'center' }}>
-                        <Box sx={{ color: template.color, mb: 1 }}>
-                          {template.icon}
-                        </Box>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-                          {template.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {template.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
+
 
             <TextField
               fullWidth
@@ -538,7 +477,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
 
         {/* Email Campaigns */}
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, height: 'fit-content' }}>
+          <Paper sx={{ p: 3, height: 'fit-content', bgcolor: 'background.paper' }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
               <HistoryIcon sx={{ mr: 1 }} />
               Chiến dịch Email gần đây
@@ -622,7 +561,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
 
         {/* Recurring Scheduler (simple) */}
         <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Recurring Emails</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={3}>

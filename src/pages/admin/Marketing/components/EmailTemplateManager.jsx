@@ -47,93 +47,20 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
   })
 
   // Templates sẽ được load từ API thực tế
-  const [templates, setTemplates] = useState([
-    {
-      id: 1,
-      name: 'Cart Abandonment Recovery',
-      subject: '🛒 Bạn quên gì đó trong giỏ hàng - Green Kitchen',
-      content: `
-        <h2>Xin chào {{customerName}}!</h2>
-        <p>Chúng tôi nhận thấy bạn đã thêm một số sản phẩm vào giỏ hàng nhưng chưa hoàn tất đơn hàng.</p>
-        
-        <h3>Giỏ hàng của bạn:</h3>
-        {{#each cartItems}}
-        <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
-          <h4>{{title}}</h4>
-          <p>Số lượng: {{quantity}}</p>
-          <p>Giá: {{totalPrice}}</p>
-        </div>
-        {{/each}}
-        
-        <p><strong>Tổng tiền: {{totalAmount}}</strong></p>
-        
-        <a href="{{frontendUrl}}/cart" style="background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-          Hoàn tất đơn hàng
-        </a>
-        
-        <p>Nếu bạn có bất kỳ câu hỏi nào, hãy liên hệ với chúng tôi.</p>
-        <p>Trân trọng,<br>Đội ngũ Green Kitchen</p>
-      `,
-      category: 'cart_abandonment',
-      variables: ['customerName', 'cartItems', 'totalAmount', 'frontendUrl'],
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'Welcome Series',
-      subject: 'Chào mừng bạn đến với Green Kitchen! 🌱',
-      content: `
-        <h2>Chào mừng {{customerName}}!</h2>
-        <p>Cảm ơn bạn đã đăng ký tài khoản tại Green Kitchen. Chúng tôi rất vui được phục vụ bạn!</p>
-        
-        <h3>Những gì bạn có thể làm:</h3>
-        <ul>
-          <li>Khám phá thực đơn healthy của chúng tôi</li>
-          <li>Đặt hàng online dễ dàng</li>
-          <li>Theo dõi lịch sử đơn hàng</li>
-          <li>Nhận thông báo về ưu đãi đặc biệt</li>
-        </ul>
-        
-        <a href="{{frontendUrl}}/menu" style="background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-          Khám phá thực đơn
-        </a>
-        
-        <p>Chúc bạn có trải nghiệm tuyệt vời!</p>
-        <p>Trân trọng,<br>Đội ngũ Green Kitchen</p>
-      `,
-      category: 'welcome',
-      variables: ['customerName', 'frontendUrl'],
-      createdAt: '2024-01-10',
-      updatedAt: '2024-01-10'
-    },
-    {
-      id: 3,
-      name: 'Promotional Offer',
-      subject: '🎉 Ưu đãi đặc biệt chỉ dành cho bạn!',
-      content: `
-        <h2>Xin chào {{customerName}}!</h2>
-        <p>Chúng tôi có một ưu đãi đặc biệt dành riêng cho bạn!</p>
-        
-        <div style="background: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center;">
-          <h3 style="color: #ff6b6b;">Giảm {{discountPercent}}% cho đơn hàng tiếp theo!</h3>
-          <p>Mã giảm giá: <strong>{{couponCode}}</strong></p>
-          <p>Hạn sử dụng: {{expiryDate}}</p>
-        </div>
-        
-        <a href="{{frontendUrl}}/menu" style="background: #ff6b6b; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px;">
-          Sử dụng ưu đãi ngay
-        </a>
-        
-        <p>Đừng bỏ lỡ cơ hội này!</p>
-        <p>Trân trọng,<br>Đội ngũ Green Kitchen</p>
-      `,
-      category: 'promotional',
-      variables: ['customerName', 'discountPercent', 'couponCode', 'expiryDate', 'frontendUrl'],
-      createdAt: '2024-01-12',
-      updatedAt: '2024-01-12'
-    }
-  ])
+  // TODO: Implement API call to load templates from backend
+  // const fetchTemplates = async () => {
+  //   try {
+  //     const response = await fetch('/api/email-templates')
+  //     const data = await response.json()
+  //     setTemplates(data)
+  //   } catch (error) {
+  //     console.error('Error loading templates:', error)
+  //     onShowSnackbar('Lỗi tải danh sách template', 'error')
+  //   }
+  // }
+  // useEffect(() => { fetchTemplates() }, [])
+
+  const [templates, setTemplates] = useState([])
 
   useEffect(() => {
     loadTemplates()
@@ -245,7 +172,7 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
   return (
     <Box>
       {/* Header */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2, mb: 3, bgcolor: 'background.paper' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">Quản lý Email Templates</Typography>
           <Button
@@ -268,7 +195,7 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
           </Grid>
         ) : templates.length === 0 ? (
           <Grid item xs={12}>
-            <Paper sx={{ p: 4, textAlign: 'center' }}>
+            <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'background.paper' }}>
               <Typography variant="body1" color="text.secondary">
                 Chưa có template nào
               </Typography>
@@ -277,7 +204,7 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
         ) : (
           templates.map((template) => (
             <Grid item xs={12} md={6} lg={4} key={template.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -426,13 +353,14 @@ const EmailTemplateManager = ({ onShowSnackbar }) => {
                 {previewMode.subject}
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              <Box 
+              <Box
                 dangerouslySetInnerHTML={{ __html: previewMode.content }}
-                sx={{ 
-                  border: '1px solid #ddd', 
-                  padding: 2, 
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  padding: 2,
                   borderRadius: 1,
-                  backgroundColor: '#f9f9f9'
+                  bgcolor: 'background.paper'
                 }}
               />
             </Box>

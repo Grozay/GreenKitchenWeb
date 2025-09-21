@@ -186,7 +186,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       {/* Header với thống kê */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
               <Typography variant="h4" color="primary">
                 {statistics.totalSchedules || 0}
@@ -198,7 +198,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
               <Typography variant="h4" color="success.main">
                 {statistics.activeSchedules || 0}
@@ -210,7 +210,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
               <Typography variant="h4" color="info.main">
                 {statistics.dailyEnabledSchedules || 0}
@@ -222,7 +222,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
               <Typography variant="h4" color="warning.main">
                 {statistics.eveningEnabledSchedules || 0}
