@@ -145,7 +145,7 @@ export const createCustomMealAPI = async (data) => {
 }
 
 export const getCustomMealByIdAPI = async (id) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/${id}`)
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/customer/${id}`)
   return response.data
 }
 

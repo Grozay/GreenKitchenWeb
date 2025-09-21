@@ -10,16 +10,15 @@ import Footer from '~/components/Footer/Footer'
 import TabCalMobile from './Item/TabCal/TabCalMobile'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
-import HealthyChoiceMobile from './Item/HealthyChoice/HealthyChoiceMobile'
 import { getIngredientsAPI } from '~/apis'
 import { setSuggestedSauces, setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
 import { getSuggestedSauces } from '~/utils/nutrition'
 import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 // import { selectIsCustomerLoggedIn } from '~/redux/user/customerSlice' // Thêm import selector
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
-
-const SmartMealLayout = () => {
+import { useNavigate } from 'react-router-dom'
+import SaveMobilechoiceCal from './Item/HealthyChoice/SaveHealthyChoiceMobile'
+const SaveSmartMealLayout = () => {
   const dispatch = useDispatch()
   const [itemHealthy, setItemHealthy] = useState({})
   const [value, setValue] = useState(0)
@@ -212,9 +211,14 @@ const SmartMealLayout = () => {
             selectedItems.side.length === 0 &&
             selectedItems.sauce.length === 0 ? (
             <Box></Box>
-          ) : (
-            <HealthyChoiceMobile itemHealthy={itemHealthy} />
-          )}
+          )
+            : (
+              <Box>
+                <SaveMobilechoiceCal itemHealthy={itemHealthy} />
+
+              </Box>
+            )
+          }
         </Box>
       </Box>
       <Footer />
@@ -222,4 +226,4 @@ const SmartMealLayout = () => {
   )
 }
 
-export default SmartMealLayout
+export default SaveSmartMealLayout

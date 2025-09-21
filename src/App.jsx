@@ -27,6 +27,7 @@ import PostLayout from './pages/customer/Posts/PostLayout'
 import PostDetails from './pages/customer/Posts/PostDetails'
 import { BankTransfer } from './pages/customer/Checkout/BankTransfer'
 import SavedCustomMealLayout from './pages/customer/SavedCustomMeal/SavedCustomMealLayout'
+import SaveSmartMealLayout from './pages/customer/SavedCustomMeal/SavedSmartMealLayout'
 
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
@@ -88,7 +89,7 @@ function App() {
         <Route path="/tracking-order" element={<TrackingOrder />} />
 
         <Route path="/saved-custom-meals" element={<SavedCustomMealLayout />} />
-        <Route path="/saved-smart-meal-planner" element={<SmartMealLayout />} />
+        <Route path="/saved-smart-meal-planner" element={<SaveSmartMealLayout />} />
 
 
         {/* History Chat - require customer login */}

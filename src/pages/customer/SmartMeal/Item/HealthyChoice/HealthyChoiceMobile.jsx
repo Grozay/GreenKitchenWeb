@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Drawer from '@mui/material/Drawer'
 import theme from '~/theme'
-import CustomMealDrawerInfoMobile from '~/pages/customer/SmartMeal/Item/HealthyChoice/InfoDetail/DrawerInfo/CustomMealDrawerInfoMobile'
+import DrawerInfoMobile from '~/pages/customer/SmartMeal/Item/HealthyChoice/InfoDetail/DrawerInfo/DrawerInfoMobile'
 import SauceSuggestionDialog from '~/pages/customer/SmartMeal/Item/HealthyChoice/DialogSauces/SauceSuggestionDialog'
 import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
@@ -30,7 +30,9 @@ const HealthyChoiceMobile = ({ itemHealthy }) => {
   const translatedProtein = t('nutrition.protein')
   const translatedCarbs = t('nutrition.carbs')
   const translatedFat = t('nutrition.fat')
-  const translatedSavedMeal = useTranslate('Saved your custom meal', currentLang)
+  const translatedSuggestSauce = useTranslate('Suggest Sauce', currentLang)
+  const translatedOrderNow = useTranslate('Order Now', currentLang)
+
   const items = [
     { label: translatedCalories, value: `${Math.round(totalCalories)}` },
     { label: translatedProtein, value: `${Math.round(totalProtein)}g` },
@@ -137,7 +139,9 @@ const HealthyChoiceMobile = ({ itemHealthy }) => {
         gap: 1
       }}>
         <Box
-          onClick={() => { setOpenDrawer(true)
+          onClick={() => {
+            if (!hasSuggestedSauce) handleSuggestSauce()
+            else setOpenDrawer(true)
           }}
           sx={{
             flex: 1,
@@ -155,7 +159,7 @@ const HealthyChoiceMobile = ({ itemHealthy }) => {
             }
           }}
         >
-          {translatedSavedMeal}
+          {hasSuggestedSauce ? translatedOrderNow : translatedSuggestSauce}
         </Box>
       </Box>
       <Drawer
@@ -171,7 +175,7 @@ const HealthyChoiceMobile = ({ itemHealthy }) => {
           sx: { overflow: 'auto' }
         }}
       >
-        <CustomMealDrawerInfoMobile selectedItems={items} onClose={handleCloseDrawer} itemHealthy={itemHealthy} />
+        <DrawerInfoMobile selectedItems={items} onClose={handleCloseDrawer} itemHealthy={itemHealthy} />
       </Drawer>
     </Box>
   )

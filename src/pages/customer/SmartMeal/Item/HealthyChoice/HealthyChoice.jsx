@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 import EmptyBowl from './EmptyBowl/EmptyBowl'
 import ListCardChoice from './ListCardChoice/ListCardChoice'
+import InfoDetail from './InfoDetail/InfoDetail'
 import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import SaveInfoDetail from '~/pages/customer/SavedCustomMeal/Item/HealthyChoice/InfoDetail/SaveInfoDetail'
 
 const HealthyChoice = ({ itemHealthy }) => {
   const selectedItems = useSelector(selectCurrentMeal)
@@ -117,7 +117,7 @@ const HealthyChoice = ({ itemHealthy }) => {
         selectedItems.sauce.length === 0 ? (
           <Box></Box>
         ) : (
-          <SaveInfoDetail itemHealthy={itemHealthy} />
+          <InfoDetail itemHealthy={itemHealthy} />
         )}
     </Box>
   )

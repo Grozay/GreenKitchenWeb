@@ -30,7 +30,7 @@ import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import { useTranslation } from 'react-i18next'
 
-const CustomMealDrawerInfoMobile = ({ onClose, itemHealthy }) => {
+const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const [isReviewing, setIsReviewing] = useState(true)
   const [addingToCart, setAddingToCart] = useState(false)
   const [savingMeal, setSavingMeal] = useState(false)
@@ -64,7 +64,8 @@ const CustomMealDrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const translatedSaveMeal = useTranslate('Save meal', currentLang)
   const translatedAdding = useTranslate('Adding...', currentLang)
   const translatedSaving = useTranslate('Saving...', currentLang)
-
+  const translatedLoginToast = useTranslate('You need to log in to place an order!', currentLang)
+  const translatedSaveLoginToast = useTranslate('You need to log in to save the meal!', currentLang)
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
   const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
   const handleOrderCustom = () => {
@@ -87,7 +88,7 @@ const CustomMealDrawerInfoMobile = ({ onClose, itemHealthy }) => {
     if (orderMode) {
       // ORDER FLOW
       if (!customerId) {
-        toast.error('Bạn cần đăng nhập để đặt món!')
+        toast.error(translatedLoginToast)
         setAddingToCart(false)
         setOrderMode(false)
         navigate('/login')
@@ -158,7 +159,7 @@ const CustomMealDrawerInfoMobile = ({ onClose, itemHealthy }) => {
 
       setSavingMeal(true)
       if (!customerId) {
-        toast.error('Bạn cần đăng nhập để lưu món!')
+        toast.error(translatedSaveLoginToast)
         setAddingToCart(false)
         setOrderMode(false)
         navigate('/login')
@@ -451,4 +452,4 @@ const CustomMealDrawerInfoMobile = ({ onClose, itemHealthy }) => {
   )
 }
 
-export default CustomMealDrawerInfoMobile
+export default DrawerInfoMobile

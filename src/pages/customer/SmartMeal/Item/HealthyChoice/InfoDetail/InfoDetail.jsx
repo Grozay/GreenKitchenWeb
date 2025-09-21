@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux'
 import { clearCart } from '~/redux/meal/mealSlice'
 import theme from '~/theme'
 import { Drawer } from '@mui/material'
-import CustomMealDrawerInfo from './DrawerInfo/CustomMealDrawerInfo'
+import DrawerInfo from './DrawerInfo/DrawerInfo'
 import { selectSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
 import SauceSuggestionDialog from '../DialogSauces/SauceSuggestionDialog'
 import { getSuggestedSauces } from '~/utils/nutrition'
@@ -35,7 +35,8 @@ const InfoDetail = ({ itemHealthy }) => {
   const translatedCarbs = t('nutrition.carbs')
   const translatedFat = t('nutrition.fat')
   const translatedClearSelections = useTranslate('Clear Selections', currentLang)
-  const translatedSavedMeal = useTranslate('Saved your custom meal', currentLang)
+  const translatedSuggestSauce = useTranslate('Suggest Sauce', currentLang)
+  const translatedOrderNow = useTranslate('Order Now', currentLang)
 
   const items = [
     { label: translatedCalories, value: `${Math.round(totalCalories)}` },
@@ -142,7 +143,9 @@ const InfoDetail = ({ itemHealthy }) => {
           {translatedClearSelections}
         </Box>
         <Box
-          onClick={() => { handleNutritionClick()
+          onClick={() => {
+            if (!hasSuggestedSauce) handleSuggestSauce()
+            else handleNutritionClick()
           }}
           sx={{
             py: 1,
@@ -160,7 +163,7 @@ const InfoDetail = ({ itemHealthy }) => {
             }
           }}
         >
-          {translatedSavedMeal}
+          {hasSuggestedSauce ? translatedOrderNow : translatedSuggestSauce}
         </Box>
       </Box>
       <Drawer
@@ -176,7 +179,7 @@ const InfoDetail = ({ itemHealthy }) => {
           sx: { overflow: 'auto' }
         }}
       >
-        <CustomMealDrawerInfo selectedItems={items} onClose={handleCloseDrawer} itemHealthy={itemHealthy} />
+        <DrawerInfo selectedItems={items} onClose={handleCloseDrawer} itemHealthy={itemHealthy} />
       </Drawer>
     </Box>
   )

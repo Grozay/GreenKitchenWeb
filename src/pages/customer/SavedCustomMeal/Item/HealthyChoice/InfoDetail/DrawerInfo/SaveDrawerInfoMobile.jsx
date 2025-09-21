@@ -14,12 +14,7 @@ import { useTheme } from '@mui/material'
 import { selectCurrentMeal, clearCart } from '~/redux/meal/mealSlice'
 import { fetchCart, createCartItem } from '~/redux/cart/cartSlice' // Sửa: import createCartItem
 import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice } from '~/utils/nutrition'
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-import PageviewIcon from '@mui/icons-material/Pageview'
-import SuggestFood from './SuggestFood'
-import SelectedFood from './SelectedFood'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { createCustomMealAPI, addMealToCartAPI } from '~/apis/index'
+import { createCustomMealAPI, updateCustomMealAPI } from '~/apis/index'
 import { toast } from 'react-toastify'
 import Grid from '@mui/material/Grid'
 import FoodCard from '~/components/FoodCard/FoodCard'
@@ -31,6 +26,7 @@ import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import { useTranslation } from 'react-i18next'
 
 const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
+  console.log('Render SaveDrawerInfoMobile')
   const [isReviewing, setIsReviewing] = useState(true)
   const [addingToCart, setAddingToCart] = useState(false)
   const [savingMeal, setSavingMeal] = useState(false)
@@ -59,13 +55,15 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const translatedCarbs = t('nutrition.carbs')
   const translatedFat = t('nutrition.fat')
   const translatedTotalPrice = useTranslate('Total Price:', currentLang)
-  const translatedOrderMeal = useTranslate('Order meal', currentLang)
-  const translatedSaveMeal = useTranslate('Save meal', currentLang)
+  const translatedFavoriteMix = useTranslate('My favorite mix with quantities', currentLang)
+  const translatedCustomMeal = useTranslate('your custom Meal', currentLang)
   const translatedAdding = useTranslate('Adding...', currentLang)
   const translatedSaving = useTranslate('Saving...', currentLang)
-
-  const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
+  const translatedSaveCustom = useTranslate('Save custom meal', currentLang)
+  const meal = useSelector(state => state.meal.meal) // Lấy meal từ Redux
   const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
+    const translatedLoginToast = useTranslate('You need to log in to place an order!', currentLang)
+  const translatedSaveLoginToast = useTranslate('You need to log in to save the meal!', currentLang)
   const handleOrderCustom = () => {
     setOrderMode(true)
     setOpenInfoModal(true)
@@ -84,20 +82,18 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const handleModalSave = async ({ title, desc }) => {
     setOpenInfoModal(false)
     if (orderMode) {
-      // ORDER FLOW
+      // ORDER FLOW (giữ nguyên)
       if (!customerId) {
-        toast.error('Bạn cần đăng nhập để đặt món!')
-        setAddingToCart(false)
+        toast.error(translatedLoginToast)
         setOrderMode(false)
         navigate('/login')
         return
       }
-      setAddingToCart(true)
       try {
         const customMealData = {
           customerId: customerId,
-          title: title || 'My favorite mix with quantities',
-          description: desc || 'your custom Meal',
+          title: title || translatedFavoriteMix,
+          description: desc || translatedCustomMeal,
           calories: Math.round(customTotal.calories),
           protein: Math.round(customTotal.protein),
           carb: Math.round(customTotal.carbs),
@@ -123,7 +119,6 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
         }
         const savedCustomMeal = await createCustomMealAPI(customMealData)
 
-        // Sửa: tạo requestData đúng chuẩn createCartItem
         const cartRequestData = {
           isCustom: true,
           customMealId: savedCustomMeal.id,
@@ -140,34 +135,29 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
           image: savedCustomMeal.image || defaultImage
         }
 
-        // Sửa: dùng Redux thunk để add vào cart
         await dispatch(createCartItem({ customerId, itemData: cartRequestData }))
         await dispatch(fetchCart(customerId))
-        // dispatch(clearCart())
         onClose()
         toast.success('Custom meal added to cart successfully!')
       } catch (error) {
-        toast.error('Failed to add custom meal to cart. Please try again.')
+        toast.error('Failed to add custom meal to cart. Please try again.' + error.message)
       } finally {
-        setAddingToCart(false)
         setOrderMode(false)
       }
     } else {
-      // SAVE FLOW
-
+      // SAVE/UPDATE FLOW
       setSavingMeal(true)
       if (!customerId) {
-        toast.error('Bạn cần đăng nhập để lưu món!')
-        setAddingToCart(false)
-        setOrderMode(false)
+        toast.error(translatedSaveLoginToast)
+        setSavingMeal(false)
         navigate('/login')
         return
       }
       try {
         const customMealData = {
           customerId: customerId,
-          title: title || 'My favorite mix with quantities',
-          description: desc || 'your custom Meal',
+          title: title || translatedFavoriteMix,
+          description: desc || translatedCustomMeal,
           calories: Math.round(customTotal.calories),
           protein: Math.round(customTotal.protein),
           carb: Math.round(customTotal.carbs),
@@ -192,12 +182,20 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
           })) || []
         }
 
-        const savedCustomMeal = await createCustomMealAPI(customMealData)
-        dispatch(clearCart())
+        if (meal?.id) {
+          // UPDATE EXISTING MEAL
+          await updateCustomMealAPI(meal.id, customMealData)
+          navigate('/saved-custom-meals')
+          clearCart()
+          toast.success(`Custom meal "${title}" updated successfully!`)
+        } else {
+          // CREATE NEW MEAL
+          await createCustomMealAPI(customMealData)
+          toast.success(`Custom meal "${title}" saved successfully!`)
+        }
         onClose()
-        toast.success(`Custom meal "${savedCustomMeal.name}" saved successfully!`)
       } catch (error) {
-        toast.error('Failed to save custom meal. Please try again.')
+        toast.error('Failed to save/update custom meal. Please try again.')
       } finally {
         setSavingMeal(false)
       }
@@ -292,60 +290,15 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
 
         {/* Scrollable Content */}
         <Box sx={{ flex: 1, overflowY: 'auto', mx: 2, mb: 2, pt: 2 }}>
-          {isReviewing ? (
-            // --- REVIEW VIEW ---
-            <>
-              <Box sx={{ mb: 2 }}>
-                <Grid container spacing={2}>
-                  {allSelectedItems.map(item => (
-                    <Grid size={{ xs: 6, sm: 4, md: 2 }} key={item.id}>
-                      <FoodCard card={item} />
-                    </Grid>
-                  ))}
+          <Box sx={{ mb: 2 }}>
+            <Grid container spacing={2}>
+              {allSelectedItems.map(item => (
+                <Grid size={{ xs: 6, sm: 4, md: 2 }} key={item.id}>
+                  <FoodCard card={item} />
                 </Grid>
-              </Box>
-            </>
-          ) : (
-            // --- BUILDER VIEW ---
-            <>
-              {/* Always show review button if there are selected items */}
-              {allSelectedItems.length > 0 && (
-                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<PageviewIcon />}
-                    onClick={() => setIsReviewing(true)}
-                    sx={{ borderRadius: 5 }}
-                  >
-                    {translatedReviewSelections} ({allSelectedItems.length} items)
-                  </Button>
-                </Box>
-              )}
-
-              {/* Show either balanced message or suggestions */}
-              {isBalanced ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <CheckCircleOutlineIcon sx={{ fontSize: 60, color: 'success.main' }} />
-                  <Typography variant="h6" sx={{ mt: 2, fontWeight: 'medium' }}>
-                    {translatedBalanced}
-                  </Typography>
-                  <Typography sx={{ color: 'text.secondary', mb: 3 }}>
-                    {translatedCanOrder}
-                  </Typography>
-                </Box>
-              ) : (
-                // SUGGESTING STATE
-                <>
-                  {nutritionalAdvice && (
-                    <Typography sx={{ mb: 2, fontStyle: 'italic', color: 'text.secondary', textAlign: 'center' }}>
-                      {nutritionalAdvice}
-                    </Typography>
-                  )}
-                  <SuggestFood suggestedMeals={suggestedMeals} />
-                </>
-              )}
-            </>
-          )}
+              ))}
+            </Grid>
+          </Box>
         </Box>
 
         {/* Sticky Custom Meal Section */}
@@ -358,6 +311,24 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
             bgcolor: theme.palette.background.default
           }}
         >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 1.5 }}>
+            <Button
+              variant="outlined"
+              onClick={handleClearSelections}
+              sx={{
+                borderRadius: 5,
+                color: theme.palette.text.primary,
+                borderColor: theme.palette.text.primary,
+                fontWeight: 400,
+                '&:hover': {
+                  bgcolor: '#00000010'
+                }
+              }}
+              aria-label="Clear selections"
+            >
+              {translatedClearSelections}
+            </Button>
+          </Box>
           <Box
             sx={{
               width: '10rem',
@@ -391,26 +362,15 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
           </Box>
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
             <Button
-              variant="contained"
-              color="success"
-              startIcon={<ShoppingCart />}
-              sx={{ borderRadius: 5 }}
-              onClick={handleOrderCustom}
-              disabled={addingToCart}
-              aria-label="Order custom meal"
-            >
-              {addingToCart ? translatedAdding : translatedOrderMeal}
-            </Button>
-            <Button
               variant="outlined"
               color="success"
               startIcon={<SaveIcon />}
-              sx={{ borderRadius: 5 }}
+              sx={{ mt: 2, borderRadius: 5 }}
               onClick={handleSaveCustom}
               disabled={savingMeal}
               aria-label="Save custom meal"
             >
-              {savingMeal ? translatedSaving : translatedSaveMeal}
+              {savingMeal ? translatedSaving : translatedSaveCustom}
             </Button>
           </Box>
         </Box>

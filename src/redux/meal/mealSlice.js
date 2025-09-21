@@ -14,7 +14,8 @@ const initialState = {
   totalProtein: 0,
   totalCarbs: 0,
   totalFat: 0,
-  meal: null // Thêm state meal
+  meal: null,
+  totalPrice: 0
 }
 
 const mealSlice = createSlice({
@@ -29,11 +30,17 @@ const mealSlice = createSlice({
 
       if (existingItem) {
         existingItem.quantity += 1
+        existingItem.price += existingItem.perUnitPrice // Update total price cho item
+        state.totalPrice += existingItem.perUnitPrice // Update totalPrice
       } else {
+        const perUnitPrice = action.payload.price || 0 // Giả sử action.payload.price là per unit
         state.selectedItems[typeKey].push({
           ...action.payload,
-          quantity: 1
+          quantity: 1,
+          perUnitPrice: perUnitPrice,
+          price: perUnitPrice // Total price cho item
         })
+        state.totalPrice += perUnitPrice
       }
 
       state.totalProtein += action.payload.protein || 0
@@ -49,7 +56,10 @@ const mealSlice = createSlice({
       if (itemToRemove) {
         if (itemToRemove.quantity > 1) {
           itemToRemove.quantity -= 1
+          itemToRemove.price -= itemToRemove.perUnitPrice // Update total price cho item
+          state.totalPrice -= itemToRemove.perUnitPrice // Update totalPrice
         } else {
+          state.totalPrice -= itemToRemove.price // Remove total price
           state.selectedItems[typeKey] = state.selectedItems[typeKey].filter(
             item => item.id !== action.payload.id
           )
@@ -74,9 +84,10 @@ const mealSlice = createSlice({
       state.totalProtein = 0
       state.totalCarbs = 0
       state.totalFat = 0
+      state.totalPrice = 0 // Reset totalPrice
     },
     setMealFromCustom: (state, action) => {
-      const { details, title, price, description, image } = action.payload // Thêm title, price, description, image
+      const { details, title, price, description, image, calories, protein, carb, fat } = action.payload // Thêm calories, protein, carb, fat
       // Clear current selection
       state.selectedItems = {
         protein: [],
@@ -84,10 +95,11 @@ const mealSlice = createSlice({
         side: [],
         sauce: []
       }
-      state.totalCalories = 0
-      state.totalProtein = 0
-      state.totalCarbs = 0
-      state.totalFat = 0
+      state.totalCalories = calories || 0 // Set calo ban đầu từ meal
+      state.totalProtein = protein || 0
+      state.totalCarbs = carb || 0
+      state.totalFat = fat || 0
+      state.totalPrice = price || 0 // Set price ban đầu từ meal
       state.title = title || ''
       state.price = price || 0
       state.description = description || ''
@@ -97,10 +109,12 @@ const mealSlice = createSlice({
       details.forEach(detail => {
         const typeKey = detail.type.toLowerCase()
         if (state.selectedItems[typeKey]) {
+          const perUnitPrice = detail.calories * 10
           state.selectedItems[typeKey].push({
             ...detail,
             quantity: detail.quantity || 1,
-            price: detail.calories * 10 // Thêm price, ví dụ calories * 10
+            perUnitPrice: perUnitPrice, // Thêm perUnitPrice
+            price: perUnitPrice * (detail.quantity || 1) // Total price cho item
           })
         }
       })
@@ -121,10 +135,11 @@ export const selectCurrentMeal = (state) => {
 export const selectMealTotals = createSelector(
   (state) => state.meal,
   (meal) => ({
-    totalCalories: (meal.totalProtein * 4) + (meal.totalCarbs * 4) + (meal.totalFat * 9),
+    totalCalories: meal.totalCalories || ((meal.totalProtein * 4) + (meal.totalCarbs * 4) + (meal.totalFat * 9)), // Dùng totalCalories nếu có, else tính
     totalProtein: meal.totalProtein,
     totalCarbs: meal.totalCarbs,
-    totalFat: meal.totalFat
+    totalFat: meal.totalFat,
+    totalPrice: meal.totalPrice // Thêm totalPrice
   })
 )
 

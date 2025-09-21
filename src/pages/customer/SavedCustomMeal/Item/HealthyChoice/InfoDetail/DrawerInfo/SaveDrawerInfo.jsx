@@ -12,7 +12,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
 import { useTheme } from '@mui/material'
 // import { ItemHealthy } from '~/apis/mockData'
-import { selectCurrentMeal, clearCart } from '~/redux/meal/mealSlice'
+import { selectCurrentMeal, clearCart } from '~/redux/meal/mealSlice' // Thêm clearSelectedItems
 import { fetchCart, createCartItem } from '~/redux/cart/cartSlice' // Sửa: import createCartItem
 import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice } from '~/utils/nutrition'
 import { createCustomMealAPI, updateCustomMealAPI } from '~/apis/index' // Import API functions
@@ -52,7 +52,8 @@ const SaveDrawerInfo = ({ onClose }) => {
   const translatedSaving = useTranslate('Saving...', currentLang)
   const translatedFavoriteMix = useTranslate('My favorite mix with quantities', currentLang)
   const translatedCustomMeal = useTranslate('your custom Meal', currentLang)
-
+  const translatedLoginToast = useTranslate('You need to log in to place an order!', currentLang)
+  const translatedSaveLoginToast = useTranslate('You need to log in to save the meal!', currentLang)
   const customTotal = calcCustomTotal(selected)
   const allSelectedItems = Object.values(selected).flat()
 
@@ -71,7 +72,7 @@ const SaveDrawerInfo = ({ onClose }) => {
     if (orderMode) {
       // ORDER FLOW (giữ nguyên)
       if (!customerId) {
-        toast.error('Bạn cần đăng nhập để đặt món!')
+        toast.error(translatedLoginToast)
         setOrderMode(false)
         navigate('/login')
         return
@@ -135,7 +136,7 @@ const SaveDrawerInfo = ({ onClose }) => {
       // SAVE/UPDATE FLOW
       setSavingMeal(true)
       if (!customerId) {
-        toast.error('Bạn cần đăng nhập để lưu món!')
+        toast.error(translatedSaveLoginToast)
         setSavingMeal(false)
         navigate('/login')
         return
