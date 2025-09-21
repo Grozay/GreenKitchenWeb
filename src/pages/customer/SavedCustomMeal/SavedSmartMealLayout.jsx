@@ -1,24 +1,24 @@
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import AppBar from '~/components/AppBar/AppBar'
 import theme from '~/theme'
 import TabCal from './Item/TabCal/TabCal'
 import ChoiceCal from './Item/HealthyChoice/HealthyChoice'
 import ListCard from './Item/ListCard/ListCard'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import Footer from '~/components/Footer/Footer'
 import TabCalMobile from './Item/TabCal/TabCalMobile'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
-import HealthyChoiceMobile from './Item/HealthyChoice/HealthyChoiceMobile'
 import { getIngredientsAPI } from '~/apis'
 import { setSuggestedSauces, setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
 import { getSuggestedSauces } from '~/utils/nutrition'
 import useTranslate from '~/hooks/useTranslate'
 import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { Button } from '@mui/material'
+// import { selectIsCustomerLoggedIn } from '~/redux/user/customerSlice' // Thêm import selector
 import { useNavigate } from 'react-router-dom'
-
-const SmartMealLayout = () => {
+import SaveMobilechoiceCal from './Item/HealthyChoice/SaveHealthyChoiceMobile'
+const SaveSmartMealLayout = () => {
   const dispatch = useDispatch()
   const [itemHealthy, setItemHealthy] = useState({})
   const [value, setValue] = useState(0)
@@ -26,15 +26,18 @@ const SmartMealLayout = () => {
   const proteinRef = useRef(null)
   const carbsRef = useRef(null)
   const sideRef = useRef(null)
+  const navigate = useNavigate()
   const sauceRef = useRef(null)
   const selectedItems = useSelector(selectCurrentMeal)
   const currentLang = useSelector(selectCurrentLanguage)
-  const navigate = useNavigate()
+  // const isLoggedIn = useSelector(selectIsCustomerLoggedIn) // Lấy trạng thái đăng nhập
+
 
   const translatedSelectProtein = useTranslate('SELECT PROTEIN', currentLang)
   const translatedSelectCarbs = useTranslate('SELECT CARBS', currentLang)
   const translatedSelectSide = useTranslate('SELECT SIDE', currentLang)
   const translatedSelectSauce = useTranslate('SELECT SAUCE', currentLang)
+  // const translatedYourSavedCustomMeals = useTranslate('Your saved custom meals', currentLang)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -102,7 +105,6 @@ const SmartMealLayout = () => {
             width: '100%'
           }}
         >
-
           <Box
             sx={{
               flex: 2,
@@ -113,9 +115,18 @@ const SmartMealLayout = () => {
               mb: { xs: 3, md: 0 }
             }}
           >
-            <Box sx={{ flex: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center' }}>
-              <Button variant="contained" color="primary" sx={{ borderRadius: 5 }} onClick={() => navigate('/saved-custom-meals')}>Your Custom meals</Button>
-            </Box>
+            {/* <Box sx={{ textAlign: 'center', mb: 2, fontSize: { xs: '18px', md: '20px' }, fontWeight: 'bold', borderRadius: 5 }}>
+              {isLoggedIn && ( // Chỉ hiển thị nút nếu đã đăng nhập
+                <Button
+                  variant="contained"
+                  color='primary'
+                  sx={{ borderRadius: 5 }}
+                  onClick={() => navigate('/saved-custom-meals')}
+                >
+                  {translatedYourSavedCustomMeals}
+                </Button>
+              )}
+            </Box> */}
             <Box
               sx={{
                 position: 'sticky',
@@ -146,6 +157,8 @@ const SmartMealLayout = () => {
                 <TabCalMobile value={value} handleChange={handleChange} />
               </Box>
             </Box>
+
+
             <Box sx={{ mx: '15px' }}>
               <Box ref={proteinRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
                 <ListCard title={translatedSelectProtein} index={1} type="PROTEIN" cards={itemHealthy?.protein} loading={loading} />
@@ -198,9 +211,14 @@ const SmartMealLayout = () => {
             selectedItems.side.length === 0 &&
             selectedItems.sauce.length === 0 ? (
             <Box></Box>
-          ) : (
-            <HealthyChoiceMobile itemHealthy={itemHealthy} />
-          )}
+          )
+            : (
+              <Box>
+                <SaveMobilechoiceCal itemHealthy={itemHealthy} />
+
+              </Box>
+            )
+          }
         </Box>
       </Box>
       <Footer />
@@ -208,4 +226,4 @@ const SmartMealLayout = () => {
   )
 }
 
-export default SmartMealLayout
+export default SaveSmartMealLayout

@@ -145,12 +145,17 @@ export const createCustomMealAPI = async (data) => {
 }
 
 export const getCustomMealByIdAPI = async (id) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/${id}`)
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/customer/${id}`)
   return response.data
 }
 
 export const createCustomerHealthyInfoAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-health-info`, data)
+  return response.data
+}
+
+export const updateCustomMealAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/custom-meals/${id}`, data)
   return response.data
 }
 
