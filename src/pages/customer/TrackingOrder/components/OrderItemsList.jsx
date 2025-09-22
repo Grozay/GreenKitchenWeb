@@ -24,7 +24,7 @@ const OrderItemsList = ({ order }) => {
       <Card elevation={3}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" color="text.secondary" textAlign="center">
-            Không có thông tin món ăn
+            No food information
           </Typography>
         </CardContent>
       </Card>
@@ -39,7 +39,7 @@ const OrderItemsList = ({ order }) => {
         <CardContent sx={{ p: 3, textAlign: 'center' }}>
           <RestaurantIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="text.secondary">
-            Không có thông tin món ăn
+            No food information
           </Typography>
         </CardContent>
       </Card>
@@ -63,10 +63,10 @@ const OrderItemsList = ({ order }) => {
           </Avatar>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-              Danh Sách Món Ăn
+              Food List
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {items.length} món ăn
+              {items.length} dishes
             </Typography>
           </Box>
         </Box>
@@ -114,7 +114,7 @@ const OrderItemsList = ({ order }) => {
                       mb: 0.5
                     }}
                   >
-                    {item.title || 'Món ăn'}
+                    {item.title || 'Dish'}
                   </Typography>
 
                   {item.description && (
@@ -129,7 +129,7 @@ const OrderItemsList = ({ order }) => {
 
                   <Box display="flex" alignItems="center" gap={2}>
                     <Chip
-                      label={`SL: ${item.quantity}`}
+                      label={`Qty: ${item.quantity}`}
                       size="small"
                       variant="outlined"
                       sx={{
@@ -171,13 +171,13 @@ const OrderItemsList = ({ order }) => {
           {/* Price Breakdown */}
           <Box sx={{ mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Chi tiết thanh toán:
+              Payment details:
             </Typography>
             
             {/* Subtotal */}
             <Box display="flex" justifyContent="space-between" mb={1}>
               <Typography variant="body2" color="text.secondary">
-                Tạm tính:
+                Subtotal:
               </Typography>
               <Typography variant="body2">
                 {formatCurrency(order.subtotal)}
@@ -187,10 +187,10 @@ const OrderItemsList = ({ order }) => {
             {/* Shipping Fee */}
             <Box display="flex" justifyContent="space-between" mb={1}>
               <Typography variant="body2" color="text.secondary">
-                Phí giao hàng:
+                Shipping fee:
               </Typography>
               <Typography variant="body2">
-                {order.shippingFee > 0 ? formatCurrency(order.shippingFee) : 'Miễn phí'}
+                {order.shippingFee > 0 ? formatCurrency(order.shippingFee) : 'Free'}
               </Typography>
             </Box>
 
@@ -198,7 +198,7 @@ const OrderItemsList = ({ order }) => {
             {order.membershipDiscount > 0 && (
               <Box display="flex" justifyContent="space-between" mb={1}>
                 <Typography variant="body2" color="text.secondary">
-                  Giảm giá thành viên:
+                  Membership discount:
                 </Typography>
                 <Typography variant="body2" color="success.main">
                   -{formatCurrency(order.membershipDiscount)}
@@ -210,7 +210,7 @@ const OrderItemsList = ({ order }) => {
             {order.couponDiscount > 0 && (
               <Box display="flex" justifyContent="space-between" mb={1}>
                 <Typography variant="body2" color="text.secondary">
-                  Giảm giá coupon:
+                  Coupon discount:
                 </Typography>
                 <Typography variant="body2" color="success.main">
                   -{formatCurrency(order.couponDiscount)}
@@ -222,10 +222,10 @@ const OrderItemsList = ({ order }) => {
             {order.pointEarn > 0 && (
               <Box display="flex" justifyContent="space-between" mb={1}>
                 <Typography variant="body2" color="text.secondary">
-                  Điểm tích lũy:
+                  Points earned:
                 </Typography>
                 <Typography variant="body2" color="warning.main" fontWeight="bold">
-                  +{order.pointEarn} điểm
+                  +{order.pointEarn} points
                 </Typography>
               </Box>
             )}
@@ -244,7 +244,7 @@ const OrderItemsList = ({ order }) => {
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Tổng cộng:
+              Total:
             </Typography>
             <Typography
               variant="h5"

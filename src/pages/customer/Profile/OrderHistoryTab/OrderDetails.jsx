@@ -88,11 +88,11 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
   // progress helper removed — UI now shows step dots instead of a progress bar
   // Stepper status config
   const statusSteps = [
-    { key: 'PENDING', label: 'Chờ xác nhận', icon: <ScheduleIcon /> },
-    { key: 'CONFIRMED', label: 'Đã xác nhận', icon: <CheckCircleIcon /> },
-    { key: 'PREPARING', label: 'Đang chuẩn bị', icon: <RestaurantIcon /> },
-    { key: 'SHIPPING', label: 'Đang giao hàng', icon: <LocalShippingIcon /> },
-    { key: 'DELIVERED', label: 'Đã giao hàng', icon: <CheckCircleOutlineIcon /> }
+    { key: 'PENDING', label: 'Pending', icon: <ScheduleIcon /> },
+    { key: 'CONFIRMED', label: 'Confirmed', icon: <CheckCircleIcon /> },
+    { key: 'PREPARING', label: 'Preparing', icon: <RestaurantIcon /> },
+    { key: 'SHIPPING', label: 'Shipping', icon: <LocalShippingIcon /> },
+    { key: 'DELIVERED', label: 'Delivered', icon: <CheckCircleOutlineIcon /> }
   ]
   const currentStep = statusSteps.findIndex(s => s.key === order?.status)
 
@@ -126,7 +126,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
     return (
       <Box sx={{ p: 3 }}>
         <Typography color="error">{error}</Typography>
-        <Button variant="text" onClick={() => navigate('/profile/order-history')}>Quay lại</Button>
+        <Button variant="text" onClick={() => navigate('/profile/order-history')}>Go Back</Button>
       </Box>
     )
   }
@@ -134,8 +134,8 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
   if (!order) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography>Đơn hàng không tồn tại</Typography>
-        <Button variant="text" onClick={() => navigate('/profile/order-history')}>Quay lại</Button>
+        <Typography>Order does not exist</Typography>
+        <Button variant="text" onClick={() => navigate('/profile/order-history')}>Go Back</Button>
       </Box>
     )
   }
@@ -148,12 +148,12 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
       <Card sx={{ mt: 2, mb: 2, borderRadius: 2 }}>
         <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>{`Đơn hàng #${order.orderCode || order.id}`}</Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>{`Order #${order.orderCode || order.id}`}</Typography>
             <Typography variant="body2" color="text.secondary">{formatDateToMinute(order.createdAt || order.deliveryTime || Date.now())}</Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
             <Typography variant="h6" sx={{ color: '#4caf50', fontWeight: 700, mb: 1 }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}</Typography>
-            <Button variant="outlined" size="small" sx={{ borderColor: '#e0e0e0' }}>Mua lại</Button>
+            <Button variant="outlined" size="small" sx={{ borderColor: '#e0e0e0' }}>Reorder</Button>
           </Box>
         </CardContent>
       </Card>
@@ -202,7 +202,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
       {/* Order Items */}
       <Card sx={{ mb: 2, borderRadius: 2 }}>
         <CardContent>
-          <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Chi tiết sản phẩm</Typography>
+          <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Product Details</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {order.orderItems?.map((it, i) => {
               const customMealDetail = it.itemType === 'CUSTOM_MEAL' && it.customMealId
@@ -236,7 +236,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
                   {customMealDetail && customMealDetail.details && customMealDetail.details.length > 0 && (
                     <Box sx={{ ml: 3, mt: 1, mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid #e0e0e0' }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}>
-                        🥗 Nguyên liệu ({customMealDetail.details.length} món):
+                        🥗 Ingredients ({customMealDetail.details.length} items):
                       </Typography>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {customMealDetail.details.map((ingredient, ingIdx) => (
@@ -280,7 +280,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
                                 />
                               </Box>
                               <Typography variant="caption" color="text.secondary">
-                                Số lượng: {ingredient.quantity}
+                                Quantity: {ingredient.quantity}
                               </Typography>
                             </Box>
                             <Box sx={{ textAlign: 'right', minWidth: '120px' }}>
@@ -314,22 +314,22 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
         <Grid size={{ xs: 12, sm: 12, md: 6 }}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Thông tin khách hàng</Typography>
+              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Customer Information</Typography>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="body2" color="text.secondary">Họ và tên</Typography>
+                <Typography variant="body2" color="text.secondary">Full Name</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>{order.recipientName || '-'}</Typography>
               </Box>
               <Divider sx={{ my: 1 }} />
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="body2" color="text.secondary">Số điện thoại</Typography>
+                <Typography variant="body2" color="text.secondary">Phone Number</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>{order.recipientPhone || '-'}</Typography>
               </Box>
               <Divider sx={{ my: 1 }} />
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1, alignItems: 'flex-start' }}>
-                <Typography variant="body2" color="text.secondary" sx={{ minWidth: '30%' }}>Địa chỉ</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ minWidth: '30%' }}>Address</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500, textAlign: 'right', flex: 1 }}>
                   {`${order.street || ''}${order.ward ? ', ' + order.ward : ''}${order.district ? ', ' + order.district : ''}${order.city ? ', ' + order.city : ''}` || '-'}
                 </Typography>
@@ -337,7 +337,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
               <Divider sx={{ my: 1 }} />
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1, alignItems: 'flex-start' }}>
-                <Typography variant="body2" color="text.secondary" sx={{ minWidth: '30%' }}>Ghi chú</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ minWidth: '30%' }}>Note</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500, textAlign: 'right', flex: 1 }}>
                   {order.note || '-'}
                 </Typography>
@@ -349,14 +349,14 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
         <Grid size={{ xs: 12, sm: 12, md: 6 }}>
           <Card sx={{ borderRadius: 2, height: '100%' }}>
             <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Thông tin thanh toán</Typography>
+              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Payment Information</Typography>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="body2" color="text.secondary">Số lượng sản phẩm</Typography>
+                <Typography variant="body2" color="text.secondary">Number of Items</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>{order.orderItems?.length || 0}</Typography>
               </Box>
               <Divider sx={{ my: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="body2" color="text.secondary">Tổng cộng</Typography>
+                <Typography variant="body2" color="text.secondary">Subtotal</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}</Typography>
               </Box>
               <Divider sx={{ my: 1 }} />
@@ -364,7 +364,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
                 <>
                   {order.membershipDiscount > 0 && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Giảm giá hội viên</Typography>
+                      <Typography variant="body2" color="text.secondary">Membership Discount</Typography>
                       <Typography variant="body2" sx={{ fontWeight: 500, color: 'success.main' }}>
                         -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.membershipDiscount)}
                       </Typography>
@@ -372,7 +372,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
                   )}
                   {order.couponDiscount > 0 && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Giảm giá coupon</Typography>
+                      <Typography variant="body2" color="text.secondary">Coupon Discount</Typography>
                       <Typography variant="body2" sx={{ fontWeight: 500, color: 'success.main' }}>
                         -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.couponDiscount)}
                       </Typography>
@@ -382,12 +382,12 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
                 </>
               )}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="body2" color="text.secondary">Phí vận chuyển</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>{order.shippingFee ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shippingFee) : 'Miễn phí'}</Typography>
+                <Typography variant="body2" color="text.secondary">Shipping Fee</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>{order.shippingFee ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shippingFee) : 'Free'}</Typography>
               </Box>
               <Divider sx={{ my: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                <Typography variant="subtitle2">Tổng số tiền</Typography>
+                <Typography variant="subtitle2">Total Amount</Typography>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#d32f2f' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}</Typography>
               </Box>
             </CardContent>

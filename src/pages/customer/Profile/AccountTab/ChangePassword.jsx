@@ -39,9 +39,9 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
   const onSubmit = async (data) => {
     const { oldPassword, newPassword } = data
     await toast.promise(changePasswordAPI({ email: customerDetails.email, oldPassword, newPassword }), {
-      pending: 'Đang thay đổi mật khẩu...',
-      success: 'Mật khẩu đã được thay đổi thành công!',
-      error: 'Có lỗi xảy ra khi thay đổi mật khẩu'
+      pending: 'Changing password...',
+      success: 'Password changed successfully!',
+      error: 'Error occurred while changing password'
     }).then(res => {
       if (!res.error) {
         setCustomerDetails(prev => ({
@@ -69,14 +69,14 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               mb: 2
             }}>
               <Typography variant="h6" component="h3">
-                Mật khẩu
+                Password
               </Typography>
               <Button
                 variant="outlined"
                 size="small"
                 onClick={handleClickOpen}
               >
-                Đổi mật khẩu
+                Change Password
               </Button>
             </Box>
 
@@ -94,14 +94,14 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
                   color: 'primary.main',
                   fontWeight: 500
                 }}>
-                  Thay đổi mật khẩu tài khoản
+                  Change account password
                 </Typography>
                 <Typography variant="body2" sx={{
                   color: '#666',
                   fontStyle: 'italic',
                   fontSize: '0.75rem'
                 }}>
-                  {customerDetails?.passwordUpdatedAt ? `Cập nhật lần cuối: ${formatDate(customerDetails.passwordUpdatedAt)}` : 'Chưa cập nhật mật khẩu'}
+                  {customerDetails?.passwordUpdatedAt ? `Last updated: ${formatDate(customerDetails.passwordUpdatedAt)}` : 'Password not updated yet'}
                 </Typography>
               </Box>
             </Box>
@@ -129,7 +129,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LockIcon sx={{ color: '#FF6B35' }} />
             <Typography variant="h6">
-              Thay đổi mật khẩu
+              Change Password
             </Typography>
           </Box>
           <IconButton
@@ -146,7 +146,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               {/* Current Password */}
               <Box>
                 <PasswordField
-                  label="Mật khẩu hiện tại"
+                  label="Current Password"
                   error={!!errors['oldPassword']}
                   register={register}
                   registerName="oldPassword"
@@ -161,7 +161,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               {/* New Password */}
               <Box>
                 <PasswordField
-                  label="Mật khẩu mới"
+                  label="New Password"
                   error={!!errors['newPassword']}
                   register={register}
                   registerName="newPassword"
@@ -181,7 +181,7 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               {/* Confirm New Password */}
               <Box>
                 <PasswordField
-                  label="Xác nhận mật khẩu mới"
+                  label="Confirm New Password"
                   error={!!errors['confirmNewPassword']}
                   register={register}
                   registerName="confirmNewPassword"
@@ -201,13 +201,13 @@ export default function ChangePassword({ customerDetails, setCustomerDetails }) 
               onClick={handleClose}
               variant="outlined"
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               type="submit"
               variant="contained"
             >
-              Thay đổi mật khẩu
+              Change Password
             </Button>
           </DialogActions>
         </form>

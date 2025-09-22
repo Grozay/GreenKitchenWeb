@@ -25,7 +25,7 @@ export default function HistoryModal({ open, onClose, pointHistories }) {
   const itemsPerPage = 10
 
   const getTransactionIcon = (transactionType, description) => {
-    if (description?.includes('Đổi coupon')) {
+    if (description?.includes('Exchange coupon')) {
       return <CardGiftcardIcon sx={{ fontSize: '1.5rem', color: '#FF7043' }} />
     }
     if (transactionType === 'USED') {
@@ -101,7 +101,7 @@ export default function HistoryModal({ open, onClose, pointHistories }) {
               fontSize: '1.1rem',
               letterSpacing: '0.5px'
             }}>
-              LỊCH SỬ ĐIỂM THƯỞNG
+              REWARD POINTS HISTORY
             </Typography>
             <Typography variant="caption" sx={{
               color: 'rgba(255,255,255,0.8)',
@@ -109,8 +109,8 @@ export default function HistoryModal({ open, onClose, pointHistories }) {
               mt: 0.25
             }}>
               {pointHistories && pointHistories.length > 0
-                ? `Hiển thị ${startIndex + 1}-${Math.min(endIndex, sortedHistories.length)} của ${sortedHistories.length} giao dịch`
-                : 'Theo dõi lịch sử tích điểm và sử dụng'
+                ? `Showing ${startIndex + 1}-${Math.min(endIndex, sortedHistories.length)} of ${sortedHistories.length} transactions`
+                : 'Track point earning and usage history'
               }
             </Typography>
           </Box>
@@ -202,8 +202,8 @@ export default function HistoryModal({ open, onClose, pointHistories }) {
                         }}>
                           {pHistory.description ||
                             (pHistory.transactionType === 'USED'
-                              ? `Sử dụng điểm (${pHistory.pointsUsed || 0} điểm)`
-                              : `Điểm từ đơn hàng ${pHistory.spentAmount?.toLocaleString()} VNĐ`
+                              ? `Points used (${pHistory.pointsUsed || 0} points)`
+                              : `Points from order ${pHistory.spentAmount?.toLocaleString()} VNĐ`
                             )
                           }
                         </Typography>
@@ -247,7 +247,7 @@ export default function HistoryModal({ open, onClose, pointHistories }) {
                             mt: 0.2,
                             display: 'block'
                           }}>
-                            điểm
+                            points
                           </Typography>
                         </Box>
                       </Grid>
@@ -330,7 +330,7 @@ export default function HistoryModal({ open, onClose, pointHistories }) {
               mb: 0.5,
               fontSize: '1rem'
             }}>
-              Chưa có lịch sử giao dịch điểm
+              No point transaction history yet
             </Typography>
             <Typography variant="body2" sx={{
               color: '#888',
@@ -339,7 +339,7 @@ export default function HistoryModal({ open, onClose, pointHistories }) {
               mx: 'auto',
               lineHeight: 1.4
             }}>
-              Hãy bắt đầu mua sắm để tích lũy điểm thưởng và theo dõi lịch sử giao dịch tại đây!
+              Start shopping to accumulate reward points and track your transaction history here!
             </Typography>
           </Box>
         )}

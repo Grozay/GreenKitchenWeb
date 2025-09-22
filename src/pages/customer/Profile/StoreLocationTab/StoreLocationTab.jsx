@@ -63,7 +63,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
           distance: 'N/A', // Will be calculated based on user location
           openHours: '7:00 - 22:00', // Default hours - có thể thêm vào DB sau
           status: store.isActive ? 'OPEN' : 'CLOSED',
-          features: ['Giao hàng', 'Mang đi', 'Dine-in'], // Default features - có thể thêm vào DB sau
+          features: ['Delivery', 'Takeaway', 'Dine-in'], // Default features - có thể thêm vào DB sau
           coordinates: { lat: store.latitude, lng: store.longitude }
         }))
         
@@ -71,7 +71,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
         setFilteredStores(transformedStores)
       } catch (err) {
         console.error('Error fetching stores:', err)
-        setError('Không thể tải danh sách cửa hàng')
+        setError('Unable to load store list')
         toast.error('Lỗi tải danh sách cửa hàng')
       } finally {
         setLoading(false)
@@ -205,14 +205,14 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
             }))
           }
           
-          toast.success('Đã xác định vị trí của bạn!')
+          toast.success('Your location has been determined!')
         },
         (error) => {
-          toast.error('Không thể xác định vị trí của bạn')
+          toast.error('Unable to determine your location')
         }
       )
     } else {
-      toast.error('Trình duyệt không hỗ trợ định vị')
+      toast.error('Browser does not support geolocation')
     }
   }
 
@@ -225,7 +225,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
     const { lat, lng } = store.coordinates
     const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
     window.open(directionsUrl, '_blank')
-    toast.success(`Mở Google Maps để chỉ đường đến ${store.name}`)
+    toast.success(`Opening Google Maps for directions to ${store.name}`)
   }
 
   const handleCall = (phone) => {
@@ -243,10 +243,10 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'OPEN': return 'Đang mở'
-      case 'CLOSED': return 'Đã đóng'
-      case 'BUSY': return 'Bận rộn'
-      default: return 'Không xác định'
+      case 'OPEN': return 'Open'
+      case 'CLOSED': return 'Closed'
+      case 'BUSY': return 'Busy'
+      default: return 'Unknown'
     }
   }
 
@@ -273,13 +273,13 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                 mb: 2,
                 textShadow: '0 2px 4px rgba(0,0,0,0.3)'
               }}>
-                Tìm Kiếm Cửa Hàng
+                Find Stores
               </Typography>
               <Typography variant="h6" sx={{
                 opacity: 0.9,
                 mb: 3
               }}>
-                Khám phá các cửa hàng Green Kitchen gần bạn nhất
+                Discover the nearest Green Kitchen stores
               </Typography>
             </CardContent>
           </Card>
@@ -290,11 +290,11 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                🔍 Tìm kiếm cửa hàng
+                🔍 Search Stores
               </Typography>
               <TextField
                 fullWidth
-                placeholder="Nhập tên cửa hàng, địa chỉ hoặc tính năng..."
+                placeholder="Enter store name, address or features..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 InputProps={{
@@ -317,7 +317,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                 }}
               />
               <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
-                {['Giao hàng', 'Mang đi', 'Dine-in', 'Parking', 'Drive-thru'].map((feature) => (
+                {['Delivery', 'Takeaway', 'Dine-in', 'Parking', 'Drive-thru'].map((feature) => (
                   <Chip
                     key={feature}
                     label={feature}
@@ -337,14 +337,14 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                🏪 Danh sách cửa hàng ({filteredStores.length})
+                🏪 Store List ({filteredStores.length})
               </Typography>
               
               {loading ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <CircularProgress size={40} sx={{ mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Đang tải danh sách cửa hàng...
+                    Loading store list...
                   </Typography>
                 </Box>
               ) : error ? (
@@ -357,16 +357,16 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                     onClick={() => window.location.reload()}
                     sx={{ mt: 2 }}
                   >
-                    Thử lại
+                    Try Again
                   </Button>
                 </Box>
               ) : filteredStores.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Không tìm thấy cửa hàng nào
+                    No stores found
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Hãy thử tìm kiếm với từ khóa khác
+                    Try searching with different keywords
                   </Typography>
                 </Box>
               ) : (
@@ -443,7 +443,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                           {/* Features */}
                           <Box sx={{ mb: 2 }}>
                             <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                              Tính năng:
+                              Features:
                             </Typography>
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                               {store.features.slice(0, 3).map((feature, index) => (
@@ -477,7 +477,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                               }}
                               sx={{ flex: 1 }}
                             >
-                              Chỉ đường
+                              Directions
                             </Button>
                             <Button
                               variant="outlined"
@@ -489,7 +489,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                               }}
                               sx={{ flex: 1 }}
                             >
-                              Gọi điện
+                              Call
                             </Button>
                           </Box>
                         </CardContent>
@@ -509,7 +509,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                <CardContent sx={{ p: 4 }}>
                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                     🗺️ Bản đồ cửa hàng
+                     🗺️ Store Map
                    </Typography>
                    <Button
                      variant="outlined"
@@ -518,7 +518,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                      disabled={!mapLoaded}
                      sx={{ borderRadius: 2 }}
                    >
-                     Vị trí của tôi
+                     My Location
                    </Button>
                  </Box>
                  
@@ -535,7 +535,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                      <Box sx={{ textAlign: 'center' }}>
                        <CircularProgress size={40} sx={{ mb: 2 }} />
                        <Typography variant="h6" color="text.secondary" gutterBottom>
-                         Đang tải bản đồ...
+                         Loading map...
                        </Typography>
                      </Box>
                    </Box>
@@ -554,7 +554,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                  
                  <Box sx={{ mt: 2, textAlign: 'center' }}>
                    <Typography variant="body2" color="text.secondary">
-                     💡 Click vào marker trên bản đồ để xem thông tin chi tiết cửa hàng
+                     💡 Click on markers on the map to view detailed store information
                    </Typography>
                  </Box>
                  
@@ -612,20 +612,20 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                       {selectedStore.rating}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      ({selectedStore.reviewCount} đánh giá)
+                      ({selectedStore.reviewCount} reviews)
                     </Typography>
                   </Box>
                 </Grid>
 
                 <Grid size={6}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    📍 Địa chỉ
+                    📍 Address
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
                     {selectedStore.address}
                   </Typography>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    📞 Điện thoại
+                    📞 Phone
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
                     {selectedStore.phone}
@@ -634,13 +634,13 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
 
                 <Grid size={6}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    🕒 Giờ mở cửa
+                    🕒 Opening Hours
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
                     {selectedStore.openHours}
                   </Typography>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                    📏 Khoảng cách
+                    📏 Distance
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
                     {selectedStore.distance}
@@ -649,7 +649,7 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
 
                 <Grid size={12}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                    ✨ Tính năng
+                    ✨ Features
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     {selectedStore.features.map((feature, index) => (
@@ -665,10 +665,10 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
 
                 <Grid size={12}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                    📍 Tọa độ
+                    📍 Coordinates
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Vĩ độ: {selectedStore.coordinates.lat}, Kinh độ: {selectedStore.coordinates.lng}
+                    Latitude: {selectedStore.coordinates.lat}, Longitude: {selectedStore.coordinates.lng}
                   </Typography>
                 </Grid>
               </Grid>
@@ -680,20 +680,20 @@ export default function StoreLocationTab({ customerDetails, setCustomerDetails }
                 startIcon={<DirectionsIcon />}
                 onClick={() => handleDirections(selectedStore)}
               >
-                Chỉ đường
+                Directions
               </Button>
               <Button
                 variant="outlined"
                 startIcon={<PhoneIcon />}
                 onClick={() => handleCall(selectedStore.phone)}
               >
-                Gọi điện
+                Call
               </Button>
               <Button
                 variant="contained"
                 onClick={() => setStoreDetailOpen(false)}
               >
-                Đóng
+                Close
               </Button>
             </DialogActions>
           </>

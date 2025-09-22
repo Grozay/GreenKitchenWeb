@@ -665,7 +665,7 @@ const DeliveryInfoForm = ({
         borderBottom: '1px solid #e0e0e0'
       }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c2c2c' }}>
-          THÔNG TIN GIAO HÀNG
+          DELIVERY INFORMATION
         </Typography>
       </Box>
 
@@ -677,7 +677,7 @@ const DeliveryInfoForm = ({
             {/* Default Address Display */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-                Thông tin giao hàng
+                Delivery Information
               </Typography>
 
               <Card variant="outlined" sx={{ mb: 2 }}>
@@ -697,7 +697,7 @@ const DeliveryInfoForm = ({
                     display: 'block',
                     mt: 1
                   }}>
-                    ✓ Địa chỉ mặc định
+                    ✓ Default Address
                   </Typography>
                 </CardContent>
               </Card>
@@ -723,13 +723,13 @@ const DeliveryInfoForm = ({
             {/* Custom Address Form */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-                Thông tin người nhận
+                Recipient Information
               </Typography>
 
               <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                 <TextField
                   fullWidth
-                  label="Họ và tên người nhận"
+                  label="Recipient Full Name"
                   value={deliveryInfo.recipientName || ''}
                   onChange={handleChange('recipientName')}
                   error={!!errors.recipientName}
@@ -742,7 +742,7 @@ const DeliveryInfoForm = ({
                 />
                 <TextField
                   fullWidth
-                  label="Số điện thoại"
+                  label="Phone Number"
                   value={deliveryInfo.recipientPhone || ''}
                   onChange={handleChange('recipientPhone')}
                   error={!!errors.recipientPhone}
@@ -779,7 +779,7 @@ const DeliveryInfoForm = ({
             {/* Địa chỉ giao hàng */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-                Địa chỉ giao hàng
+                Delivery Address
               </Typography>
 
               {/* 1. Thành phố */}
@@ -793,11 +793,11 @@ const DeliveryInfoForm = ({
                   }
                 }}
               >
-                <InputLabel>Tỉnh/Thành phố</InputLabel>
+                <InputLabel>Province/City</InputLabel>
                 <Select
                   value={deliveryInfo.city || 'TP. Hồ Chí Minh'}
                   onChange={handleChange('city')}
-                  label="Tỉnh/Thành phố"
+                  label="Province/City"
                 >
                   <MenuItem value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</MenuItem>
                 </Select>
@@ -840,7 +840,7 @@ const DeliveryInfoForm = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Quận/Huyện"
+                      label="District"
                       error={!!errors.district}
                       helperText={errors.district}
                       sx={{
@@ -873,9 +873,9 @@ const DeliveryInfoForm = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Phường/Xã"
+                      label="Ward/Commune"
                       error={!!errors.ward}
-                      helperText={errors.ward || (!selectedDistrict ? 'Vui lòng chọn quận/huyện trước' : '')}
+                      helperText={errors.ward || (!selectedDistrict ? 'Please select district first' : '')}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           borderRadius: 2
@@ -920,9 +920,9 @@ const DeliveryInfoForm = ({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Địa chỉ cụ thể (Số nhà, tên đường)"
+                    label="Specific Address (House number, street name)"
                     error={!!errors.street}
-                    helperText={errors.street || 'Nhập ít nhất 3 ký tự để tìm gợi ý địa chỉ'}
+                    helperText={errors.street || 'Enter at least 3 characters to find address suggestions'}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 2
@@ -957,13 +957,13 @@ const DeliveryInfoForm = ({
         {/* Thời gian giao hàng */}
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-            Thời gian giao hàng mong muốn
+            Preferred Delivery Time
           </Typography>
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <DatePicker
-                label="Chọn ngày"
+                label="Select Date"
                 value={deliveryInfo.deliveryTime}
                 onChange={handleDateChange}
                 minDate={dayjs()}
@@ -981,7 +981,7 @@ const DeliveryInfoForm = ({
                 }}
               />
               <TimePicker
-                label="Chọn giờ"
+                label="Select Time"
                 value={deliveryInfo.deliveryTime}
                 onChange={handleTimeChange}
                 minTime={dayjs().isSame(deliveryInfo.deliveryTime, 'day') ? dayjs().add(30, 'minute') : undefined}
@@ -1012,12 +1012,12 @@ const DeliveryInfoForm = ({
             alignItems: 'center',
             gap: 1
           }}>
-            🏪 Chọn cửa hàng
+            🏪 Select Store
             {(isCalculatingDistance || isLoadingDefaultAddress) && (
               <>
                 <CircularProgress size={16} />
                 <Typography variant="caption" color="text.secondary">
-                  {isLoadingDefaultAddress ? 'Đang tải địa chỉ mặc định...' : 'Đang tính khoảng cách...'}
+                  {isLoadingDefaultAddress ? '                  Loading default address...' : '                  Calculating distance...'}
                 </Typography>
               </>
             )}
@@ -1037,7 +1037,7 @@ const DeliveryInfoForm = ({
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Chip
-                        label="Đã chọn"
+                        label="Selected"
                         color="primary"
                         size="small"
                         sx={{ fontSize: '0.7rem' }}
@@ -1081,14 +1081,14 @@ const DeliveryInfoForm = ({
                   }
                 }}
               >
-                {showStoreSelector ? 'Ẩn cửa hàng khác' : 'Chọn cửa hàng khác'}
+                {showStoreSelector ? 'Hide other stores' : 'Choose different store'}
               </Button>
 
               {/* Store selector when button is clicked */}
               {showStoreSelector && storesWithDistance.length > 1 && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-                    Chọn cửa hàng khác:
+                    Select different store:
                   </Typography>
                   <Autocomplete
                     fullWidth
@@ -1103,7 +1103,7 @@ const DeliveryInfoForm = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Chọn cửa hàng"
+                        label="Select store"
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             borderRadius: 2
@@ -1131,7 +1131,7 @@ const DeliveryInfoForm = ({
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
-                  {storesWithDistance.length} cửa hàng được tìm thấy
+                  {storesWithDistance.length} stores found
                 </Typography>
                 <Button
                   size="small"
@@ -1139,7 +1139,7 @@ const DeliveryInfoForm = ({
                   disabled={isCalculatingDistance}
                   sx={{ color: '#4C082A' }}
                 >
-                  🔄 Tính lại
+                  🔄 Recalculate
                 </Button>
               </Box>
 
@@ -1164,7 +1164,7 @@ const DeliveryInfoForm = ({
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {index === 0 && (
                           <Chip
-                            label="Gần nhất"
+                            label="Nearest"
                             color="success"
                             size="small"
                             sx={{ fontSize: '0.7rem' }}
@@ -1198,7 +1198,7 @@ const DeliveryInfoForm = ({
                         display: 'block',
                         mt: 1
                       }}>
-                        ✓ Đã chọn cửa hàng này
+                        ✓ This store selected
                       </Typography>
                     )}
                   </CardContent>
@@ -1216,10 +1216,10 @@ const DeliveryInfoForm = ({
             }}>
               <Typography color="text.secondary">
                 {isLoadingDefaultAddress
-                  ? 'Đang tải và tính toán khoảng cách từ địa chỉ mặc định...'
+                  ? '                  Loading and calculating distance from default address...'
                   : !deliveryInfo.street || !deliveryInfo.ward || !deliveryInfo.district
-                    ? 'Vui lòng nhập đầy đủ địa chỉ để hiển thị các cửa hàng'
-                    : 'Đang tính toán khoảng cách đến các cửa hàng...'
+                    ? 'Please enter complete address to display stores'
+                    : 'Calculating distance to stores...'
                 }
               </Typography>
             </Box>

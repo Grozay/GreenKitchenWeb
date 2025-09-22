@@ -47,7 +47,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
   // Handle coupon exchange
   const handleExchangeCoupon = (couponId) => {
     if (!customerDetails?.id) {
-      toast.error('Không tìm thấy thông tin khách hàng')
+      toast.error('Customer information not found')
       return
     }
 
@@ -59,8 +59,8 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
         couponId: couponId
       }),
       {
-        pending: 'Đang xử lý đổi coupon...',
-        success: 'Đổi coupon thành công! 🎉'
+        pending: 'Processing coupon exchange...',
+        success: 'Coupon exchanged successfully! 🎉'
       }
     ).then(() => {
       // Tìm coupon đã đổi từ danh sách exchangeableCoupons
@@ -79,7 +79,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
           transactionType: 'USED',
           pointsEarned: -exchangedCoupon.pointsRequired,
           earnedAt: new Date().toISOString(),
-          description: `Đổi coupon: ${exchangedCoupon.name}`,
+          description: `Exchanged coupon: ${exchangedCoupon.name}`,
           spentAmount: 0
         }
 
@@ -165,7 +165,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
       displayName: 'Energy',
       minSpent: 0,
       maxSpent: 2000000,
-      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt'],
+      benefits: ['Earn points on every order', 'Special promotion notifications'],
       color: '#32CD32',
       bgColor: '#F5F5F5'
     },
@@ -174,7 +174,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
       displayName: 'Vitality',
       minSpent: 2000000,
       maxSpent: 5000000,
-      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt', 'Giảm giá 5% cho tất cả đơn hàng', 'Ưu tiên hỗ trợ khách hàng'],
+      benefits: ['Earn points on every order', 'Special promotion notifications', '5% discount on all orders', 'Priority customer support'],
       color: '#FF7043',
       bgColor: '#FBE9E7'
     },
@@ -183,7 +183,7 @@ export default function MembershipTab({ customerDetails, setcustomerDetails }) {
       displayName: 'Radiance',
       minSpent: 5000000,
       maxSpent: null,
-      benefits: ['Tích điểm cho mọi đơn hàng', 'Thông báo khuyến mãi đặc biệt', 'Giảm giá 10% cho tất cả đơn hàng', 'Ưu tiên hỗ trợ khách hàng', 'Miễn phí giao hàng', 'Tặng món khai vị miễn phí'],
+      benefits: ['Earn points on every order', 'Special promotion notifications', '10% discount on all orders', 'Priority customer support', 'Free shipping', 'Free appetizer gift'],
       color: '#FFB300',
       bgColor: '#FFF8E1'
     }

@@ -20,7 +20,7 @@ export default function MemberCoupons({ membership, customerCoupons }) {
         textAlign: 'center',
         m: 2
       }}>
-        Ưu đãi của bạn
+        Your Coupons
       </Typography>
       {customerCoupons && customerCoupons.length > 0 ? (
         <Grid container spacing={2} sx={{ p: 2 }}>
@@ -49,33 +49,33 @@ export default function MemberCoupons({ membership, customerCoupons }) {
                   </Box>
                   <Box sx={{ textAlign: 'left', mb: 1.5 }}>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Mã:</strong> {customerCoupon.couponCode}
+                      <strong>Code:</strong> {customerCoupon.couponCode}
                     </Typography>
                     {customerCoupon.couponDescription && (
                       <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                        <strong>Mô tả:</strong> {customerCoupon.couponDescription}
+                        <strong>Description:</strong> {customerCoupon.couponDescription}
                       </Typography>
                     )}
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Giảm:</strong>{' '}
+                      <strong>Discount:</strong>{' '}
                       {customerCoupon.couponType === 'PERCENTAGE'
                         ? `${customerCoupon.couponDiscountValue}%`
                         : `${customerCoupon.couponDiscountValue?.toLocaleString()} VNĐ`}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Ngày đổi:</strong> {new Date(customerCoupon.exchangedAt).toLocaleDateString('vi-VN')}
+                      <strong>Exchange Date:</strong> {new Date(customerCoupon.exchangedAt).toLocaleDateString('vi-VN')}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                      <strong>Hạn sử dụng:</strong> {new Date(customerCoupon.expiresAt).toLocaleDateString('vi-VN')}
+                      <strong>Expiry Date:</strong> {new Date(customerCoupon.expiresAt).toLocaleDateString('vi-VN')}
                     </Typography>
                     {customerCoupon.usedAt && (
                       <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                        <strong>Ngày sử dụng:</strong> {new Date(customerCoupon.usedAt).toLocaleDateString('vi-VN')}
+                        <strong>Usage Date:</strong> {new Date(customerCoupon.usedAt).toLocaleDateString('vi-VN')}
                       </Typography>
                     )}
                     {customerCoupon.orderId && (
                       <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                        <strong>Đơn hàng:</strong> #{customerCoupon.orderId}
+                        <strong>Order:</strong> #{customerCoupon.orderId}
                       </Typography>
                     )}
                   </Box>
@@ -88,10 +88,10 @@ export default function MemberCoupons({ membership, customerCoupons }) {
                         sx={{ borderRadius: 2, px: 2, fontWeight: 'bold', fontSize: '0.875rem' }}
                         onClick={() => {
                           // TODO: Implement use coupon functionality
-                          alert('Chức năng sử dụng coupon sẽ được triển khai trong đơn hàng')
+                          alert('Coupon usage functionality will be implemented in orders')
                         }}
                       >
-                        Sử dụng ngay
+                        Use Now
                       </Button>
                     ) : (
                       <Button
@@ -100,7 +100,7 @@ export default function MemberCoupons({ membership, customerCoupons }) {
                         size="small"
                         sx={{ borderRadius: 2, px: 2, fontSize: '0.875rem' }}
                       >
-                        {customerCoupon.status === 'USED' ? 'Đã sử dụng' : 'Hết hạn'}
+                        {customerCoupon.status === 'USED' ? 'Used' : 'Expired'}
                       </Button>
                     )}
                   </Box>
@@ -115,10 +115,10 @@ export default function MemberCoupons({ membership, customerCoupons }) {
             <Typography sx={{ fontSize: '80px' }}>🎁</Typography>
           </Box>
           <Typography variant="body2" color="text.secondary">
-            Bạn đang chưa có ưu đãi nào
+            You don&apos;t have any coupons yet
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontSize: '0.875rem' }}>
-            Hãy đổi điểm lấy coupon để nhận ưu đãi nhé!
+            Exchange points for coupons to get benefits!
           </Typography>
         </Box>
       )}

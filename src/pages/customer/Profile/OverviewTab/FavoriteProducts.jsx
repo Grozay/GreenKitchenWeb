@@ -11,7 +11,7 @@ export default function FavoriteProducts({ favoriteProducts = [] }) {
   return (
     <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
       <CardContent sx={{ p: 2, minHeight: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography variant="h6">Món Ăn yêu thích</Typography>
+        <Typography variant="h6">Favorite Dishes</Typography>
         <Divider sx={{ my: 1 }} />
         {hasFavorites ? (
           <Box>
@@ -24,7 +24,7 @@ export default function FavoriteProducts({ favoriteProducts = [] }) {
         ) : (
           <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              Bạn chưa có món ăn yêu thích? Hãy thêm ngay!
+              Don&apos;t have favorite dishes yet? Add some now!
             </Typography>
             <Button
               component={Link}
@@ -33,7 +33,7 @@ export default function FavoriteProducts({ favoriteProducts = [] }) {
               size="small"
               sx={{ borderColor: 'primary.main', color: 'primary.main', alignSelf: 'center' }}
             >
-              Tới menu món
+              Go to Menu
             </Button>
           </Box>
         )}

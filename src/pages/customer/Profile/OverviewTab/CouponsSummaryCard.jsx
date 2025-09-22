@@ -14,10 +14,10 @@ export default function CouponsSummaryCard({ availableCoupons }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CardGiftcardIcon color="primary" sx={{ fontSize: 22 }} />
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.3px' }}>Coupon hiện có</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.3px' }}>Available Coupons</Typography>
           </Box>
           <Button component={Link} to="/profile/membership" variant="text" size="small" sx={{ borderColor: 'primary.main', color: 'primary.main' }}>
-            Xem thêm
+            View More
           </Button>
         </Box>
         {availableCoupons.length > 0 ? (
@@ -27,7 +27,7 @@ export default function CouponsSummaryCard({ availableCoupons }) {
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>🎫 {c.couponName || 'Coupon'}</Typography>
                   <Typography variant="caption" color="text.secondary">
-                    HSD: {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('vi-VN') : '—'}
+                    Exp: {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('vi-VN') : '—'}
                   </Typography>
                 </Box>
                 <Chip
@@ -40,7 +40,7 @@ export default function CouponsSummaryCard({ availableCoupons }) {
             ))}
           </Box>
         ) : (
-          <Typography variant="body2" color="text.secondary">Chưa có coupon khả dụng</Typography>
+          <Typography variant="body2" color="text.secondary">No available coupons</Typography>
         )}
       </CardContent>
     </Card>

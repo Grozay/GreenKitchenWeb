@@ -177,35 +177,35 @@ function Profile() {
             <Divider />
             <Box sx={{ height: 16 }} />
             <Tab
-              label="Tổng Quan"
+              label="Overview"
               value={TABS.OVERVIEW}
               icon={<AssessmentIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/overview"/>
             <Tab
-              label="Thông Tin Tài Khoản"
+              label="Account Information"
               value={TABS.ACCOUNT}
               icon={<ManageAccountsIcon fontSize='medium'/>}
               iconPosition='start'
               component={Link}
               to="/profile/account" />
             <Tab
-              label="Hạng Thành Viên"
+              label="Membership Tier"
               value={TABS.MEMBERSHIP}
               icon={<LoyaltyIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/membership" />
             <Tab
-              label="Lịch Sử Đặt Hàng"
+              label="Order History"
               value={TABS.ORDERHISTORY}
               icon={<LocalShippingIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/order-history" />
             <Tab
-              label="Thông tin TDEE"
+              label="TDEE Information"
               value={TABS.TDEEPROFILE}
               icon={<FitnessCenterIcon fontSize='medium'/>}
               iconPosition="start"
@@ -216,21 +216,21 @@ function Profile() {
             <Divider />
             <Box sx={{ height: 16 }} />
             <Tab
-              label="Hỗ trợ và Phản hồi"
+              label="Support and Feedback"
               value={TABS.FEEDBACK}
               icon={<RateReviewIcon fontSize='medium'/>}
               iconPosition="start"
               component={Link}
               to="/profile/feedback" />
                          <Tab
-               label="Tìm kiếm cửa hàng"
+               label="Store Search"
                value={TABS.STORELOCATION}
                icon={<StorefrontIcon fontSize='medium'/>}
                iconPosition="start"
                component={Link}
                to="/profile/store-location" />
              <Tab
-               label="Chính sách sử dụng"
+               label="Usage Policy"
                value={TABS.POLICY}
                icon={<PolicyIcon fontSize='medium'/>}
                iconPosition="start"

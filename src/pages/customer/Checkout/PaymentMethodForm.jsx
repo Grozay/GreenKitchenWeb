@@ -16,14 +16,14 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
   const paymentOptions = [
     {
       value: 'cod',
-      label: 'Thanh toán khi nhận hàng (COD)',
-      description: 'Thanh toán bằng tiền mặt khi nhận hàng',
+      label: 'Cash on Delivery (COD)',
+      description: 'Pay with cash when receiving goods',
       icon: <LocalShippingIcon sx={{ color: '#4C082A', fontSize: 28 }} />
     },
     {
       value: 'paypal',
-      label: 'Thanh toán qua PayPal',
-      description: 'Thanh toán an toàn qua PayPal với thẻ hoặc tài khoản PayPal',
+      label: 'Pay via PayPal',
+      description: 'Safe payment via PayPal with card or PayPal account',
       icon: <PaymentIcon sx={{ color: '#0070ba', fontSize: 28 }} />
     }
   ]
@@ -44,7 +44,7 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
         borderBottom: '1px solid #e0e0e0'
       }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c2c2c' }}>
-          PHƯƠNG THỨC THANH TOÁN
+          PAYMENT METHOD
         </Typography>
       </Box>
 
@@ -121,7 +121,7 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
             border: '1px solid #0070ba'
           }}>
             <Typography variant="body2" sx={{ color: '#0070ba', textAlign: 'center' }}>
-              💰 Thanh toán an toàn qua PayPal. Hỗ trợ thẻ Visa, Mastercard và tài khoản PayPal
+              💰 Safe payment via PayPal. Supports Visa, Mastercard and PayPal accounts
             </Typography>
           </Box>
         )}
@@ -135,7 +135,7 @@ const PaymentMethodForm = ({ paymentMethod, setPaymentMethod }) => {
             border: '1px solid #e0e0e0'
           }}>
             <Typography variant="body2" sx={{ color: '#666', textAlign: 'center' }}>
-              🚚 Vui lòng chuẩn bị tiền mặt để thanh toán khi nhận hàng
+              🚚 Please prepare cash to pay when receiving goods
             </Typography>
           </Box>
         )}

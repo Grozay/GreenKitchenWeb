@@ -33,9 +33,9 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
   const handleUnlinkGoogle = async () => {
     setOpenUnlinkDialog(false)
     await toast.promise(unlinkGoogleAPI({ email: customerDetails.email }), {
-      pending: 'Đang hủy liên kết với Google...',
-      success: 'Đã hủy liên kết với Google thành công!',
-      error: 'Có lỗi xảy ra khi hủy liên kết'
+      pending: 'Unlinking Google...',
+      success: 'Successfully unlinked from Google!',
+      error: 'Error occurred while unlinking'
     })
 
     setCustomerDetails(prev => ({
@@ -61,14 +61,14 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
 
   const handleSwitchToGoogleAccount = async () => {
     // Option 1: Redirect to logout and suggest login with Google email
-    toast.info(`Vui lòng đăng xuất và đăng nhập lại bằng email ${googleEmailMismatch.googleEmail}`)
+    toast.info(`Please log out and log in again with email ${googleEmailMismatch.googleEmail}`)
     handleCloseEmailMismatchDialog()
 
     const { confirmed } = await confirm({
-      title: 'Xác nhận đăng xuất',
-      description: 'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?',
-      confirmationText: 'Đăng xuất',
-      cancellationText: 'Hủy'
+      title: 'Confirm logout',
+      description: 'Are you sure you want to log out of your account?',
+      confirmationText: 'Log out',
+      cancellationText: 'Cancel'
     })
 
     if (confirmed) {
@@ -81,7 +81,7 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
 
   const handleIgnoreAndContinue = () => {
     // Option 2: User chooses to not link (just close dialog)
-    toast.info('Đã hủy liên kết với Google')
+    toast.info('Google linking cancelled')
     handleCloseEmailMismatchDialog()
   }
 
@@ -90,9 +90,9 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
       email: customerDetails.email,
       idToken: credential
     }), {
-      pending: 'Đang liên kết với Google...',
-      success: 'Liên kết với Google thành công!',
-      error: 'Có lỗi xảy ra khi liên kết với Google'
+      pending: 'Linking with Google...',
+      success: 'Successfully linked with Google!',
+      error: 'Error occurred while linking with Google'
     })
 
     setCustomerDetails(prev => ({
@@ -124,7 +124,7 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
       // Nếu email trùng khớp, thực hiện link bình thường
       await performGoogleLink(credentialResponse.credential)
     } catch {
-      toast.error('Có lỗi xảy ra khi xử lý đăng nhập Google')
+      toast.error('Error occurred while processing Google login')
     }
   }
 
@@ -143,7 +143,7 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
             mb: 2
           }}>
             <Typography variant="h6" component="h3">
-              Liên kết Google
+              Link Google
             </Typography>
 
             {isLinkedWithGoogle ? (
@@ -153,7 +153,7 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
                 color="error"
                 onClick={handleOpenUnlinkDialog}
               >
-                Hủy liên kết
+                Unlink
               </Button>
             ) : (
               <GoogleLogin
@@ -182,14 +182,14 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
                 color: isLinkedWithGoogle ? 'primary.main' : 'text.secondary',
                 fontWeight: 500
               }}>
-                Đăng nhập bằng Google
+                Login with Google
               </Typography>
               <Typography variant="body2" sx={{
                 color: isLinkedWithGoogle ? 'primary.main' : 'text.disabled',
                 fontWeight: 600,
                 fontSize: '0.875rem'
               }}>
-                {isLinkedWithGoogle ? '✓ Đã liên kết' : '○ Chưa liên kết'}
+                {isLinkedWithGoogle ? '✓ Linked' : '○ Not linked'}
               </Typography>
             </Box>
           </Box>
@@ -204,20 +204,20 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
         aria-describedby="unlink-dialog-description"
       >
         <DialogTitle id="unlink-dialog-title">
-          Xác nhận hủy liên kết
+          Confirm Unlink
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="unlink-dialog-description">
-            Bạn có chắc chắn muốn hủy liên kết tài khoản Google không?
-            Sau khi hủy liên kết, dữ liệu liên kết với tài khoản Google có thể bị mất!
+            Are you sure you want to unlink your Google account?
+            After unlinking, data linked to your Google account may be lost!
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseUnlinkDialog} color="primary">
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleUnlinkGoogle} color="error" variant="contained">
-            Xác nhận
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>
@@ -236,25 +236,25 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
           alignItems: 'center',
           gap: 1
         }}>
-          ⚠️ Email không khớp
+          ⚠️ Email Mismatch
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            <strong>Email tài khoản hiện tại:</strong> {googleEmailMismatch?.currentEmail}
+            <strong>Current account email:</strong> {googleEmailMismatch?.currentEmail}
           </DialogContentText>
           <DialogContentText sx={{ mb: 2 }}>
-            <strong>Email Google bạn đang đăng nhập:</strong> {googleEmailMismatch?.googleEmail}
+            <strong>Google email you are logged in with:</strong> {googleEmailMismatch?.googleEmail}
           </DialogContentText>
           <DialogContentText sx={{ color: 'text.secondary' }}>
-            Để đảm bảo bảo mật, chúng tôi chỉ cho phép liên kết Google với cùng email tài khoản.
-            Bạn có thể:
+            For security reasons, we only allow linking Google with the same account email.
+            You can:
           </DialogContentText>
           <Box sx={{ mt: 2, pl: 2 }}>
             <Typography variant="body2" sx={{ mb: 1 }}>
-              • <strong>Đăng xuất</strong> và đăng nhập lại bằng email Google ({googleEmailMismatch?.googleEmail})
+              • <strong>Log out</strong> and log in again with Google email ({googleEmailMismatch?.googleEmail})
             </Typography>
             <Typography variant="body2">
-              • <strong>Hủy</strong> và tiếp tục sử dụng tài khoản hiện tại
+              • <strong>Cancel</strong> and continue using the current account
             </Typography>
           </Box>
         </DialogContent>
@@ -264,14 +264,14 @@ export default function GoogleSync({ customerDetails, setCustomerDetails }) {
             color="primary"
             variant="outlined"
           >
-            Hủy liên kết
+            Cancel Linking
           </Button>
           <Button
             onClick={handleSwitchToGoogleAccount}
             color="warning"
             variant="contained"
           >
-            Đăng nhập lại
+            Log In Again
           </Button>
         </DialogActions>
       </Dialog>

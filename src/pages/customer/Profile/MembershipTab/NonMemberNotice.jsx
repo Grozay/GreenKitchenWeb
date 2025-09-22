@@ -19,7 +19,7 @@ export default function NonMemberNotice({ customerDetails }) {
           mb: 2,
           textShadow: '0 2px 4px rgba(0,0,0,0.3)'
         }}>
-          Chào {customerDetails?.fullName}!
+          Hello {customerDetails?.fullName}!
         </Typography>
         <Typography variant="h5" sx={{
           fontWeight: 'bold',
@@ -27,14 +27,14 @@ export default function NonMemberNotice({ customerDetails }) {
           mb: 3,
           textShadow: '0 2px 4px rgba(0,0,0,0.3)'
         }}>
-          Bạn chưa là hội viên!
+          You are not a member yet!
         </Typography>
         <Typography variant="h6" sx={{
           color: 'white',
           mb: 4,
           opacity: 0.9
         }}>
-          Hãy order một món bất kỳ để nhận ưu đãi hội viên nhé! 🌟
+          Order any dish to get membership benefits! 🌟
         </Typography>
         <Button
           variant="contained"
