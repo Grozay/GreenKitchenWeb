@@ -1,11 +1,3 @@
-/**
- * SearchBar - Search input for filtering conversations
- *
- * Props:
- * - searchTerm: current search term string
- * - onSearchChange: function to handle search term changes
- */
-
 import React, { useCallback, useMemo, memo } from 'react'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'

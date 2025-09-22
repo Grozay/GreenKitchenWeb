@@ -24,6 +24,7 @@ import Snackbar from '@mui/material/Snackbar'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentEmployee } from '~/redux/user/employeeSlice'
 import { logoutEmployeeApi } from '~/redux/user/employeeSlice'
+import { selectTotalChatCount } from '~/redux/chat/chatCountSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
@@ -242,6 +243,7 @@ function Layout(props) {
   const { window } = props
   const dispatch = useDispatch()
   const currentEmployee = useSelector(selectCurrentEmployee)
+  const totalChatCount = useSelector(selectTotalChatCount)
   const confirmLogout = useConfirm()
   const navigate = useNavigate()
   const location = useLocation()

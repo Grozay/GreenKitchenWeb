@@ -1856,5 +1856,3 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 }
 
 export default HolidayPlanner
-
-

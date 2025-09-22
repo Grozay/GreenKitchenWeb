@@ -12,6 +12,7 @@ import { getMenuMealAPI } from '~/apis'
 // eslint-disable-next-line no-unused-vars
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const VISIBLE_COUNT = 4
 const TRANSITION_DURATION = 500 // ms
@@ -22,6 +23,7 @@ const FeaturedMenu = () => {
   const [isAnimating, setIsAnimating] = useState(false)
   const [isLooping, setIsLooping] = useState(false)
   const [loading, setLoading] = useState(true) // Add loading state
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchMealPackages = async () => {
@@ -207,6 +209,7 @@ const FeaturedMenu = () => {
                 color: 'white'
               }
             }}
+            onClick={() => { navigate('/menu') }}
           >
             View all meal packages
           </Button>

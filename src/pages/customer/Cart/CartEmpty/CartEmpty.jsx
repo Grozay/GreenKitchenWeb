@@ -54,7 +54,7 @@ const CartEmpty = () => {
         </Button>
         <Button
           variant="outlined"
-          onClick={() => navigate('/calo-calculator')}
+          onClick={() => navigate('/smart-meal-planner')}
           sx={{
             borderRadius: 5,
             px: 4,
