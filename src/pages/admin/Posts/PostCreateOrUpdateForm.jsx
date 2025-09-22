@@ -15,13 +15,17 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
+import Grid from '@mui/material/Grid'
 import LinearProgress from '@mui/material/LinearProgress'
 import IconButton from '@mui/material/IconButton'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import MDEditor from '@uiw/react-md-editor'
-import { createPostAPI, getPostByIdAPI, updatePostAPI, getPostCategoriesAPI, uploadPostImageAPI } from '~/apis'
+import { createPostAPI, getPostByIdAPI, updatePostAPI, getPostCategoriesAPI, uploadPostImageAPI, generateAIContentAPI, generateAITitleAPI, generateAIContentOnlyAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
+import TitleIcon from '@mui/icons-material/Title'
+import ArticleIcon from '@mui/icons-material/Article'
 import { useConfirm } from 'material-ui-confirm'
 
 
@@ -47,8 +51,18 @@ export default function PostCreate() {
   const [imageUrl, setImageUrl] = useState('')
   const [uploadedImages, setUploadedImages] = useState([])
   const [postStatus, setPostStatus] = useState('DRAFT')
+  const [postPriority, setPostPriority] = useState('normal')
   const thumbInputRef = useRef(null)
   const confirm = useConfirm()
+  
+  // AI Content Generation states
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiTopic, setAiTopic] = useState('')
+  const [aiStyle, setAiStyle] = useState('friendly')
+  const [aiTargetAudience, setAiTargetAudience] = useState('customers')
+  const [aiWordCount, setAiWordCount] = useState(500)
+  const [aiLanguage, setAiLanguage] = useState('vi')
+  const [aiInstructions, setAiInstructions] = useState('')
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
@@ -158,6 +172,106 @@ export default function PostCreate() {
 
   const canSave = title.trim().length > 0 && content && !loading
 
+  // AI Content Generation functions
+  const generateAIContent = async () => {
+    if (!aiTopic.trim()) {
+      toast.error('Vui lòng nhập chủ đề để tạo nội dung')
+      return
+    }
+
+    setAiLoading(true)
+    try {
+      const requestData = {
+        topic: aiTopic,
+        category: categories.find(c => c.id === selectedCategoryId)?.name || '',
+        style: aiStyle,
+        targetAudience: aiTargetAudience,
+        wordCount: aiWordCount,
+        language: aiLanguage,
+        additionalInstructions: aiInstructions
+      }
+
+      const response = await generateAIContentAPI(requestData)
+      
+      if (response.status === 'success') {
+        if (response.title) setTitle(response.title)
+        if (response.content) setContent(response.content)
+        if (response.slug) setSlug(response.slug)
+        toast.success('Tạo nội dung thành công!')
+      } else {
+        toast.error(response.message || 'Có lỗi xảy ra khi tạo nội dung')
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi tạo nội dung: ' + error.message)
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  const generateAITitle = async () => {
+    if (!aiTopic.trim()) {
+      toast.error('Vui lòng nhập chủ đề để tạo tiêu đề')
+      return
+    }
+
+    setAiLoading(true)
+    try {
+      const requestData = {
+        topic: aiTopic,
+        category: categories.find(c => c.id === selectedCategoryId)?.name || '',
+        style: aiStyle,
+        targetAudience: aiTargetAudience
+      }
+
+      const response = await generateAITitleAPI(requestData)
+      
+      if (response.status === 'success' && response.title) {
+        setTitle(response.title)
+        if (response.slug) setSlug(response.slug)
+        toast.success('Tạo tiêu đề thành công!')
+      } else {
+        toast.error(response.message || 'Có lỗi xảy ra khi tạo tiêu đề')
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi tạo tiêu đề: ' + error.message)
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  const generateAIContentOnly = async () => {
+    if (!aiTopic.trim()) {
+      toast.error('Vui lòng nhập chủ đề để tạo nội dung')
+      return
+    }
+
+    setAiLoading(true)
+    try {
+      const requestData = {
+        topic: aiTopic,
+        category: categories.find(c => c.id === selectedCategoryId)?.name || '',
+        style: aiStyle,
+        targetAudience: aiTargetAudience,
+        wordCount: aiWordCount,
+        language: aiLanguage,
+        additionalInstructions: aiInstructions
+      }
+
+      const response = await generateAIContentOnlyAPI(requestData)
+      
+      if (response.status === 'success' && response.content) {
+        setContent(response.content)
+        toast.success('Tạo nội dung thành công!')
+      } else {
+        toast.error(response.message || 'Có lỗi xảy ra khi tạo nội dung')
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi tạo nội dung: ' + error.message)
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   // auto-generate slug from title unless user edited slug
   useEffect(() => {
     if (slugDirty) return
@@ -194,6 +308,7 @@ export default function PostCreate() {
         setSlug(p.slug || '')
         setImageUrl(p.imageUrl || '')
         setPostStatus(p.status || 'DRAFT')
+        setPostPriority(p.priority || 'normal')
       }
       return () => { mounted = false }
     }
@@ -212,6 +327,7 @@ export default function PostCreate() {
         setSlug(p.slug || '')
         setImageUrl(p.imageUrl || '')
         setPostStatus(p.status || 'DRAFT')
+        setPostPriority(p.priority || 'normal')
       } catch (err) {
         setError(err?.message || 'Failed to load post')
       }
@@ -253,6 +369,7 @@ export default function PostCreate() {
         authorId: currentEmployee?.id || null,
         categoryId: selectedCategoryId || null,
         imageUrl: imageUrl || undefined,
+        priority: postPriority,
         // set publishedAt now if publishing
         publishedAt: targetStatus === 'PUBLISHED' ? new Date().toISOString() : null,
         status: targetStatus || undefined
@@ -318,34 +435,76 @@ export default function PostCreate() {
               {isEdit && (
                 <Chip label={postStatus} color={postStatus === 'PUBLISHED' ? 'success' : 'default'} size="small" />
               )}
-              <FormControl sx={{ minWidth: 250 }}>
-                <InputLabel id="post-category-label">Category</InputLabel>
-                <Select
-                  labelId="post-category-label"
-                  label="Category"
-                  value={selectedCategoryId ?? ''}
-                  onChange={(e) => setSelectedCategoryId(e.target.value ? Number(e.target.value) : null)}
-                >
-                  {categories && categories.length > 0 ? (
-                    categories.map((c) => (
-                      <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem value="">No categories</MenuItem>
-                  )}
-                </Select>
-              </FormControl>
+              <Stack direction="row" spacing={2} sx={{ minWidth: 250 }}>
+                <FormControl sx={{ minWidth: 200 }}>
+                  <InputLabel id="post-category-label">Category</InputLabel>
+                  <Select
+                    labelId="post-category-label"
+                    label="Category"
+                    value={selectedCategoryId ?? ''}
+                    onChange={(e) => setSelectedCategoryId(e.target.value ? Number(e.target.value) : null)}
+                  >
+                    {categories && categories.length > 0 ? (
+                      categories.map((c) => (
+                        <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem value="">No categories</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+                
+                <FormControl sx={{ minWidth: 150 }}>
+                  <InputLabel id="post-type-label">Type</InputLabel>
+                  <Select
+                    labelId="post-type-label"
+                    label="Type"
+                    value={postStatus}
+                    onChange={(e) => setPostStatus(e.target.value)}
+                  >
+                    <MenuItem value="DRAFT">Draft</MenuItem>
+                    <MenuItem value="PUBLISHED">Published</MenuItem>
+                    <MenuItem value="ARCHIVED">Archived</MenuItem>
+                  </Select>
+                </FormControl>
+                
+                <FormControl sx={{ minWidth: 150 }}>
+                  <InputLabel id="post-priority-label">Priority</InputLabel>
+                  <Select
+                    labelId="post-priority-label"
+                    label="Priority"
+                    value={postPriority}
+                    onChange={(e) => setPostPriority(e.target.value)}
+                  >
+                    <MenuItem value="low">Low</MenuItem>
+                    <MenuItem value="normal">Normal</MenuItem>
+                    <MenuItem value="high">High</MenuItem>
+                    <MenuItem value="urgent">Urgent</MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
             </Box>
 
             {error && <Alert severity="error">{error}</Alert>}
 
-            <TextField
-              label="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              fullWidth
-              required
-            />
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+              <TextField
+                label="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                fullWidth
+                required
+              />
+              <Button
+                variant="outlined"
+                startIcon={<TitleIcon />}
+                onClick={generateAITitle}
+                disabled={aiLoading || !aiTopic.trim()}
+                sx={{ minWidth: 'auto', px: 2 }}
+              >
+                AI Title
+              </Button>
+            </Box>
 
             <TextField
               disabled
@@ -420,6 +579,120 @@ export default function PostCreate() {
             </Box>
 
             {/* Publish controls replaced by action buttons below */}
+
+            {/* AI Content Generation Panel */}
+            <Paper sx={{ p: 2, bgcolor: '#f8f9fa' }}>
+              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <AutoFixHighIcon color="primary" />
+                AI Content Generation
+              </Typography>
+              
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Topic/Chủ đề"
+                    value={aiTopic}
+                    onChange={(e) => setAiTopic(e.target.value)}
+                    fullWidth
+                    placeholder="Nhập chủ đề cho bài viết..."
+                    helperText="Ví dụ: Lợi ích của rau xanh, Cách nấu ăn healthy..."
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <FormControl fullWidth>
+                    <InputLabel>Style</InputLabel>
+                    <Select
+                      value={aiStyle}
+                      onChange={(e) => setAiStyle(e.target.value)}
+                      label="Style"
+                    >
+                      <MenuItem value="friendly">Thân thiện</MenuItem>
+                      <MenuItem value="formal">Trang trọng</MenuItem>
+                      <MenuItem value="casual">Gần gũi</MenuItem>
+                      <MenuItem value="professional">Chuyên nghiệp</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <FormControl fullWidth>
+                    <InputLabel>Đối tượng</InputLabel>
+                    <Select
+                      value={aiTargetAudience}
+                      onChange={(e) => setAiTargetAudience(e.target.value)}
+                      label="Đối tượng"
+                    >
+                      <MenuItem value="customers">Khách hàng</MenuItem>
+                      <MenuItem value="general">Tổng quát</MenuItem>
+                      <MenuItem value="employees">Nhân viên</MenuItem>
+                      <MenuItem value="business">Đối tác</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    label="Số từ"
+                    type="number"
+                    value={aiWordCount}
+                    onChange={(e) => setAiWordCount(Number(e.target.value))}
+                    fullWidth
+                    inputProps={{ min: 100, max: 2000 }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Ngôn ngữ</InputLabel>
+                    <Select
+                      value={aiLanguage}
+                      onChange={(e) => setAiLanguage(e.target.value)}
+                      label="Ngôn ngữ"
+                    >
+                      <MenuItem value="vi">Tiếng Việt</MenuItem>
+                      <MenuItem value="en">English</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="contained"
+                      startIcon={<AutoFixHighIcon />}
+                      onClick={generateAIContent}
+                      disabled={aiLoading || !aiTopic.trim()}
+                      sx={{ flex: 1 }}
+                    >
+                      {aiLoading ? 'Đang tạo...' : 'Tạo toàn bộ'}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<ArticleIcon />}
+                      onClick={generateAIContentOnly}
+                      disabled={aiLoading || !aiTopic.trim()}
+                      sx={{ flex: 1 }}
+                    >
+                      Chỉ nội dung
+                    </Button>
+                  </Stack>
+                </Grid>
+                
+                <Grid item xs={12}>
+                  <TextField
+                    label="Hướng dẫn bổ sung"
+                    value={aiInstructions}
+                    onChange={(e) => setAiInstructions(e.target.value)}
+                    fullWidth
+                    multiline
+                    rows={2}
+                    placeholder="Thêm hướng dẫn cụ thể cho AI..."
+                    helperText="Ví dụ: Tập trung vào lợi ích sức khỏe, bao gồm công thức nấu ăn..."
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
 
             <Box>
               <Typography variant="subtitle1" sx={{ mb: 1 }}>

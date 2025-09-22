@@ -91,7 +91,7 @@ export default function CustomerList() {
 
   return (
     <>
-      <Container maxWidth="lg" sx={{ py: 2 }}>
+      <Container maxWidth="xl" sx={{ py: 2 }}>
         <Typography variant="h4" gutterBottom
           sx={{
             fontWeight: 'bold'

@@ -18,14 +18,13 @@ import Snackbar from '@mui/material/Snackbar'
 // Icons - import từng cái
 import EmailIcon from '@mui/icons-material/Email'
 import CampaignIcon from '@mui/icons-material/Campaign'
-import TemplateIcon from '@mui/icons-material/Description'
 import AnalyticsIcon from '@mui/icons-material/Analytics'
 import ScheduleIcon from '@mui/icons-material/Schedule'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 
 // Marketing Components
 import EmailMarketing from './components/EmailMarketing'
 import EmailCampaignManager from './components/EmailCampaignManager'
-import EmailTemplateManager from './components/EmailTemplateManager'
 import EmailAnalytics from './components/EmailAnalytics'
 import CartAbandonmentScheduler from './components/CartAbandonmentScheduler'
 import HolidayPlanner from './components/HolidayPlanner'
@@ -69,18 +68,25 @@ function MarketingDashboard() {
   }
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      bgcolor: 'background.default',
+      minHeight: '100vh'
+    }}>
       {/* Header */}
-      <Box sx={{ 
-        p: 3, 
-        bgcolor: 'primary.main', 
-        color: 'white',
+      <Box sx={{
+        p: 3,
+        bgcolor: 'background.paper',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
         borderRadius: '8px 8px 0 0'
       }}>
         <Typography variant="h4" component="h1" sx={{ mb: 1, fontWeight: 'bold' }}>
           Marketing Dashboard
         </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
           Quản lý chiến dịch marketing và phân tích khách hàng
         </Typography>
       </Box>
@@ -108,10 +114,9 @@ function MarketingDashboard() {
           >
             <Tab icon={<EmailIcon />} label="Email Marketing" iconPosition="start" />
             <Tab icon={<CampaignIcon />} label="Quản lý Chiến dịch" iconPosition="start" />
-            <Tab icon={<TemplateIcon />} label="Quản lý Template" iconPosition="start" />
             <Tab icon={<AnalyticsIcon />} label="Analytics" iconPosition="start" />
             <Tab icon={<ScheduleIcon />} label="Lịch Cart Abandonment" iconPosition="start" />
-            <Tab icon={<ScheduleIcon />} label="Holiday Planner" iconPosition="start" />
+            <Tab icon={<CalendarTodayIcon />} label="Holiday Planner" iconPosition="start" />
           </Tabs>
         </Paper>
 
@@ -126,18 +131,14 @@ function MarketingDashboard() {
           </TabPanel>
           
           <TabPanel value={activeTab} index={2}>
-            <EmailTemplateManager onShowSnackbar={showSnackbar} />
-          </TabPanel>
-          
-          <TabPanel value={activeTab} index={3}>
             <EmailAnalytics onShowSnackbar={showSnackbar} />
           </TabPanel>
           
-          <TabPanel value={activeTab} index={4}>
+          <TabPanel value={activeTab} index={3}>
             <CartAbandonmentScheduler onShowSnackbar={showSnackbar} />
           </TabPanel>
           
-          <TabPanel value={activeTab} index={5}>
+          <TabPanel value={activeTab} index={4}>
             <HolidayPlanner onShowSnackbar={showSnackbar} />
           </TabPanel>
           

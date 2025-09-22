@@ -15,19 +15,20 @@ const ChatSkeleton = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
   return (
-    <Box sx={{ 
+    <Box sx={{
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      bgcolor: '#f1f8e9',
+      bgcolor: 'background.paper',
       borderRadius: 2,
       overflow: 'hidden'
     }}>
       {/* Header skeleton */}
-      <Box sx={{ 
-        p: 2, 
-        borderBottom: '1px solid #e0e0e0',
-        bgcolor: 'white'
+      <Box sx={{
+        p: 2,
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+        bgcolor: 'background.paper'
       }}>
         <Skeleton variant="text" width="60%" height={32} />
         <Skeleton variant="text" width="40%" height={24} sx={{ mt: 1 }} />
@@ -94,7 +95,7 @@ const ChatSkeleton = () => {
             </Box>
             
             {/* Input skeleton */}
-            <Box sx={{ p: 2, borderTop: '1px solid #e0e0e0' }}>
+            <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
               <Skeleton variant="rounded" width="100%" height={56} />
             </Box>
           </Box>
@@ -125,7 +126,7 @@ export default function Chat() {
   }), [isMobile])
 
   return (
-    <Box sx={containerStyles}>
+    <Box sx={{ ...containerStyles, bgcolor: 'background.default', minHeight: '100vh' }}>
       {/* Chat component chiếm toàn bộ không gian còn lại */}
       <Box sx={chatContainerStyles}>
         <Suspense fallback={<ChatSkeleton />}>

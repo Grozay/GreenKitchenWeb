@@ -15,13 +15,37 @@ import SearchBar from './SearchBar'
 import ConversationItem from './ConversationItem'
 import dayjs from 'dayjs'
 
+// Add global CSS animations
+const globalStyles = `
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+
+  @keyframes glow {
+    0% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); }
+    50% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.25); }
+    100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); }
+  }
+`
+
+// Inject global styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style')
+  styleSheet.type = 'text/css'
+  styleSheet.innerText = globalStyles
+  document.head.appendChild(styleSheet)
+}
+
 const Sidebar = memo(({
   conversations,
   selectedConv,
   onSelectConversation,
   isOpen,
   onToggle,
-  isPending = false
+  isPending = false,
+  activeTab = 'QUEUE'
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const theme = useTheme()
@@ -93,7 +117,7 @@ const Sidebar = memo(({
     width: { xs: '100vw', md: 320 },
     height: { xs: '100vh', md: '100%' },
     zIndex: 1400,
-    bgcolor: 'white',
+    bgcolor: 'background.paper',
     boxShadow: { xs: isOpen ? 8 : 0, md: 1 },
     display: { xs: isOpen ? 'flex' : 'none', md: 'flex' },
     flexDirection: 'column',
@@ -110,22 +134,23 @@ const Sidebar = memo(({
     display: 'flex',
     alignItems: 'center',
     gap: 1,
-    bgcolor: 'primary.main',
-    color: 'white',
+    bgcolor: 'background.paper',
+    borderBottom: '1px solid',
+    borderColor: 'divider',
     borderRadius: { xs: 0, md: '8px 0 0 0' }
   }), [])
 
   const closeButtonStyles = useMemo(() => ({
     mr: 1,
-    color: 'white',
+    color: 'text.primary',
     display: { xs: 'flex', md: 'none' },
     width: { xs: 32, sm: 36, md: 40 },
     height: { xs: 32, sm: 36, md: 40 }
   }), [])
 
   const searchContainerStyles = useMemo(() => ({
-    p: { xs: 1, sm: 1.5, md: 2 }, 
-    bgcolor: '#f8fdf8' 
+    p: { xs: 1, sm: 1.5, md: 2 },
+    bgcolor: 'background.default'
   }), [])
 
   const conversationsContainerStyles = useMemo(() => ({
@@ -135,22 +160,18 @@ const Sidebar = memo(({
     px: { xs: 0.5, sm: 1, md: 0 }
   }), [])
 
-  const noConversationsStyles = useMemo(() => ({
-    mt: { xs: 3, sm: 4, md: 6 }, 
-    p: { xs: 1, sm: 1.5, md: 2 },
-    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' }
-  }), [])
 
   const dateHeaderStyles = useMemo(() => ({
-    px: { xs: 1, sm: 1.5, md: 2 }, 
+    px: { xs: 1, sm: 1.5, md: 2 },
     py: { xs: 0.5, sm: 0.75, md: 1 },
-    bgcolor: '#f7f7fa',
+    bgcolor: 'background.paper',
     fontWeight: 700,
-    color: '#666',
+    color: 'text.secondary',
     fontSize: { xs: 11, sm: 12, md: 13 },
-    borderBottom: '1px solid #eee',
-    position: 'sticky', 
-    top: 0, 
+    borderBottom: '1px solid',
+    borderColor: 'divider',
+    position: 'sticky',
+    top: 0,
     zIndex: 1
   }), [])
 
@@ -194,11 +215,6 @@ const Sidebar = memo(({
     )), [grouped, selectedConv?.conversationId, handleConversationSelect, isPending, dateHeaderStyles]
   )
 
-  // Memoized no conversations message
-  const noConversationsMessage = useMemo(() => 
-    searchTerm ? 'Không tìm thấy hội thoại nào' : 'Chưa có hội thoại nào',
-    [searchTerm]
-  )
 
   return (
     <>
@@ -226,11 +242,11 @@ const Sidebar = memo(({
             <CloseIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
           </IconButton>
           <ChatBubbleOutlineIcon sx={{ fontSize: { xs: 18, sm: 20, md: 24 } }} />
-          <Typography 
-            variant="h6" 
-            fontWeight="bold" 
-            color='white' 
-            sx={{ 
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            color='text.primary'
+            sx={{
               flex: 1,
               fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' }
             }}
@@ -251,17 +267,106 @@ const Sidebar = memo(({
 
         {/* Conversations list */}
         <Box sx={conversationsContainerStyles}>
-          {filteredConversations.length === 0 && (
-            <Typography
-              align="center"
-              color="text.secondary"
-              sx={noConversationsStyles}
-            >
-              {noConversationsMessage}
-            </Typography>
-          )}
 
           {conversationItems}
+
+          {/* Enhanced Empty State */}
+          {filteredConversations.length === 0 && (
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              py: 6,
+              px: 3,
+              textAlign: 'center'
+            }}>
+              <Box sx={{
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 3,
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: -5,
+                  left: -5,
+                  right: -5,
+                  bottom: -5,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+                  zIndex: -1
+                }
+              }}>
+                <Box sx={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: '50%',
+                  background: activeTab === 'QUEUE'
+                    ? 'linear-gradient(135deg, #ff6b6b, #ff9999)'
+                    : 'linear-gradient(135deg, #4ecdc4, #81e6d9)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                  animation: 'float 3s ease-in-out infinite, glow 3s ease-in-out infinite'
+                }}>
+                  {activeTab === 'QUEUE' ? '⏳' : '💬'}
+                </Box>
+              </Box>
+
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: 'text.primary',
+                  mb: 2,
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' }
+                }}
+              >
+                {activeTab === 'QUEUE' ? 'Không có cuộc trò chuyện nào trong Queue' : 'Chưa có cuộc trò chuyện nào'}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  mb: 3,
+                  maxWidth: 280,
+                  lineHeight: 1.6
+                }}
+              >
+                {activeTab === 'QUEUE'
+                  ? 'Cuộc trò chuyện sẽ xuất hiện ở đây khi có khách hàng cần hỗ trợ'
+                  : 'Các cuộc trò chuyện của bạn sẽ hiển thị ở đây'
+                }
+              </Typography>
+
+              <Box sx={{
+                width: '100%',
+                height: 2,
+                background: 'linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent)',
+                borderRadius: 1,
+                mb: 3
+              }} />
+
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                  fontStyle: 'italic',
+                  opacity: 0.8
+                }}
+              >
+                {activeTab === 'QUEUE' ? '💬 Hỗ trợ khách hàng 24/7' : '👨‍💼 Quản lý cuộc trò chuyện của bạn'}
+              </Typography>
+            </Box>
+          )}
         </Box>
       </Box>
     </>

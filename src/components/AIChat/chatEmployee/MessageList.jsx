@@ -91,7 +91,7 @@ export default function MessageList({
         p: { xs: 1.5, sm: 2 },
         borderBottom: 1,
         borderColor: 'grey.200',
-        bgcolor: 'white',
+        bgcolor: 'background.paper',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -205,7 +205,7 @@ export default function MessageList({
         sx={{
           flex: 1,
           overflowY: 'auto',
-          bgcolor: '#f1f8e9',
+          bgcolor: 'background.default',
           px: 2,
           py: 2,
           display: 'flex',
@@ -249,7 +249,7 @@ export default function MessageList({
                     <Avatar sx={{
                       width: 36,
                       height: 36,
-                      bgcolor: isEmp ? '#2e7d32' : (isAI ? '#ff9800' : '#1976d2'),
+                      bgcolor: isEmp ? 'success.main' : (isAI ? 'warning.main' : 'primary.main'),
                       transition: 'transform 0.2s ease-in-out',
                       '&:hover': {
                         transform: 'scale(1.05)'
@@ -263,8 +263,8 @@ export default function MessageList({
                       px: 2,
                       py: 1.5,
                       borderRadius: 3,
-                      bgcolor: isEmp ? '#2e7d32' : (isAI ? '#ff9800' : 'white'),
-                      color: isEmp || isAI ? 'white' : 'black',
+                      bgcolor: isEmp ? 'success.main' : (isAI ? 'warning.main' : 'background.paper'),
+                      color: isEmp || isAI ? 'common.white' : 'text.primary',
                       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                       wordBreak: 'break-word',
                       position: 'relative',
@@ -281,7 +281,7 @@ export default function MessageList({
                         width: 0,
                         height: 0,
                         border: '8px solid transparent',
-                        borderTopColor: isEmp ? '#2e7d32' : (isAI ? '#ff9800' : 'white'),
+                        borderTopColor: isEmp ? 'success.main' : (isAI ? 'warning.main' : 'background.paper'),
                         ...(isRight ? {
                           right: -8,
                           borderRightWidth: 0
@@ -347,7 +347,7 @@ export default function MessageList({
               height: 80,
               bgcolor: 'primary.main',
               mb: 2,
-              opacity: 0.7
+              opacity: { xs: 0.7, dark: 0.5 }
             }}>
               <SmartToyIcon sx={{ fontSize: 40 }} />
             </Avatar>

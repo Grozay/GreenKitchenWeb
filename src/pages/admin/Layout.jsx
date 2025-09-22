@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { createTheme } from '@mui/material/styles'
 import { AppProvider } from '@toolpad/core/AppProvider'
 import { DashboardLayout } from '@toolpad/core/DashboardLayout'
@@ -12,15 +12,9 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import ArticleIcon from '@mui/icons-material/Article'
-import PeopleIcon from '@mui/icons-material/People'
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu'
 import KitchenIcon from '@mui/icons-material/Kitchen'
 import CalendarViewWeekIcon from '@mui/icons-material/CalendarViewWeek'
-import LocalShippingIcon from '@mui/icons-material/LocalShipping'
-import PaymentIcon from '@mui/icons-material/Payment'
-import Inventory2Icon from '@mui/icons-material/Inventory2'
-import AssessmentIcon from '@mui/icons-material/Assessment'
-import SecurityIcon from '@mui/icons-material/Security'
 import ChatIcon from '@mui/icons-material/Chat'
 import SupportAgentIcon from '@mui/icons-material/SupportAgent'
 import StorefrontIcon from '@mui/icons-material/Storefront'
@@ -41,20 +35,12 @@ import CustomerList from './Customer/CustomerList'
 import Dashboard from './Dashboard/Dashboard'
 import Settings from './Settings/Settings'
 import NotFound from './NotFound/NotFound'
-import AccountList from './Accounts/AccountList'
-import AccountCreate from './Accounts/AccountCreate'
 import MealsList from './MenuMeal/MenuMealList'
 import MealCreate from './MenuMeal/MenuMealCreate'
-import Inventory from './Inventory/Inventory'
 import Coupons from './Coupons/Coupons'
-import Payments from './Payments/Payments'
-import Delivery from './Delivery/Delivery'
 import Marketing from './Marketing/Marketing'
 import Posts from './Posts/Posts'
 import PostCreate from './Posts/PostCreateOrUpdateForm'
-import Reports from './Reports/Reports'
-import SecurityLogs from './Security/SecurityLogs'
-import SupportTickets from './Support/SupportTickets'
 import MediaIcon from '@mui/icons-material/PermMedia'
 import Stores from './Locations/Stores'
 import NotAuthorized from './NotAuthorized/NotAuthorized'
@@ -68,6 +54,7 @@ import WeekMealList from './WeekMeal/WeekMealList'
 import WeekMealCreate from './WeekMeal/WeekMealCreate'
 import WeekMealEdit from './WeekMeal/WeekMealEdit'
 import Chat from './Chat/Chat'
+import { chatCountSlice } from '~/redux/chat/chatCountSlice'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -79,7 +66,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
 }
 
 // Custom Navigation
-const NAVIGATION = (currentEmployee, newOrderCount) => {
+const NAVIGATION = (currentEmployee, newOrderCount, totalChatCount) => {
   const baseNav = []
   if (currentEmployee?.role === EMPLOYEE_ROLES.ADMIN) {
     baseNav.push(
@@ -138,7 +125,7 @@ const NAVIGATION = (currentEmployee, newOrderCount) => {
         segment: 'management/inbox',
         title: 'Inbox',
         icon: <ChatIcon />,
-        action: <Chip label="New" color="success" size="small" />
+        action: totalChatCount > 0 ? <Chip label={totalChatCount} color="error" size="small" /> : null
       },
       {
         kind: 'header',
@@ -258,6 +245,7 @@ function Layout(props) {
   const confirmLogout = useConfirm()
   const navigate = useNavigate()
   const location = useLocation()
+  const totalChatCount = useSelector((state) => state.chatCount.totalCount)
 
   const [newOrderCount, setNewOrderCount] = useState(0)
   const [showOrderAlert, setShowOrderAlert] = useState(false)
@@ -345,7 +333,7 @@ function Layout(props) {
       <AppProvider
         session={session}
         authentication={authentication}
-        navigation={NAVIGATION(currentEmployee, newOrderCount)}
+        navigation={NAVIGATION(currentEmployee, newOrderCount, totalChatCount)}
         theme={customTheme}
         router={router}
         window={window}

@@ -145,12 +145,17 @@ export const createCustomMealAPI = async (data) => {
 }
 
 export const getCustomMealByIdAPI = async (id) => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/${id}`)
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/customer/${id}`)
   return response.data
 }
 
 export const createCustomerHealthyInfoAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-health-info`, data)
+  return response.data
+}
+
+export const updateCustomMealAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/custom-meals/${id}`, data)
   return response.data
 }
 
@@ -187,6 +192,22 @@ export const updateMenuMealAPI = async (id, data) => {
 
 export const deleteMenuMealAPI = async (id) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/menu-meals/customers/${id}`)
+  return response.data
+}
+
+//review menu meal
+export const getMenuMealReviewsAPI = async (menuMealId, page = 0, size = 10) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meal-reviews/menu-meal/${menuMealId}?page=${page}&size=${size}`)
+  return response.data
+}
+
+export const createMenuMealReviewAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/menu-meal-reviews`, data)
+  return response.data
+}
+
+export const updateMenuMealReviewAPI = async (reviewId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/menu-meal-reviews/${reviewId}`, data)
   return response.data
 }
 
@@ -484,6 +505,22 @@ export const uploadPostImageAPI = async (file) => {
   return response.data
 }
 
+// AI Content Generation APIs
+export const generateAIContentAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/generate`, data)
+  return response.data
+}
+
+export const generateAITitleAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/generate-title`, data)
+  return response.data
+}
+
+export const generateAIContentOnlyAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/generate-content`, data)
+  return response.data
+}
+
 // Marketing - Email Scheduler & Cart Scan
 export const triggerEmailSchedulerNowAPI = async () => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/email-scheduler/trigger-now`)
@@ -531,7 +568,7 @@ export const getEmailHistoryAPI = async (page = 0, size = 10, emailType = null, 
   const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
   if (emailType) params.append('emailType', emailType)
   if (status) params.append('status', status)
-  
+
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/history?${params}`)
   return response.data
 }
@@ -641,13 +678,50 @@ export const fetchWeeklyTrendingMenusAPI = async (date) => {
   return response.data
 }
 
-// Holidays APIs
+// Holidays APIs - Using Nager.Date Public API
 export const getUpcomingHolidaysAPI = async (fromDate = null, daysAhead = 120) => {
-  const params = new URLSearchParams()
-  if (fromDate) params.append('fromDate', fromDate)
-  if (daysAhead) params.append('daysAhead', daysAhead.toString())
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/upcoming?${params}`)
-  return response.data
+  try {
+    // Try Nager.Date API first
+    const currentYear = new Date().getFullYear()
+    const nextYear = currentYear + 1
+
+    const [currentYearHolidays, nextYearHolidays] = await Promise.all([
+      fetch(`https://date.nager.at/api/v3/PublicHolidays/${currentYear}/VN`).then(res => res.json()),
+      fetch(`https://date.nager.at/api/v3/PublicHolidays/${nextYear}/VN`).then(res => res.json())
+    ])
+
+    const allHolidays = [...currentYearHolidays, ...nextYearHolidays]
+
+    // Filter upcoming holidays
+    const now = new Date()
+    const futureDate = new Date()
+    futureDate.setDate(now.getDate() + (daysAhead || 120))
+
+    const upcomingHolidays = allHolidays
+      .filter(holiday => {
+        const holidayDate = new Date(holiday.date)
+        return holidayDate >= now && holidayDate <= futureDate
+      })
+      .map(holiday => ({
+        id: holiday.date,
+        name: holiday.name,
+        date: holiday.date,
+        country: 'VN',
+        lunar: holiday.name.toLowerCase().includes('tết') || holiday.name.toLowerCase().includes('trung thu'),
+        daysUntil: Math.ceil((new Date(holiday.date) - now) / (1000 * 60 * 60 * 24))
+      }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+
+    return upcomingHolidays
+  } catch (error) {
+    console.warn('Nager.Date API failed, falling back to backend:', error)
+    // Fallback to backend API
+    const params = new URLSearchParams()
+    if (fromDate) params.append('fromDate', fromDate)
+    if (daysAhead) params.append('daysAhead', daysAhead.toString())
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/upcoming?${params}`)
+    return response.data
+  }
 }
 
 // Holiday Admin CRUD
@@ -668,6 +742,89 @@ export const adminUpdateHolidayAPI = async (id, data) => {
 
 export const adminDeleteHolidayAPI = async (id) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/holidays/admin/${id}`)
+}
+
+// Additional Public Holiday APIs
+export const getVietnamPublicHolidaysAPI = async (year = null) => {
+  const targetYear = year || new Date().getFullYear()
+  try {
+    const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${targetYear}/VN`)
+    if (!response.ok) throw new Error('API request failed')
+    return await response.json()
+  } catch (error) {
+    console.warn('Vietnam holidays API failed:', error)
+    return []
+  }
+}
+
+export const getBlackFridayDateAPI = async (year = null) => {
+  const targetYear = year || new Date().getFullYear()
+  try {
+    // Black Friday is the Friday after Thanksgiving (4th Thursday of November)
+    const thanksgiving = new Date(targetYear, 10, 1) // November 1st
+    thanksgiving.setDate(1 + (11 - thanksgiving.getDay()) % 7 + 21) // 4th Thursday
+
+    const blackFriday = new Date(thanksgiving)
+    blackFriday.setDate(thanksgiving.getDate() + 1) // Friday after Thanksgiving
+
+    return {
+      id: `black-friday-${targetYear}`,
+      date: blackFriday.toISOString().split('T')[0],
+      name: 'Black Friday',
+      country: 'US',
+      description: 'Biggest shopping day of the year',
+      year: targetYear
+    }
+  } catch (error) {
+    console.warn('Black Friday calculation failed:', error)
+    return null
+  }
+}
+
+export const getThanksgivingDateAPI = async (year = null) => {
+  const targetYear = year || new Date().getFullYear()
+  try {
+    // 4th Thursday of November
+    const thanksgiving = new Date(targetYear, 10, 1) // November 1st
+    thanksgiving.setDate(1 + (11 - thanksgiving.getDay()) % 7 + 21) // 4th Thursday
+
+    return {
+      id: `thanksgiving-${targetYear}`,
+      date: thanksgiving.toISOString().split('T')[0],
+      name: 'Thanksgiving Day (US)',
+      country: 'US',
+      description: '4th Thursday of November',
+      year: targetYear
+    }
+  } catch (error) {
+    console.warn('Thanksgiving calculation failed:', error)
+    return null
+  }
+}
+
+export const getSpecialEventsAPI = async (year = null) => {
+  const targetYear = year || new Date().getFullYear()
+  try {
+    // Cyber Monday (Monday after Thanksgiving)
+    const thanksgiving = new Date(targetYear, 10, 1)
+    thanksgiving.setDate(1 + (11 - thanksgiving.getDay()) % 7 + 21)
+    const cyberMonday = new Date(thanksgiving)
+    cyberMonday.setDate(thanksgiving.getDate() + 4) // Monday after Thanksgiving
+
+    return [
+      {
+        id: `cyber-monday-${targetYear}`,
+        name: 'Cyber Monday',
+        date: cyberMonday.toISOString().split('T')[0],
+        country: 'US',
+        description: 'Online shopping day after Thanksgiving',
+        year: targetYear
+      }
+    ]
+  } catch (error) {
+    console.warn('Special events calculation failed:', error)
+    return []
+  }
 }
 // Settings APIs
 export const getSettingsAPI = async () => {
@@ -711,5 +868,76 @@ export const deactivateSettingAPI = async (key) => {
 export const getAllUsersAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customers`)
 
+  return response.data
+}
+
+// Holiday Email Template APIs
+export const getHolidayEmailTemplateAPI = async (holidayId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/email/templates/${holidayId}`)
+  return response.data
+}
+
+export const getHolidayEmailTemplateWithTypeAPI = async (holidayId, templateType) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/email/templates/${holidayId}/${templateType}`)
+  return response.data
+}
+
+export const scheduleHolidayEmailAPI = async (request) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/holidays/email/schedule`, request)
+  return response.data
+}
+
+export const sendImmediateHolidayEmailAPI = async (request) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/holidays/email/send-immediate`, request)
+  return response.data
+}
+
+export const getAvailableTemplateTypesAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/email/template-types`)
+  return response.data
+}
+
+// Get scheduled holiday emails
+export const getScheduledHolidayEmailsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/holidays/email/scheduled`)
+  return response.data
+}
+
+// Delete scheduled holiday email
+export const deleteScheduledHolidayEmailAPI = async (scheduleId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/holidays/email/scheduled/${scheduleId}`)
+  return response.data
+}
+
+// Update scheduled holiday email
+export const updateScheduledHolidayEmailAPI = async (scheduleId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/holidays/email/scheduled/${scheduleId}`, data)
+  return response.data
+}
+
+// Email Tracking APIs
+export const getEmailTrackingStatsAPI = async (emailType) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-tracking/stats/${emailType}`)
+  return response.data
+}
+
+export const getCustomerTrackingStatsAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-tracking/customer-stats/${customerId}`)
+  return response.data
+}
+
+export const getEmailTrackingInfoAPI = async (trackingId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-tracking/info/${trackingId}`)
+  return response.data
+}
+
+// Email Admin Tracking APIs
+export const getCartAbandonmentTrackingStatsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/tracking-stats/cart-abandonment`)
+  return response.data
+}
+
+export const getCustomerEmailTrackingStatsAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/tracking-stats/customer/${customerId}`)
   return response.data
 }

@@ -1,16 +1,19 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo, memo, Suspense, lazy, useTransition, useDeferredValue } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentEmployee } from '~/redux/user/employeeSlice'
+import { setQueueCount, setMyChatCount } from '~/redux/chat/chatCountSlice'
 import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 import Skeleton from '@mui/material/Skeleton'
+import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import Badge from '@mui/material/Badge'
+import IconButton from '@mui/material/IconButton'
 
 
 // Lazy load components với preloading để cải thiện LCP
@@ -52,7 +55,7 @@ const PAGE_SIZE = 20
 const SidebarSkeleton = () => (
   <Box sx={{ 
     height: '100%', 
-    bgcolor: 'white',
+    bgcolor: 'background.paper',
     p: 2
   }}>
     <Skeleton variant="text" width="80%" height={32} sx={{ mb: 3 }} />
@@ -110,14 +113,16 @@ const MessageListSkeleton = () => (
 const ChatInputSkeleton = () => (
   <Box sx={{ 
     p: 2, 
-    borderTop: '1px solid #e0e0e0',
-    bgcolor: 'white'
+    borderTop: '1px solid',
+    borderColor: 'divider',
+    bgcolor: 'background.paper'
   }}>
     <Skeleton variant="rounded" width="100%" height={56} />
   </Box>
 )
 
 const EmployeeMessenger = memo(() => {
+  const dispatch = useDispatch()
   const employee = useSelector(selectCurrentEmployee)
   const employeeId = employee?.id
   console.log('employeeId', employeeId)
@@ -191,6 +196,15 @@ const EmployeeMessenger = memo(() => {
     (deferredConvs || []).filter(c => c.status === 'EMP' && c.employeeId === employeeId)
   ), [deferredConvs, employeeId])
 
+  // Update Redux store when queue or my chat counts change
+  useEffect(() => {
+    dispatch(setQueueCount(queueConvs.length))
+  }, [queueConvs.length, dispatch])
+
+  useEffect(() => {
+    dispatch(setMyChatCount(myConvs.length))
+  }, [myConvs.length, dispatch])
+
   const handleTabChange = useCallback((e, val) => {
     setActiveTab(val)
     // reset selection when switching tabs
@@ -204,7 +218,7 @@ const EmployeeMessenger = memo(() => {
     display: 'flex',
     width: '100%',
     height: '100%',
-    bgcolor: '#f1f8e9',
+    bgcolor: 'background.default',
     borderRadius: 0,
     overflow: 'hidden',
     position: 'relative'
@@ -214,7 +228,7 @@ const EmployeeMessenger = memo(() => {
     display: 'flex',
     width: '100%',
     height: '100%',
-    bgcolor: '#f1f8e9',
+    bgcolor: 'background.default',
     borderRadius: 2,
     overflow: 'hidden',
     boxShadow: 2,
@@ -825,18 +839,136 @@ const EmployeeMessenger = memo(() => {
     return (
       <>
         <Box sx={mobileContainerStyles}>
-          {/* Tabs Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'white', px: 2 }}>
-            <Tabs value={activeTab} onChange={handleTabChange} aria-label="chat tabs">
-              <Tab
-                value="QUEUE"
-                label={<Badge color="error" badgeContent={queueConvs.length}>Queue</Badge>}
-              />
-              <Tab
-                value="MY"
-                label={<Badge color="primary" badgeContent={myConvs.length}>My</Badge>}
-              />
-            </Tabs>
+          {/* Minimalist Tabs Header */}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'background.paper',
+            px: 2,
+            py: 1,
+            borderBottom: '1px solid',
+            borderColor: 'divider'
+          }}>
+            <Box sx={{
+              display: 'flex',
+              width: '100%',
+              position: 'relative',
+              zIndex: 2
+            }}>
+              <Box sx={{
+                flex: 1,
+                mr: 1,
+                position: 'relative'
+              }}>
+                <IconButton
+                  onClick={() => handleTabChange(null, 'QUEUE')}
+                  sx={{
+                    width: '100%',
+                    height: 44,
+                    borderRadius: '8px',
+                    backgroundColor: activeTab === 'QUEUE' ? 'primary.main' : 'transparent',
+                    color: activeTab === 'QUEUE' ? 'primary.contrastText' : 'text.primary',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: activeTab === 'QUEUE' ? 'primary.dark' : 'action.hover'
+                    }
+                  }}
+                >
+                  <Box sx={{
+                    position: 'relative',
+                    width: 20,
+                    height: 20
+                  }}>
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: 16,
+                      height: 16,
+                      borderRadius: '50%',
+                      backgroundColor: activeTab === 'QUEUE' ? 'error.main' : 'error.light',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      color: 'white'
+                    }}>
+                      {queueConvs.length}
+                    </Box>
+                  </Box>
+                  <Typography variant="caption" sx={{
+                    fontSize: '0.7rem',
+                    fontWeight: 'bold',
+                    mt: 0.5,
+                    color: activeTab === 'QUEUE' ? 'primary.contrastText' : 'text.primary'
+                  }}>
+                    Queue
+                  </Typography>
+                </IconButton>
+              </Box>
+
+              <Box sx={{
+                flex: 1,
+                ml: 1,
+                position: 'relative'
+              }}>
+                <IconButton
+                  onClick={() => handleTabChange(null, 'MY')}
+                  sx={{
+                    width: '100%',
+                    height: 44,
+                    borderRadius: '8px',
+                    backgroundColor: activeTab === 'MY' ? 'primary.main' : 'transparent',
+                    color: activeTab === 'MY' ? 'primary.contrastText' : 'text.primary',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: activeTab === 'MY' ? 'primary.dark' : 'action.hover'
+                    }
+                  }}
+                >
+                  <Box sx={{
+                    position: 'relative',
+                    width: 20,
+                    height: 20
+                  }}>
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: 16,
+                      height: 16,
+                      borderRadius: '50%',
+                      backgroundColor: activeTab === 'MY' ? 'success.main' : 'success.light',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      color: 'white'
+                    }}>
+                      {myConvs.length}
+                    </Box>
+                  </Box>
+                  <Typography variant="caption" sx={{
+                    fontSize: '0.7rem',
+                    fontWeight: 'bold',
+                    mt: 0.5,
+                    color: activeTab === 'MY' ? 'primary.contrastText' : 'text.primary'
+                  }}>
+                    My Chats
+                  </Typography>
+                </IconButton>
+              </Box>
+            </Box>
           </Box>
           {/* Sidebar - hiển thị khi không có chat hoặc khi toggle */}
           <Box sx={sidebarDisplayStyles}>
@@ -848,6 +980,7 @@ const EmployeeMessenger = memo(() => {
                 isOpen={true}
                 onToggle={() => {}}
                 isPending={isPendingSelection}
+                activeTab={activeTab}
               />
             </Suspense>
           </Box>
@@ -901,18 +1034,146 @@ const EmployeeMessenger = memo(() => {
       <Box sx={desktopContainerStyles}>
         {/* Sidebar */}
         <Box sx={sidebarStyles}>
-          {/* Tabs Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'white', px: 2 }}>
-            <Tabs value={activeTab} onChange={handleTabChange} aria-label="chat tabs">
-              <Tab
-                value="QUEUE"
-                label={<Badge color="error" badgeContent={queueConvs.length}>Queue</Badge>}
-              />
-              <Tab
-                value="MY"
-                label={<Badge color="primary" badgeContent={myConvs.length}>My</Badge>}
-              />
-            </Tabs>
+          {/* Minimalist Desktop Tabs Header */}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'background.paper',
+            px: 2,
+            py: 1.5,
+            borderBottom: '1px solid',
+            borderColor: 'divider'
+          }}>
+            <Box sx={{
+              display: 'flex',
+              width: '100%',
+              position: 'relative',
+              zIndex: 2
+            }}>
+              <Box sx={{
+                flex: 1,
+                mr: 1,
+                position: 'relative'
+              }}>
+                <IconButton
+                  onClick={() => handleTabChange(null, 'QUEUE')}
+                  sx={{
+                    width: '100%',
+                    height: 48,
+                    borderRadius: '8px',
+                    backgroundColor: activeTab === 'QUEUE' ? 'primary.main' : 'transparent',
+                    color: activeTab === 'QUEUE' ? 'primary.contrastText' : 'text.primary',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    px: 2,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: activeTab === 'QUEUE' ? 'primary.dark' : 'action.hover'
+                    }
+                  }}
+                >
+                  <Box sx={{
+                    position: 'relative',
+                    width: 24,
+                    height: 24
+                  }}>
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: 20,
+                      height: 20,
+                      borderRadius: '50%',
+                      backgroundColor: activeTab === 'QUEUE' ? 'error.main' : 'error.light',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      color: 'white',
+                      animation: queueConvs.length > 0 ? 'pulse 2s infinite' : 'none',
+                      '@keyframes pulse': {
+                        '0%': { transform: 'scale(1)', opacity: 1 },
+                        '50%': { transform: 'scale(1.2)', opacity: 0.8 },
+                        '100%': { transform: 'scale(1)', opacity: 1 }
+                      }
+                    }}>
+                      {queueConvs.length}
+                    </Box>
+                  </Box>
+                  <Typography variant="body2" sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 'bold',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                  }}>
+                    Queue
+                  </Typography>
+                </IconButton>
+              </Box>
+
+              <Box sx={{
+                flex: 1,
+                ml: 1,
+                position: 'relative'
+              }}>
+                <IconButton
+                  onClick={() => handleTabChange(null, 'MY')}
+                  sx={{
+                    width: '100%',
+                    height: 48,
+                    borderRadius: '8px',
+                    backgroundColor: activeTab === 'MY' ? 'primary.main' : 'transparent',
+                    color: activeTab === 'MY' ? 'primary.contrastText' : 'text.primary',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    px: 2,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: activeTab === 'MY' ? 'primary.dark' : 'action.hover'
+                    }
+                  }}
+                >
+                  <Box sx={{
+                    position: 'relative',
+                    width: 24,
+                    height: 24
+                  }}>
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: 20,
+                      height: 20,
+                      borderRadius: '50%',
+                      backgroundColor: activeTab === 'MY' ? 'success.main' : 'success.light',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      color: 'white',
+                      animation: myConvs.length > 0 ? 'pulse 2s infinite' : 'none',
+                      '@keyframes pulse': {
+                        '0%': { transform: 'scale(1)', opacity: 1 },
+                        '50%': { transform: 'scale(1.2)', opacity: 0.8 },
+                        '100%': { transform: 'scale(1)', opacity: 1 }
+                      }
+                    }}>
+                      {myConvs.length}
+                    </Box>
+                  </Box>
+                  <Typography variant="body2" sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 'bold',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                  }}>
+                    My Chats
+                  </Typography>
+                </IconButton>
+              </Box>
+            </Box>
           </Box>
           <Suspense fallback={<SidebarSkeleton />}> 
             <Sidebar
@@ -922,6 +1183,7 @@ const EmployeeMessenger = memo(() => {
               isOpen={sidebarOpen}
               onToggle={handleSidebarToggle}
               isPending={isPendingSelection}
+              activeTab={activeTab}
             />
           </Suspense>
         </Box>

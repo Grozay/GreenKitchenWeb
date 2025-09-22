@@ -54,11 +54,11 @@ const SearchBar = memo(({ searchTerm, onSearchChange }) => {
   }), [])
 
   const inputStyles = useMemo(() => ({
-    bgcolor: 'white',
+    bgcolor: 'background.paper',
     borderRadius: { xs: 1.5, sm: 2, md: 2.5 },
     fontSize: { xs: '0.875rem', sm: '0.875rem', md: '1rem' },
     '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#c8e6c9'
+      borderColor: 'success.light'
     },
     '&:hover .MuiOutlinedInput-notchedOutline': {
       borderColor: 'primary.main'
