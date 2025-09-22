@@ -65,7 +65,7 @@ const PayPalPaymentForm = ({
       })
     } catch (error) {
       // console.error('Error in createOrder:', error)
-      toast.error(`Không thể tạo đơn thanh toán: ${error.message}`)
+      toast.error(`Cannot create payment order: ${error.message}`)
     }
   }
 
@@ -81,7 +81,7 @@ const PayPalPaymentForm = ({
       })
 
       // Thành công
-      toast.success('Thanh toán thành công!')
+      toast.success('Payment successful!')
       onSuccess({
         id: data.orderID,
         status: 'COMPLETED',
@@ -89,7 +89,7 @@ const PayPalPaymentForm = ({
       })
 
     } catch (error) {
-      toast.error(`Thanh toán thất bại: ${error.message}`)
+      toast.error(`Payment failed: ${error.message}`)
       onError(error)
     } finally {
       setLoading(false)
@@ -97,12 +97,12 @@ const PayPalPaymentForm = ({
   }
 
   const onCancel = () => {
-    toast.info('Thanh toán đã được hủy')
+    toast.info('Payment has been cancelled')
     onError(new Error('Payment cancelled'))
   }
 
   const onErrorHandler = (err) => {
-    toast.error(`Lỗi PayPal: ${err.message || 'Có lỗi xảy ra với PayPal'}`)
+    toast.error(`PayPal error: ${err.message || 'An error occurred with PayPal'}`)
     onError(err)
   }
 
@@ -110,7 +110,7 @@ const PayPalPaymentForm = ({
     return (
       <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
         <CircularProgress sx={{ mb: 2 }} />
-        <Typography>Đang tải PayPal...</Typography>
+        <Typography>Loading PayPal...</Typography>
       </Paper>
     )
   }
@@ -119,7 +119,7 @@ const PayPalPaymentForm = ({
     return (
       <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
         <Alert severity="error">
-          <Typography>Không thể tải PayPal. Vui lòng thử lại sau.</Typography>
+          <Typography>Unable to load PayPal. Please try again later.</Typography>
         </Alert>
       </Paper>
     )
@@ -128,17 +128,17 @@ const PayPalPaymentForm = ({
   return (
     <Paper sx={{ p: 3, borderRadius: 2, position: 'relative', height: '100%' }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-        💰 Thanh toán qua cổng thanh toán PayPal
+        💰 Pay via PayPal payment gateway
       </Typography>
 
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>Số tiền gốc:</strong> {orderData.totalAmount?.toLocaleString('vi-VN')}₫
+          <strong>Original amount:</strong> {orderData.totalAmount?.toLocaleString('vi-VN')}₫
           <br />
-          <strong>Thanh toán PayPal:</strong> ${convertToUSD(orderData.totalAmount)} USD
+          <strong>PayPal payment:</strong> ${convertToUSD(orderData.totalAmount)} USD
           <br />
           <Typography variant="caption" color="text.secondary">
-            Tỷ giá: 1 USD = {exchangeRate.toLocaleString('vi-VN')} VND
+            Exchange rate: 1 USD = {exchangeRate.toLocaleString('vi-VN')} VND
           </Typography>
         </Typography>
       </Alert>

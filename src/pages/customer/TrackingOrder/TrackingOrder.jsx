@@ -31,7 +31,7 @@ const TrackingOrder = () => {
 
   const handleSearch = async () => {
     if (!orderId.trim()) {
-      setError('Vui lòng nhập mã đơn hàng')
+      setError('Please enter order code')
       return
     }
 
@@ -44,7 +44,7 @@ const TrackingOrder = () => {
       const data = await getOrderByCodeAPI(orderId)
       setOrderData(data)
     } catch (err) {
-      setError('Không tìm thấy đơn hàng với mã này')
+      setError('Order not found with this code')
       setOrderData(null)
     } finally {
       setLoading(false)
@@ -78,7 +78,7 @@ const TrackingOrder = () => {
           }
         }}
       >
-        Quay lại trang chủ
+        Back to home
       </Button>
 
       <Box textAlign="center" mb={4}>
@@ -91,14 +91,14 @@ const TrackingOrder = () => {
             mb: 2
           }}
         >
-          Theo Dõi Đơn Hàng
+          Track Order
         </Typography>
         <Typography
           variant="body1"
           color="text.secondary"
           sx={{ mb: 4 }}
         >
-          Nhập mã đơn hàng để xem trạng thái và chi tiết đơn hàng của bạn
+          Enter order code to view status and details
         </Typography>
 
         {/* Search Section */}
@@ -116,8 +116,8 @@ const TrackingOrder = () => {
             <Box display="flex" gap={2} alignItems="center">
               <TextField
                 fullWidth
-                label="Mã đơn hàng"
-                placeholder="Nhập mã đơn hàng (VD: GK-123456789)"
+                label="Order code"
+                placeholder="Enter order code (e.g.: GK-123456789)"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -140,7 +140,7 @@ const TrackingOrder = () => {
                   py: 1.5
                 }}
               >
-                {loading ? 'Đang tìm...' : 'Tìm kiếm'}
+                {loading ? 'Searching...' : 'Search'}
               </Button>
             </Box>
           </Paper>
@@ -153,7 +153,7 @@ const TrackingOrder = () => {
               onClick={resetSearch}
               sx={{ borderRadius: 2 }}
             >
-              Tìm đơn hàng khác
+              Search another order
             </Button>
           </Box>
         )}
@@ -184,10 +184,10 @@ const TrackingOrder = () => {
           <Card sx={{ maxWidth: 600, mx: 'auto', textAlign: 'center', p: 3 }}>
             <CardContent>
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                Không tìm thấy đơn hàng
+                Order not found
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Vui lòng kiểm tra lại mã đơn hàng và thử lại
+                Please check the order code and try again
               </Typography>
             </CardContent>
           </Card>

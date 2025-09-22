@@ -37,12 +37,12 @@ export default function OrderHistoryTab({ customerDetails }) {
   }
 
   const statusOptions = [
-    { key: 'all', label: 'Tất cả', color: 'default' },
-    { key: 'PENDING', label: 'Chờ xác nhận', color: 'warning' },
-    { key: 'CONFIRMED', label: 'Đã xác nhận', color: 'info' },
-    { key: 'SHIPPING', label: 'Đang giao hàng', color: 'primary' },
-    { key: 'DELIVERED', label: 'Đã giao hàng', color: 'success' },
-    { key: 'CANCELLED', label: 'Đã hủy', color: 'error' }
+    { key: 'all', label: 'All', color: 'default' },
+    { key: 'PENDING', label: 'Pending', color: 'warning' },
+    { key: 'CONFIRMED', label: 'Confirmed', color: 'info' },
+    { key: 'SHIPPING', label: 'Shipping', color: 'primary' },
+    { key: 'DELIVERED', label: 'Delivered', color: 'success' },
+    { key: 'CANCELLED', label: 'Cancelled', color: 'error' }
   ]
 
   // Lấy dữ liệu orders từ customerDetails
@@ -66,7 +66,7 @@ export default function OrderHistoryTab({ customerDetails }) {
 
   const handleViewOrderDetails = (order) => {
     // TODO: Implement view details functionality
-    alert(`Xem chi tiết đơn hàng #${order.id}`)
+    alert(`View order details #${order.id}`)
   }
 
   return (
@@ -82,7 +82,7 @@ export default function OrderHistoryTab({ customerDetails }) {
             {/* Filter theo trạng thái */}
             <Grid size={12}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: '#666', fontSize: '14px' }}>
-                Trạng thái đơn hàng
+                Order Status
               </Typography>
               <Box sx={{
                 display: 'flex',
@@ -115,12 +115,12 @@ export default function OrderHistoryTab({ customerDetails }) {
             {/* Filter theo ngày tháng */}
             <Grid size={12}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: '#666', fontSize: '14px' }}>
-                Thời gian đặt hàng
+                Order Time
               </Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
                   <DatePicker
-                    label="Từ ngày"
+                    label="From Date"
                     value={startDate}
                     onChange={handleStartDateChange}
                     slotProps={{
@@ -140,7 +140,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                     }}
                   />
                   <DatePicker
-                    label="Đến ngày"
+                    label="To Date"
                     value={endDate}
                     onChange={handleEndDateChange}
                     minDate={startDate}
@@ -177,7 +177,7 @@ export default function OrderHistoryTab({ customerDetails }) {
             mb: 2
           }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#2e7d32', fontSize: '14px' }}>
-              Lịch sử đơn hàng ({filteredOrders.length} đơn)
+              Order History ({filteredOrders.length} orders)
             </Typography>
             <IconButton
               onClick={() => setIsOrderHistoryOpen(!isOrderHistoryOpen)}
@@ -193,7 +193,7 @@ export default function OrderHistoryTab({ customerDetails }) {
             {filteredOrders.length === 0 ? (
               <Box sx={{ textAlign: 'center', py: 3 }}>
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '14px' }}>
-                  Không có đơn hàng nào phù hợp với bộ lọc
+                  No orders match the filters
                 </Typography>
               </Box>
             ) : (
@@ -210,7 +210,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                 {visibleCount < filteredOrders.length && (
                   <Box sx={{ textAlign: 'center', mt: 2 }}>
                     <Chip
-                      label="Xem thêm"
+                      label="View More"
                       color="primary"
                       clickable
                       onClick={() => setVisibleCount((prev) => prev + 5)}

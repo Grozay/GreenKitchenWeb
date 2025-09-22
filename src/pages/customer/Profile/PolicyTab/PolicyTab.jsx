@@ -34,24 +34,24 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
   const policies = [
     {
       id: 'panel1',
-      title: '📋 Điều khoản sử dụng',
+      title: '📋 Terms of Use',
       icon: <PolicyIcon />,
       content: {
         sections: [
           {
-            title: 'Điều khoản chung',
+            title: 'General Terms',
             items: [
-              'Bằng việc sử dụng dịch vụ, bạn đồng ý tuân thủ các điều khoản này',
-              'Chúng tôi có quyền thay đổi điều khoản mà không cần báo trước',
-              'Mọi tranh chấp sẽ được giải quyết theo luật pháp Việt Nam'
+              'By using our service, you agree to comply with these terms',
+              'We reserve the right to change terms without prior notice',
+              'All disputes will be resolved according to Vietnamese law'
             ]
           },
           {
-            title: 'Quyền và nghĩa vụ',
+            title: 'Rights and Obligations',
             items: [
-              'Bạn có quyền sử dụng dịch vụ một cách hợp pháp',
-              'Không được sử dụng dịch vụ cho mục đích bất hợp pháp',
-              'Bảo mật thông tin tài khoản của mình'
+              'You have the right to use the service legally',
+              'Service may not be used for illegal purposes',
+              'Keep your account information secure'
             ]
           }
         ]
@@ -59,32 +59,32 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
     },
     {
       id: 'panel2',
-      title: '🔒 Chính sách bảo mật',
+      title: '🔒 Privacy Policy',
       icon: <SecurityIcon />,
       content: {
         sections: [
           {
-            title: 'Thu thập thông tin',
+            title: 'Information Collection',
             items: [
-              'Thông tin cá nhân: tên, email, số điện thoại, địa chỉ',
-              'Thông tin đơn hàng: món ăn, thời gian, địa điểm giao hàng',
-              'Thông tin thanh toán: phương thức, số tiền (không lưu thông tin thẻ)'
+              'Personal information: name, email, phone number, address',
+              'Order information: dishes, time, delivery location',
+              'Payment information: method, amount (card information not stored)'
             ]
           },
           {
-            title: 'Sử dụng thông tin',
+            title: 'Information Usage',
             items: [
-              'Xử lý đơn hàng và giao hàng',
-              'Gửi thông báo và cập nhật dịch vụ',
-              'Cải thiện chất lượng dịch vụ và trải nghiệm người dùng'
+              'Process orders and deliveries',
+              'Send notifications and service updates',
+              'Improve service quality and user experience'
             ]
           },
           {
-            title: 'Bảo vệ thông tin',
+            title: 'Information Protection',
             items: [
-              'Mã hóa SSL/TLS cho mọi giao dịch',
-              'Không chia sẻ thông tin với bên thứ ba',
-              'Tuân thủ quy định GDPR và Luật Bảo vệ dữ liệu cá nhân'
+              'SSL/TLS encryption for all transactions',
+              'No information sharing with third parties',
+              'Compliance with GDPR and Personal Data Protection Law'
             ]
           }
         ]
@@ -92,32 +92,32 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
     },
     {
       id: 'panel3',
-      title: '🍽️ Chính sách đặt hàng',
+      title: '🍽️ Ordering Policy',
       icon: <VerifiedUserIcon />,
       content: {
         sections: [
           {
-            title: 'Quy trình đặt hàng',
+            title: 'Ordering Process',
             items: [
-              'Chọn món ăn từ menu và thêm vào giỏ hàng',
-              'Xác nhận địa chỉ giao hàng và thông tin thanh toán',
-              'Nhận xác nhận đơn hàng qua email/SMS'
+              'Select dishes from menu and add to cart',
+              'Confirm delivery address and payment information',
+              'Receive order confirmation via email/SMS'
             ]
           },
           {
-            title: 'Chính sách hủy đơn',
+            title: 'Cancellation Policy',
             items: [
-              'Có thể hủy đơn hàng trong vòng 5 phút sau khi đặt',
-              'Sau 5 phút, đơn hàng sẽ được xử lý và không thể hủy',
-              'Liên hệ hotline để được hỗ trợ trong trường hợp đặc biệt'
+              'Orders can be cancelled within 5 minutes after placing',
+              'After 5 minutes, orders will be processed and cannot be cancelled',
+              'Contact hotline for support in special cases'
             ]
           },
           {
-            title: 'Thời gian giao hàng',
+            title: 'Delivery Time',
             items: [
-              'Giao hàng trong vòng 30-60 phút tùy thuộc khoảng cách',
-              'Thông báo trước 10 phút khi đến giao hàng',
-              'Bồi thường nếu giao hàng trễ quá 15 phút so với cam kết'
+              'Delivery within 30-60 minutes depending on distance',
+              'Notification 10 minutes before delivery',
+              'Compensation if delivery is more than 15 minutes late'
             ]
           }
         ]
@@ -125,33 +125,33 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
     },
     {
       id: 'panel4',
-      title: '💰 Chính sách thanh toán',
+      title: '💰 Payment Policy',
       icon: <GavelIcon />,
       content: {
         sections: [
           {
-            title: 'Phương thức thanh toán',
+            title: 'Payment Methods',
             items: [
-              'Tiền mặt khi nhận hàng',
-              'Chuyển khoản ngân hàng',
-              'Ví điện tử (MoMo, ZaloPay, VNPay)',
-              'Thẻ tín dụng/ghi nợ (Visa, Mastercard)'
+              'Cash on delivery',
+              'Bank transfer',
+              'E-wallets (MoMo, ZaloPay, VNPay)',
+              'Credit/debit cards (Visa, Mastercard)'
             ]
           },
           {
-            title: 'Bảo mật thanh toán',
+            title: 'Payment Security',
             items: [
-              'Mã hóa SSL 256-bit cho mọi giao dịch',
-              'Không lưu trữ thông tin thẻ tín dụng',
-              'Tuân thủ tiêu chuẩn PCI DSS'
+              '256-bit SSL encryption for all transactions',
+              'Credit card information not stored',
+              'Compliance with PCI DSS standards'
             ]
           },
           {
-            title: 'Hoàn tiền và bồi thường',
+            title: 'Refunds and Compensation',
             items: [
-              'Hoàn tiền 100% nếu món ăn không đúng chất lượng',
-              'Bồi thường nếu giao hàng trễ hoặc sai địa chỉ',
-              'Xử lý hoàn tiền trong vòng 3-5 ngày làm việc'
+              '100% refund if food quality is not as expected',
+              'Compensation for late delivery or wrong address',
+              'Refund processing within 3-5 business days'
             ]
           }
         ]
@@ -159,32 +159,32 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
     },
     {
       id: 'panel5',
-      title: '🌟 Chính sách thành viên',
+      title: '🌟 Membership Policy',
       icon: <PrivacyTipIcon />,
       content: {
         sections: [
           {
-            title: 'Tích điểm thưởng',
+            title: 'Reward Points',
             items: [
-              'Tích 1 điểm cho mỗi 10,000 VNĐ chi tiêu',
-              'Điểm có hiệu lực trong 12 tháng',
-              'Đổi điểm lấy coupon giảm giá hoặc món ăn miễn phí'
+              'Earn 1 point for every 10,000 VND spent',
+              'Points valid for 12 months',
+              'Redeem points for discount coupons or free dishes'
             ]
           },
           {
-            title: 'Hạng thành viên',
+            title: 'Membership Tiers',
             items: [
-              'ENERGY: Chi tiêu 0-2 triệu VNĐ/6 tháng',
-              'VITALITY: Chi tiêu 2-5 triệu VNĐ/6 tháng',
-              'RADIANCE: Chi tiêu trên 5 triệu VNĐ/6 tháng'
+              'ENERGY: Spend 0-2 million VND/6 months',
+              'VITALITY: Spend 2-5 million VND/6 months',
+              'RADIANCE: Spend over 5 million VND/6 months'
             ]
           },
           {
-            title: 'Ưu đãi đặc biệt',
+            title: 'Special Benefits',
             items: [
-              'Giảm giá theo hạng thành viên',
-              'Ưu tiên giao hàng cho hạng cao',
-              'Tặng món khai vị miễn phí cho hạng RADIANCE'
+              'Discounts based on membership tier',
+              'Priority delivery for higher tiers',
+              'Free appetizer for RADIANCE tier'
             ]
           }
         ]
@@ -215,13 +215,13 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
                 mb: 2,
                 textShadow: '0 2px 4px rgba(0,0,0,0.3)'
               }}>
-                Chính Sách Sử Dụng
+                Terms of Use
               </Typography>
               <Typography variant="h6" sx={{
                 opacity: 0.9,
                 mb: 3
               }}>
-                Thông tin chi tiết về quyền lợi và nghĩa vụ khi sử dụng dịch vụ
+                Detailed information about rights and obligations when using the service
               </Typography>
             </CardContent>
           </Card>
@@ -232,14 +232,14 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                📋 Tóm tắt chính sách
+                📋 Policy Summary
               </Typography>
               <Grid container spacing={3}>
                 {[
-                  { icon: <CheckCircleIcon />, title: 'Đặt hàng dễ dàng', desc: 'Quy trình đơn giản, nhanh chóng' },
-                  { icon: <SecurityIcon />, title: 'Bảo mật tuyệt đối', desc: 'Thông tin được mã hóa SSL/TLS' },
-                  { icon: <VerifiedUserIcon />, title: 'Giao hàng đúng giờ', desc: 'Cam kết 30-60 phút' },
-                  { icon: <PolicyIcon />, title: 'Hoàn tiền 100%', desc: 'Nếu không hài lòng về chất lượng' }
+                  { icon: <CheckCircleIcon />, title: 'Easy Ordering', desc: 'Simple and fast process' },
+                  { icon: <SecurityIcon />, title: 'Absolute Security', desc: 'Information encrypted with SSL/TLS' },
+                  { icon: <VerifiedUserIcon />, title: 'On-time Delivery', desc: '30-60 minutes commitment' },
+                  { icon: <PolicyIcon />, title: '100% Refund', desc: 'If not satisfied with quality' }
                 ].map((item, index) => (
                   <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
                     <Box sx={{ textAlign: 'center', p: 2 }}>
@@ -265,7 +265,7 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                📖 Chi tiết chính sách
+                📖 Policy Details
               </Typography>
               
               {policies.map((policy) => (
@@ -370,7 +370,7 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
                 gap: 1
               }}>
                 <WarningIcon />
-                Lưu ý quan trọng
+                Important Notes
               </Typography>
               
               <Grid container spacing={3}>
@@ -383,11 +383,11 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
                     borderColor: 'warning.main'
                   }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'warning.dark' }}>
-                      ⚠️ Điều khoản thay đổi
+                      ⚠️ Terms Changes
                     </Typography>
                     <Typography variant="body2" color="warning.dark">
-                      Chúng tôi có quyền cập nhật chính sách này bất cứ lúc nào. 
-                      Những thay đổi sẽ có hiệu lực ngay khi được đăng tải trên website.
+                      We reserve the right to update this policy at any time. 
+                      Changes will take effect immediately upon posting on the website.
                     </Typography>
                   </Box>
                 </Grid>
@@ -401,11 +401,11 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
                     borderColor: 'info.main'
                   }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'info.dark' }}>
-                      ℹ️ Liên hệ hỗ trợ
+                      ℹ️ Contact Support
                     </Typography>
                     <Typography variant="body2" color="info.dark">
-                      Nếu bạn có thắc mắc về chính sách này, vui lòng liên hệ với chúng tôi qua:
-                      Email: policy@greenkitchen.com hoặc Hotline: 1900-xxxx
+                      If you have questions about this policy, please contact us via:
+                      Email: policy@greenkitchen.com or Hotline: 1900-xxxx
                     </Typography>
                   </Box>
                 </Grid>
@@ -419,13 +419,13 @@ export default function PolicyTab({ customerDetails, setCustomerDetails }) {
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <CardContent sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Phiên bản chính sách: v2.1
+                Policy Version: v2.1
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Cập nhật lần cuối: 15/12/2024
+                Last Updated: 15/12/2024
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                © 2024 Green Kitchen. Tất cả quyền được bảo lưu.
+                © 2024 Green Kitchen. All rights reserved.
               </Typography>
             </CardContent>
           </Card>

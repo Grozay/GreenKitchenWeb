@@ -31,12 +31,12 @@ const OrderConfirmDialog = ({
   }
 
   const formatDateTime = (date) => {
-    if (!date) return 'Không xác định'
+    if (!date) return 'Not specified'
     return dayjs(date).format('DD/MM/YYYY HH:mm')
   }
 
   const getPaymentMethodText = (method) => {
-    return method === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 'Thanh toán bằng thẻ'
+    return method === 'cod' ? 'Cash on Delivery (COD)' : 'Card Payment'
   }
 
   const getFullAddress = () => {
@@ -64,10 +64,10 @@ const OrderConfirmDialog = ({
       }}>
         <CheckCircleIcon sx={{ color: '#4C082A', fontSize: 40, mb: 1 }} />
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#2c2c2c' }}>
-          XÁC NHẬN ĐƠN HÀNG
+          CONFIRM ORDER
         </Typography>
         <Typography variant="body2" sx={{ color: '#666', mt: 1 }}>
-          Vui lòng kiểm tra lại thông tin trước khi đặt hàng
+          Please review the information before placing your order
         </Typography>
       </DialogTitle>
 
@@ -76,35 +76,35 @@ const OrderConfirmDialog = ({
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c', display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocationOnIcon sx={{ color: '#4C082A' }} />
-            Thông tin giao hàng
+            Delivery Information
           </Typography>
           
           <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2, mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <PersonIcon sx={{ fontSize: 16, color: '#666' }} />
               <Typography variant="body2">
-                <strong>Người nhận:</strong> {deliveryInfo.recipientName}
+                <strong>Recipient:</strong> {deliveryInfo.recipientName}
               </Typography>
             </Box>
             
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <PhoneIcon sx={{ fontSize: 16, color: '#666' }} />
               <Typography variant="body2">
-                <strong>Số điện thoại:</strong> {deliveryInfo.recipientPhone}
+                <strong>Phone:</strong> {deliveryInfo.recipientPhone}
               </Typography>
             </Box>
             
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
               <LocationOnIcon sx={{ fontSize: 16, color: '#666', mt: 0.2 }} />
               <Typography variant="body2">
-                <strong>Địa chỉ:</strong> {getFullAddress()}
+                <strong>Address:</strong> {getFullAddress()}
               </Typography>
             </Box>
             
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <AccessTimeIcon sx={{ fontSize: 16, color: '#666' }} />
               <Typography variant="body2">
-                <strong>Thời gian:</strong> {formatDateTime(deliveryInfo.deliveryTime)}
+                <strong>Time:</strong> {formatDateTime(deliveryInfo.deliveryTime)}
               </Typography>
             </Box>
           </Box>
@@ -114,7 +114,7 @@ const OrderConfirmDialog = ({
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c', display: 'flex', alignItems: 'center', gap: 1 }}>
             <PaymentIcon sx={{ color: '#4C082A' }} />
-            Phương thức thanh toán
+            Payment Method
           </Typography>
           
           <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2 }}>
@@ -127,27 +127,27 @@ const OrderConfirmDialog = ({
         {/* Tóm tắt đơn hàng */}
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-            Tóm tắt đơn hàng
+            Order Summary
           </Typography>
           
           <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2">Tạm tính:</Typography>
+              <Typography variant="body2">Subtotal:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {formatPrice(orderSummary.subtotal)}
               </Typography>
             </Box>
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2">Phí vận chuyển:</Typography>
+              <Typography variant="body2">Shipping Fee:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {orderSummary.shippingFee > 0 ? formatPrice(orderSummary.shippingFee) : 'Miễn phí'}
+                {orderSummary.shippingFee > 0 ? formatPrice(orderSummary.shippingFee) : 'Free'}
               </Typography>
             </Box>
             
             {orderSummary.membershipDiscount > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body2" sx={{ color: '#00B389' }}>Giảm giá thành viên:</Typography>
+                <Typography variant="body2" sx={{ color: '#00B389' }}>Membership Discount:</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500, color: '#00B389' }}>
                   -{formatPrice(orderSummary.membershipDiscount)}
                 </Typography>
@@ -156,7 +156,7 @@ const OrderConfirmDialog = ({
             
             {orderSummary.couponDiscount > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body2" sx={{ color: '#00B389' }}>Giảm giá coupon:</Typography>
+                <Typography variant="body2" sx={{ color: '#00B389' }}>Coupon Discount:</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500, color: '#00B389' }}>
                   -{formatPrice(orderSummary.couponDiscount)}
                 </Typography>
@@ -166,7 +166,7 @@ const OrderConfirmDialog = ({
             <Divider sx={{ my: 2 }} />
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Tổng cộng:</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>Total:</Typography>
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#4C082A' }}>
                 {formatPrice(orderSummary.totalAmount)}
               </Typography>
@@ -190,7 +190,7 @@ const OrderConfirmDialog = ({
             }
           }}
         >
-          Quay lại
+          Back
         </Button>
         <Button
           onClick={onConfirm}
@@ -208,7 +208,7 @@ const OrderConfirmDialog = ({
             }
           }}
         >
-          {loading ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
+          {loading ? 'Processing...' : 'Confirm Order'}
         </Button>
       </DialogActions>
     </Dialog>

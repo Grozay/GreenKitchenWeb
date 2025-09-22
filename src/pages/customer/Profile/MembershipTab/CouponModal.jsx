@@ -72,14 +72,14 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
               fontSize: '1.1rem',
               letterSpacing: '0.5px'
             }}>
-              🎁 ĐỔI COUPON
+              🎁 EXCHANGE COUPON
             </Typography>
             <Typography variant="caption" sx={{
               color: 'rgba(255,255,255,0.8)',
               fontSize: '0.875rem',
               mt: 0.25
             }}>
-              Đổi điểm lấy ưu đãi hấp dẫn
+              Exchange points for attractive benefits
             </Typography>
           </Box>
         </Box>
@@ -115,14 +115,14 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
               color: '#666',
               fontSize: '1rem'
             }}>
-              Đang tải danh sách coupon...
+              Loading coupon list...
             </Typography>
             <Typography variant="body2" sx={{
               color: '#888',
               fontSize: '0.875rem',
               mt: 0.5
             }}>
-              Vui lòng đợi trong giây lát
+              Please wait a moment
             </Typography>
           </Box>
         ) : exchangeableCoupons.length > 0 ? (
@@ -212,7 +212,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                             fontSize: '0.875rem',
                             opacity: 0.9
                           }}>
-                            Mã:
+                            Code:
                           </Typography>
                           <Chip
                             label={coupon.code}
@@ -235,7 +235,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                             fontSize: '0.875rem',
                             opacity: 0.9
                           }}>
-                            Giảm:
+                            Discount:
                           </Typography>
                           <Typography variant="h6" sx={{
                             fontWeight: 800,
@@ -253,7 +253,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                               fontSize: '0.875rem',
                               opacity: 0.8
                             }}>
-                              Tối thiểu: {coupon.minimumOrderValue?.toLocaleString()} VNĐ
+                              Minimum: {coupon.minimumOrderValue?.toLocaleString()} VNĐ
                             </Typography>
                           </Box>
                         )}
@@ -264,7 +264,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                               fontSize: '0.875rem',
                               opacity: 0.8
                             }}>
-                              Giảm tối đa: {coupon.maximumDiscountAmount?.toLocaleString()} VNĐ
+                              Max discount: {coupon.maximumDiscountAmount?.toLocaleString()} VNĐ
                             </Typography>
                           </Box>
                         )}
@@ -275,7 +275,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                             fontSize: '0.875rem',
                             opacity: 0.8
                           }}>
-                            HSD: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
+                            Expiry: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
                           </Typography>
                         </Box>
 
@@ -285,7 +285,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                               fontSize: '0.875rem',
                               opacity: 0.8
                             }}>
-                              Còn: {coupon.exchangeLimit - coupon.exchangeCount} coupon
+                              Remaining: {coupon.exchangeLimit - coupon.exchangeCount} coupon
                             </Typography>
                           </Box>
                         )}
@@ -307,7 +307,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                               opacity: 0.9,
                               fontSize: '0.875rem'
                             }}>
-                              điểm
+                              points
                             </Typography>
                           </Box>
                         </Box>
@@ -348,12 +348,12 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
                           {exchangeLoading === coupon.id ? (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                               <CircularProgress size={16} color="inherit" />
-                              <Typography variant="caption">Đang xử lý...</Typography>
+                              <Typography variant="caption">Processing...</Typography>
                             </Box>
                           ) : (membership?.availablePoints || 0) >= coupon.pointsRequired ? (
-                            '🎁 Đổi ngay'
+                            '🎁 Exchange Now'
                           ) : (
-                            '❌ Không đủ điểm'
+                            '❌ Insufficient Points'
                           )}
                         </Button>
                       </Box>
@@ -385,7 +385,7 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
               mb: 0.5,
               fontSize: '1rem'
             }}>
-              Không có coupon nào có thể đổi
+              No coupons available for exchange
             </Typography>
             <Typography variant="body2" sx={{
               color: '#888',
@@ -395,8 +395,8 @@ export default function CouponModal({ open, onClose, couponsLoading, exchangeabl
               lineHeight: 1.4
             }}>
               {!membership?.availablePoints || membership.availablePoints === 0
-                ? 'Bạn chưa có điểm để đổi coupon. Hãy mua sắm để tích lũy điểm thưởng nhé! 🛒'
-                : 'Hiện tại chưa có coupon phù hợp với hạng thành viên và số điểm của bạn. Hãy tiếp tục tích điểm để mở khóa thêm ưu đãi! ⭐'
+                ? 'You don\'t have enough points to exchange for a coupon. Start shopping to accumulate reward points! 🛒'
+                : 'Currently, there are no coupons available that match your membership tier and point balance. Keep accumulating points to unlock more rewards! ⭐'
               }
             </Typography>
           </Box>
