@@ -233,8 +233,8 @@ export default function Stores() {
                           ) : null
                         }}
                         helperText={autoAddGreenKitchen 
-                          ? "Tên sẽ tự động thêm 'GreenKitchen' ở đầu" 
-                          : "Nhập tên đầy đủ của chi nhánh"
+                          ? 'Tên sẽ tự động thêm GreenKitchen ở đầu'
+                          : 'Nhập tên đầy đủ của chi nhánh'
                         }
                       />
                     </Grid>
@@ -250,10 +250,10 @@ export default function Stores() {
                         label={
                           <Box>
                             <Typography variant="body2" fontWeight={500}>
-                              Tự động thêm "GreenKitchen"
+                              Tự động thêm GreenKitchen
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
-                              Bật để tự động thêm "GreenKitchen" vào đầu tên chi nhánh
+                              Bật để tự động thêm GreenKitchen vào đầu tên chi nhánh
                             </Typography>
                           </Box>
                         }
@@ -267,8 +267,8 @@ export default function Stores() {
                       <Typography variant="body2" sx={{ color: 'text.primary' }} fontWeight={500}>
                         📝 Đang chỉnh sửa: {editStore?.name}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        Thay đổi thông tin địa chỉ và nhấn "Lưu Vào DB" để cập nhật
+                      <Typography variant="caption" color="info.dark">
+                        Thay đổi thông tin địa chỉ và nhấn Lưu Vào DB để cập nhật
                       </Typography>
                     </Box>
                   )}

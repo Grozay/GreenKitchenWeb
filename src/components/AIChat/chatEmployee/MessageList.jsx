@@ -1,16 +1,3 @@
-/**
- * MessageList - Chat messages display with header and infinite scroll
- *
- * Props:
- * - selectedConv: currently selected conversation object
- * - messages: array of message objects
- * - isLoading: boolean indicating loading state
- * - hasMore: boolean indicating if more messages can be loaded
- * - onLoadMore: function to load more messages
- * - onReleaseToAI: function to release conversation to AI
- * - isEmpCanChat: boolean indicating if employee can chat
- */
-
 import React, { useRef, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'

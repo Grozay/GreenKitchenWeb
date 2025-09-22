@@ -5,7 +5,7 @@ import { customerReducer } from './user/customerSlice.js'
 import { mealReducer } from './meal/mealSlice.js'
 import { cartReducer } from './cart/cartSlice.js'
 import suggestSauceReducer from './meal/suggestSauceSlice'
-import chatCountReducer from './chat/chatCountSlice'
+import chatCountReducer from './chat/chatCountSlice.js'
 //config redux-persist
 import { combineReducers } from 'redux'
 import { persistReducer } from 'redux-persist'

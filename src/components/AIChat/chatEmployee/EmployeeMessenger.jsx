@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef, useCallback, useMemo, memo, Suspense, lazy, useTransition, useDeferredValue } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentEmployee } from '~/redux/user/employeeSlice'
@@ -1231,6 +1230,6 @@ const EmployeeMessenger = memo(() => {
   )
 })
 
-EmployeeMessenger.displayName = 'EmployeeMessenger'
+EmployeeManager.displayName='EmployeeManager'
 
 export default EmployeeMessenger

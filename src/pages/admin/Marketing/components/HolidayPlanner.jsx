@@ -36,14 +36,14 @@ const CountdownTimer = ({ holiday, currentTime, calculateCountdown, formatCountd
   const countdown = calculateCountdown(holiday.date)
   const totalDays = holiday.daysUntil || 365
   const progress = getCountdownProgress(countdown, totalDays)
-  
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 120 }}>
       <Chip
         label={formatCountdown(countdown)}
         color={getCountdownColor(countdown)}
         size="small"
-        sx={{ 
+        sx={{
           fontWeight: 'bold',
           mb: 1,
           animation: countdown.days <= 1 && !countdown.isOverdue ? 'pulse 1s infinite' : 'none'
@@ -54,9 +54,9 @@ const CountdownTimer = ({ holiday, currentTime, calculateCountdown, formatCountd
           sx={{
             width: `${progress}%`,
             height: '100%',
-            bgcolor: getCountdownColor(countdown) === 'error' ? 'error.main' : 
-                     getCountdownColor(countdown) === 'warning' ? 'warning.main' :
-                     getCountdownColor(countdown) === 'info' ? 'info.main' : 'success.main',
+            bgcolor: getCountdownColor(countdown) === 'error' ? 'error.main' :
+              getCountdownColor(countdown) === 'warning' ? 'warning.main' :
+                getCountdownColor(countdown) === 'info' ? 'info.main' : 'success.main',
             transition: 'width 0.3s ease-in-out'
           }}
         />
@@ -104,7 +104,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
   const [loadingTemplate, setLoadingTemplate] = useState(false)
   const [scheduledHolidays, setScheduledHolidays] = useState([])
   const [loadingScheduled, setLoadingScheduled] = useState(false)
-  
+
   // Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [holidayToDelete, setHolidayToDelete] = useState(null)
@@ -121,7 +121,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
         // Load public API holidays
         await loadPublicHolidays()
-        
+
         // Load scheduled holidays
         await loadScheduledHolidays()
       } catch (e) {
@@ -170,8 +170,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
       // Filter out already scheduled holidays
       const filteredHolidays = allPublicHolidays.filter(holiday => {
-        return !scheduledHolidaysToCheck.some(scheduled => 
-          scheduled.holidayName === holiday.name && 
+        return !scheduledHolidaysToCheck.some(scheduled =>
+          scheduled.holidayName === holiday.name &&
           new Date(scheduled.holidayDate).toDateString() === new Date(holiday.date).toDateString()
         )
       })
@@ -182,14 +182,14 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         const bDate = new Date(b.date)
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        
+
         const aIsPast = aDate < today
         const bIsPast = bDate < today
-        
+
         // If one is past and one is not, past goes to end
         if (aIsPast && !bIsPast) return 1
         if (!aIsPast && bIsPast) return -1
-        
+
         // If both are past or both are future, sort by date
         return aDate - bDate
       })
@@ -197,7 +197,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       setPublicHolidays(filteredHolidays)
       const scheduledCount = allPublicHolidays.length - filteredHolidays.length
       onShowSnackbar?.(
-        `Loaded ${filteredHolidays.length} holidays for ${year}${scheduledCount > 0 ? ` (${scheduledCount} already scheduled)` : ''}`, 
+        `Loaded ${filteredHolidays.length} holidays for ${year}${scheduledCount > 0 ? ` (${scheduledCount} already scheduled)` : ''}`,
         'success'
       )
     } catch (error) {
@@ -226,8 +226,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
   // Check if a holiday is already scheduled
   const isHolidayScheduled = (holiday) => {
-    return scheduledHolidays.some(scheduled => 
-      scheduled.holidayName === holiday.name && 
+    return scheduledHolidays.some(scheduled =>
+      scheduled.holidayName === holiday.name &&
       new Date(scheduled.holidayDate).toDateString() === new Date(holiday.date).toDateString()
     )
   }
@@ -237,15 +237,15 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
     // Tet dates for 2024-2026 (approximate)
     const tetDates = {
       2024: '2024-02-10',
-      2025: '2025-01-29', 
+      2025: '2025-01-29',
       2026: '2026-02-17',
       2027: '2027-02-06',
       2028: '2028-01-26'
     }
-    
+
     const tetDate = tetDates[year]
     if (!tetDate) return []
-    
+
     return [{
       id: `tet-${year}`,
       name: 'Tết Nguyên Đán',
@@ -338,7 +338,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       .filter(h => new Date(h.date).getFullYear() === selectedYear)
       .filter(h => !isHolidayPassed(h.date)) // Only include holidays that haven't passed
       .filter(h => selectedHolidays.has(h.id))
-    
+
     if (currentYearSelectedHolidays.length === 0) {
       onShowSnackbar?.('Please select at least one holiday for the current year', 'warning')
       return
@@ -446,9 +446,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
   const formatCountdown = (countdown) => {
     if (countdown.isOverdue) {
-      return "Đã qua"
+      return 'Đã qua'
     }
-    
+
     if (countdown.days > 0) {
       return `${countdown.days}d ${countdown.hours}h ${countdown.minutes}m`
     } else if (countdown.hours > 0) {
@@ -499,7 +499,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
     try {
       setLoadingTemplate(true)
       setSelectedHolidayForSchedule(holiday)
-      
+
       // Check if holiday is from database (has numeric ID) or public API (has string ID)
       let template
       if (typeof holiday.id === 'number' || (typeof holiday.id === 'string' && !isNaN(holiday.id))) {
@@ -509,17 +509,17 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         // Holiday from public API - generate template locally
         template = generateLocalTemplate(holiday)
       }
-      
+
       setEmailTemplate(template)
-      
+
       // Set default template type
       setSelectedTemplateType(template.templateType || 'generic')
-      
+
       // Calculate schedule date (holiday date - days before)
       const holidayDate = new Date(holiday.date)
       const scheduleDate = new Date(holidayDate)
       scheduleDate.setDate(scheduleDate.getDate() - 1) // Default 1 day before
-      
+
       setScheduleForm({
         scheduleAt: scheduleDate.toISOString().slice(0, 16), // YYYY-MM-DDTHH:MM format
         daysBefore: 1,
@@ -529,7 +529,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         customContent: template.content || '',
         isActive: true
       })
-      
+
       setScheduleDialogOpen(true)
     } catch (error) {
       console.error('Failed to load email template:', error)
@@ -621,11 +621,11 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
   const loadTemplateWithType = async (templateType) => {
     if (!selectedHolidayForSchedule) return
-    
+
     try {
       setLoadingTemplate(true)
       let template
-      
+
       // Check if holiday is from database (has numeric ID) or public API (has string ID)
       if (typeof selectedHolidayForSchedule.id === 'number' || (typeof selectedHolidayForSchedule.id === 'string' && !isNaN(selectedHolidayForSchedule.id))) {
         // Holiday from database - load template from API
@@ -634,7 +634,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         // Holiday from public API - generate template locally with specific type
         template = generateLocalTemplateWithType(selectedHolidayForSchedule, templateType)
       }
-      
+
       setEmailTemplate(template)
       setScheduleForm(prev => ({
         ...prev,
@@ -658,26 +658,26 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
   // Confirm delete
   const confirmDelete = async () => {
     if (!holidayToDelete) return
-    
+
     // Debug: Check the holidayToDelete object
     console.log('holidayToDelete:', holidayToDelete)
-    
+
     if (!holidayToDelete.id) {
       onShowSnackbar?.('Invalid holiday ID. Cannot delete.', 'error')
       return
     }
-    
+
     setDeleting(true)
     try {
       await deleteScheduledHolidayEmailAPI(holidayToDelete.id)
       onShowSnackbar?.('Scheduled email deleted successfully!', 'success')
-      
+
       // Refresh scheduled holidays first
       const updatedScheduledHolidays = await loadScheduledHolidays()
-      
+
       // Refresh public holidays to show the deleted holiday back in the list
       await loadPublicHolidays(selectedYear, updatedScheduledHolidays)
-      
+
       // Close dialog
       setDeleteDialogOpen(false)
       setHolidayToDelete(null)
@@ -703,7 +703,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       name: scheduled.holidayName,
       date: scheduled.holidayDate
     })
-    
+
     setScheduleForm({
       scheduleAt: new Date(scheduled.scheduleAt).toISOString().slice(0, 16),
       daysBefore: scheduled.daysBefore || 1,
@@ -713,7 +713,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       customContent: scheduled.content || '',
       isActive: scheduled.isActive
     })
-    
+
     setEmailTemplate({
       subject: scheduled.subject,
       content: scheduled.content,
@@ -721,14 +721,14 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       holidayDate: scheduled.holidayDate,
       templateType: scheduled.templateType || 'generic'
     })
-    
+
     setScheduleDialogOpen(true)
   }
 
   // Generate template locally with specific type for public API holidays
   const generateLocalTemplateWithType = (holiday, templateType) => {
     const holidayDate = new Date(holiday.date).toLocaleDateString('vi-VN')
-    
+
     // Generate template based on type
     let subject = `${holiday.name} - Ưu Đãi Đặc Biệt Từ Green Kitchen!`
     let content = ''
@@ -842,9 +842,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
           recurrenceType: 'YEARLY_GREGORIAN',
           description: selectedHolidayForSchedule.description || ''
         }
-        
+
         const savedHoliday = await adminCreateHolidayAPI(holidayData)
-        
+
         const scheduleData = {
           holidayId: savedHoliday.id,
           scheduleAt: new Date(scheduleForm.scheduleAt).toISOString(),
@@ -862,7 +862,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
       // Refresh scheduled holidays first
       const updatedScheduledHolidays = await loadScheduledHolidays()
-      
+
       // Force refresh public holidays with updated scheduled holidays
       await loadPublicHolidays(selectedYear, updatedScheduledHolidays)
 
@@ -911,9 +911,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
           recurrenceType: 'YEARLY_GREGORIAN',
           description: selectedHolidayForSchedule.description || ''
         }
-        
+
         const savedHoliday = await adminCreateHolidayAPI(holidayData)
-        
+
         const scheduleData = {
           holidayId: savedHoliday.id,
           scheduleAt: new Date().toISOString(),
@@ -931,7 +931,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
       // Refresh scheduled holidays first
       const updatedScheduledHolidays = await loadScheduledHolidays()
-      
+
       // Force refresh public holidays with updated scheduled holidays
       await loadPublicHolidays(selectedYear, updatedScheduledHolidays)
 
@@ -974,26 +974,26 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       {activeTab === 0 && (
         <>
           {/* Upcoming Holidays Tab */}
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="h6" gutterBottom>Add holiday</Typography>
-          <Box component="form" onSubmit={createHoliday} sx={{ display: 'grid', gridTemplateColumns: '1fr 120px 1fr 120px 1fr', gap: 2, alignItems: 'center' }}>
-            <TextField label="Name" value={form.name} required onChange={e => setForm({ ...form, name: e.target.value })} />
-            <TextField label="Country" value={form.country} onChange={e => setForm({ ...form, country: e.target.value })} />
-            <TextField label="Date" type="date" InputLabelProps={{ shrink: true }} required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
-            <TextField label="Lunar" select SelectProps={{ native: true }} value={form.lunar ? 'true' : 'false'} onChange={e => setForm({ ...form, lunar: e.target.value === 'true' })}>
-              <option value="false">No</option>
-              <option value="true">Yes</option>
-            </TextField>
-            <TextField label="Recurrence" select SelectProps={{ native: true }} value={form.recurrenceType} onChange={e => setForm({ ...form, recurrenceType: e.target.value })}>
-              <option value="NONE">None</option>
-              <option value="YEARLY_GREGORIAN">Yearly (Gregorian)</option>
-            </TextField>
-            <TextField label="Description" fullWidth value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} sx={{ gridColumn: '1 / -2' }} />
-            <Button type="submit" variant="contained" disabled={creating}>{creating ? 'Saving…' : 'Save'}</Button>
-          </Box>
-        </CardContent>
-      </Card>
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h6" gutterBottom>Add holiday</Typography>
+              <Box component="form" onSubmit={createHoliday} sx={{ display: 'grid', gridTemplateColumns: '1fr 120px 1fr 120px 1fr', gap: 2, alignItems: 'center' }}>
+                <TextField label="Name" value={form.name} required onChange={e => setForm({ ...form, name: e.target.value })} />
+                <TextField label="Country" value={form.country} onChange={e => setForm({ ...form, country: e.target.value })} />
+                <TextField label="Date" type="date" InputLabelProps={{ shrink: true }} required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+                <TextField label="Lunar" select SelectProps={{ native: true }} value={form.lunar ? 'true' : 'false'} onChange={e => setForm({ ...form, lunar: e.target.value === 'true' })}>
+                  <option value="false">No</option>
+                  <option value="true">Yes</option>
+                </TextField>
+                <TextField label="Recurrence" select SelectProps={{ native: true }} value={form.recurrenceType} onChange={e => setForm({ ...form, recurrenceType: e.target.value })}>
+                  <option value="NONE">None</option>
+                  <option value="YEARLY_GREGORIAN">Yearly (Gregorian)</option>
+                </TextField>
+                <TextField label="Description" fullWidth value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} sx={{ gridColumn: '1 / -2' }} />
+                <Button type="submit" variant="contained" disabled={creating}>{creating ? 'Saving…' : 'Save'}</Button>
+              </Box>
+            </CardContent>
+          </Card>
 
           {/* Year Selector for Upcoming Holidays */}
           <Card variant="outlined">
@@ -1045,21 +1045,21 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
           {/* Scheduled Holiday Emails */}
           {scheduledHolidays.length > 0 && (
             <Card variant="outlined" sx={{ mt: 3, border: '2px solid', borderColor: 'success.main' }}>
-          <CardContent>
+              <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <Typography variant="h6" sx={{ mr: 2, color: 'success.main' }}>
- Scheduled Holiday Emails
+                    Scheduled Holiday Emails
                   </Typography>
-                  <Chip 
-                    label={`${scheduledHolidays.length} scheduled`} 
-                    color="success" 
-                    size="small" 
+                  <Chip
+                    label={`${scheduledHolidays.length} scheduled`}
+                    color="success"
+                    size="small"
                   />
-              </Box>
+                </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                   Email campaigns that have been scheduled for upcoming holidays
                 </Typography>
-                
+
                 {loadingScheduled ? (
                   <Box display="flex" justifyContent="center" py={2}>
                     <CircularProgress size={24} />
@@ -1073,32 +1073,32 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                         const scheduleDate = new Date(scheduled.scheduleAt)
                         const holidayDate = new Date(scheduled.holidayDate)
                         const countdown = calculateCountdown(scheduled.holidayDate)
-                        
+
                         return (
-                          <Card key={scheduled.id} variant="outlined" sx={{ 
+                          <Card key={scheduled.id} variant="outlined" sx={{
                             border: '1px solid',
                             borderColor: scheduled.isActive ? 'success.light' : 'warning.light',
                             bgcolor: scheduled.isActive ? 'success.50' : 'warning.50'
                           }}>
-          <CardContent>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+                            <CardContent>
+                              <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
                                 <Box sx={{ flex: 1 }}>
                                   <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5 }}>
                                     {scheduled.holidayName}
                                   </Typography>
                                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                    Holiday: {holidayDate.toLocaleDateString('vi-VN', { 
-                                      weekday: 'long', 
-                                      year: 'numeric', 
-                                      month: 'long', 
-                                      day: 'numeric' 
+                                    Holiday: {holidayDate.toLocaleDateString('vi-VN', {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric'
                                     })}
                                   </Typography>
                                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                    Email scheduled: {scheduleDate.toLocaleDateString('vi-VN', { 
-                                      weekday: 'long', 
-                                      year: 'numeric', 
-                                      month: 'long', 
+                                    Email scheduled: {scheduleDate.toLocaleDateString('vi-VN', {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
                                       day: 'numeric',
                                       hour: '2-digit',
                                       minute: '2-digit'
@@ -1108,18 +1108,18 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     Subject: {scheduled.subject}
                                   </Typography>
                                   <Box sx={{ mt: 1 }}>
-                                    <Chip 
-                                      label={scheduled.isActive ? 'Active' : 'Inactive'} 
-                                      color={scheduled.isActive ? 'success' : 'warning'} 
-                                      size="small" 
+                                    <Chip
+                                      label={scheduled.isActive ? 'Active' : 'Inactive'}
+                                      color={scheduled.isActive ? 'success' : 'warning'}
+                                      size="small"
                                       sx={{ mr: 1 }}
                                     />
-                                    <Chip 
-                                      label={`Target: ${scheduled.targetAudience}`} 
-                                      color="info" 
-                                      size="small" 
+                                    <Chip
+                                      label={`Target: ${scheduled.targetAudience}`}
+                                      color="info"
+                                      size="small"
                                     />
-              </Box>
+                                  </Box>
                                 </Box>
                                 <Stack direction="row" spacing={2} alignItems="center">
                                   <CountdownTimer
@@ -1131,39 +1131,39 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     getCountdownProgress={getCountdownProgress}
                                   />
                                   <Stack direction="row" spacing={1}>
-                                    <Button 
-                                      size="small" 
+                                    <Button
+                                      size="small"
                                       variant="outlined"
                                       color="error"
                                       onClick={() => handleDeleteScheduled(scheduled)}
                                     >
                                       Delete
                                     </Button>
-                                    <Button 
-                                      size="small" 
+                                    <Button
+                                      size="small"
                                       variant="outlined"
                                       color="primary"
                                       onClick={() => handleEditScheduled(scheduled)}
                                     >
                                       Edit
-                </Button>
+                                    </Button>
                                   </Stack>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
+                                </Stack>
+                              </Stack>
+                            </CardContent>
+                          </Card>
                         )
                       })}
-                    
+
                     {scheduledHolidays.filter(sh => new Date(sh.holidayDate).getFullYear() === upcomingYear).length === 0 && (
                       <Alert severity="info">
                         No scheduled emails for {upcomingYear}. Schedule some email campaigns for upcoming holidays!
                       </Alert>
                     )}
-            </Stack>
+                  </Stack>
                 )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
           )}
         </>
       )}
@@ -1172,18 +1172,18 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         <>
           {/* Public Holidays Tab */}
           <Card variant="outlined">
-        <CardContent>
+            <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Box>
                   <Typography variant="h6" gutterBottom>Public Holidays</Typography>
                   <Typography variant="body2" color="text.secondary">
                     Select holidays from public APIs to save to your database or schedule email campaigns
-          </Typography>
+                  </Typography>
                   {scheduledHolidays.length > 0 && (
                     <Alert severity="info" sx={{ mt: 1 }}>
                       <Typography variant="body2">
-                        <strong>{scheduledHolidays.length} holidays</strong> have been scheduled and are hidden from this list. 
-                        Check the "Upcoming Holidays" tab to see scheduled campaigns.
+                        <strong>{scheduledHolidays.length} holidays</strong> have been scheduled and are hidden from this list.
+                        Check the Upcoming Holidays tab to see scheduled campaigns.
                       </Typography>
                     </Alert>
                   )}
@@ -1195,8 +1195,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                   <Button size="small" variant="outlined" onClick={deselectAllHolidays}>
                     Deselect All
                   </Button>
-            <Button
-              size="small"
+                  <Button
+                    size="small"
                     variant="contained"
                     onClick={saveSelectedHolidays}
                     disabled={savingSelected || getCurrentYearSelectedCount() === 0}
@@ -1220,15 +1220,15 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                     color="secondary"
                   >
                     Schedule Email
-            </Button>
+                  </Button>
                 </Box>
-          </Box>
+              </Box>
 
               {/* Year Selector */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                   Year:
-              </Typography>
+                </Typography>
                 <IconButton size="small" onClick={goToPreviousYear}>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>‹</Typography>
                 </IconButton>
@@ -1260,25 +1260,25 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                   color="primary"
                   variant="outlined"
                 />
-                  </Box>
+              </Box>
 
               {(() => {
                 const currentYearHolidays = publicHolidays.filter(h => new Date(h.date).getFullYear() === selectedYear)
                 const passedHolidays = currentYearHolidays.filter(h => isHolidayPassed(h.date))
                 const availableHolidays = currentYearHolidays.filter(h => !isHolidayPassed(h.date))
-                
+
                 return (
                   <>
                     {getCurrentYearSelectedCount() > 0 && (
                       <Alert severity="info" sx={{ mb: 2 }}>
                         Selected {getCurrentYearSelectedCount()} holiday(s) for {selectedYear}.
                         <br />
-                        • Click "Import to DB" to save holidays to database only
+                        • Click Import to DB to save holidays to database only
                         <br />
-                        • Click "Schedule Email" to create automated email campaigns
+                        • Click Schedule Email to create automated email campaigns
                       </Alert>
                     )}
-                    
+
                     {passedHolidays.length > 0 && (
                       <Alert severity="warning" sx={{ mb: 2 }}>
                         <strong>{passedHolidays.length} holiday(s)</strong> have already passed and cannot be scheduled or selected.
@@ -1303,7 +1303,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                 const currentYearHolidays = publicHolidays.filter(h => new Date(h.date).getFullYear() === selectedYear)
                 const futureHolidays = currentYearHolidays.filter(h => !isHolidayPassed(h.date))
                 const pastHolidays = currentYearHolidays.filter(h => isHolidayPassed(h.date))
-                
+
                 return (
                   <>
                     {/* Future Holidays */}
@@ -1311,10 +1311,10 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                       <>
                         <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'success.main' }}>
                           Upcoming Holidays ({futureHolidays.length})
-                  </Typography>
+                        </Typography>
                         {futureHolidays.map(h => (
-                          <Card key={h.id} variant="outlined" sx={{ 
-                            mb: 1, 
+                          <Card key={h.id} variant="outlined" sx={{
+                            mb: 1,
                             bgcolor: 'background.paper',
                             borderColor: 'divider',
                             '&:hover': {
@@ -1337,23 +1337,23 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                 <Box sx={{ flex: 1 }}>
                                   <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                     {h.name}
-                  </Typography>
+                                  </Typography>
                                   <Typography variant="body2" color="text.secondary">
                                     {new Date(h.date).toLocaleDateString('vi-VN')} • {h.country}
                                     {h.lunar && (
-                                      <Chip 
-                                        label="Lunar" 
-                                        size="small" 
-                                        color="warning" 
-                                        sx={{ ml: 1 }} 
+                                      <Chip
+                                        label="Lunar"
+                                        size="small"
+                                        color="warning"
+                                        sx={{ ml: 1 }}
                                       />
                                     )}
                                     {h.source && (
-                                      <Chip 
-                                        label="Public API" 
-                                        size="small" 
-                                        color="info" 
-                                        sx={{ ml: 1 }} 
+                                      <Chip
+                                        label="Public API"
+                                        size="small"
+                                        color="info"
+                                        sx={{ ml: 1 }}
                                       />
                                     )}
                                     {h.year && (
@@ -1367,9 +1367,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     )}
                                   </Typography>
                                   {h.description && (
-                  <Typography variant="caption" color="text.secondary">
+                                    <Typography variant="caption" color="text.secondary">
                                       {h.description}
-                  </Typography>
+                                    </Typography>
                                   )}
                                 </Box>
                                 <Button
@@ -1382,23 +1382,23 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                   Schedule
                                 </Button>
                               </Stack>
-                </CardContent>
-              </Card>
+                            </CardContent>
+                          </Card>
                         ))}
                       </>
                     )}
-                    
+
                     {/* Past Holidays */}
                     {pastHolidays.length > 0 && (
                       <>
                         <Typography variant="h6" sx={{ mt: 3, mb: 1, color: 'text.disabled' }}>
                           Past Holidays ({pastHolidays.length})
-                  </Typography>
+                        </Typography>
                         {pastHolidays.map(h => {
                           const isPassed = isHolidayPassed(h.date)
                           return (
-                            <Card key={h.id} variant="outlined" sx={{ 
-                              mb: 1, 
+                            <Card key={h.id} variant="outlined" sx={{
+                              mb: 1,
                               opacity: isPassed ? 0.6 : 1,
                               bgcolor: isPassed ? 'action.hover' : 'background.paper',
                               borderColor: isPassed ? 'divider' : 'divider',
@@ -1426,8 +1426,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                       />
                                     }
                                     label=""
-                                    sx={{ 
-                                      minWidth: 'auto', 
+                                    sx={{
+                                      minWidth: 'auto',
                                       mr: 0,
                                       ...(isPassed && {
                                         opacity: 0.6
@@ -1435,18 +1435,18 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     }}
                                   />
                                   <Box sx={{ flex: 1 }}>
-                                    <Typography variant="subtitle1" sx={{ 
+                                    <Typography variant="subtitle1" sx={{
                                       fontWeight: 'bold',
                                       color: isPassed ? 'text.disabled' : 'text.primary'
                                     }}>
                                       {h.name}
                                       {isPassed && (
-                                        <Chip 
-                                          label="Đã qua" 
-                                          size="small" 
-                                          color="default" 
+                                        <Chip
+                                          label="Đã qua"
+                                          size="small"
+                                          color="default"
                                           variant="outlined"
-                                          sx={{ 
+                                          sx={{
                                             ml: 1,
                                             bgcolor: 'action.disabled',
                                             color: 'text.disabled',
@@ -1454,37 +1454,37 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                           }}
                                         />
                                       )}
-                  </Typography>
+                                    </Typography>
                                     <Typography variant="body2" color={isPassed ? 'text.disabled' : 'text.secondary'}>
                                       {new Date(h.date).toLocaleDateString('vi-VN')} • {h.country}
                                       {h.lunar && (
-                                        <Chip 
-                                          label="Lunar" 
-                                          size="small" 
-                                          color="warning" 
-                                          sx={{ 
+                                        <Chip
+                                          label="Lunar"
+                                          size="small"
+                                          color="warning"
+                                          sx={{
                                             ml: 1,
                                             ...(isPassed && {
                                               opacity: 0.6,
                                               bgcolor: 'action.disabled',
                                               color: 'text.disabled'
                                             })
-                                          }} 
+                                          }}
                                         />
                                       )}
                                       {h.source && (
-                                        <Chip 
-                                          label="Public API" 
-                                          size="small" 
-                                          color="info" 
-                                          sx={{ 
+                                        <Chip
+                                          label="Public API"
+                                          size="small"
+                                          color="info"
+                                          sx={{
                                             ml: 1,
                                             ...(isPassed && {
                                               opacity: 0.6,
                                               bgcolor: 'action.disabled',
                                               color: 'text.disabled'
                                             })
-                                          }} 
+                                          }}
                                         />
                                       )}
                                       {h.year && (
@@ -1493,7 +1493,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                           size="small"
                                           color="default"
                                           variant="outlined"
-                                          sx={{ 
+                                          sx={{
                                             ml: 1,
                                             ...(isPassed && {
                                               opacity: 0.6,
@@ -1504,7 +1504,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                           }}
                                         />
                                       )}
-                  </Typography>
+                                    </Typography>
                                     {h.description && (
                                       <Typography variant="caption" color={isPassed ? 'text.disabled' : 'text.secondary'}>
                                         {h.description}
@@ -1534,8 +1534,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     {isPassed ? 'Đã qua' : 'Schedule'}
                                   </Button>
                                 </Stack>
-                </CardContent>
-              </Card>
+                              </CardContent>
+                            </Card>
                           )
                         })}
                       </>
@@ -1546,7 +1546,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
               {publicHolidays.length === 0 && !loading && (
                 <Alert severity="warning">
-                  No public holidays loaded. Click "Refresh Public Holidays" to load data.
+                  No public holidays loaded. Click Refresh Public Holidays to load data.
                 </Alert>
               )}
             </CardContent>
@@ -1560,7 +1560,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
           <Typography variant="h6" gutterBottom>All configured holidays</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Manage holidays stored in your database
-                  </Typography>
+          </Typography>
           {adminHolidays.map(h => (
             <Card key={`cfg-${h.id}`} variant="outlined">
               <CardContent>
@@ -1571,13 +1571,13 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                   </Box>
                   <Button color="error" size="small" onClick={() => deleteHoliday(h.id)}>Delete</Button>
                 </Stack>
-                </CardContent>
-              </Card>
-            ))}
+              </CardContent>
+            </Card>
+          ))}
 
           {adminHolidays.length === 0 && (
             <Alert severity="info">
-              No holidays configured yet. Use the "Public Holidays" tab to add holidays from public APIs.
+              No holidays configured yet. Use the Public Holidays tab to add holidays from public APIs.
             </Alert>
           )}
         </>
@@ -1594,22 +1594,22 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography variant="h6"> Schedule Holiday Email</Typography>
             {selectedHolidayForSchedule && (
-              <Chip 
-                label={selectedHolidayForSchedule.name} 
-                color="primary" 
+              <Chip
+                label={selectedHolidayForSchedule.name}
+                color="primary"
                 variant="outlined"
               />
             )}
           </Box>
           {selectedHolidayForSchedule && (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Holiday Date: {new Date(selectedHolidayForSchedule.date).toLocaleDateString('vi-VN', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              Holiday Date: {new Date(selectedHolidayForSchedule.date).toLocaleDateString('vi-VN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}
-                  </Typography>
+            </Typography>
           )}
         </DialogTitle>
         <DialogContent>
@@ -1627,7 +1627,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                       onChange={(e) => setScheduleForm(prev => ({ ...prev, customSubject: e.target.value }))}
                       placeholder="Enter email subject..."
                     />
-                    
+
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
                         <TextField
@@ -1712,13 +1712,13 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Typography variant="h6" sx={{ mr: 2 }}> Email Preview</Typography>
                     {loadingTemplate && <CircularProgress size={20} />}
-          </Box>
+                  </Box>
 
                   {emailTemplate ? (
-                    <Box sx={{ 
-                      border: '1px solid', 
-                      borderColor: 'divider', 
-                      borderRadius: 1, 
+                    <Box sx={{
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
                       p: 2,
                       bgcolor: 'background.paper',
                       maxHeight: 400,
@@ -1726,12 +1726,12 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                     }}>
                       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                         Subject: {emailTemplate.subject}
-            </Typography>
+                      </Typography>
                       <Divider sx={{ my: 1 }} />
-                      <Box 
+                      <Box
                         dangerouslySetInnerHTML={{ __html: emailTemplate.content }}
-                        sx={{ 
-                          '& *': { 
+                        sx={{
+                          '& *': {
                             maxWidth: '100% !important',
                             fontSize: '12px !important'
                           }
@@ -1754,8 +1754,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                     sx={{ mt: 2 }}
                     placeholder="Override the template content with your custom message..."
                   />
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
             </Grid>
           </Grid>
         </DialogContent>
@@ -1763,17 +1763,17 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
           <Button onClick={() => setScheduleDialogOpen(false)} variant="outlined">
             Cancel
           </Button>
-          <Button 
-            onClick={sendImmediateEmail} 
+          <Button
+            onClick={sendImmediateEmail}
             disabled={scheduling}
             variant="outlined"
             color="warning"
           >
             {scheduling ? 'Sending...' : ' Send Now'}
           </Button>
-          <Button 
-            onClick={createSchedule} 
-            variant="contained" 
+          <Button
+            onClick={createSchedule}
+            variant="contained"
             disabled={scheduling}
             color="primary"
           >
@@ -1806,18 +1806,18 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                 {holidayToDelete.holidayName}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Holiday: {new Date(holidayToDelete.holidayDate).toLocaleDateString('vi-VN', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                Holiday: {new Date(holidayToDelete.holidayDate).toLocaleDateString('vi-VN', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Scheduled: {new Date(holidayToDelete.scheduleAt).toLocaleDateString('vi-VN', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
+                Scheduled: {new Date(holidayToDelete.scheduleAt).toLocaleDateString('vi-VN', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
                   day: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
@@ -1833,16 +1833,16 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
           </Alert>
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1 }}>
-          <Button 
-            onClick={cancelDelete} 
+          <Button
+            onClick={cancelDelete}
             variant="outlined"
             disabled={deleting}
           >
             Cancel
           </Button>
-          <Button 
-            onClick={confirmDelete} 
-            variant="contained" 
+          <Button
+            onClick={confirmDelete}
+            variant="contained"
             color="error"
             disabled={deleting}
             startIcon={deleting ? <CircularProgress size={16} /> : null}
@@ -1856,5 +1856,3 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 }
 
 export default HolidayPlanner
-
-
