@@ -1230,6 +1230,6 @@ const EmployeeMessenger = memo(() => {
   )
 })
 
-EmployeeManager.displayName='EmployeeManager'
+EmployeeMessenger.displayName='EmployeeMessenger'
 
 export default EmployeeMessenger

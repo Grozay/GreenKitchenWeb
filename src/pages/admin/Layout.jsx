@@ -243,7 +243,6 @@ function Layout(props) {
   const { window } = props
   const dispatch = useDispatch()
   const currentEmployee = useSelector(selectCurrentEmployee)
-  const totalChatCount = useSelector(selectTotalChatCount)
   const confirmLogout = useConfirm()
   const navigate = useNavigate()
   const location = useLocation()
