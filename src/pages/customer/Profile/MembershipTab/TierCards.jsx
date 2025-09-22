@@ -19,7 +19,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
         m: 2,
         textAlign: 'center'
       }}>
-        🏆 {membership ? 'Các hạng thành viên' : 'Các hạng thành viên - Ưu đãi đang chờ bạn!'}
+        🏆 {membership ? 'Membership Tiers' : 'Membership Tiers - Benefits Await You!'}
       </Typography>
       <Grid container spacing={1.5}>
         {tierInfo.map((tier) => {
@@ -64,15 +64,15 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
                       {tier.maxSpent
-                        ? `Chi tiêu từ ${tier.minSpent.toLocaleString()} - ${tier.maxSpent.toLocaleString()} VNĐ`
-                        : `Chi tiêu từ ${tier.minSpent.toLocaleString()} VNĐ trở lên`
+                        ? `Spend from ${tier.minSpent.toLocaleString()} - ${tier.maxSpent.toLocaleString()} VND`
+                        : `Spend from ${tier.minSpent.toLocaleString()} VND and above`
                       }
                     </Typography>
                   </Box>
                   {!membership && (
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="body2" sx={{ fontWeight: 'bold', color: tier.color, mb: 1 }}>
-                        🎁 Ưu đãi chính:
+                        🎁 Main Benefits:
                       </Typography>
                       {tier.benefits.map((benefit, index) => (
                         <Typography key={index} variant="body2" sx={{ fontSize: '0.875rem', mb: 0.5, color: 'text.secondary' }}>
@@ -83,7 +83,7 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
                   )}
                   {isCurrentTier && (
                     <Chip
-                      label="HẠNG HIỆN TẠI"
+                      label="CURRENT TIER"
                       sx={{ width: '100%', margin: '0 auto', backgroundColor: tier.color, color: 'white', fontWeight: 'bold', fontSize: '0.875rem', zIndex: 1 }}
                     />
                   )}
@@ -98,10 +98,10 @@ export default function TierCards({ tierInfo, membership, selectedTier, handleTi
           <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h5" sx={{ fontWeight: 'bold', color: displayTier.color }}>
-                🎁 Ưu đãi cho hạng {displayTier.displayName}
+                🎁 Benefits for {displayTier.displayName} Tier
                 {displayTier.name === membership?.currentTier && (
                   <Chip
-                    label="HẠNG HIỆN TẠI"
+                    label="CURRENT TIER"
                     sx={{ ml: 2, backgroundColor: displayTier.color, color: 'white', fontSize: '0.875rem' }}
                   />
                 )}

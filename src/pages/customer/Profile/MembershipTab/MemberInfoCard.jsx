@@ -29,7 +29,7 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                 fontSize: { xs: '1.25rem', sm: '1.5rem' },
                 letterSpacing: '0.5px'
               }}>
-                HẠNG THÀNH VIÊN
+                MEMBERSHIP TIER
               </Typography>
             </Box>
             <Typography variant="h4" sx={{
@@ -71,7 +71,7 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                 transition: 'all 0.3s ease'
               }}
             >
-              Lịch sử điểm
+              Point History
             </Button>
           </Grid>
           <Grid size={{ xs: 12, sm: 3, md: 3 }}>
@@ -99,7 +99,7 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                 transition: 'all 0.3s ease'
               }}
             >
-              Đổi coupon
+              Exchange Coupon
             </Button>
           </Grid>
         </Grid>
@@ -114,13 +114,13 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
               height: '100%'
             }}>
               <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, fontWeight: 'bold', color: 'white' }}>
-                Điểm Khả Dụng:
+                Available Points:
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
                 {membership?.availablePoints?.toLocaleString() || '0'}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8, fontWeight: 'bold', color: 'white' }}>
-                điểm
+                points
               </Typography>
             </Box>
           </Grid>
@@ -133,13 +133,13 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
               height: '100%'
             }}>
               <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, fontWeight: 'bold', color: 'white' }}>
-                Tổng chi tiêu:
+                Total Spent:
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
                 {membership?.totalSpentLast6Months?.toLocaleString() || '0'}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8, fontWeight: 'bold', color: 'white' }}>
-                VNĐ
+                VND
               </Typography>
             </Box>
           </Grid>
@@ -153,7 +153,7 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                 height: '100%'
               }}>
                 <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 'bold', textAlign: 'center', color: 'white', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                  🎯 Tiến độ lên {tierProgress.nextTier}
+                  🎯 Progress to {tierProgress.nextTier}
                 </Typography>
                 <Box sx={{ position: 'relative', mb: 1.5 }}>
                   <LinearProgress
@@ -187,7 +187,7 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                 </Box>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.875rem', color: 'white' }}>
-                    Còn cần: <strong style={{ color: '#FFD700' }}>{tierProgress?.spentToNextTier?.toLocaleString() || '0'} VNĐ</strong>
+                    Remaining: <strong style={{ color: '#FFD700' }}>{tierProgress?.spentToNextTier?.toLocaleString() || '0'} VND</strong>
                   </Typography>
                 </Box>
               </Box>
@@ -207,13 +207,13 @@ export default function MemberInfoCard({ membership, tierColor, tierProgress, se
                 <Box sx={{ position: 'absolute', top: 0, left: '-100%', width: '100%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent)', animation: 'shimmer 3s infinite', '@keyframes shimmer': { '0%': { left: '-100%' }, '100%': { left: '100%' } } }} />
                 <Box sx={{ position: 'relative', textAlign: 'center' }}>
                   <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold', color: '#FFD700', textShadow: '0 2px 4px rgba(0,0,0,0.3)', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                    👑 HẠNG TỐI ĐA
+                    👑 MAX TIER
                   </Typography>
                   <Typography variant="h5" sx={{ mb: 1, fontWeight: 'bold', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                     ✨ RADIANCE ✨
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'white', opacity: 0.9, fontSize: '0.875rem' }}>
-                    Chi tiêu: <strong>{membership?.totalSpentLast6Months?.toLocaleString() || '0'} VNĐ</strong>
+                    Spent: <strong>{membership?.totalSpentLast6Months?.toLocaleString() || '0'} VND</strong>
                   </Typography>
                 </Box>
               </Box>

@@ -47,9 +47,9 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
   const submitUpdate = async (data) => {
     const { email, firstName, lastName, phone, gender, birthDate } = data
     await toast.promise(updateCustomerInfo({ email, firstName, lastName, phone, gender, birthDate }), {
-      pending: 'Đang cập nhật...',
-      success: 'Cập nhật thành công!',
-      error: 'Cập nhật thất bại!'
+      pending: 'Updating...',
+      success: 'Updated successfully!',
+      error: 'Update failed!'
     }).then(res => {
       if (!res.error) {
         setOpenDialog(false)
@@ -86,14 +86,14 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 mb: 3
               }}>
                 <Typography variant="h6" component="h2">
-                  Thông tin cá nhân
+                  Personal Information
                 </Typography>
                 <Button
                   variant="contained"
                   size="small"
                   onClick={handleOpenDialog}
                 >
-                  Cập nhật
+                  Update
                 </Button>
               </Box>
 
@@ -101,10 +101,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Họ tên:
+                      Full Name:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.fullName || 'Chưa cập nhật'}
+                      {basicInfo?.fullName || 'Not updated'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -112,10 +112,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Số điện thoại:
+                      Phone Number:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.phone || 'Chưa cập nhật'}
+                      {basicInfo?.phone || 'Not updated'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -126,7 +126,7 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                       Email:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.email || 'Chưa cập nhật'}
+                      {basicInfo?.email || 'Not updated'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -134,10 +134,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Giới tính:
+                      Gender:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.gender == 'UNDEFINED' ? 'Chưa cập nhật' : basicInfo?.gender == 'MALE' ? 'Nam' : 'Nữ'}
+                      {basicInfo?.gender == 'UNDEFINED' ? 'Not updated' : basicInfo?.gender == 'MALE' ? 'Male' : 'Female'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -145,10 +145,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Ngày sinh:
+                      Date of Birth:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                      {basicInfo?.birthDate ? formatDate(basicInfo.birthDate) : 'Chưa cập nhật'}
+                      {basicInfo?.birthDate ? formatDate(basicInfo.birthDate) : 'Not updated'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -156,15 +156,15 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, color: '#666' }}>
-                      Địa chỉ mặc định:
+                      Default Address:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 400, textAlign: 'right' }}>
                       {basicInfo?.addresses && basicInfo.addresses.length > 0
                         ? (() => {
                           const defaultAddress = basicInfo.addresses.find(addr => addr.isDefault === true)
-                          return defaultAddress ? defaultAddress.fullAddress : 'Chưa có địa chỉ mặc định'
+                          return defaultAddress ? defaultAddress.fullAddress : 'No default address'
                         })()
-                        : 'Chưa cập nhật'}
+                        : 'Not updated'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -178,7 +178,7 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <form onSubmit={handleSubmit(submitUpdate)}>
           <DialogTitle>
-            Cập nhật thông tin cá nhân
+            Update Personal Information
           </DialogTitle>
           <DialogContent dividers>
             <Box sx={{ pt: 2 }}>
@@ -187,7 +187,7 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={6}>
                   <TextField
                     fullWidth
-                    label="Tên"
+                    label="First Name"
                     variant="outlined"
                     error={!!errors['firstName']}
                     {...register('firstName', {
@@ -200,7 +200,7 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={6}>
                   <TextField
                     fullWidth
-                    label="Họ"
+                    label="Last Name"
                     variant="outlined"
                     error={!!errors['lastName']}
                     {...register('lastName', {
@@ -213,7 +213,7 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={12}>
                   <TextField
                     fullWidth
-                    label="Số điện thoại"
+                    label="Phone Number"
                     variant="outlined"
                     error={!!errors['phone']}
                     {...register('phone', {
@@ -225,15 +225,15 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
 
                 <Grid size={12}>
                   <FormControl fullWidth variant="outlined" error={!!errors['gender']}>
-                    <InputLabel>Giới tính</InputLabel>
+                    <InputLabel>Gender</InputLabel>
                     <Select
-                      label="Giới tính"
+                      label="Gender"
                       {...register('gender', {
                         required: FIELD_REQUIRED_MESSAGE
                       })}
                     >
-                      <MenuItem value="MALE">Nam</MenuItem>
-                      <MenuItem value="FEMALE">Nữ</MenuItem>
+                      <MenuItem value="MALE">Male</MenuItem>
+                      <MenuItem value="FEMALE">Female</MenuItem>
                     </Select>
                   </FormControl>
                   <FieldErrorAlert errors={errors} fieldName='gender' />
@@ -242,7 +242,7 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                 <Grid size={12}>
                   <TextField
                     fullWidth
-                    label="Ngày sinh"
+                    label="Date of Birth"
                     type="date"
                     variant="outlined"
                     error={!!errors['birthDate']}
@@ -263,7 +263,7 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                     value={basicInfo?.email || ''}
                     variant="outlined"
                     disabled
-                    helperText="Email không thể thay đổi"
+                    helperText="Email cannot be changed"
                   />
                 </Grid>
               </Grid>
@@ -274,13 +274,13 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
               onClick={handleCloseDialog}
               color="inherit"
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               type="submit"
               variant="contained"
             >
-              Lưu thay đổi
+              Save Changes
             </Button>
           </DialogActions>
         </form>

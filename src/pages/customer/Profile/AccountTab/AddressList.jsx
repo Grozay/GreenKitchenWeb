@@ -113,7 +113,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
   const handleShowAddForm = () => {
     // Kiểm tra giới hạn 4 địa chỉ
     if (addressList && addressList.length >= 4) {
-      toast.error('Bạn không thể thêm quá 4 địa chỉ!')
+      toast.error('You cannot add more than 4 addresses!')
       return
     }
 
@@ -168,10 +168,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
 
   const handleDeleteAddress = async (addressId) => {
     const { confirmed } = await confirm({
-      title: 'Xác nhận xóa địa chỉ',
-      description: 'Bạn có chắc chắn muốn xóa địa chỉ này không?',
-      confirmationText: 'Xóa',
-      cancellationText: 'Hủy',
+      title: 'Confirm delete address',
+      description: 'Are you sure you want to delete this address?',
+      confirmationText: 'Delete',
+      cancellationText: 'Cancel',
       confirmationButtonProps: { color: 'error' }
     })
 
@@ -184,7 +184,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
           ...prev,
           addresses: updatedAddresses
         }))
-        toast.success('Địa chỉ đã được xóa thành công!')
+        toast.success('Address deleted successfully!')
       })
     }
   }
@@ -192,7 +192,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
   const onSubmit = async (data) => {
     // Kiểm tra giới hạn 4 địa chỉ khi tạo mới
     if (!editingAddress && addressList && addressList.length >= 4) {
-      alert('Mỗi khách hàng chỉ được có tối đa 4 địa chỉ!')
+      alert('Each customer can have a maximum of 4 addresses!')
       return
     }
 
@@ -239,7 +239,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
         // pending: 'Đang cập nhật địa chỉ...',
       }).then(res => {
         if (!res.error) {
-          toast.success('Địa chỉ đã được cập nhật thành công!')
+          toast.success('Address updated successfully!')
           const updatedAddresses = addressList?.map(addr =>
             addr.id === editingAddress.id
               ? {
@@ -262,7 +262,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
         // pending: 'Đang thêm địa chỉ...',
       }).then(res => {
         if (!res.error) {
-          toast.success('Địa chỉ đã được thêm thành công!')
+          toast.success('Address added successfully!')
           const fullAddress = `${data.street}, ${data.ward}, ${data.district}, ${data.city}`
           // Cập nhật state frontend
           let updatedAddressList = [...(addressList || [])]
@@ -305,14 +305,14 @@ export default function AddressList({ addressList, setAddressList, customerDetai
             mb: 2
           }}>
             <Typography variant="h6" component="h3">
-              Số địa chỉ
+              Address List
             </Typography>
             <Button
               variant="outlined"
               size="small"
               onClick={handleOpenDialog}
             >
-              Quản lý
+              Manage
             </Button>
           </Box>
 
@@ -337,7 +337,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                 color: 'primary.main',
                 fontWeight: 500
               }}>
-                {addressList?.length ? 'Địa chỉ đã lưu' : 'Chưa có địa chỉ nào'}
+                {addressList?.length ? 'Saved addresses' : 'No addresses yet'}
               </Typography>
             </Box>
           </Box>
@@ -358,7 +358,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          Quản lý địa chỉ
+          Manage Addresses
           <IconButton onClick={handleCloseDialog} size="small">
             <CloseIcon sx={{ color: '#9E9E9E' }} />
           </IconButton>
@@ -376,7 +376,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                   mb: 2
                 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Danh sách địa chỉ đã lưu
+                    Saved Address List
                   </Typography>
                   <Button
                     variant="contained"
@@ -387,7 +387,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       '&:hover': { backgroundColor: '#45a049' }
                     }}
                   >
-                    Thêm địa chỉ mới
+                    Add New Address
                   </Button>
                 </Box>
 
@@ -396,10 +396,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                     <Table>
                       <TableHead>
                         <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                          <TableCell sx={{ fontWeight: 600 }}>Người nhận</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Địa chỉ</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }} align="center">Trạng thái</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }} align="center">Thao tác</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>Recipient</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }} align="center">Status</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }} align="center">Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -407,10 +407,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           <TableRow key={address.id} hover>
                             <TableCell>
                               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                {address.recipientName || 'Chưa có tên'}
+                                {address.recipientName || 'No name'}
                               </Typography>
                               <Typography variant="caption" color="text.secondary">
-                                {address.recipientPhone || 'Chưa có SĐT'}
+                                {address.recipientPhone || 'No phone'}
                               </Typography>
                             </TableCell>
                             <TableCell>
@@ -420,7 +420,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             </TableCell>
                             <TableCell align="center">
                               <Chip
-                                label={address.isDefault ? 'Mặc định' : 'Không mặc định'}
+                                label={address.isDefault ? 'Default' : 'Not default'}
                                 color={address.isDefault ? 'success' : 'default'}
                                 size="small"
                                 variant={address.isDefault ? 'filled' : 'outlined'}
@@ -469,7 +469,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       filter: 'drop-shadow(0 2px 4px rgba(255,107,107,0.3))'
                     }} />
                     <Typography variant="body2" color="text.secondary">
-                      Chưa có địa chỉ nào được lưu
+                      No addresses saved yet
                     </Typography>
                   </Box>
                 )}
@@ -493,7 +493,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                   }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, color: '#2e7d32' }}>
                       <AddIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                      Thêm địa chỉ mới
+                      Add New Address
                     </Typography>
                     <Button
                       variant="outlined"
@@ -513,8 +513,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                     <Grid container spacing={2}>
                       <Grid size={6}>
                         <TextField
-                          {...register('recipientName', { required: 'Vui lòng nhập tên người nhận' })}
-                          label="Tên người nhận"
+                          {...register('recipientName', { required: 'Please enter recipient name' })}
+                          label="Recipient Name"
                           fullWidth
                           size="small"
                           error={!!errors.recipientName}
@@ -524,13 +524,13 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       <Grid size={6}>
                         <TextField
                           {...register('recipientPhone', {
-                            required: 'Vui lòng nhập số điện thoại',
+                            required: 'Please enter phone number',
                             pattern: {
                               value: /^[0-9]{10,11}$/,
-                              message: 'Số điện thoại phải có 10-11 chữ số'
+                              message: 'Phone number must be 10-11 digits'
                             }
                           })}
-                          label="Số điện thoại người nhận"
+                          label="Recipient Phone Number"
                           fullWidth
                           size="small"
                           error={!!errors.recipientPhone}
@@ -539,8 +539,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       </Grid>
                       <Grid size={6}>
                         <TextField
-                          {...register('street', { required: 'Vui lòng nhập địa chỉ' })}
-                          label="Địa chỉ"
+                          {...register('street', { required: 'Please enter address' })}
+                          label="Address"
                           fullWidth
                           size="small"
                           error={!!errors.street}
@@ -569,8 +569,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              {...register('district', { required: 'Vui lòng chọn quận/huyện' })}
-                              label="Quận/Huyện"
+                              {...register('district', { required: 'Please select district' })}
+                              label="District"
                               error={!!errors.district}
                               size="small"
                             />
@@ -592,11 +592,11 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              {...register('ward', { required: 'Vui lòng chọn phường/xã' })}
-                              label="Phường/Xã"
+                              {...register('ward', { required: 'Please select ward' })}
+                              label="Ward"
                               error={!!errors.ward}
                               size="small"
-                              helperText={!selectedDistrict ? 'Vui lòng chọn quận/huyện trước' : ' '}
+                              helperText={!selectedDistrict ? 'Please select district first' : ' '}
                             />
                           )}
                         />
@@ -604,10 +604,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       </Grid>
                       <Grid size={6}>
                         <FormControl fullWidth size="small">
-                          <InputLabel>Tỉnh/Thành phố</InputLabel>
+                          <InputLabel>Province/City</InputLabel>
                           <Select
-                            {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })}
-                            label="Tỉnh/Thành phố"
+                            {...register('city', { required: 'Please select province/city' })}
+                            label="Province/City"
                             error={!!errors.city}
                             value="HCM"
                           >
@@ -626,7 +626,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             />
                             <label htmlFor="isDefault">
                               <Typography variant="body2">
-                                Đặt làm địa chỉ mặc định
+                                Set as default address
                               </Typography>
                             </label>
                           </Box>
@@ -643,7 +643,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                               '&:hover': { borderColor: '#999' }
                             }}
                           >
-                            Hủy
+                            Cancel
                           </Button>
                           <Button
                             type="submit"
@@ -654,7 +654,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                               '&:hover': { backgroundColor: '#45a049' }
                             }}
                           >
-                            Thêm địa chỉ
+                            Add Address
                           </Button>
                         </Box>
                       </Grid>
@@ -681,7 +681,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                   }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, color: '#f57c00' }}>
                       <EditIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                      Chỉnh sửa địa chỉ
+                      Edit Address
                     </Typography>
                     <Button
                       variant="outlined"
@@ -701,8 +701,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                     <Grid container spacing={2}>
                       <Grid size={6}>
                         <TextField
-                          {...register('recipientName', { required: 'Vui lòng nhập tên người nhận' })}
-                          label="Tên người nhận"
+                          {...register('recipientName', { required: 'Please enter recipient name' })}
+                          label="Recipient Name"
                           fullWidth
                           size="small"
                           error={!!errors.recipientName}
@@ -712,13 +712,13 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       <Grid size={6}>
                         <TextField
                           {...register('recipientPhone', {
-                            required: 'Vui lòng nhập số điện thoại',
+                            required: 'Please enter phone number',
                             pattern: {
                               value: /^[0-9]{10,11}$/,
-                              message: 'Số điện thoại phải có 10-11 chữ số'
+                              message: 'Phone number must be 10-11 digits'
                             }
                           })}
-                          label="Số điện thoại người nhận"
+                          label="Recipient Phone Number"
                           fullWidth
                           size="small"
                           error={!!errors.recipientPhone}
@@ -727,8 +727,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       </Grid>
                       <Grid size={6}>
                         <TextField
-                          {...register('street', { required: 'Vui lòng nhập địa chỉ' })}
-                          label="Địa chỉ"
+                          {...register('street', { required: 'Please enter address' })}
+                          label="Address"
                           fullWidth
                           size="small"
                           error={!!errors.street}
@@ -757,8 +757,8 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              {...register('district', { required: 'Vui lòng chọn quận/huyện' })}
-                              label="Quận/Huyện"
+                              {...register('district', { required: 'Please select district' })}
+                              label="District"
                               error={!!errors.district}
                               size="small"
                             />
@@ -780,11 +780,11 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              {...register('ward', { required: 'Vui lòng chọn phường/xã' })}
-                              label="Phường/Xã"
+                              {...register('ward', { required: 'Please select ward' })}
+                              label="Ward"
                               error={!!errors.ward}
                               size="small"
-                              helperText={!selectedDistrict ? 'Vui lòng chọn quận/huyện trước' : ''}
+                              helperText={!selectedDistrict ? 'Please select district first' : ''}
                             />
                           )}
                         />
@@ -792,10 +792,10 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                       </Grid>
                       <Grid size={6}>
                         <FormControl fullWidth size="small">
-                          <InputLabel>Tỉnh/Thành phố</InputLabel>
+                          <InputLabel>Province/City</InputLabel>
                           <Select
-                            {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })}
-                            label="Tỉnh/Thành phố"
+                            {...register('city', { required: 'Please select province/city' })}
+                            label="Province/City"
                             error={!!errors.city}
                           >
                             <MenuItem value="HCM">TP. Hồ Chí Minh</MenuItem>
@@ -813,7 +813,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                             />
                             <label htmlFor="isDefaultEdit">
                               <Typography variant="body2">
-                                Đặt làm địa chỉ mặc định
+                                Set as default address
                               </Typography>
                             </label>
                           </Box>
@@ -830,7 +830,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                               '&:hover': { borderColor: '#999' }
                             }}
                           >
-                            Hủy
+                            Cancel
                           </Button>
                           <Button
                             type="submit"
@@ -841,7 +841,7 @@ export default function AddressList({ addressList, setAddressList, customerDetai
                               '&:hover': { backgroundColor: '#f57c00' }
                             }}
                           >
-                            Cập nhật địa chỉ
+                            Update Address
                           </Button>
                         </Box>
                       </Grid>

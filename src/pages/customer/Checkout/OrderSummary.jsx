@@ -106,7 +106,7 @@ const OrderSummary = ({
       const data = await getExchangeableCouponsAPI()
       setExchangeableCoupons(data || [])
     } catch {
-      toast.error('Không thể tải danh sách coupon!')
+      toast.error('Unable to load coupon list!')
       setExchangeableCoupons([])
     } finally {
       setIsLoadingCoupons(false)
@@ -118,7 +118,7 @@ const OrderSummary = ({
     // Kiểm tra điểm có đủ để đổi không
     const availablePoints = customerDetails?.membership?.availablePoints || 0
     if (!customerDetails?.membership || availablePoints < coupon.pointsRequired) {
-      toast.error('Bạn không đủ điểm đổi thưởng!')
+      toast.error('You don&apos;t have enough points!')
       return
     }
 
@@ -131,9 +131,9 @@ const OrderSummary = ({
     const handleExchange = () => {
       try {
         toast.promise(exchangeCouponAPI({ customerId: currentCustomer.id, couponId: coupon.id }), {
-          pending: 'Đang đổi coupon...',
-          success: 'Đổi coupon thành công!',
-          error: 'Có lỗi xảy ra khi đổi coupon!'
+          pending: 'Exchanging coupon...',
+          success: 'Coupon exchanged successfully!',
+          error: 'An error occurred while exchanging coupon!'
         }).then(result => {
           if (!result.error) {
             setExchangeAnchorEl(null)
@@ -147,18 +147,18 @@ const OrderSummary = ({
 
     if (hasCoupon) {
       const { confirmed } = await confirm({
-        description: `Bạn đã có coupon &quot;${coupon.name}&quot; và chưa sử dụng. Bạn có chắc chắn muốn đổi thêm không?`,
-        confirmationText: 'Đổi thêm',
-        cancellationText: 'Hủy'
+        description: `You already have coupon &quot;${coupon.name}&quot; and haven&apos;t used it. Are you sure you want to exchange for another one?`,
+        confirmationText: 'Exchange another',
+        cancellationText: 'Cancel'
       })
       if (confirmed) {
         handleExchange()
       }
     } else {
       const { confirmed } = await confirm({
-        description: `Bạn có thật sự muốn đổi ${coupon.pointsRequired} điểm để lấy coupon "${coupon.name}" không?`,
-        confirmationText: 'Đồng ý',
-        cancellationText: 'Hủy'
+        description: `Do you really want to exchange ${coupon.pointsRequired} points for coupon "${coupon.name}"?`,
+        confirmationText: 'Agree',
+        cancellationText: 'Cancel'
       })
       if (confirmed) {
         handleExchange()
@@ -202,7 +202,7 @@ const OrderSummary = ({
         borderBottom: '1px solid #e0e0e0'
       }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c2c2c' }}>
-          TÓM TẮT ĐƠN HÀNG
+          ORDER SUMMARY
         </Typography>
       </Box>
 
@@ -211,7 +211,7 @@ const OrderSummary = ({
         {/* Danh sách món ăn */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
-            Món ăn đã chọn ({items.length} món)
+            Selected items ({items.length} items)
           </Typography>
 
           {items.map((item, index) => (
@@ -240,7 +240,7 @@ const OrderSummary = ({
                     {item.isCustom && <span style={{ color: '#666', fontSize: '0.8em' }}> (Custom)</span>}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#666' }}>
-                    Số lượng: {item.quantity || 1}
+                    Quantity: {item.quantity || 1}
                   </Typography>
                 </Box>
               </Box>
@@ -257,7 +257,7 @@ const OrderSummary = ({
         <Box sx={{ space: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="body2" sx={{ color: '#666' }}>
-              Tạm tính:
+              Subtotal:
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
               {formatPrice(subtotal)}
@@ -266,10 +266,10 @@ const OrderSummary = ({
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="body2" sx={{ color: '#666' }}>
-              Phí vận chuyển:
+              Shipping Fee:
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {shippingFee > 0 ? formatPrice(shippingFee) : 'Miễn phí'}
+              {shippingFee > 0 ? formatPrice(shippingFee) : 'Free'}
             </Typography>
           </Box>
 
@@ -289,7 +289,7 @@ const OrderSummary = ({
           {selectedStore && shippingFee > 0 && shippingSettings && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pl: 2 }}>
               <Typography variant="caption" sx={{ color: '#666' }}>
-                Khoảng cách: {selectedStore.distance} km
+                Distance: {selectedStore.distance} km
               </Typography>
               <Typography variant="caption" sx={{ color: '#666' }}>
                 +{formatPrice(selectedStore.distance * (shippingSettings.additionalFeePerKm || 5000))}
@@ -300,7 +300,7 @@ const OrderSummary = ({
           {membershipDiscount > 0 && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
               <Typography variant="body2" sx={{ color: '#00B389' }}>
-                Giảm giá thành viên:
+                Membership Discount:
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 500, color: '#00B389' }}>
                 -{formatPrice(membershipDiscount)}
@@ -328,7 +328,7 @@ const OrderSummary = ({
                       {appliedCoupon.couponName}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#666' }}>
-                      Mã: {appliedCoupon.couponCode}
+                      Code: {appliedCoupon.couponCode}
                     </Typography>
                   </Box>
                 </Box>
@@ -337,7 +337,7 @@ const OrderSummary = ({
                   onClick={handleRemoveCoupon}
                   sx={{ color: '#666', minWidth: 'auto', p: 0.5 }}
                 >
-                  Bỏ
+                  Remove
                 </Button>
               </Box>
             ) : (
@@ -361,7 +361,7 @@ const OrderSummary = ({
                       }
                     }}
                   >
-                    Chọn coupon có sẵn ({availableCoupons.length} coupon)
+                    Select available coupon ({availableCoupons.length} coupon)
                   </Button>
                 )}
 
@@ -381,7 +381,7 @@ const OrderSummary = ({
                     }
                   }}
                 >
-                  {isLoadingCoupons ? 'Đang tải...' : 'Lấy coupon mới'}
+                  {isLoadingCoupons ? 'Loading...' : 'Get new coupon'}
                 </Button>
               </Box>
             )}
@@ -403,12 +403,12 @@ const OrderSummary = ({
           >
             <Box sx={{ p: 2 }}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                Chọn coupon
+                Select coupon
               </Typography>
 
               {availableCoupons.length === 0 ? (
                 <Typography variant="body2" sx={{ color: '#666', textAlign: 'center', py: 2 }}>
-                  Không có coupon khả dụng
+                  No available coupons
                 </Typography>
               ) : (
                 <List sx={{ p: 0 }}>
@@ -448,7 +448,7 @@ const OrderSummary = ({
                           secondary={
                             <Box>
                               <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
-                                Mã: {coupon.couponCode}
+                                Code: {coupon.couponCode}
                               </Typography>
                               {coupon.couponDescription && (
                                 <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
@@ -457,11 +457,11 @@ const OrderSummary = ({
                               )}
                               {coupon.maxDiscount && (
                                 <Typography variant="caption" sx={{ color: '#00B389', display: 'block', fontWeight: 600 }}>
-                                  Giảm tối đa: {formatPrice(coupon.maxDiscount)}
+                                  Max discount: {formatPrice(coupon.maxDiscount)}
                                 </Typography>
                               )}
                               <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
-                                HSD: {new Date(coupon.expiresAt).toLocaleDateString('vi-VN')}
+                                Expiry: {new Date(coupon.expiresAt).toLocaleDateString('vi-VN')}
                               </Typography>
                             </Box>
                           }
@@ -490,7 +490,7 @@ const OrderSummary = ({
           >
             <Box sx={{ p: 2 }}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                Đổi điểm lấy coupon
+                Exchange points for coupon
               </Typography>
 
               {/* Hiển thị điểm hiện tại của khách hàng */}
@@ -508,7 +508,7 @@ const OrderSummary = ({
                 >
                   <PointOfSaleIcon sx={{ color: '#2196f3', mr: 1 }} />
                   <Typography variant="body2" sx={{ fontWeight: 600, color: '#1976d2' }}>
-                    Điểm thưởng hiện tại: {customerDetails?.membership?.availablePoints || 0} điểm
+                    Current reward points: {customerDetails?.membership?.availablePoints || 0} points
                   </Typography>
                 </Box>
               )}
@@ -518,7 +518,7 @@ const OrderSummary = ({
                 </Typography>
               ) : exchangeableCoupons.length === 0 ? (
                 <Typography variant="body2" sx={{ color: '#666', textAlign: 'center', py: 2 }}>
-                  Không có coupon để đổi
+                  No coupons to exchange
                 </Typography>
               ) : (
                 <List sx={{ p: 0 }}>
@@ -580,7 +580,7 @@ const OrderSummary = ({
                             secondary={
                               <Box>
                                 <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
-                                  Mã: {coupon.code}
+                                  Code: {coupon.code}
                                 </Typography>
                                 {coupon.description && (
                                   <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
@@ -589,20 +589,20 @@ const OrderSummary = ({
                                 )}
                                 {coupon.maxDiscount && (
                                   <Typography variant="caption" sx={{ color: '#00B389', display: 'block', mb: 0.5, fontWeight: 600 }}>
-                                    Giảm tối đa: {formatPrice(coupon.maxDiscount)}
+                                    Max discount: {formatPrice(coupon.maxDiscount)}
                                   </Typography>
                                 )}
                                 {!canExchange && (
                                   <Typography variant="caption" sx={{ color: '#f44336', display: 'block', mb: 0.5, fontWeight: 600 }}>
-                                    Không đủ điểm để đổi!
+                                    Not enough points to exchange!
                                   </Typography>
                                 )}
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                                   <Typography variant="caption" sx={{ color: '#666' }}>
-                                    HSD: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
+                                    Expiry: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
                                   </Typography>
                                   <Chip
-                                    label={`${coupon.pointsRequired} điểm`}
+                                    label={`${coupon.pointsRequired} points`}
                                     size="small"
                                     sx={{
                                       bgcolor: canExchange ? '#4C082A' : '#ccc',
@@ -628,7 +628,7 @@ const OrderSummary = ({
             <Box sx={{ mb: 1 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="body2" sx={{ color: '#00B389' }}>
-                  Giảm giá coupon <br /> ({appliedCoupon.couponName}):
+                  Coupon discount <br /> ({appliedCoupon.couponName}):
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 500, color: '#00B389' }}>
@@ -643,7 +643,7 @@ const OrderSummary = ({
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c2c2c' }}>
-              Tổng cộng:
+              Total:
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#4C082A' }}>
               {formatPrice(calculatedTotal)}

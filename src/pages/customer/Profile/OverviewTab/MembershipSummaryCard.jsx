@@ -22,11 +22,11 @@ export default function MembershipSummaryCard({ membership = [], formatVND }) {
         <Box sx={{ p:4, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LoyaltyOutlinedIcon sx={{ fontSize: 24 }} />
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.3px' }}>Thông tin hội viên</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.3px' }}>Membership Info</Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary">Bạn chưa có thông tin hội viên? Muốn nhận nhiều ưu đãi?</Typography>
+          <Typography variant="body2" color="text.secondary">Don&apos;t have membership info yet? Want to get more benefits?</Typography>
           <Button variant="outlined" component={Link} size="small" to="/menu">
-            Đặt Hàng Ngay!
+            Order Now!
           </Button>
         </Box>
       ) : (
@@ -34,16 +34,16 @@ export default function MembershipSummaryCard({ membership = [], formatVND }) {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <LoyaltyOutlinedIcon sx={{ color, fontSize: 24 }} />
-              <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.3px' }}>Thông tin hội viên</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.3px' }}>Membership Info</Typography>
             </Box>
             <Chip label={membership?.currentTier} sx={{ backgroundColor: color, color: 'white', fontWeight: 'bold' }} />
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              Điểm khả dụng: <strong>{(membership?.availablePoints || 0).toLocaleString()}</strong>
+              Available Points: <strong>{(membership?.availablePoints || 0).toLocaleString()}</strong>
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Chi tiêu 6 tháng: <strong>{formatVND(membership?.totalSpentLast6Months || 0)}</strong>
+              6-Month Spending: <strong>{formatVND(membership?.totalSpentLast6Months || 0)}</strong>
             </Typography>
           </Box>
           <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
@@ -54,7 +54,7 @@ export default function MembershipSummaryCard({ membership = [], formatVND }) {
               size="small"
               sx={{ borderColor: 'primary.main', color: 'primary.main' }}
             >
-              Xem thêm
+              View More
             </Button>
           </Box>
         </CardContent>

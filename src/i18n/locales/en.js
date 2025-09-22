@@ -75,7 +75,7 @@ const en = {
     confirmRemoveTitle: 'Confirm Remove Item',
     confirmRemoveDescription: 'Are you sure you want to remove {item} from the cart?',
     remove: 'Remove',
-    cartTitle: 'Shopping Cart ({count} products)',
+    cartTitle: 'Shopping Cart',
     emptyCartTitle: 'Your cart is empty',
     emptyCartDescription: 'Add products to your cart to continue'
   }

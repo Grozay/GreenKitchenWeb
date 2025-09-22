@@ -84,20 +84,20 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
 
   const getActivityLevelText = (level) => {
     const levels = {
-      SEDENTARY: 'Ít vận động',
-      LIGHTLY_ACTIVE: 'Vận động nhẹ',
-      MODERATELY_ACTIVE: 'Vận động vừa',
-      VERY_ACTIVE: 'Vận động nhiều',
-      EXTREMELY_ACTIVE: 'Vận động rất nhiều'
+      SEDENTARY: 'Sedentary',
+      LIGHTLY_ACTIVE: 'Lightly Active',
+      MODERATELY_ACTIVE: 'Moderately Active',
+      VERY_ACTIVE: 'Very Active',
+      EXTREMELY_ACTIVE: 'Extremely Active'
     }
     return levels[level] || level
   }
 
   const getGoalText = (goal) => {
     const goals = {
-      LOSE_WEIGHT: 'Giảm cân',
-      MAINTAIN: 'Duy trì',
-      GAIN_WEIGHT: 'Tăng cân'
+      LOSE_WEIGHT: 'Lose Weight',
+      MAINTAIN: 'Maintain',
+      GAIN_WEIGHT: 'Gain Weight'
     }
     return goals[goal] || goal
   }
@@ -113,7 +113,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
     const { weight, height, age, gender, activityLevel } = currentRecord
 
     if (!weight || !height || !age) {
-      toast.error('Vui lòng nhập đầy đủ cân nặng, chiều cao và tuổi')
+      toast.error('Please enter complete weight, height, and age')
       return
     }
 
@@ -130,12 +130,12 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
 
   const handleSaveRecord = async () => {
     if (!currentRecord.weight || !currentRecord.height || !currentRecord.age) {
-      toast.error('Vui lòng nhập đầy đủ thông tin cơ bản')
+      toast.error('Please enter complete basic information')
       return
     }
 
     if (!currentCustomer?.id) {
-      toast.error('Không tìm thấy thông tin khách hàng')
+      toast.error('Customer information not found')
       return
     }
 
@@ -180,9 +180,9 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
       })
       setTdeeResult(null)
 
-      toast.success('Đã lưu thông tin sức khỏe thành công!')
+      toast.success('Health information saved successfully!')
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi lưu thông tin. Vui lòng thử lại!')
+      toast.error('An error occurred while saving information. Please try again!')
     } finally {
       setLoading(false)
     }
@@ -190,15 +190,15 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
 
   const handleDeleteRecord = async (id) => {
     const { confirmed } = await confirm({
-      title: 'Xác nhận xóa',
-      description: 'Bạn có chắc chắn muốn xóa bản ghi này không?',
-      confirmationText: 'Xóa',
-      cancellationText: 'Hủy'
+      title: 'Confirm Delete',
+      description: 'Are you sure you want to delete this record?',
+      confirmationText: 'Delete',
+      cancellationText: 'Cancel'
     })
     if (confirmed) {
       await deleteCustomerTDEEAPI(id)
       setHealthRecords(prev => prev.filter(record => record.id !== id))
-      toast.success('Đã xóa bản ghi thành công!')
+      toast.success('Record deleted successfully!')
     }
   }
 
@@ -227,10 +227,10 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
                 fontWeight: 700,
                 color: 'primary.main'
               }}>
-                Thông Tin Sức Khỏe Hiện Tại
+                Current Health Information
               </Typography>
               <Chip
-                label={`Cập nhật: ${new Date(latestRecord.calculationDate).toLocaleDateString('vi-VN')}`}
+                label={`Updated: ${new Date(latestRecord.calculationDate).toLocaleDateString('en-US')}`}
                 color="primary"
                 variant="outlined"
                 sx={{ fontWeight: 600 }}
@@ -245,7 +245,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
                     {latestRecord.age}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Tuổi
+                    Age
                   </Typography>
                 </Box>
               </Grid>
@@ -281,7 +281,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
                     {latestRecord.bodyFatPercentage || '-'}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    % mỡ
+                    % body fat
                   </Typography>
                 </Box>
               </Grid>
@@ -293,10 +293,10 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="body1" sx={{ mb: 1, color: 'text.secondary' }}>
-                    BMR (Tỷ lệ trao đổi chất cơ bản)
+                    BMR (Basal Metabolic Rate)
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                    {latestRecord.bmr} kcal/ngày
+                    {latestRecord.bmr} kcal/day
                   </Typography>
                 </Box>
               </Grid>
@@ -304,10 +304,10 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="body1" sx={{ mb: 1, color: 'text.secondary' }}>
-                    TDEE (Tổng năng lượng tiêu hao)
+                    TDEE (Total Daily Energy Expenditure)
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                    {latestRecord.tdee} kcal/ngày
+                    {latestRecord.tdee} kcal/day
                   </Typography>
                 </Box>
               </Grid>
@@ -315,7 +315,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="body1" sx={{ mb: 1, color: 'text.secondary' }}>
-                    Mức độ hoạt động
+                    Activity Level
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main' }}>
                     {getActivityLevelText(latestRecord.activityLevel)}
@@ -334,7 +334,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                  Lịch Sử Thông Tin Sức Khỏe
+                  Health Information History
                 </Typography>
                 <Button
                   variant="contained"
@@ -342,7 +342,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
                   onClick={() => setOpenDialog(true)}
                   color="primary"
                 >
-                  Thêm Bản Ghi Mới
+                  Add New Record
                 </Button>
               </Box>
 
@@ -350,21 +350,21 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Ngày</TableCell>
-                      <TableCell>Tuổi</TableCell>
-                      <TableCell>Chiều cao (cm)</TableCell>
-                      <TableCell>Cân nặng (kg)</TableCell>
-                      <TableCell>Mỡ (%)</TableCell>
-                      <TableCell>Mức độ hoạt động</TableCell>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Age</TableCell>
+                      <TableCell>Height (cm)</TableCell>
+                      <TableCell>Weight (kg)</TableCell>
+                      <TableCell>Fat (%)</TableCell>
+                      <TableCell>Activity Level</TableCell>
                       <TableCell>TDEE</TableCell>
-                      <TableCell>Mục tiêu</TableCell>
-                      <TableCell>Thao tác</TableCell>
+                      <TableCell>Goal</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {healthRecords.map((record) => (
                       <TableRow key={record.id} hover>
-                        <TableCell>{new Date(record.calculationDate).toLocaleDateString('vi-VN')}</TableCell>
+                        <TableCell>{new Date(record.calculationDate).toLocaleDateString('en-US')}</TableCell>
                         <TableCell>{record.age}</TableCell>
                         <TableCell>{record.height}</TableCell>
                         <TableCell>{record.weight}</TableCell>
@@ -409,7 +409,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
               {healthRecords.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Chưa có dữ liệu. Hãy thêm bản ghi đầu tiên!
+                    No data yet. Add your first record!
                   </Typography>
                 </Box>
               )}
@@ -422,7 +422,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
           <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-            Thêm Thông Tin Sức Khỏe Mới
+            Add New Health Information
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -430,14 +430,14 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
             {/* Basic Info */}
             <Grid size={12}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}>
-                Thông tin cơ bản
+                Basic Information
               </Typography>
             </Grid>
 
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
-                label="Tuổi"
+                label="Age"
                 type="number"
                 value={currentRecord.age}
                 onChange={(e) => handleInputChange('age', e.target.value)}
@@ -448,7 +448,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
-                label="Chiều cao (cm)"
+                label="Height (cm)"
                 type="number"
                 value={currentRecord.height}
                 onChange={(e) => handleInputChange('height', e.target.value)}
@@ -459,7 +459,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
-                label="Cân nặng (kg)"
+                label="Weight (kg)"
                 type="number"
                 step="0.1"
                 value={currentRecord.weight}
@@ -470,14 +470,14 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
 
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
-                <InputLabel>Giới tính</InputLabel>
+                <InputLabel>Gender</InputLabel>
                 <Select
                   value={currentRecord.gender}
-                  label="Giới tính"
+                  label="Gender"
                   onChange={(e) => handleInputChange('gender', e.target.value)}
                 >
-                  <MenuItem value="MALE">Nam</MenuItem>
-                  <MenuItem value="FEMALE">Nữ</MenuItem>
+                  <MenuItem value="MALE">Male</MenuItem>
+                  <MenuItem value="FEMALE">Female</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -485,50 +485,50 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Tỷ lệ mỡ cơ thể (%)"
+                label="Body Fat Percentage (%)"
                 type="number"
                 step="0.1"
                 value={currentRecord.bodyFatPercentage}
                 onChange={(e) => handleInputChange('bodyFatPercentage', e.target.value)}
-                helperText="Tùy chọn - để trống nếu không biết"
+                helperText="Optional - leave blank if unknown"
               />
             </Grid>
 
             {/* Activity & Goals */}
             <Grid size={12}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, mt: 2, color: 'primary.main' }}>
-                Mức độ hoạt động & Mục tiêu
+                Activity Level & Goal
               </Typography>
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
-                <InputLabel>Mức độ hoạt động</InputLabel>
+                <InputLabel>Activity Level</InputLabel>
                 <Select
                   value={currentRecord.activityLevel}
-                  label="Mức độ hoạt động"
+                  label="Activity Level"
                   onChange={(e) => handleInputChange('activityLevel', e.target.value)}
                 >
-                  <MenuItem value="SEDENTARY">Ít vận động - Công việc văn phòng, không chơi thể thao</MenuItem>
-                  <MenuItem value="LIGHTLY_ACTIVE">Vận động nhẹ - Chơi thể thao 1-3 buổi/tuần</MenuItem>
-                  <MenuItem value="MODERATELY_ACTIVE">Vận động vừa - Chơi thể thao 3-5 buổi/tuần</MenuItem>
-                  <MenuItem value="VERY_ACTIVE">Vận động nhiều - Chơi thể thao 6-7 buổi/tuần</MenuItem>
-                  <MenuItem value="EXTREMELY_ACTIVE">Vận động viên - Chơi thể thao 2 buổi/ngày</MenuItem>
+                  <MenuItem value="SEDENTARY">Sedentary - Desk job, no exercise</MenuItem>
+                  <MenuItem value="LIGHTLY_ACTIVE">Lightly Active - Exercise 1-3 days/week</MenuItem>
+                  <MenuItem value="MODERATELY_ACTIVE">Moderately Active - Exercise 3-5 days/week</MenuItem>
+                  <MenuItem value="VERY_ACTIVE">Very Active - Exercise 6-7 days/week</MenuItem>
+                  <MenuItem value="EXTREMELY_ACTIVE">Extremely Active - Exercise 2x/day</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
-                <InputLabel>Mục tiêu</InputLabel>
+                <InputLabel>Goal</InputLabel>
                 <Select
                   value={currentRecord.goal}
-                  label="Mục tiêu"
+                  label="Goal"
                   onChange={(e) => handleInputChange('goal', e.target.value)}
                 >
-                  <MenuItem value="LOSE_WEIGHT">Giảm cân</MenuItem>
-                  <MenuItem value="MAINTAIN">Duy trì</MenuItem>
-                  <MenuItem value="GAIN_WEIGHT">Tăng cân</MenuItem>
+                  <MenuItem value="LOSE_WEIGHT">Lose Weight</MenuItem>
+                  <MenuItem value="MAINTAIN">Maintain</MenuItem>
+                  <MenuItem value="GAIN_WEIGHT">Gain Weight</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -538,14 +538,14 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
               <Box sx={{ mt: 3, p: 2, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                    Tính toán TDEE
+                    Calculate TDEE
                   </Typography>
                   <Button
                     variant="outlined"
                     onClick={handleCalculateTDEE}
                     color="primary"
                   >
-                    Tính toán
+                    Calculate
                   </Button>
                 </Box>
 
@@ -556,7 +556,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
                         {tdeeResult.bmr}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        BMR (kcal/ngày)
+                        BMR (kcal/day)
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: 'center' }}>
@@ -564,7 +564,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
                         {tdeeResult.tdee}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        TDEE (kcal/ngày)
+                        TDEE (kcal/day)
                       </Typography>
                     </Box>
                   </Box>
@@ -575,7 +575,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setOpenDialog(false)}>
-            Hủy
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -583,7 +583,7 @@ export default function CustomerTDEETab({ customerDetails, setCustomerDetails })
             disabled={loading}
             color="primary"
           >
-            {loading ? 'Đang lưu...' : 'Lưu Thông Tin'}
+            {loading ? 'Saving...' : 'Save Information'}
           </Button>
         </DialogActions>
       </Dialog>

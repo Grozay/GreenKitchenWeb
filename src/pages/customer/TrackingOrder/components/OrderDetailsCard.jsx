@@ -39,7 +39,7 @@ const OrderDetailsCard = ({ order }) => {
 
   const getPaymentMethodLabel = (method) => {
     const labels = {
-      [PAYMENT_METHOD.COD]: 'Thanh toán khi nhận hàng',
+      [PAYMENT_METHOD.COD]: 'Cash on delivery',
       [PAYMENT_METHOD.PAYPAL]: 'PayPal'
     }
     return labels[method] || method
@@ -56,9 +56,9 @@ const OrderDetailsCard = ({ order }) => {
 
   const getPaymentStatusLabel = (status) => {
     switch (status) {
-    case PAYMENT_STATUS.COMPLETED: return 'Đã thanh toán'
-    case PAYMENT_STATUS.PENDING: return 'Chờ thanh toán'
-    case PAYMENT_STATUS.FAILED: return 'Thanh toán thất bại'
+    case PAYMENT_STATUS.COMPLETED: return 'Paid'
+    case PAYMENT_STATUS.PENDING: return 'Pending payment'
+    case PAYMENT_STATUS.FAILED: return 'Payment failed'
     default: return status
     }
   }
@@ -80,10 +80,10 @@ const OrderDetailsCard = ({ order }) => {
           </Avatar>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-              Thông Tin Đơn Hàng
+              Order Information
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Mã đơn hàng: #{order.id}
+              Order code: #{order.id}
             </Typography>
           </Box>
         </Box>
@@ -98,13 +98,13 @@ const OrderDetailsCard = ({ order }) => {
               <Box display="flex" alignItems="center" mb={2}>
                 <PersonIcon sx={{ color: theme.palette.primary.main, mr: 1 }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  Thông tin khách hàng
+                  Customer information
                 </Typography>
               </Box>
               
               <Box ml={4}>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  <strong>Tên:</strong> {order.recipientName || 'Không có thông tin'}
+                                    Name: {order.recipientName || 'No information'}
                 </Typography>
                 
                 {order.recipientPhone && (
@@ -132,18 +132,18 @@ const OrderDetailsCard = ({ order }) => {
               <Box display="flex" alignItems="center" mb={2}>
                 <PaymentIcon sx={{ color: theme.palette.primary.main, mr: 1 }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  Thông tin thanh toán
+                  Payment information
                 </Typography>
               </Box>
               
               <Box ml={4}>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  <strong>Phương thức:</strong> {getPaymentMethodLabel(order.paymentMethod)}
+                                    Method: {getPaymentMethodLabel(order.paymentMethod)}
                 </Typography>
                 
                 <Box display="flex" alignItems="center" mb={2}>
                   <Typography variant="body2" sx={{ mr: 1 }}>
-                    <strong>Trạng thái:</strong>
+                    <strong>                    Status:</strong>
                   </Typography>
                   <Chip
                     label={getPaymentStatusLabel(order.paymentStatus)}
@@ -157,7 +157,7 @@ const OrderDetailsCard = ({ order }) => {
                 </Box>
 
                 <Typography variant="h6" sx={{ color: theme.palette.primary.main, fontWeight: 600 }}>
-                  Tổng tiền: {formatCurrency(order.totalAmount)}
+                  Total amount: {formatCurrency(order.totalAmount)}
                 </Typography>
               </Box>
             </Box>
@@ -169,7 +169,7 @@ const OrderDetailsCard = ({ order }) => {
               <Box display="flex" alignItems="center" mb={2}>
                 <AccessTimeIcon sx={{ color: theme.palette.primary.main, mr: 1 }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  Thời gian đặt hàng
+                  Order time
                 </Typography>
               </Box>
               
@@ -180,7 +180,7 @@ const OrderDetailsCard = ({ order }) => {
                 {order.note && (
                   <Box mt={2}>
                     <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                      Ghi chú:
+                      Note:
                     </Typography>
                     <Typography 
                       variant="body2" 

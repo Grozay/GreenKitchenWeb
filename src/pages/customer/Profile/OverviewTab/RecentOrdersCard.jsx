@@ -20,7 +20,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocalShippingIcon sx={{ fontSize: 20, mr: 0.5 }} />
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              Đơn hàng gần đây
+              Recent Orders
             </Typography>
           </Box>
           <Button
@@ -37,7 +37,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
               '&:visited': { color: 'primary.main' }
             }}
           >
-            Xem tất cả
+            View All
           </Button>
         </Box>
         {recentOrders.length > 0 ? (
@@ -56,9 +56,9 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                 }}>
                 <Grid size={8}>
                   <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>Đơn hàng: #{o.id}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>Order: #{o.id}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Ngày đặt hàng: {new Date(o.createdAt || o.deliveryTime).toLocaleDateString('vi-VN')}
+                      Order Date: {new Date(o.createdAt || o.deliveryTime).toLocaleDateString('vi-VN')}
                     </Typography>
                   </Box>
                   {/* Items preview: show up to 2 product images + names */}
@@ -85,13 +85,13 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                             }}
                             title={item.title}
                           >
-                            {item.title || 'Tên món'}
+                            {item.title || 'Dish Name'}
                           </Typography>
                         </Box>
                       ))}
                       {o.orderItems.length > 2 && (
                         <Typography variant="caption" color="text.secondary">
-                          +{o.orderItems.length - 2} món khác
+                          +{o.orderItems.length - 2} more items
                         </Typography>
                       )}
                     </Box>
@@ -120,7 +120,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                         '&:visited': { color: 'primary.main' }
                       }}
                     >
-                      Xem chi tiết
+                      View Details
                       <KeyboardArrowRightIcon sx={{ fontSize: 14, ml: 0.25 }} />
                     </MuiLink>
                   </Box>
@@ -129,7 +129,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
             ))}
           </Box>
         ) : (
-          <Typography variant="body2" color="text.secondary">Chưa có đơn hàng nào</Typography>
+          <Typography variant="body2" color="text.secondary">No orders yet</Typography>
         )}
       </CardContent>
     </Card>

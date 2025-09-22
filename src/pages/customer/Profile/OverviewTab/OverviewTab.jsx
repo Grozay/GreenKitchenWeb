@@ -17,9 +17,9 @@ export default function OverviewTab({ customerDetails, setCustomerDetails }) {
   // theme available if needed by children
 
   const vegetarianTypes = [
-    { value: 'NEVER', label: 'Ăn mặn' },
-    { value: 'VEGAN', label: 'Ăn thuần chay' },
-    { value: 'LUNAR_VEGAN', label: 'Ăn chay 2 ngày rằm mỗi tháng' }
+    { value: 'NEVER', label: 'Non-vegetarian' },
+    { value: 'VEGAN', label: 'Vegan' },
+    { value: 'LUNAR_VEGAN', label: 'Vegetarian on 2 full moon days per month' }
   ]
 
   // Handle cancel dialog
@@ -110,14 +110,14 @@ export default function OverviewTab({ customerDetails, setCustomerDetails }) {
   const getStatusColor = (status) => statusColorMap[status] || 'default'
 
   const statusLabelMap = {
-    PENDING: 'Chờ xác nhận',
-    CONFIRMED: 'Đã xác nhận',
-    SHIPPING: 'Đang giao hàng',
-    DELIVERED: 'Đã giao hàng',
-    CANCELLED: 'Đã hủy'
+    PENDING: 'Pending',
+    CONFIRMED: 'Confirmed',
+    SHIPPING: 'Shipping',
+    DELIVERED: 'Delivered',
+    CANCELLED: 'Cancelled'
   }
 
-  const getStatusLabel = (status) => statusLabelMap[status] || status || 'Không xác định'
+  const getStatusLabel = (status) => statusLabelMap[status] || status || 'Unknown'
 
 
   // Auto open form on first visit if no reference yet

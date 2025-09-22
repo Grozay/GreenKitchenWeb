@@ -26,21 +26,21 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Chỉ chấp nhận file JPG, PNG')
+      toast.error('Only JPG, PNG files are accepted')
       return
     }
 
     // Validate file size (5MB)
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
-      toast.error('Kích thước file không được vượt quá 5MB')
+      toast.error('File size must not exceed 5MB')
       return
     }
 
     setUploading(true)
 
     await toast.promise(updateAvatarAPI(customerDetails.email, file), {
-      pending: 'Đang tải lên ảnh đại diện...',
+      pending: 'Uploading avatar...',
       success: {
         render({ data }) {
           // Update customer details with new avatar
@@ -48,10 +48,10 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
             ...prev,
             avatar: data.avatar
           }))
-          return 'Cập nhật ảnh đại diện thành công!'
+          return 'Avatar updated successfully!'
         }
       },
-      error: 'Có lỗi xảy ra khi tải lên ảnh'
+      error: 'Error occurred while uploading image'
     }).then(() => {
       setUploading(false)
       if (fileInputRef.current) {
@@ -76,7 +76,7 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
             mb: 2
           }}>
             <Typography variant="h6" component="h3">
-              Hình đại diện
+              Avatar
             </Typography>
             <Button
               variant="outlined"
@@ -85,7 +85,7 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
               disabled={uploading}
               startIcon={<PhotoCameraIcon />}
             >
-              {uploading ? 'Đang tải...' : 'Thay đổi'}
+              {uploading ? 'Uploading...' : 'Change'}
             </Button>
           </Box>
 
@@ -110,13 +110,13 @@ export default function UpdateAvatar({ customerDetails, setCustomerDetails }) {
                 fontWeight: 500,
                 mb: 0.5
               }}>
-                Tải lên ảnh đại diện của bạn
+                Upload your avatar
               </Typography>
               <Typography variant="caption" sx={{
                 color: 'text.secondary',
                 fontSize: '0.75rem'
               }}>
-                Định dạng: JPG, PNG. Kích thước tối đa: 5MB
+                Format: JPG, PNG. Max size: 5MB
               </Typography>
             </Box>
           </Box>

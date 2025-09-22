@@ -26,46 +26,46 @@ const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
 
   const statusConfig = {
     [ORDER_STATUS.PENDING]: {
-      label: 'Chờ xác nhận',
+      label: 'Pending confirmation',
       icon: <ScheduleIcon />,
       color: '#ff9800',
       bgColor: '#fff3e0',
-      description: 'Đơn hàng đang chờ nhân viên xác nhận'
+      description: 'Order is waiting for staff confirmation'
     },
     [ORDER_STATUS.CONFIRMED]: {
-      label: 'Đã xác nhận',
+      label: 'Confirmed',
       icon: <CheckCircleIcon />,
       color: '#2196f3',
       bgColor: '#e3f2fd',
-      description: 'Đơn hàng đã được xác nhận và chuẩn bị chế biến'
+      description: 'Order has been confirmed and is being prepared'
     },
     [ORDER_STATUS.PREPARING]: {
-      label: 'Đang chuẩn bị',
+      label: 'Preparing',
       icon: <RestaurantIcon />,
       color: '#9c27b0',
       bgColor: '#f3e5f5',
-      description: 'Bếp đang chế biến món ăn cho bạn'
+      description: 'Kitchen is preparing your food'
     },
     [ORDER_STATUS.SHIPPING]: {
-      label: 'Đang giao hàng',
+      label: 'Shipping',
       icon: <LocalShippingIcon />,
       color: '#ff5722',
       bgColor: '#fbe9e7',
-      description: 'Shipper đang trên đường giao hàng đến bạn'
+      description: 'Shipper is on the way to deliver to you'
     },
     [ORDER_STATUS.DELIVERED]: {
-      label: 'Đã giao hàng',
+      label: 'Delivered',
       icon: <CheckCircleOutlineIcon />,
       color: '#4caf50',
       bgColor: '#e8f5e8',
-      description: 'Đơn hàng đã được giao thành công'
+      description: 'Order has been delivered successfully'
     },
     [ORDER_STATUS.CANCELLED]: {
-      label: 'Đã hủy',
+      label: 'Cancelled',
       icon: <CancelIcon />,
       color: '#f44336',
       bgColor: '#ffebee',
-      description: 'Đơn hàng đã bị hủy'
+      description: 'Order has been cancelled'
     }
   }
 
@@ -141,7 +141,7 @@ const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
       {/* Header */}
       <Box textAlign="center" mb={4}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-          Trạng Thái Đơn Hàng
+          Order Status
         </Typography>
         
         <Zoom in={true} timeout={500}>
@@ -177,7 +177,7 @@ const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
         <Box mb={4}>
           <Box display="flex" justifyContent="space-between" mb={1}>
             <Typography variant="body2" color="text.secondary">
-              Tiến độ
+              Progress
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {Math.round(progress)}%
@@ -309,7 +309,7 @@ const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
       >
         <Box textAlign={{ xs: 'center', sm: 'left' }}>
           <Typography variant="caption" color="text.secondary">
-            Thời gian đặt hàng
+            Order time
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
             {formatDate(orderData.createdAt)}
@@ -317,7 +317,7 @@ const OrderStatusProgress = ({ orderData, orientation = 'vertical' }) => {
         </Box>
         <Box textAlign={{ xs: 'center', sm: 'right' }}>
           <Typography variant="caption" color="text.secondary">
-            Cập nhật lần cuối
+            Last updated
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
             {formatDate(orderData.updatedAt)}

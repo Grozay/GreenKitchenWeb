@@ -55,7 +55,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
         contactEmail: feedbackForm.contactEmail || undefined,
         fromEmail: customerDetails?.email || feedbackForm.contactEmail || undefined
       })
-      toast.success('Phản hồi đã được gửi thành công!')
+      toast.success('Feedback submitted successfully!')
       setFeedbackDialogOpen(false)
       setFeedbackForm({
         type: 'GENERAL',
@@ -65,7 +65,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
         contactEmail: ''
       })
     } catch (e) {
-      toast.error('Gửi phản hồi thất bại!')
+      toast.error('Failed to submit feedback!')
     }
   }
 
@@ -80,7 +80,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
         contactMethod: supportForm.contactMethod,
         contactValue
       })
-      toast.success('Yêu cầu hỗ trợ đã được gửi thành công!')
+      toast.success('Support request submitted successfully!')
       setSupportDialogOpen(false)
       setSupportForm({
         issueType: 'TECHNICAL',
@@ -90,7 +90,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
         contactMethod: 'EMAIL'
       })
     } catch (e) {
-      toast.error('Gửi yêu cầu hỗ trợ thất bại!')
+      toast.error('Failed to submit support request!')
     }
   }
 
@@ -117,13 +117,13 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
                 mb: 2,
                 textShadow: '0 2px 4px rgba(0,0,0,0.3)'
               }}>
-                Hỗ Trợ & Phản Hồi
+                Support & Feedback
               </Typography>
               <Typography variant="h6" sx={{
                 opacity: 0.9,
                 mb: 3
               }}>
-                Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7
+                We are always ready to support you 24/7
               </Typography>
             </CardContent>
           </Card>
@@ -145,13 +145,13 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <CardContent sx={{ p: 3, textAlign: 'center' }}>
               <SupportIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                Yêu Cầu Hỗ Trợ
+                Support Request
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Gặp vấn đề? Chúng tôi sẽ giúp bạn giải quyết nhanh chóng
+                Having issues? We&apos;ll help you resolve them quickly
               </Typography>
               <Button variant="contained" fullWidth>
-                Tạo yêu cầu
+                Create Request
               </Button>
             </CardContent>
           </Card>
@@ -172,13 +172,13 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <CardContent sx={{ p: 3, textAlign: 'center' }}>
               <FeedbackIcon sx={{ fontSize: 48, color: 'warning.main', mb: 2 }} />
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                Gửi Phản Hồi
+                Send Feedback
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Chia sẻ ý kiến để chúng tôi cải thiện dịch vụ tốt hơn
+                Share your thoughts to help us improve our service
               </Typography>
               <Button variant="contained" color="warning" fullWidth>
-                Gửi phản hồi
+                Send Feedback
               </Button>
             </CardContent>
           </Card>
@@ -199,13 +199,13 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <CardContent sx={{ p: 3, textAlign: 'center' }}>
               <ChatIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                Chat Trực Tuyến
+                Live Chat
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Trò chuyện trực tiếp với nhân viên hỗ trợ
+                Chat directly with our support staff
               </Typography>
               <Button variant="contained" color="success" fullWidth>
-                Bắt đầu chat
+                Start Chat
               </Button>
             </CardContent>
           </Card>
@@ -216,7 +216,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                📞 Thông Tin Liên Hệ
+                📞 Contact Information
               </Typography>
               <Grid container spacing={4}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -229,7 +229,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
                       1900-xxxx
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      8:00 - 22:00 (Thứ 2 - Chủ nhật)
+                      8:00 - 22:00 (Monday - Sunday)
                     </Typography>
                   </Box>
                 </Grid>
@@ -244,7 +244,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
                       support@greenkitchen.com
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Phản hồi trong 24h
+                      Response within 24h
                     </Typography>
                   </Box>
                 </Grid>
@@ -253,13 +253,13 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
                   <Box sx={{ textAlign: 'center' }}>
                     <LocationOnIcon sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                      Văn Phòng
+                      Office
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'primary.main', fontWeight: 500 }}>
-                      TP. Hồ Chí Minh
+                      Ho Chi Minh City
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      123 Đường ABC, Quận 1
+                      123 ABC Street, District 1
                     </Typography>
                   </Box>
                 </Grid>
@@ -271,10 +271,10 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
                       Live Chat
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'primary.main', fontWeight: 500 }}>
-                      Trực tuyến 24/7
+                      Online 24/7
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Hỗ trợ tức thì
+                      Instant support
                     </Typography>
                   </Box>
                 </Grid>
@@ -288,25 +288,25 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-                ❓ Câu Hỏi Thường Gặp
+                ❓ Frequently Asked Questions
               </Typography>
               <Grid container spacing={3}>
                 {[
                   {
-                    question: 'Làm thế nào để đặt hàng?',
-                    answer: 'Bạn có thể đặt hàng qua website, ứng dụng mobile hoặc gọi điện trực tiếp đến hotline của chúng tôi.'
+                    question: 'How to place an order?',
+                    answer: 'You can place an order through our website, mobile app, or call our hotline directly.'
                   },
                   {
-                    question: 'Thời gian giao hàng là bao lâu?',
-                    answer: 'Thời gian giao hàng từ 30-60 phút tùy thuộc vào khoảng cách và tình trạng giao thông.'
+                    question: 'How long is the delivery time?',
+                    answer: 'Delivery time is 30-60 minutes depending on distance and traffic conditions.'
                   },
                   {
-                    question: 'Có thể thanh toán bằng cách nào?',
-                    answer: 'Chúng tôi chấp nhận thanh toán tiền mặt, thẻ tín dụng, ví điện tử và chuyển khoản ngân hàng.'
+                    question: 'What payment methods are available?',
+                    answer: 'We accept cash payment, credit card, e-wallet, and bank transfer.'
                   },
                   {
-                    question: 'Làm sao để trở thành thành viên?',
-                    answer: 'Chỉ cần đặt hàng một lần, bạn sẽ tự động trở thành thành viên và nhận được nhiều ưu đãi.'
+                    question: 'How to become a member?',
+                    answer: 'Just place an order once, you will automatically become a member and receive many benefits.'
                   }
                 ].map((faq, index) => (
                   <Grid size={{ xs: 12, sm: 6 }} key={index}>
@@ -351,7 +351,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <FeedbackIcon sx={{ color: 'warning.main' }} />
             <Typography variant="h6">
-              Gửi Phản Hồi
+              Send Feedback
             </Typography>
           </Box>
           <IconButton onClick={() => setFeedbackDialogOpen(false)}>
@@ -363,23 +363,23 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
           <Grid container spacing={3}>
             <Grid size={12}>
               <FormControl fullWidth>
-                <InputLabel>Loại phản hồi</InputLabel>
+                <InputLabel>Feedback Type</InputLabel>
                 <Select
                   value={feedbackForm.type}
-                  label="Loại phản hồi"
+                  label="Feedback Type"
                   onChange={(e) => setFeedbackForm(prev => ({ ...prev, type: e.target.value }))}
                 >
-                  <MenuItem value="GENERAL">Phản hồi chung</MenuItem>
-                  <MenuItem value="FOOD_QUALITY">Chất lượng món ăn</MenuItem>
-                  <MenuItem value="SERVICE">Dịch vụ</MenuItem>
-                  <MenuItem value="DELIVERY">Giao hàng</MenuItem>
-                  <MenuItem value="WEBSITE">Website/Ứng dụng</MenuItem>
+                  <MenuItem value="GENERAL">General Feedback</MenuItem>
+                  <MenuItem value="FOOD_QUALITY">Food Quality</MenuItem>
+                  <MenuItem value="SERVICE">Service</MenuItem>
+                  <MenuItem value="DELIVERY">Delivery</MenuItem>
+                  <MenuItem value="WEBSITE">Website/App</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
             <Grid size={12}>
-              <Typography component="legend">Đánh giá tổng thể</Typography>
+              <Typography component="legend">Overall Rating</Typography>
               <Rating
                 value={feedbackForm.rating}
                 onChange={(event, newValue) => {
@@ -392,7 +392,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <Grid size={12}>
               <TextField
                 fullWidth
-                label="Tiêu đề phản hồi"
+                label="Feedback Title"
                 value={feedbackForm.title}
                 onChange={(e) => setFeedbackForm(prev => ({ ...prev, title: e.target.value }))}
                 required
@@ -402,7 +402,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <Grid size={12}>
               <TextField
                 fullWidth
-                label="Mô tả chi tiết"
+                label="Detailed Description"
                 multiline
                 rows={4}
                 value={feedbackForm.description}
@@ -414,11 +414,11 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <Grid size={12}>
               <TextField
                 fullWidth
-                label="Email liên hệ (tùy chọn)"
+                label="Contact Email (optional)"
                 type="email"
                 value={feedbackForm.contactEmail}
                 onChange={(e) => setFeedbackForm(prev => ({ ...prev, contactEmail: e.target.value }))}
-                placeholder="Để nhận phản hồi từ chúng tôi"
+                placeholder="To receive response from us"
               />
             </Grid>
           </Grid>
@@ -426,10 +426,10 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
 
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setFeedbackDialogOpen(false)} variant="outlined">
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleFeedbackSubmit} variant="contained" color="warning">
-            Gửi phản hồi
+            Send Feedback
           </Button>
         </DialogActions>
       </Dialog>
@@ -453,7 +453,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SupportIcon sx={{ color: 'primary.main' }} />
             <Typography variant="h6">
-              Yêu Cầu Hỗ Trợ
+              Support Request
             </Typography>
           </Box>
           <IconButton onClick={() => setSupportDialogOpen(false)}>
@@ -465,33 +465,33 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
           <Grid container spacing={3}>
             <Grid size={6}>
               <FormControl fullWidth>
-                <InputLabel>Loại vấn đề</InputLabel>
+                <InputLabel>Issue Type</InputLabel>
                 <Select
                   value={supportForm.issueType}
-                  label="Loại vấn đề"
+                  label="Issue Type"
                   onChange={(e) => setSupportForm(prev => ({ ...prev, issueType: e.target.value }))}
                 >
-                  <MenuItem value="TECHNICAL">Vấn đề kỹ thuật</MenuItem>
-                  <MenuItem value="ORDER">Vấn đề đặt hàng</MenuItem>
-                  <MenuItem value="PAYMENT">Vấn đề thanh toán</MenuItem>
-                  <MenuItem value="DELIVERY">Vấn đề giao hàng</MenuItem>
-                  <MenuItem value="ACCOUNT">Vấn đề tài khoản</MenuItem>
+                  <MenuItem value="TECHNICAL">Technical Issue</MenuItem>
+                  <MenuItem value="ORDER">Order Issue</MenuItem>
+                  <MenuItem value="PAYMENT">Payment Issue</MenuItem>
+                  <MenuItem value="DELIVERY">Delivery Issue</MenuItem>
+                  <MenuItem value="ACCOUNT">Account Issue</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
             <Grid size={6}>
               <FormControl fullWidth>
-                <InputLabel>Mức độ ưu tiên</InputLabel>
+                <InputLabel>Priority Level</InputLabel>
                 <Select
                   value={supportForm.priority}
-                  label="Mức độ ưu tiên"
+                  label="Priority Level"
                   onChange={(e) => setSupportForm(prev => ({ ...prev, priority: e.target.value }))}
                 >
-                  <MenuItem value="LOW">Thấp</MenuItem>
-                  <MenuItem value="MEDIUM">Trung bình</MenuItem>
-                  <MenuItem value="HIGH">Cao</MenuItem>
-                  <MenuItem value="URGENT">Khẩn cấp</MenuItem>
+                  <MenuItem value="LOW">Low</MenuItem>
+                  <MenuItem value="MEDIUM">Medium</MenuItem>
+                  <MenuItem value="HIGH">High</MenuItem>
+                  <MenuItem value="URGENT">Urgent</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -499,7 +499,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <Grid size={12}>
               <TextField
                 fullWidth
-                label="Tiêu đề yêu cầu"
+                label="Request Title"
                 value={supportForm.subject}
                 onChange={(e) => setSupportForm(prev => ({ ...prev, subject: e.target.value }))}
                 required
@@ -509,26 +509,26 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
             <Grid size={12}>
               <TextField
                 fullWidth
-                label="Mô tả chi tiết vấn đề"
+                label="Detailed Problem Description"
                 multiline
                 rows={4}
                 value={supportForm.description}
                 onChange={(e) => setSupportForm(prev => ({ ...prev, description: e.target.value }))}
                 required
-                placeholder="Vui lòng mô tả chi tiết vấn đề bạn gặp phải..."
+                placeholder="Please describe the problem you are experiencing in detail..."
               />
             </Grid>
 
             <Grid size={12}>
               <FormControl fullWidth>
-                <InputLabel>Phương thức liên hệ</InputLabel>
+                <InputLabel>Contact Method</InputLabel>
                 <Select
                   value={supportForm.contactMethod}
-                  label="Phương thức liên hệ"
+                  label="Contact Method"
                   onChange={(e) => setSupportForm(prev => ({ ...prev, contactMethod: e.target.value }))}
                 >
                   <MenuItem value="EMAIL">Email</MenuItem>
-                  <MenuItem value="PHONE">Điện thoại</MenuItem>
+                  <MenuItem value="PHONE">Phone</MenuItem>
                   <MenuItem value="CHAT">Live Chat</MenuItem>
                 </Select>
               </FormControl>
@@ -538,10 +538,10 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
 
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setSupportDialogOpen(false)} variant="outlined">
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleSupportSubmit} variant="contained">
-            Gửi yêu cầu
+            Send Request
           </Button>
         </DialogActions>
       </Dialog>
