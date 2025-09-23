@@ -450,6 +450,42 @@ export const getWeekMealDayByIdAPI = async (weekMealId, dayId) => {
   return response.data
 }
 
+// CustomerWeekMeal APIs
+export const createCustomerWeekMealAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-week-meals`, data)
+  return response.data
+}
+
+export const getCustomerWeekMealsByCustomerIdAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-week-meals/customer/${customerId}`)
+  return response.data
+}
+
+export const getCustomerWeekMealByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-week-meals/${id}`)
+  return response.data
+}
+
+export const updateCustomerWeekMealAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-week-meals/${id}`, data)
+  return response.data
+}
+
+export const deleteCustomerWeekMealAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/customer-week-meals/${id}`)
+  return response.data
+}
+
+export const updateCustomerWeekMealDayAPI = async (customerWeekMealId, dayId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-week-meals/${customerWeekMealId}/days/${dayId}`, data)
+  return response.data
+}
+
+export const getCustomerWeekMealDayByIdAPI = async (customerWeekMealId, dayId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-week-meals/${customerWeekMealId}/days/${dayId}`)
+  return response.data
+}
+
 
 // Posts
 export const createPostAPI = async (data) => {

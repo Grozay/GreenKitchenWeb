@@ -14,6 +14,7 @@ import { clearCart } from '~/redux/meal/mealSlice' // Thêm import clearCart n�
 import { toast } from 'react-toastify'
 import { IMAGE_DEFAULT } from '~/utils/constants'
 import { HEALTHY_MESSAGES } from '~/utils/constants'
+import { createCustomerWeekMealAPI } from '~/apis/index'
 
 const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   // Mặc định check hết khi mở Drawer
@@ -116,32 +117,46 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     try {
       setOrdering(true)
 
-      // Tạo request data theo format API tương tự CardMenu
-      const requestData = {
-        isCustom: false,
-        menuMealId: null,
+      // Bước 1: Tạo CustomerWeekMeal trước
+      const customerWeekMealData = {
+        customerId: customerId,
+        type: weekData.type,
+        weekStart: weekData.weekStart,
+        weekEnd: weekData.weekEnd,
+        days: filteredDays.map(d => ({
+          day: d.day,
+          date: d.date,
+          meal1: d.meal1?.id || null,
+          meal2: d.meal2?.id || null,
+          meal3: d.meal3?.id || null
+        }))
+      }
+
+      const customerWeekMealResponse = await createCustomerWeekMealAPI(customerWeekMealData)
+      const customerWeekMealId = customerWeekMealResponse.id
+
+      // Bước 2: Tạo cart item với CustomerWeekMeal ID
+      const cartItemData = {
+        customerWeekMealDayId: customerWeekMealId,
         quantity: 1,
         unitPrice: totalAmount,
         totalPrice: totalAmount,
         title: title,
         description: `${translatedWeekMealFrom} ${weekData.weekStart} ${translatedTo} ${weekData.weekEnd}, ${translatedType} ${weekData.type}`,
         image: IMAGE_DEFAULT.IMAGE_WEEK_MEAL,
-        itemType: 'WEEK_MEAL',
-        weekMeal: {
-          weekData: weekData,
-          selectedDays: filteredDays,
-          totalAmount: totalAmount
-        }
+        itemType: 'WEEK_MEAL'
+        // Không cần truyền customerWeekMealDay object vì đã lưu trong DB
       }
 
       // Gọi redux thunk để add vào cart
-      await dispatch(createCartItem({ customerId, itemData: requestData }))
+      await dispatch(createCartItem({ customerId, itemData: cartItemData }))
       if (customerId) {
         await dispatch(fetchCart(customerId))
       }
       toast.success(translatedAddedToCart)
       onClose()
     } catch (error) {
+      console.error('Error creating customer week meal or adding to cart:', error)
       toast.error(translatedFailedToAdd)
     } finally {
       setOrdering(false)
