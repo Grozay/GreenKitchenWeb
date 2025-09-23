@@ -18,73 +18,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import dayjs from 'dayjs'
 import { useState, useEffect, useCallback } from 'react'
+import { getStoresAPI } from '~/apis'
 
-// Mock store locations in Ho Chi Minh City
-const MOCK_STORES = [
-  {
-    id: 1,
-    name: 'Green Kitchen District 1',
-    address: '123 Nguyen Hue, District 1, Ho Chi Minh City',
-    lat: 10.7769,
-    lng: 106.7009
-  },
-  {
-    id: 2,
-    name: 'Green Kitchen District 3',
-    address: '456 Vo Van Tan, District 3, Ho Chi Minh City',
-    lat: 10.7886,
-    lng: 106.6917
-  },
-  {
-    id: 3,
-    name: 'Green Kitchen District 7',
-    address: '789 Nguyen Thi Thap, District 7, Ho Chi Minh City',
-    lat: 10.7378,
-    lng: 106.7208
-  },
-  {
-    id: 4,
-    name: 'Green Kitchen Binh Thanh',
-    address: '321 Xo Viet Nghe Tinh, Binh Thanh District, Ho Chi Minh City',
-    lat: 10.8014,
-    lng: 106.7147
-  },
-  {
-    id: 5,
-    name: 'Green Kitchen Tan Binh',
-    address: '555 Cong Hoa, Tan Binh District, Ho Chi Minh City',
-    lat: 10.8014,
-    lng: 106.6547
-  },
-  {
-    id: 6,
-    name: 'Green Kitchen Thu Duc',
-    address: '777 Vo Van Ngan, Thu Duc District, Ho Chi Minh City',
-    lat: 10.8496,
-    lng: 106.7538
-  },
-  {
-    id: 7,
-    name: 'Green Kitchen Go Vap',
-    address: '888 Quang Trung, Go Vap District, Ho Chi Minh City',
-    lat: 10.8386,
-    lng: 106.6657
-  },
-  {
-    id: 8,
-    name: 'Green Kitchen Phu Nhuan',
-    address: '999 Nguyen Van Troi, Phu Nhuan District, Ho Chi Minh City',
-    lat: 10.7992,
-    lng: 106.6809
-  },
-  {
-    id: 9,
-    name: 'Green Kitchen District 10',
-    address: '111 Su Van Hanh, District 10, Ho Chi Minh City',
-    lat: 10.7731,
-    lng: 106.6679
-  }
-]
+// Stores fetched from API
 
 // Haversine formula to calculate distance between two coordinates
 const calculateDistance = (lat1, lng1, lat2, lng2) => {
@@ -164,6 +100,31 @@ const DeliveryInfoForm = ({
   const [isCalculatingDistance, setIsCalculatingDistance] = useState(false)
   const [showStoreSelector, setShowStoreSelector] = useState(false)
   const [isLoadingDefaultAddress, setIsLoadingDefaultAddress] = useState(false)
+  const [allStores, setAllStores] = useState([])
+  const [loadingStores, setLoadingStores] = useState(false)
+
+  // Fetch stores from API on mount
+  useEffect(() => {
+    const fetchStores = async () => {
+      setLoadingStores(true)
+      try {
+        const data = await getStoresAPI()
+        const mapped = (Array.isArray(data) ? data : []).map(s => ({
+          id: s.id,
+          name: s.name,
+          address: s.address,
+          lat: s.latitude || s.lat,
+          lng: s.longitude || s.lng
+        })).filter(s => s.lat && s.lng)
+        setAllStores(mapped)
+      } catch {
+        setAllStores([])
+      } finally {
+        setLoadingStores(false)
+      }
+    }
+    fetchStores()
+  }, [])
 
   // Calculate distances to all stores when address changes
   const calculateStoreDistances = useCallback(async () => {
@@ -184,7 +145,7 @@ const DeliveryInfoForm = ({
       )
 
       // Calculate distances to all stores
-      const storesWithDistanceData = MOCK_STORES.map(store => ({
+      const storesWithDistanceData = allStores.map(store => ({
         ...store,
         distance: calculateDistance(
           customerCoords.lat,
@@ -278,7 +239,7 @@ const DeliveryInfoForm = ({
         defaultAddress.city || 'TP. Hồ Chí Minh'
       ).then(customerCoords => {
         // Calculate distances to all stores
-        const storesWithDistanceData = MOCK_STORES.map(store => ({
+        const storesWithDistanceData = allStores.map(store => ({
           ...store,
           distance: calculateDistance(
             customerCoords.lat,
@@ -451,7 +412,7 @@ const DeliveryInfoForm = ({
     setIsCalculatingDistance(true)
     try {
       // Calculate distances to all stores
-      const storesWithDistanceData = MOCK_STORES.map(store => ({
+      const storesWithDistanceData = allStores.map(store => ({
         ...store,
         distance: calculateDistance(lat, lng, store.lat, store.lng)
       }))
@@ -473,7 +434,7 @@ const DeliveryInfoForm = ({
     } finally {
       setIsCalculatingDistance(false)
     }
-  }, [selectedStore])
+  }, [selectedStore, allStores])
 
   // Đồng bộ selectedWard khi wards data thay đổi
   useEffect(() => {

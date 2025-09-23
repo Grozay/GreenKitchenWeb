@@ -2,7 +2,6 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
 import Button from '@mui/material/Button'
 import { Link } from 'react-router-dom'
 import Avatar from '@mui/material/Avatar'
@@ -10,7 +9,6 @@ import Grid from '@mui/material/Grid'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import MuiLink from '@mui/material/Link'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
-import Divider from '@mui/material/Divider'
 
 export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStatusColor, formatVND }) {
   return (
@@ -108,7 +106,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', mt: 0.5 }}>
                     <MuiLink
                       component={Link}
-                      to={`/profile/order-history/${o.id}`}
+                      to={`/profile/order-history/${o.orderCode}`}
                       underline="hover"
                       color="primary"
                       sx={{

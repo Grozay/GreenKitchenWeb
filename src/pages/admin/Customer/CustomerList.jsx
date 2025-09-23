@@ -85,8 +85,9 @@ export default function CustomerList() {
     return new Date(dateString).toLocaleDateString()
   }
 
-  const handleRowClick = (customerId) => {
-    navigate(`/management/customers/${customerId}`)
+  const handleRowClick = (email) => {
+    if (!email) return
+    navigate(`/management/customers/${encodeURIComponent(email)}`)
   }
 
   return (
@@ -142,7 +143,7 @@ export default function CustomerList() {
                       transition: 'background 0.2s',
                       '&:hover': { bgcolor: '#eaf0fb', cursor: 'pointer' }
                     }}
-                    onClick={() => handleRowClick(customer.id)}
+                    onClick={() => handleRowClick(customer.email)}
                   >
                     <TableCell>
                       <Avatar

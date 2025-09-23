@@ -11,9 +11,9 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import Avatar from '@mui/material/Avatar'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { getOrderByCodeAPI, updateOrderStatusAPI, getCustomMealByIdAPI } from '~/apis'
+import { getOrderByCodeAPI, updateOrderStatusAPI, getCustomMealByIdAPI, getByIdWeekMealAPI, cancelOrderAPI } from '~/apis'
 import { Button } from '@mui/material'
 import { ORDER_STATUS } from '~/utils/constants'
 import { toast } from 'react-toastify'
@@ -24,28 +24,28 @@ import PersonIcon from '@mui/icons-material/Person'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { useNavigate } from 'react-router-dom'
+import WeekMealPlan from './WeekMealPlan'
 
 
 function getStatusColor(status) {
   switch (status) {
-  case ORDER_STATUS.PENDING: return 'warning'
-  case ORDER_STATUS.CONFIRMED: return 'info'
-  case ORDER_STATUS.PREPARING: return 'primary'
-  case ORDER_STATUS.SHIPPING: return 'secondary'
-  case ORDER_STATUS.DELIVERED: return 'success'
-  default: return 'default'
+    case ORDER_STATUS.PENDING: return 'warning'
+    case ORDER_STATUS.CONFIRMED: return 'info'
+    case ORDER_STATUS.PREPARING: return 'primary'
+    case ORDER_STATUS.SHIPPING: return 'secondary'
+    case ORDER_STATUS.DELIVERED: return 'success'
+    default: return 'default'
   }
 }
 
 function getStatusIcon(status) {
   switch (status) {
-  case ORDER_STATUS.PENDING: return '⏳'
-  case ORDER_STATUS.CONFIRMED: return '✅'
-  case ORDER_STATUS.PREPARING: return '👨‍🍳'
-  case ORDER_STATUS.SHIPPING: return '🚚'
-  case ORDER_STATUS.DELIVERED: return '🎉'
-  default: return '❓'
+    case ORDER_STATUS.PENDING: return '⏳'
+    case ORDER_STATUS.CONFIRMED: return '✅'
+    case ORDER_STATUS.PREPARING: return '👨‍🍳'
+    case ORDER_STATUS.SHIPPING: return '🚚'
+    case ORDER_STATUS.DELIVERED: return '🎉'
+    default: return '❓'
   }
 }
 
@@ -55,6 +55,8 @@ export default function OrderDetails() {
   const [loading, setLoading] = useState(true)
   const [statusUpdating, setStatusUpdating] = useState(false)
   const [customMealDetails, setCustomMealDetails] = useState({})
+  const [weekMealDetails, setWeekMealDetails] = useState({})
+  const [showWeekPlan, setShowWeekPlan] = useState(false)
   const theme = useTheme()
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const navigate = useNavigate()
@@ -102,6 +104,32 @@ export default function OrderDetails() {
             }
           })
           setCustomMealDetails(detailsMap)
+        })
+      }
+    }
+  }, [order])
+
+  // Fetch week meal details when order is loaded
+  useEffect(() => {
+    if (order && order.orderItems) {
+      const weekMealIds = order.orderItems
+        .filter(item => item.itemType === 'WEEK_MEAL' && item.weekMealId)
+        .map(item => item.weekMealId)
+
+      const uniqueIds = Array.from(new Set(weekMealIds))
+      if (uniqueIds.length > 0) {
+        const fetchPromises = uniqueIds.map(id =>
+          getByIdWeekMealAPI(id).catch(() => null)
+        )
+
+        Promise.all(fetchPromises).then(results => {
+          const detailsMap = {}
+          uniqueIds.forEach((id, index) => {
+            if (results[index]) {
+              detailsMap[id] = results[index]
+            }
+          })
+          setWeekMealDetails(detailsMap)
         })
       }
     }
@@ -208,6 +236,26 @@ export default function OrderDetails() {
                   {statusUpdating ? 'Updating...' : `SET ${statusSteps[currentStep + 1]}`}
                 </Button>
               )}
+              {order.status === ORDER_STATUS.PENDING && (
+                <Button
+                  onClick={async () => {
+                    const note = window.prompt('Please enter cancel reason:')
+                    if (note === null) return
+                    try {
+                      const updated = await cancelOrderAPI(order.id, note)
+                      setOrder(updated)
+                      toast.success('Order cancelled')
+                    } catch (e) {
+                      toast.error('Cancel failed')
+                    }
+                  }}
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                >
+                  Cancelled
+                </Button>
+              )}
             </Box>
           </Box>
         </CardContent>
@@ -275,12 +323,24 @@ export default function OrderDetails() {
                         />
                       )}
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {item.title}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                            {item.title}
+                          </Typography>
+                          {item.itemType && (
+                            <Chip
+                              label={item.itemType}
+                              size="small"
+                              color="secondary"
+                              variant="outlined"
+                              sx={{ height: 22 }}
+                            />
+                          )}
+                        </Box>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                           {item.description}
                         </Typography>
+                        {/* Week meal plan is displayed in a separate section below */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Chip label={`${item.quantity}x`} size="small" color="primary" />
@@ -296,7 +356,7 @@ export default function OrderDetails() {
                     </Box>
 
                     {/* Display ingredients for custom meals */}
-                    {customMealDetail && customMealDetail.details && customMealDetail.details.length > 0 && (
+                    {customMealDetail && customMealDetail?.details && customMealDetail?.details?.length > 0 && (
                       <Box sx={{ ml: 3, mt: 1, mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid #e0e0e0' }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}>
                           🥗 Ingredients ({customMealDetail.details.length} items):
@@ -378,6 +438,31 @@ export default function OrderDetails() {
           )}
         </CardContent>
       </Card>
+
+      {/* Week Meal Plan - toggleable */}
+      {order.orderItems?.some(i => i.itemType === 'WEEK_MEAL' && i.weekMealId) && (
+        <Card elevation={1} sx={{ mb: 2 }}>
+          <CardHeader
+            title="Week Meal Plan"
+            subheader="Click to view details"
+            action={
+              <Button size="small" onClick={() => setShowWeekPlan(v => !v)}>
+                {showWeekPlan ? 'Hide Details' : 'View Details'}
+              </Button>
+            }
+            sx={{ py: 1 }}
+          />
+          {showWeekPlan && (
+            <CardContent sx={{ pt: 0 }}>
+              {order.orderItems
+                .filter(i => i.itemType === 'WEEK_MEAL' && i.weekMealId && weekMealDetails[i.weekMealId])
+                .map((i, idx) => (
+                  <WeekMealPlan key={`${i.weekMealId}-${idx}`} data={weekMealDetails[i.weekMealId]} />
+                ))}
+            </CardContent>
+          )}
+        </Card>
+      )}
 
       {/* Customer & Payment Info - Combined */}
       <Grid container spacing={2}>
