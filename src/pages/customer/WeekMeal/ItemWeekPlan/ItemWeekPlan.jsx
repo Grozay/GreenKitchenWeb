@@ -71,7 +71,7 @@ const IOSSwitch = styled((props) => (
   }
 }))
 
-const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
+const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange, forceDisabled }) => {
 
   const translatedCalories = 'Calories'
   const translatedProtein = 'Protein'
@@ -160,7 +160,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
   monday.setDate(today.getDate() - (dayOfWeek - 1))
   const mondayStr = monday.toISOString().slice(0, 10)
 
-  const isDisabled = d.date >= mondayStr && d.date <= todayStr
+  const isDisabled = forceDisabled !== undefined ? forceDisabled : (d.date >= mondayStr && d.date <= todayStr)
 
   return (
     <Box

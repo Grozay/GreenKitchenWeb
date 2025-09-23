@@ -17,24 +17,43 @@ import { HEALTHY_MESSAGES } from '~/utils/constants'
 import { createCustomerWeekMealAPI } from '~/apis/index'
 
 const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
-  // Mặc định check hết khi mở Drawer
+  // Tính ngày bị disable (đã qua)
+  const getIsDisabled = (dateStr) => {
+    const today = new Date()
+    const todayStr = today.toISOString().slice(0, 10)
+    const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay() // Chủ nhật là 7
+    const monday = new Date(today)
+    monday.setDate(today.getDate() - (dayOfWeek - 1))
+    const mondayStr = monday.toISOString().slice(0, 10)
+    return dateStr >= mondayStr && dateStr <= todayStr
+  }
+
+  // Mặc định check hết khi mở Drawer (user tự tắt những cái không muốn)
   const [days, setDays] = useState(
-    weekData.days.map(d => ({
-      ...d,
-      mealOrder1: d.mealOrder1 !== undefined ? d.mealOrder1 : true,
-      mealOrder2: d.mealOrder2 !== undefined ? d.mealOrder2 : true,
-      mealOrder3: d.mealOrder3 !== undefined ? d.mealOrder3 : true
-    }))
+    weekData.days.map(d => {
+      const isDisabled = getIsDisabled(d.date)
+      return {
+        ...d,
+        mealOrder1: isDisabled ? false : true, // Ngày disable thì tắt luôn
+        mealOrder2: isDisabled ? false : true,
+        mealOrder3: isDisabled ? false : true,
+        isDisabled // Thêm flag để biết ngày này có bị disable không
+      }
+    })
   )
 
   useEffect(() => {
     setDays(
-      weekData.days.map(d => ({
-        ...d,
-        mealOrder1: d.mealOrder1 !== undefined ? d.mealOrder1 : true,
-        mealOrder2: d.mealOrder2 !== undefined ? d.mealOrder2 : true,
-        mealOrder3: d.mealOrder3 !== undefined ? d.mealOrder3 : true
-      }))
+      weekData.days.map(d => {
+        const isDisabled = getIsDisabled(d.date)
+        return {
+          ...d,
+          mealOrder1: isDisabled ? false : true, // Ngày disable thì tắt luôn
+          mealOrder2: isDisabled ? false : true,
+          mealOrder3: isDisabled ? false : true,
+          isDisabled // Thêm flag để biết ngày này có bị disable không
+        }
+      })
     )
   }, [weekData])
 
@@ -78,6 +97,9 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   const translatedType = 'type:'
 
   const handleSwitchChange = (idx, mealKey, checked) => {
+    // Không cho phép thay đổi switch của ngày bị disable
+    if (days[idx].isDisabled) return
+
     setDays(prev =>
       prev.map((d, i) =>
         i === idx ? { ...d, [mealKey]: checked } : d
@@ -131,13 +153,14 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
           meal3: d.meal3?.id || null
         }))
       }
+      // console.log('🚀 ~ handleOrder ~ customerWeekMealData:', customerWeekMealData)
 
       const customerWeekMealResponse = await createCustomerWeekMealAPI(customerWeekMealData)
       const customerWeekMealId = customerWeekMealResponse.id
 
       // Bước 2: Tạo cart item với CustomerWeekMeal ID
       const cartItemData = {
-        customerWeekMealDayId: customerWeekMealId,
+        customerWeekMealId: customerWeekMealId,
         quantity: 1,
         unitPrice: totalAmount,
         totalPrice: totalAmount,
@@ -145,7 +168,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
         description: `${translatedWeekMealFrom} ${weekData.weekStart} ${translatedTo} ${weekData.weekEnd}, ${translatedType} ${weekData.type}`,
         image: IMAGE_DEFAULT.IMAGE_WEEK_MEAL,
         itemType: 'WEEK_MEAL'
-        // Không cần truyền customerWeekMealDay object vì đã lưu trong DB
+        // Lưu customerWeekMeal vào cart thay vì customerWeekMealDay
       }
 
       // Gọi redux thunk để add vào cart
@@ -293,6 +316,7 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
               idx={idx}
               isSwitch={true}
               onSwitchChange={(mealKey, checked) => handleSwitchChange(idx, mealKey, checked)}
+              forceDisabled={d.isDisabled} // Truyền force disabled từ parent
             />
           ))}
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
