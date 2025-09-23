@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
@@ -9,6 +9,12 @@ import { fetchWeeklyTrendingMenusAPI } from '~/apis' // Đổi import
 import moment from 'moment'
 import { useNavigate } from 'react-router-dom' // Thêm import
 
+// Function to format currency with comma separators
+const formatCurrency = (amount) => {
+  const numAmount = Math.round(parseFloat(amount))
+  return numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
 const WeeklyTrendingMenus = ({ customBlue }) => {
   const [menus, setMenus] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,8 +24,7 @@ const WeeklyTrendingMenus = ({ customBlue }) => {
     const today = moment().format('YYYY-MM-DD')
     fetchWeeklyTrendingMenusAPI(today).then(res => { // Đổi call
       setMenus(res || [])
-    }).catch(err => {
-      console.error('Error fetching weekly trending menus:', err)
+    }).catch(() => {
       setMenus([])
     }).finally(() => {
       setLoading(false)
@@ -54,7 +59,7 @@ const WeeklyTrendingMenus = ({ customBlue }) => {
               <Typography fontWeight={700} fontSize={15} sx={{ color: customBlue }}>{menu.title}</Typography>
               <Typography color="textSecondary" fontSize={13}>Order {menu.count}x</Typography>
             </Box>
-            <Typography fontWeight={700} sx={{ color: customBlue }}>${menu.price.toFixed(2)}</Typography>
+            <Typography fontWeight={700} sx={{ color: customBlue }}>${formatCurrency(menu.price)}</Typography>
             <Button size="small" sx={{ ml: 2, color: '#fff', bgcolor: customBlue, px: 2, fontSize: 13, borderRadius: 2, '&:hover': { bgcolor: '#1976d2' } }} onClick={() => handleView(menu.slug)}>View</Button> {/* Thêm onClick */}
           </Box>
         ))

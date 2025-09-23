@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import { fetchRecentOrdersAPI } from '~/apis' // Import từ index.js
 
-const RecentOrderRequest = ({ customBlue, dailyIncome }) => {
+// Function to format currency with thousand separators
+const formatCurrency = (amount) => {
+  // Convert to number and round to remove decimals if they're .00
+  const numAmount = Math.round(amount)
+  return numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
+const RecentOrderRequest = ({ customBlue }) => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchRecentOrdersAPI().then(res => {
       setOrders(res || [])
-    }).catch(err => {
-      console.error('Error fetching recent orders:', err)
+    }).catch(() => {
       setOrders([])
     }).finally(() => {
       setLoading(false)
@@ -45,7 +50,7 @@ const RecentOrderRequest = ({ customBlue, dailyIncome }) => {
           </Box>
           {/* <Typography fontSize={13} color="textSecondary" mr={2}>{order.customerName}</Typography> */}
           <Typography fontWeight={700} sx={{ color: customBlue }}>
-            ${order.totalAmount.toFixed(2)}
+            ${formatCurrency(order.totalAmount)}
           </Typography>
           <Box size="small" sx={{ ml: 2, color: '#fff', bgcolor: customBlue, p: 1, fontSize: 13, borderRadius: 2, '&:hover': { bgcolor: '#1976d2' } }}>
             {order.status}

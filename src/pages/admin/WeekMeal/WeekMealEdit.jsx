@@ -163,6 +163,7 @@ const WeekMealEdit = () => {
             <Select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
+              disabled
               label="Meal Type"
             >
               {mealTypes.map(({ key, title }) => (
@@ -176,6 +177,7 @@ const WeekMealEdit = () => {
           <DatePicker
             label="Week Start (Monday)"
             value={weekStart}
+            disabled
             onChange={(newDate) => setWeekStart(moment(newDate).startOf('week').add(1, 'days'))}
             renderInput={(params) => <TextField {...params} fullWidth />}
           />
@@ -199,13 +201,22 @@ const WeekMealEdit = () => {
                   const currentMeal = dayData[mealKey]
                   const currentValue = currentMeal ? currentMeal.id : ''
                   return (
-                    <TableCell key={mealKey}>
+                    <TableCell key={mealKey} sx={{ width: 300, maxWidth: 300 }}>
                       <Select
                         value={currentValue} // Gán mặc định id của meal hiện tại
                         onChange={(e) => handleMealChange(dayData.day, mealKey, e.target.value)}
-                        fullWidth
                         displayEmpty
                         disabled={loading}
+                        sx={{
+                          maxWidth: 300,
+                          minWidth: 120,
+                          width: '100%',
+                          '& .MuiSelect-select': {
+                            textOverflow: 'ellipsis',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap'
+                          }
+                        }}
                       >
                         <MenuItem value="">
                           <em>{currentMeal ? currentMeal.title : 'Select Meal'}</em>

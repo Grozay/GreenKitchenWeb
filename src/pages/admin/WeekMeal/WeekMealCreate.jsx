@@ -193,12 +193,19 @@ const WeekMealCreate = () => {
 
         {/* Form Controls */}
         <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormControl sx={{ mb: 2, maxWidth: 400, width: '100%' }}>
             <InputLabel>Meal Type</InputLabel>
             <Select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
               label="Meal Type"
+              sx={{
+                '& .MuiSelect-select': {
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                }
+              }}
             >
               {mealTypes.map(({ key, title }) => (
                 <MenuItem key={key} value={key}>
@@ -212,7 +219,20 @@ const WeekMealCreate = () => {
             label="Week Start (Monday)"
             value={weekStart}
             onChange={handleDateChange}
-            renderInput={(params) => <TextField {...params} fullWidth />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                sx={{
+                  maxWidth: 400,
+                  width: '100%',
+                  '& .MuiInputBase-input': {
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              />
+            )}
           />
         </Box>
 
@@ -232,12 +252,21 @@ const WeekMealCreate = () => {
                 <TableRow key={day}>
                   <TableCell>{label} ({day})</TableCell>
                   {['meal1', 'meal2', 'meal3'].map(mealKey => (
-                    <TableCell key={mealKey}>
+                    <TableCell key={mealKey} sx={{ width: 300, maxWidth: 300 }}>
                       <Select
                         value={selectedMeals[day][mealKey]}
                         onChange={(e) => handleMealChange(day, mealKey, e.target.value)}
-                        fullWidth
                         displayEmpty
+                        sx={{
+                          maxWidth: 300,
+                          minWidth: 120,
+                          width: '100%',
+                          '& .MuiSelect-select': {
+                            textOverflow: 'ellipsis',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap'
+                          }
+                        }}
                       >
                         <MenuItem value="">
                           <em>Select Meal</em>

@@ -5,7 +5,6 @@ import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
-import LinearProgress from '@mui/material/LinearProgress'
 import Skeleton from '@mui/material/Skeleton'
 import FastfoodIcon from '@mui/icons-material/Fastfood'
 import PeopleIcon from '@mui/icons-material/People'
@@ -15,6 +14,12 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp' // Thêm icon tăng
 import TrendingDownIcon from '@mui/icons-material/TrendingDown' // Thêm icon giảm
 import { fetchDashboardOverviewAPI } from '~/apis'
 import CustomDateRangePicker from './RangePicker/CustomDateRangePicker'
+
+// Function to format currency with comma separators
+const formatCurrency = (amount) => {
+  const numAmount = Math.round(parseFloat(amount))
+  return numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
 
 const OverviewDashboard = ({ customBlue }) => {
   const [dateRange, setDateRange] = useState([moment('2024-01-01'), moment()])
@@ -43,7 +48,7 @@ const OverviewDashboard = ({ customBlue }) => {
     {
       icon: <AttachMoneyIcon sx={{ color: customBlue }} />,
       label: 'Income',
-      value: overview ? overview.totalIncome.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '...',
+      value: overview ? `$${formatCurrency(overview.totalIncome)}` : '...',
       changePercent: overview?.incomeChangePercent
     }
   ]
@@ -58,8 +63,7 @@ const OverviewDashboard = ({ customBlue }) => {
         setOverview(res)
         setLoading(false)
       })
-      .catch((err) => {
-        console.error('Error fetching overview:', err)
+      .catch(() => {
         setLoading(false)
       })
   }, [dateRange])
@@ -94,7 +98,7 @@ const OverviewDashboard = ({ customBlue }) => {
         <CustomDateRangePicker onDateRangeChange={setDateRange} onQuickSelect={true} />
       </Box>
       <Grid container spacing={2} mb={2}>
-        {statData.map((stat, idx) => (
+        {statData.map((stat) => (
           <Grid key={stat.label} size={{ xs: 12, md: 3 }}>
             <Card sx={{ p: 2, display: 'flex', alignItems: 'center', borderRadius: 5, flexDirection: 'column', boxShadow: 0 }}>
               <Avatar sx={{ bgcolor: '#e3f2fd', mb: 1 }}>{stat.icon}</Avatar>
