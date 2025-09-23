@@ -44,7 +44,7 @@ export default function Posts() {
   const [showNoPostsText, setShowNoPostsText] = useState(false)
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       try {
         const cats = await getPostCategoriesAPI()
         setCategories(cats || [])
@@ -116,213 +116,221 @@ export default function Posts() {
   }
 
   return (
-    <>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-        {/* Header Section */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Box>
-              <Typography variant="h4" sx={{ 
-                fontWeight: 'bold', 
-                mb: 1
-              }}>
-                Posts Management
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Quản lý và tạo nội dung bài viết
-              </Typography>
-            </Box>
-            <Button 
-              variant="contained" 
-              startIcon={<AddIcon />}
-              onClick={() => navigate('/management/posts/create')}
-            >
-              Create Post
-            </Button>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Header Section */}
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box>
+            <Typography variant="h4" sx={{
+              fontWeight: 'bold',
+              mb: 1
+            }}>
+              Posts Management
+            </Typography>
           </Box>
-        </Box>
-        {/* Filters Section */}
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="category-filter-label">Category</InputLabel>
-                <Select
-                  labelId="category-filter-label"
-                  label="Category"
-                  value={categoryFilter}
-                  onChange={(e) => { setCategoryFilter(e.target.value); setPage(1) }}
-                >
-                  <MenuItem value="">All Categories</MenuItem>
-                  {categories.map(c => (
-                    <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="status-filter-label">Status</InputLabel>
-                <Select
-                  labelId="status-filter-label"
-                  label="Status"
-                  value={statusFilter}
-                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
-                >
-                  <MenuItem value="ALL">All</MenuItem>
-                  <MenuItem value="PUBLISHED">Published</MenuItem>
-                  <MenuItem value="DRAFT">Draft</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Search Posts..."
-                variant="outlined"
-                fullWidth
-                size="small"
-                value={searchText}
-                onChange={e => { setSearchText(e.target.value); setPage(1) }}
-                InputProps={{
-                  startAdornment: (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 1 }}>
-                      <SearchIcon color="action" />
-                    </Box>
-                  ),
-                  endAdornment: searching ? (
-                    <CircularProgress size={20} sx={{ mr: 1 }} />
-                  ) : null
-                }}
-              />
-            </Grid>
-          </Grid>
-        </Paper>
-
-        {/* Loading Indicator */}
-        {searching && (
-          <LinearProgress sx={{ mb: 1 }} />
-        )}
-
-        {/* Posts Table */}
-        <TableContainer component={Paper} sx={{ borderRadius: 1 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', width: 80 }}>Image</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Title</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Priority</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Published At</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {posts.map(p => (
-                <TableRow key={p.id} hover>
-                  <TableCell sx={{ width: 60 }}>
-                    {p.imageUrl ? (
-                      <Box
-                        component="img"
-                        src={p.imageUrl}
-                        alt={p.title}
-                        sx={{
-                          width: 45,
-                          height: 30,
-                          objectFit: 'cover',
-                          borderRadius: 1,
-                          border: '1px solid #e0e0e0'
-                        }}
-                        onError={(e) => {
-                          e.target.style.display = 'none'
-                        }}
-                      />
-                    ) : (
-                      <Box
-                        sx={{
-                          width: 45,
-                          height: 30,
-                          bgcolor: '#f5f5f5',
-                          borderRadius: 1,
-                          border: '1px solid #e0e0e0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      >
-                        <Typography variant="caption" color="text.secondary">
-                          No Image
-                        </Typography>
-                      </Box>
-                    )}
-                  </TableCell>
-                  <TableCell sx={{ width: 320, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {p.title}
-                  </TableCell>
-                  <TableCell>{p.categoryName || '-'}</TableCell>
-                  <TableCell>
-                    <Chip label={p.status} size="small" color={p.status === 'PUBLISHED' ? 'success' : 'default'} />
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={p.priority || 'normal'} 
-                      size="small" 
-                      color={
-                        p.priority === 'urgent' ? 'error' :
-                        p.priority === 'high' ? 'warning' :
-                        p.priority === 'low' ? 'info' : 'default'
-                      } 
-                    />
-                  </TableCell>
-                  <TableCell>{p.publishedAt ? new Date(p.publishedAt).toLocaleString() : '-'}</TableCell>
-                  <TableCell align="right">
-                    <Button size="small" onClick={() => handleEdit(p.id)}>Edit</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {posts.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    {!showNoPostsText ? (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-                        <CircularProgress size={40} />
-                      </Box>
-                    ) : (
-                      'No posts found'
-                    )}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {/* Pagination */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2, gap: 2 }}>
-          <TextField
-            select
-            label="Items/page"
-            value={size}
-            onChange={e => { setSize(Number(e.target.value)); setPage(1) }}
-            size="small"
-            sx={{ minWidth: 120 }}
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/management/posts/create')}
           >
-            {[10, 20, 50, 100].map(opt => (
-              <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-            ))}
-          </TextField>
-          <Pagination
-            count={Math.max(1, Math.ceil(total / size))}
-            page={page}
-            onChange={(e, value) => setPage(value)}
-            color="primary"
-            shape="rounded"
-            showFirstButton
-            showLastButton
-          />
+            Create Post
+          </Button>
         </Box>
-      </Container>
-    </>
+      </Box>
+      {/* Filters Section */}
+      <Paper sx={{ p: 2, mb: 2 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="category-filter-label">Category</InputLabel>
+              <Select
+                labelId="category-filter-label"
+                label="Category"
+                value={categoryFilter}
+                onChange={(e) => { setCategoryFilter(e.target.value); setPage(1) }}
+              >
+                <MenuItem value="">All Categories</MenuItem>
+                {categories.map(c => (
+                  <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="status-filter-label">Status</InputLabel>
+              <Select
+                labelId="status-filter-label"
+                label="Status"
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
+              >
+                <MenuItem value="ALL">All</MenuItem>
+                <MenuItem value="PUBLISHED">Published</MenuItem>
+                <MenuItem value="DRAFT">Draft</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <TextField
+              label="Search Posts..."
+              variant="outlined"
+              fullWidth
+              size="small"
+              value={searchText}
+              onChange={e => { setSearchText(e.target.value); setPage(1) }}
+              InputProps={{
+                startAdornment: (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 1 }}>
+                    <SearchIcon color="action" />
+                  </Box>
+                ),
+                endAdornment: searching ? (
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                ) : null
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Loading Indicator */}
+      {searching && (
+        <LinearProgress sx={{ mb: 1 }} />
+      )}
+
+      {/* Posts Table */}
+      <TableContainer component={Paper} sx={{ borderRadius: 1 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 'bold', width: 80 }}>Image</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Priority</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Published At</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {posts.map(p => (
+              <TableRow key={p.id} hover>
+                <TableCell sx={{ width: 60 }}>
+                  {p.imageUrl ? (
+                    <Box
+                      component="img"
+                      src={p.imageUrl}
+                      alt={p.title}
+                      sx={{
+                        width: 45,
+                        height: 30,
+                        objectFit: 'cover',
+                        borderRadius: 1,
+                        border: '1px solid #e0e0e0'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: 45,
+                        height: 30,
+                        bgcolor: '#f5f5f5',
+                        borderRadius: 1,
+                        border: '1px solid #e0e0e0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary">
+                        No Image
+                      </Typography>
+                    </Box>
+                  )}
+                </TableCell>
+                <TableCell sx={{ maxWidth: 320 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      display: 'inline-block',
+                      maxWidth: 320,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                    title={p.title}
+                  >
+                    {p.title}
+                  </Typography>
+                </TableCell>
+                <TableCell>{p.categoryName || '-'}</TableCell>
+                <TableCell>
+                  <Chip label={p.status} size="small" color={p.status === 'PUBLISHED' ? 'success' : 'default'} />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={p.priority || 'normal'}
+                    size="small"
+                    color={
+                      p.priority === 'urgent' ? 'error' :
+                        p.priority === 'high' ? 'warning' :
+                          p.priority === 'low' ? 'info' : 'default'
+                    }
+                  />
+                </TableCell>
+                <TableCell>{p.publishedAt ? new Date(p.publishedAt).toLocaleString() : '-'}</TableCell>
+                <TableCell align="right">
+                  <Button size="small" onClick={() => handleEdit(p.id)}>Edit</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {posts.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  {!showNoPostsText ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                      <CircularProgress size={40} />
+                    </Box>
+                  ) : (
+                    'No posts found'
+                  )}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {/* Pagination */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2, gap: 2 }}>
+        <TextField
+          select
+          label="Items/page"
+          value={size}
+          onChange={e => { setSize(Number(e.target.value)); setPage(1) }}
+          size="small"
+          sx={{ minWidth: 120 }}
+        >
+          {[10, 20, 50, 100].map(opt => (
+            <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+          ))}
+        </TextField>
+        <Pagination
+          count={Math.max(1, Math.ceil(total / size))}
+          page={page}
+          onChange={(e, value) => setPage(value)}
+          color="primary"
+          shape="rounded"
+          showFirstButton
+          showLastButton
+        />
+      </Box>
+    </Container>
   )
 }

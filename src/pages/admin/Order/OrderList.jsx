@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectNewOrders, addNewOrder, removeNewOrder } from '~/redux/order/orderSlice'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
@@ -28,8 +30,7 @@ import { API_ROOT, ORDER_STATUS } from '~/utils/constants'
 import { getOrdersFilteredAPI, updateOrderStatusAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import LinearProgress from '@mui/material/LinearProgress'
-import SockJS from 'sockjs-client'
-import { Client } from '@stomp/stompjs'
+// WebSocket handled globally in Layout.jsx; do not subscribe here to avoid duplicates
 import Popper from '@mui/material/Popper'
 import Grid from '@mui/material/Grid'
 import { useConfirm } from 'material-ui-confirm'
@@ -41,6 +42,7 @@ const getStatusColor = (status) => {
   case ORDER_STATUS.PREPARING: return 'primary'
   case ORDER_STATUS.SHIPPING: return 'secondary'
   case ORDER_STATUS.DELIVERED: return 'success'
+  case ORDER_STATUS.CANCELLED: return 'error'
   default: return 'default'
   }
 }
@@ -55,6 +57,9 @@ const getNextStatus = (currentStatus) => {
   }
 }
 
+// Button color by target next status (match the status chip color)
+const getActionButtonColor = (nextStatus) => getStatusColor(nextStatus)
+
 export default function OrderList() {
   const [page, setPage] = useState(1)
   const [size, setSize] = useState(10)
@@ -67,7 +72,8 @@ export default function OrderList() {
   const searchTimeout = useRef()
   const [fromDate, setFromDate] = useState(dayjs().subtract(30, 'day'))
   const [toDate, setToDate] = useState(dayjs())
-  const [newOrders, setNewOrders] = useState([])
+  const dispatch = useDispatch()
+  const newOrders = useSelector(selectNewOrders)
   const [showNewOrderDialog, setShowNewOrderDialog] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(null)
   const [showNoOrdersText, setShowNoOrdersText] = useState(false)
@@ -76,27 +82,7 @@ export default function OrderList() {
   const newOrderBtnRef = useRef(null)
   const confirm = useConfirm()
 
-  // Khôi phục newOrders từ localStorage khi component mount
-  useEffect(() => {
-    const savedNewOrders = localStorage.getItem('newOrders')
-    if (savedNewOrders) {
-      try {
-        const parsed = JSON.parse(savedNewOrders)
-        setNewOrders(parsed)
-      } catch {
-        // Ignore parsing errors
-      }
-    }
-  }, [])
-
-  // Lưu newOrders vào localStorage khi nó thay đổi
-  useEffect(() => {
-    if (newOrders.length > 0) {
-      localStorage.setItem('newOrders', JSON.stringify(newOrders))
-    } else {
-      localStorage.removeItem('newOrders')
-    }
-  }, [newOrders])
+  // Removed localStorage: using Redux store instead
 
   // fetch orders when page/status/debouncedSearchText change
   useEffect(() => {
@@ -142,35 +128,25 @@ export default function OrderList() {
     }
   }, [orders.length])
 
-  // WebSocket: Tự động nhận order mới và cập nhật vào bảng
+
+  // Insert new orders from Redux into the current table instantly (no refresh)
   useEffect(() => {
-    const client = new Client({
-      webSocketFactory: () => new SockJS(`${API_ROOT}/apis/v1/ws`),
-      reconnectDelay: 5000
+    if (!Array.isArray(newOrders) || newOrders.length === 0) return
+    setOrders(prev => {
+      const existingIds = new Set(prev.map(o => o.id ?? o.orderCode))
+      // Only add those not already in the list
+      const toAdd = newOrders.filter(o => !existingIds.has(o.id ?? o.orderCode))
+      if (toAdd.length === 0) return prev
+      // Respect current status filter if not ALL
+      const filteredToAdd = statusFilter === 'ALL' ? toAdd : toAdd.filter(o => o.status === statusFilter)
+      if (filteredToAdd.length === 0) return prev
+      return [...filteredToAdd, ...prev]
     })
-    client.onConnect = () => {
-      client.subscribe('/topic/order/new', (message) => {
-        try {
-          const newOrder = JSON.parse(message.body)
-          setOrders(prev => {
-            // Nếu order đã có trong danh sách thì không thêm nữa
-            if (prev.some(o => o.id === newOrder.id)) return prev
-            return [newOrder, ...prev]
-          })
-          setNewOrders(prev => {
-            const updatedNewOrders = [newOrder, ...prev]
-            // Lưu ngay vào localStorage khi nhận order mới
-            localStorage.setItem('newOrders', JSON.stringify(updatedNewOrders))
-            return updatedNewOrders
-          })
-        } catch {
-          //Ignore
-        }
-      })
-    }
-    client.activate()
-    return () => client.deactivate()
-  }, [])
+    setTotal(prev => {
+      // optimistic increase total to reflect newly inserted rows
+      return prev + newOrders.length
+    })
+  }, [newOrders, statusFilter])
 
   const handleFromDateChange = (val) => {
     if (val && dayjs(val).isValid()) {
@@ -187,8 +163,6 @@ export default function OrderList() {
   }
 
   const handleRowClick = (order) => {
-    // Xóa order khỏi danh sách new orders khi đã xem
-    setNewOrders(prev => prev.filter(o => o.id !== order.id))
     navigate(`/management/orders/${order.orderCode}`)
   }
 
@@ -215,6 +189,8 @@ export default function OrderList() {
             ? { ...order, status: newStatus }
             : order
         ))
+        // mark as seen if exists in newOrders when status changes
+        dispatch(removeNewOrder(orderId))
         toast.success(`Order status updated to ${newStatus}`)
       }
     } catch {
@@ -273,7 +249,6 @@ export default function OrderList() {
             ) : (
               Array.isArray(newOrders) && newOrders.map(order => (
                 <Box key={order.id || order.orderCode || Math.random()} sx={{ mb: 2, p: 2, border: '1px solid #eee', borderRadius: 2, bgcolor: '#fafafa', cursor: 'pointer' }} onClick={() => {
-                  setNewOrders(prev => prev.filter(o => o.id !== order.id))
                   navigate(`/management/orders/${order.orderCode}`)
                 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#222' }}>Order #{order.orderCode || order.id || '-'}</Typography>
@@ -356,19 +331,20 @@ export default function OrderList() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', width: 180 }}>Order Code</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: 220 }}>Order Code</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: 180 }}>Customer</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: 120 }}>Total</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: 120 }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: 100 }}>Total</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: 100 }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: 180 }}>Ordered At</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: 150 }}>Update Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: 100 }}>Update Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {orders.map(order => {
                 const isNew = newOrders.some(o => o.id === order.id)
                 const nextStatus = getNextStatus(order.status)
-                const canUpdateStatus = order.status !== ORDER_STATUS.DELIVERED
+                const isCancelled = order.status === ORDER_STATUS.CANCELLED
+                const canUpdateStatus = order.status !== ORDER_STATUS.DELIVERED && !isCancelled
 
                 return (
                   <TableRow
@@ -396,6 +372,7 @@ export default function OrderList() {
                         <Button
                           variant="contained"
                           size="small"
+                          color={getActionButtonColor(nextStatus)}
                           onClick={() => handleStatusChange(order, nextStatus)}
                           disabled={updatingStatus === order.id}
                           sx={{
@@ -415,9 +392,39 @@ export default function OrderList() {
                           )}
                         </Button>
                       ) : (
-                        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                          Completed
-                        </Typography>
+                        isCancelled ? (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="error"
+                            disabled
+                            sx={{
+                              fontSize: '0.75rem',
+                              minWidth: 120,
+                              fontWeight: 'bold',
+                              textTransform: 'uppercase',
+                              opacity: 0.5
+                            }}
+                          >
+                            CANCELLED
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="success"
+                            disabled
+                            sx={{
+                              fontSize: '0.75rem',
+                              minWidth: 120,
+                              fontWeight: 'bold',
+                              textTransform: 'uppercase',
+                              opacity: 0.5
+                            }}
+                          >
+                            COMPLETED
+                          </Button>
+                        )
                       )}
                     </TableCell>
                   </TableRow>

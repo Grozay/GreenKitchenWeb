@@ -15,16 +15,12 @@ import ArticleIcon from '@mui/icons-material/Article'
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu'
 import KitchenIcon from '@mui/icons-material/Kitchen'
 import CalendarViewWeekIcon from '@mui/icons-material/CalendarViewWeek'
-import ChatIcon from '@mui/icons-material/Chat'
-import SupportAgentIcon from '@mui/icons-material/SupportAgent'
+import InboxIcon from '@mui/icons-material/Inbox'
 import StorefrontIcon from '@mui/icons-material/Storefront'
-import NotificationsIcon from '@mui/icons-material/Notifications'
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentEmployee } from '~/redux/user/employeeSlice'
 import { logoutEmployeeApi } from '~/redux/user/employeeSlice'
-import { selectTotalChatCount } from '~/redux/chat/chatCountSlice'
+import { addNewOrder, selectNewOrderCount } from '~/redux/order/orderSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
@@ -42,7 +38,6 @@ import Coupons from './Coupons/Coupons'
 import Marketing from './Marketing/Marketing'
 import Posts from './Posts/Posts'
 import PostCreate from './Posts/PostCreateOrUpdateForm'
-import MediaIcon from '@mui/icons-material/PermMedia'
 import Stores from './Locations/Stores'
 import NotAuthorized from './NotAuthorized/NotAuthorized'
 import MealDetail from './MenuMeal/MenuMealDetail'
@@ -55,7 +50,7 @@ import WeekMealList from './WeekMeal/WeekMealList'
 import WeekMealCreate from './WeekMeal/WeekMealCreate'
 import WeekMealEdit from './WeekMeal/WeekMealEdit'
 import Chat from './Chat/Chat'
-import { chatCountSlice } from '~/redux/chat/chatCountSlice'
+import CustomerDetails from './Customer/CustomerDetails'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -89,18 +84,12 @@ const NAVIGATION = (currentEmployee, newOrderCount, totalChatCount) => {
         action: newOrderCount > 0 ? <Chip label={newOrderCount} color="primary" size="small" /> : null,
         pattern: 'orders{/:orderCode}*'
       },
-      // // Notifications
-      // {
-      //   segment: 'management/notifications',
-      //   title: 'Notifications',
-      //   icon: <NotificationsIcon />,
-      //   action: newOrderCount > 0 ? <Chip label={newOrderCount} color="warning" size="small" /> : null
-      // },
       // Customers
       {
         segment: 'management/customers',
         title: 'Customer',
-        icon: <EmojiPeopleIcon />
+        icon: <EmojiPeopleIcon />,
+        pattern: 'customers{/:email}*'
       },
       {
         kind: 'header',
@@ -125,7 +114,7 @@ const NAVIGATION = (currentEmployee, newOrderCount, totalChatCount) => {
       {
         segment: 'management/inbox',
         title: 'Inbox',
-        icon: <ChatIcon />,
+        icon: <InboxIcon />,
         action: totalChatCount > 0 ? <Chip label={totalChatCount} color="error" size="small" /> : null
       },
       {
@@ -156,12 +145,6 @@ const NAVIGATION = (currentEmployee, newOrderCount, totalChatCount) => {
         icon: <LocalOfferIcon />
       },
       {
-        segment: 'management/media',
-        title: 'Media',
-        icon: <MediaIcon />
-      },
-      // Settings
-      {
         segment: 'management/settings',
         title: 'Settings',
         icon: <SettingsIcon />
@@ -170,25 +153,45 @@ const NAVIGATION = (currentEmployee, newOrderCount, totalChatCount) => {
   } else if (currentEmployee?.role === EMPLOYEE_ROLES.EMPLOYEE) {
     baseNav.push(
       {
+        kind: 'header',
+        title: 'MAIN MENU'
+      },
+      // Orders
+      {
         segment: 'management/orders',
-        title: 'Order',
+        title: 'Orders',
         icon: <AssignmentIcon />,
         action: newOrderCount > 0 ? <Chip label={newOrderCount} color="primary" size="small" /> : null,
-        children: [
-          { segment: 'create', title: 'Create Order' },
-          { segment: 'list', title: 'Order List' }
-        ]
+        pattern: 'orders{/:orderCode}*'
+      },
+      // Customers
+      {
+        segment: 'management/customers',
+        title: 'Customer',
+        icon: <EmojiPeopleIcon />,
+        pattern: 'customers{/:email}*'
       },
       {
-        segment: 'management/notifications',
-        title: 'Notifications',
-        icon: <NotificationsIcon />,
-        action: newOrderCount > 0 ? <Chip label={newOrderCount} color="warning" size="small" /> : null
+        segment: 'management/inbox',
+        title: 'Inbox',
+        icon: <InboxIcon />,
+        action: totalChatCount > 0 ? <Chip label={totalChatCount} color="error" size="small" /> : null
       },
       {
-        segment: 'management/support',
-        title: 'Support',
-        icon: <SupportAgentIcon />
+        segment: 'management/posts',
+        title: 'Posts',
+        icon: <ArticleIcon />
+      }
+    )
+  } else if (currentEmployee?.role === EMPLOYEE_ROLES.SHIPPER) {
+    baseNav.push(
+      // Orders
+      {
+        segment: 'management/orders',
+        title: 'Orders',
+        icon: <AssignmentIcon />,
+        action: newOrderCount > 0 ? <Chip label={newOrderCount} color="primary" size="small" /> : null,
+        pattern: 'orders{/:orderCode}*'
       }
     )
   }
@@ -248,7 +251,7 @@ function Layout(props) {
   const location = useLocation()
   const totalChatCount = useSelector((state) => state.chatCount.totalCount)
 
-  const [newOrderCount, setNewOrderCount] = useState(0)
+  const newOrderCount = useSelector(selectNewOrderCount)
   const [showOrderAlert, setShowOrderAlert] = useState(false)
 
   useEffect(() => {
@@ -258,8 +261,12 @@ function Layout(props) {
     })
     client.onConnect = () => {
       client.subscribe('/topic/order/new', (message) => {
-        // console.log('New order received:', message)
-        setNewOrderCount((prev) => prev + 1)
+        try {
+          const newOrder = JSON.parse(message.body)
+          dispatch(addNewOrder(newOrder))
+        } catch {
+          // ignore parsing errors
+        }
         setShowOrderAlert(true)
         setTimeout(() => {
           setShowOrderAlert(false)
@@ -269,13 +276,6 @@ function Layout(props) {
     client.activate()
     return () => client.deactivate()
   }, [])
-
-  // Reset notification count when navigating to Orders or Notifications
-  useEffect(() => {
-    if (location.pathname.startsWith('/management/orders') || location.pathname.startsWith('/management/notifications')) {
-      setNewOrderCount(0)
-    }
-  }, [location.pathname])
 
   const [session, setSession] = useState({
     user: {
@@ -321,16 +321,6 @@ function Layout(props) {
 
   return (
     <>
-      <Snackbar
-        open={showOrderAlert}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{ zIndex: 9999 }}
-      >
-        <Alert severity="info" sx={{ fontWeight: 700, fontSize: 18, justifyContent: 'center', alignItems: 'center' }}>
-          Bạn có đơn hàng mới
-        </Alert>
-      </Snackbar>
-
       <AppProvider
         session={session}
         authentication={authentication}
@@ -368,19 +358,11 @@ function Layout(props) {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="customers"
-              element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
-                  <CustomerList />
-                </ProtectedRoute>
-              }
-            />
             <Route path="orders">
               <Route
                 index
                 element={
-                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                     <OrderList />
                   </ProtectedRoute>
                 }
@@ -388,25 +370,34 @@ function Layout(props) {
               <Route
                 path=":orderCode"
                 element={
-                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                     <OrderDetails />
                   </ProtectedRoute>
                 }
               />
             </Route>
-            <Route
-              path="notifications"
-              element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
-                  <Typography variant="h4" sx={{ p: 3 }}>
-                    Notifications
-                  </Typography>
-                  <Typography sx={{ p: 3 }}>Đây là trang thông báo (chưa triển khai).</Typography>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="customers">
+              <Route
+                index
+                element={
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
+                    <CustomerList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path=":email"
+                element={
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
+                    <CustomerDetails />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+
             <Route path="not-authorized" element={<NotAuthorized />} />
             <Route path="*" element={<NotFound />} />
+
             {/* Coupons / Promotions */}
             <Route
               path="coupons"
@@ -439,7 +430,7 @@ function Layout(props) {
               <Route
                 index
                 element={
-                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                     <Posts />
                   </ProtectedRoute>
                 }
@@ -447,7 +438,7 @@ function Layout(props) {
               <Route
                 path="list"
                 element={
-                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                     <Posts />
                   </ProtectedRoute>
                 }
@@ -455,7 +446,7 @@ function Layout(props) {
               <Route
                 path="create"
                 element={
-                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                     <PostCreate />
                   </ProtectedRoute>
                 }
@@ -463,7 +454,7 @@ function Layout(props) {
               <Route
                 path="edit/:id"
                 element={
-                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                  <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                     <PostCreate />
                   </ProtectedRoute>
                 }

@@ -296,6 +296,10 @@ const Checkout = () => {
             itemType: item.itemType,
             menuMealId: item.itemType === 'MENU_MEAL' ? item.menuMeal?.id : null,
             customMealId: item.itemType === 'CUSTOM_MEAL' ? item.customMeal?.id : null,
+            weekMealId: item.itemType === 'WEEK_MEAL' ? 4 : null, //4 for testing
+            weekMealTitle: item.itemType === 'WEEK_MEAL' ? item.title : null,
+            weekMealDescription: item.itemType === 'WEEK_MEAL' ? item.description : null,
+            weekMealImage: item.itemType === 'WEEK_MEAL' ? item.image : null,
             quantity: item.quantity || 1,
             unitPrice: item.unitPrice || 0,
             notes: ''
@@ -359,6 +363,10 @@ const Checkout = () => {
           itemType: item.itemType,
           menuMealId: item.itemType === 'MENU_MEAL' ? item.menuMeal?.id : null,
           customMealId: item.itemType === 'CUSTOM_MEAL' ? item.customMeal?.id : null,
+          weekMealId: item.itemType === 'WEEK_MEAL' ? item.weekMeal?.id : null,
+          weekMealTitle: item.itemType === 'WEEK_MEAL' ? item.title : null,
+          weekMealDescription: item.itemType === 'WEEK_MEAL' ? item.description : null,
+          weekMealImage: item.itemType === 'WEEK_MEAL' ? item.image : null,
           quantity: item.quantity || 1,
           unitPrice: item.unitPrice || 0,
           notes: ''

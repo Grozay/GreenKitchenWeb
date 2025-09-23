@@ -199,6 +199,20 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
         </Stepper>
       </Box>
 
+      {/* Cancelled banner + reason */}
+      {order.status === 'CANCELLED' && (
+        <Card sx={{ mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'error.light', bgcolor: '#fff5f5' }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Chip label="ORDER CANCELLED" color="error" variant="filled" sx={{ width: 'fit-content', fontWeight: 700 }} />
+              <Typography variant="body2" color="text.secondary">
+                {order.notes || order.note || 'No reason provided'}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Order Items */}
       <Card sx={{ mb: 2, borderRadius: 2 }}>
         <CardContent>

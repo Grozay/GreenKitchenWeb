@@ -38,6 +38,7 @@ export const PAYMENT_METHOD = {
 export const USER_ROLES = {
   CUSTOMER: 'CUSTOMER',
   EMPLOYEE: 'EMPLOYEE',
+  SHIPPER: 'SHIPPER',
   ADMIN: 'ADMIN'
 }
 

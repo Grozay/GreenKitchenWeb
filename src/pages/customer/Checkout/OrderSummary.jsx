@@ -274,7 +274,7 @@ const OrderSummary = ({
           </Box>
 
           {/* Membership Free Shipping Info */}
-          {shippingFee === 0 && customerDetails?.membership?.currentTier === 'RADIANCE' && shippingSettings && (
+          {/* {shippingFee === 0 && customerDetails?.membership?.currentTier === 'RADIANCE' && shippingSettings && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, pl: 2 }}>
               <Typography variant="caption" sx={{ color: '#00B389', fontWeight: 600 }}>
                 Membership Free Shipping
@@ -283,7 +283,7 @@ const OrderSummary = ({
                 -{formatPrice(shippingSettings.baseFee || 10000)}
               </Typography>
             </Box>
-          )}
+          )} */}
 
           {/* Distance Info */}
           {selectedStore && shippingFee > 0 && shippingSettings && (

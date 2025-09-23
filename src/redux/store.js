@@ -6,6 +6,7 @@ import { mealReducer } from './meal/mealSlice.js'
 import { cartReducer } from './cart/cartSlice.js'
 import suggestSauceReducer from './meal/suggestSauceSlice'
 import chatCountReducer from './chat/chatCountSlice.js'
+import { orderReducer } from './order/orderSlice.js'
 //config redux-persist
 import { combineReducers } from 'redux'
 import { persistReducer } from 'redux-persist'
@@ -14,7 +15,7 @@ import storage from 'redux-persist/lib/storage'
 const rootPersistConfig = {
   key: 'root',
   storage: storage,
-  whitelist: ['translations', 'employee', 'customer', 'meal', 'cart', 'chatCount']
+  whitelist: ['translations', 'employee', 'customer', 'meal', 'cart', 'chatCount', 'order']
 }
 
 const rootReducer = combineReducers({
@@ -24,7 +25,8 @@ const rootReducer = combineReducers({
   meal: mealReducer,
   cart: cartReducer,
   suggestSauce: suggestSauceReducer,
-  chatCount: chatCountReducer
+  chatCount: chatCountReducer,
+  order: orderReducer
 })
 
 const persistedReducer = persistReducer(rootPersistConfig, rootReducer)
