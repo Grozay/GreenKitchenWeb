@@ -21,9 +21,6 @@ import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
   console.log('Render SaveDrawerInfoMobile')
@@ -38,32 +35,31 @@ const SaveDrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const currentCustomer = useSelector(state => state.customer.currentCustomer)
   const customerId = currentCustomer?.id || null // Sửa: lấy customerId động
   const customTotal = calcCustomTotal(selected)
-  const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
-  const nutritionalAdvice = getNutritionalAdvice(customTotal)
+  // const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
+  // const nutritionalAdvice = getNutritionalAdvice(customTotal)
   const allSelectedItems = Object.values(selected).flat()
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedHealthyMeals = useTranslate('Healthy Meals Just For You', currentLang)
-  const translatedReviewSelections = useTranslate('Review My Selections', currentLang)
-  const translatedBalanced = useTranslate('Your meal is well-balanced!', currentLang)
-  const translatedCanOrder = useTranslate('You can now order your custom meal or review your choices.', currentLang)
-  const translatedClearSelections = useTranslate('Clear Selections', currentLang)
-  const translatedOrOrder = useTranslate('Or order your custom meal', currentLang)
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedTotalPrice = useTranslate('Total Price:', currentLang)
-  const translatedFavoriteMix = useTranslate('My favorite mix with quantities', currentLang)
-  const translatedCustomMeal = useTranslate('your custom Meal', currentLang)
-  const translatedAdding = useTranslate('Adding...', currentLang)
-  const translatedSaving = useTranslate('Saving...', currentLang)
-  const translatedSaveCustom = useTranslate('Save custom meal', currentLang)
+
+  const translatedHealthyMeals = 'Healthy Meals Just For You'
+  const translatedReviewSelections = 'Review My Selections'
+  const translatedBalanced = 'Your meal is well-balanced!'
+  const translatedCanOrder = 'You can now order your custom meal or review your choices.'
+  const translatedClearSelections = 'Clear Selections'
+  const translatedOrOrder = 'Or order your custom meal'
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedTotalPrice = 'Total Price:'
+  const translatedFavoriteMix = 'My favorite mix with quantities'
+  const translatedCustomMeal = 'your custom Meal'
+  const translatedAdding = 'Adding...'
+  const translatedSaving = 'Saving...'
+  const translatedSaveCustom = 'Save custom meal'
   const meal = useSelector(state => state.meal.meal) // Lấy meal từ Redux
   const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
-    const translatedLoginToast = useTranslate('You need to log in to place an order!', currentLang)
-  const translatedSaveLoginToast = useTranslate('You need to log in to save the meal!', currentLang)
+  const translatedLoginToast = 'You need to log in to place an order!'
+  const translatedSaveLoginToast = 'You need to log in to save the meal!'
   const handleOrderCustom = () => {
     setOrderMode(true)
     setOpenInfoModal(true)

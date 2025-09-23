@@ -12,7 +12,6 @@ import MenuList from './MenuList/MenuList'
 import TabMenu from './TabMenu/TabMenu'
 import TabMenuMobile from './TabMenu/TabMenuMobile'
 import Footer from '~/components/Footer/Footer'
-import { useTranslation } from 'react-i18next'
 import FilterListIcon from '@mui/icons-material/FilterList'
 
 function MenuLayout() {
@@ -26,7 +25,7 @@ function MenuLayout() {
   const lowRef = useRef(null)
   const vegetarianRef = useRef(null)
 
-  const { t } = useTranslation()
+  // const { t } = useTranslation()
 
   const getFilteredMeals = useMemo(() => {
     // Sort toàn bộ mealPackages theo price trước khi filter
@@ -137,7 +136,7 @@ function MenuLayout() {
             color: theme.palette.text.primary
           }}
         >
-          {t('menu.choose')} <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>{t('menu.mealPlan')}</span>
+          Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>MEAL PLAN</span>
         </Typography>
         <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 4 }} />
         <Typography
@@ -145,7 +144,7 @@ function MenuLayout() {
           align="center"
           sx={{ maxWidth: '48rem', mx: 'auto', mb: 6, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
         >
-          {t('menu.description')}
+          Green kit provides many meal plans and accompanying foods to meet your needs
         </Typography>
 
         {/* Tab Navigation - Sticky */}
@@ -176,11 +175,11 @@ function MenuLayout() {
         {/* filter price */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <FormControl variant="outlined" size='small' sx={{ minWidth: 150, borderRadius: 5 }}>
-            <InputLabel sx={{ color: theme.palette.primary.main }}>{t('menu.filter')}</InputLabel>
+            <InputLabel sx={{ color: theme.palette.primary.main }}>Filter by Price</InputLabel>
             <Select
               value={sortOrder}
               onChange={handleSortChange}
-              label={t('menu.filter')}
+              label="Filter by Price"
               MenuProps={{
                 sx: {
                   '& .MuiPaper-root': {
@@ -203,8 +202,8 @@ function MenuLayout() {
                 borderRadius: 5
               }}
             >
-              <MenuItem value="asc">{t('menu.priceAsc')}</MenuItem>
-              <MenuItem value="desc">{t('menu.priceDesc')}</MenuItem>
+              <MenuItem value="asc">Price: Low to High</MenuItem>
+              <MenuItem value="desc">Price: High to Low</MenuItem>
             </Select>
           </FormControl>
           <FilterListIcon sx={{ ml: 1, color: theme.palette.primary.main }} />
@@ -213,7 +212,7 @@ function MenuLayout() {
         {/* HIGH PROTEIN Section */}
         <Box ref={highRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            {t('menu.high')}
+            HIGH CALORIE
           </Typography>
           <MenuList pkg={getFilteredMeals('HIGH')} loading={loading} />
         </Box>
@@ -221,7 +220,7 @@ function MenuLayout() {
         {/* BALANCE Section */}
         <Box ref={balanceRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            {t('menu.balance')}
+            BALANCE CALORIE
           </Typography>
           <MenuList pkg={getFilteredMeals('BALANCE')} loading={loading} />
         </Box>
@@ -229,7 +228,7 @@ function MenuLayout() {
         {/* LOW CARB Section */}
         <Box ref={lowRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            {t('menu.low')}
+            LOW CALORIE
           </Typography>
           <MenuList pkg={getFilteredMeals('LOW')} loading={loading} />
         </Box>
@@ -237,7 +236,7 @@ function MenuLayout() {
         {/* VEGETARIAN Section */}
         <Box ref={vegetarianRef} sx={{ mb: 8 }}>
           <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: theme.palette.text.primary }}>
-            {t('menu.vegetarian')}
+            VEGETARIAN
           </Typography>
           <MenuList pkg={getFilteredMeals('VEGETARIAN')} loading={loading} />
         </Box>

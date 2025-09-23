@@ -3,7 +3,7 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import { Link } from 'react-router-dom'
 
-const DrawerAppBarItem = ({ toggleDrawer, navItemStyle, t, label, path }) => {
+const DrawerAppBarItem = ({ toggleDrawer, navItemStyle, label, path }) => {
   return (
     <>
       <ListItem disablePadding>
@@ -13,7 +13,7 @@ const DrawerAppBarItem = ({ toggleDrawer, navItemStyle, t, label, path }) => {
           onClick={toggleDrawer(false)}
           sx={navItemStyle}
         >
-          <ListItemText sx={{ color: (theme) => theme.palette.text.primary }} primary={t('navBar.' + label)} />
+          <ListItemText sx={{ color: (theme) => theme.palette.text.primary }} primary={label} />
         </ListItemButton>
       </ListItem>
     </>

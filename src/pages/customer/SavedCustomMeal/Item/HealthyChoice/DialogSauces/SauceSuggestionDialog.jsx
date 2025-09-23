@@ -7,9 +7,6 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import FoodCard from '~/components/FoodCard/FoodCard'
-import useTranslate from '~/hooks/useTranslate'
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const modalStyle = {
   position: 'absolute',
@@ -34,11 +31,10 @@ const SauceSuggestionModal = ({
   onClose
 }) => {
   const selected = useState(selectedSauceIds)
-  const currentLang = useSelector(selectCurrentLanguage)
 
-  const translatedSuggestSauce = useTranslate('Suggest Sauce for You', currentLang)
-  const translatedNoSauce = useTranslate('No sauce matches your protein selection.', currentLang)
-  const translatedOrderNow = useTranslate('Order Now', currentLang)
+  const translatedSuggestSauce = 'Suggest Sauce for You'
+  const translatedNoSauce = 'No sauce matches your protein selection.'
+  const translatedOrderNow = 'Order Now'
 
   const handleOrderNow = () => {
     if (onOrderNow) onOrderNow(selected)

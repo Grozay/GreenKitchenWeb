@@ -11,12 +11,9 @@ import { Drawer } from '@mui/material'
 import DrawerInfo from './DrawerInfo/DrawerInfo'
 import { selectSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
 import SauceSuggestionDialog from '../DialogSauces/SauceSuggestionDialog'
-import { getSuggestedSauces } from '~/utils/nutrition'
+import { getSuggestedSaucesForMeal } from '~/utils/nutrition'
 import { setSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const InfoDetail = ({ itemHealthy }) => {
   const dispatch = useDispatch()
@@ -27,16 +24,14 @@ const InfoDetail = ({ itemHealthy }) => {
   const [openDrawer, setOpenDrawer] = useState(false)
   const selectedItems = useSelector(selectCurrentMeal)
   const allSauces = itemHealthy.sauce
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedClearSelections = useTranslate('Clear Selections', currentLang)
-  const translatedSuggestSauce = useTranslate('Suggest Sauce', currentLang)
-  const translatedOrderNow = useTranslate('Order Now', currentLang)
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedClearSelections = 'Clear Selections'
+  const translatedSuggestSauce = 'Suggest Sauce'
+  const translatedOrderNow = 'Order Now'
 
   const items = [
     { label: translatedCalories, value: `${Math.round(totalCalories)}` },
@@ -62,15 +57,8 @@ const InfoDetail = ({ itemHealthy }) => {
   }, [selectedItems.protein])
 
   const handleSuggestSauce = () => {
-    let sauces = []
     if (selectedItems.protein.length > 0) {
-      selectedItems.protein.forEach(protein => {
-        sauces = [
-          ...sauces,
-          ...getSuggestedSauces(protein, allSauces)
-        ]
-      })
-      sauces = sauces.filter((s, i, arr) => arr.findIndex(x => x.id === s.id) === i)
+      const sauces = getSuggestedSaucesForMeal(selectedItems.protein, allSauces)
       dispatch(setSuggestedSauces(sauces))
     } else {
       dispatch(setSuggestedSauces([]))

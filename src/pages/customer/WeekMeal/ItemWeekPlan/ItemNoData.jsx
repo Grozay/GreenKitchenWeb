@@ -2,22 +2,20 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import theme from '~/theme'
-import { useTranslation } from 'react-i18next'
 
 const ItemNoData = ({ title }) => {
-  const { t } = useTranslation()
 
-  const translatedNoData = t('weekMeal.noData') || 'No data'
-  const translatedDay = t('weekMeal.day') || 'Day'
-  const translatedMeal1 = t('weekMeal.meal1') || 'Breakfast'
-  const translatedMeal2 = t('weekMeal.meal2') || 'Lunch'
-  const translatedMeal3 = t('weekMeal.meal3') || 'Dinner'
-  const translatedTime1 = t('weekMeal.time1') || '(6:00 - 10:00)'
-  const translatedTime2 = t('weekMeal.time2') || '(11:00 - 14:00)'
-  const translatedTime3 = t('weekMeal.time3') || '(17:00 - 20:00)'
-  const translatedPrevWeek = t('weekMeal.prevWeek') || 'Previous Week'
-  const translatedNextWeek = t('weekMeal.nextWeek') || 'Next Week'
-  const translatedNoWeekData = t('weekMeal.noWeekData') || 'No Week Data'
+  const translatedNoData = 'No data'
+  const translatedDay = 'Day'
+  const translatedMeal1 = 'Breakfast'
+  const translatedMeal2 = 'Lunch'
+  const translatedMeal3 = 'Dinner'
+  const translatedTime1 = '(6:00 - 10:00)'
+  const translatedTime2 = '(11:00 - 14:00)'
+  const translatedTime3 = '(17:00 - 20:00)'
+  const translatedPrevWeek = 'Previous Week'
+  const translatedNextWeek = 'Next Week'
+  const translatedNoWeekData = 'No Week Data'
 
   return (
     <Box>

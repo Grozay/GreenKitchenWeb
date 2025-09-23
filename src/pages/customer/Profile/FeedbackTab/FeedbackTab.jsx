@@ -202,7 +202,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
                 Live Chat
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Chat directly with our support staff
+                Chat directly with our support AI for best suggest healthy information
               </Typography>
               <Button variant="contained" color="success" fullWidth>
                 Start Chat
@@ -360,7 +360,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
         </DialogTitle>
 
         <DialogContent sx={{ pt: 2 }}>
-          <Grid container spacing={3}>
+          <Grid container spacing={3} item xs={12} sx={{ mt: 1 }}>
             <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Feedback Type</InputLabel>
@@ -424,7 +424,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
           </Grid>
         </DialogContent>
 
-        <DialogActions sx={{ p: 3 }}>
+        <DialogActions sx={{ p: 3 }} >
           <Button onClick={() => setFeedbackDialogOpen(false)} variant="outlined">
             Cancel
           </Button>
@@ -462,7 +462,7 @@ export default function FeedbackTab({ customerDetails, setCustomerDetails }) {
         </DialogTitle>
 
         <DialogContent sx={{ pt: 2 }}>
-          <Grid container spacing={3}>
+          <Grid container spacing={3} item xs={12} sx={{ mt: 1 }}>
             <Grid size={6}>
               <FormControl fullWidth>
                 <InputLabel>Issue Type</InputLabel>

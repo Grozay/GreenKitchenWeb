@@ -12,9 +12,7 @@ import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 import HealthyChoiceMobile from './Item/HealthyChoice/HealthyChoiceMobile'
 import { getIngredientsAPI } from '~/apis'
 import { setSuggestedSauces, setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
-import { getSuggestedSauces } from '~/utils/nutrition'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { getSuggestedSaucesForMeal } from '~/utils/nutrition'
 import { Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
@@ -28,13 +26,12 @@ const SmartMealLayout = () => {
   const sideRef = useRef(null)
   const sauceRef = useRef(null)
   const selectedItems = useSelector(selectCurrentMeal)
-  const currentLang = useSelector(selectCurrentLanguage)
   const navigate = useNavigate()
 
-  const translatedSelectProtein = useTranslate('SELECT PROTEIN', currentLang)
-  const translatedSelectCarbs = useTranslate('SELECT CARBS', currentLang)
-  const translatedSelectSide = useTranslate('SELECT SIDE', currentLang)
-  const translatedSelectSauce = useTranslate('SELECT SAUCE', currentLang)
+  const translatedSelectProtein = 'SELECT PROTEIN'
+  const translatedSelectCarbs = 'SELECT CARBS'
+  const translatedSelectSide = 'SELECT SIDE'
+  const translatedSelectSauce = 'SELECT SAUCE'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,12 +67,12 @@ const SmartMealLayout = () => {
   }, [])
 
   useEffect(() => {
-    const selectedProtein = selectedItems.protein[selectedItems.protein.length - 1]
-
-    if (selectedProtein && itemHealthy?.sauce) {
-      const suggestions = getSuggestedSauces(selectedProtein, itemHealthy.sauce)
+    if (selectedItems.protein && selectedItems.protein.length > 0 && itemHealthy?.sauce) {
+      const suggestions = getSuggestedSaucesForMeal(selectedItems.protein, itemHealthy.sauce)
       dispatch(setSuggestedSauces(suggestions))
       dispatch(setShowSauceHint(true))
+    } else {
+      dispatch(clearSuggestions())
     }
   }, [selectedItems.protein, itemHealthy, dispatch])
 

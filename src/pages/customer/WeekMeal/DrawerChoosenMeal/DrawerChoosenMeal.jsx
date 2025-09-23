@@ -14,8 +14,7 @@ import { clearCart } from '~/redux/meal/mealSlice' // Thêm import clearCart n�
 import { toast } from 'react-toastify'
 import { IMAGE_DEFAULT } from '~/utils/constants'
 import { HEALTHY_MESSAGES } from '~/utils/constants'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { createCustomerWeekMealAPI } from '~/apis/index'
 
 const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   // Mặc định check hết khi mở Drawer
@@ -60,24 +59,23 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
   const dispatch = useDispatch()
   const [ordering, setOrdering] = useState(false)
   const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
-  const currentLang = useSelector(selectCurrentLanguage)
 
   // Thêm translations thủ công
-  const translatedOrderNow = useTranslate('Đặt Ngay', currentLang)
-  const translatedHealthWarning = useTranslate('Cảnh báo sức khỏe', currentLang)
-  const translatedUnderstood = useTranslate('Đã hiểu', currentLang)
-  const translatedDay = useTranslate('NGÀY', currentLang)
-  const translatedMeal1 = useTranslate('MEAL 1', currentLang)
-  const translatedMeal2 = useTranslate('MEAL 2', currentLang)
-  const translatedMeal3 = useTranslate('MEAL 3', currentLang)
-  const translatedTime1 = useTranslate('(6:00 - 10:00)', currentLang)
-  const translatedTime2 = useTranslate('(11:00 - 14:00)', currentLang)
-  const translatedTime3 = useTranslate('(17:00 - 20:00)', currentLang)
-  const translatedAddedToCart = useTranslate('Thêm vào giỏ hàng thành công!', currentLang)
-  const translatedFailedToAdd = useTranslate('Thêm vào giỏ hàng thất bại', currentLang)
-  const translatedWeekMealFrom = useTranslate('Tuần ăn từ', currentLang)
-  const translatedTo = useTranslate('đến', currentLang)
-  const translatedType = useTranslate('loại:', currentLang)
+  const translatedOrderNow = 'Order Now'
+  const translatedHealthWarning = 'Health Warning'
+  const translatedUnderstood = 'Understood'
+  const translatedDay = 'Day'
+  const translatedMeal1 = 'Breakfast'
+  const translatedMeal2 = 'Lunch'
+  const translatedMeal3 = 'Dinner'
+  const translatedTime1 = '(6:00 - 10:00)'
+  const translatedTime2 = '(11:00 - 14:00)'
+  const translatedTime3 = '(17:00 - 20:00)'
+  const translatedAddedToCart = 'Added to cart successfully!'
+  const translatedFailedToAdd = 'Failed to add to cart'
+  const translatedWeekMealFrom = 'Week meal from'
+  const translatedTo = 'to'
+  const translatedType = 'type:'
 
   const handleSwitchChange = (idx, mealKey, checked) => {
     setDays(prev =>
@@ -119,10 +117,27 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
     try {
       setOrdering(true)
 
-      // Tạo request data theo format API tương tự CardMenu
-      const requestData = {
-        isCustom: false,
-        menuMealId: null,
+      // Bước 1: Tạo CustomerWeekMeal trước
+      const customerWeekMealData = {
+        customerId: customerId,
+        type: weekData.type,
+        weekStart: weekData.weekStart,
+        weekEnd: weekData.weekEnd,
+        days: filteredDays.map(d => ({
+          day: d.day,
+          date: d.date,
+          meal1: d.meal1?.id || null,
+          meal2: d.meal2?.id || null,
+          meal3: d.meal3?.id || null
+        }))
+      }
+
+      const customerWeekMealResponse = await createCustomerWeekMealAPI(customerWeekMealData)
+      const customerWeekMealId = customerWeekMealResponse.id
+
+      // Bước 2: Tạo cart item với CustomerWeekMeal ID
+      const cartItemData = {
+        customerWeekMealDayId: customerWeekMealId,
         quantity: 1,
         unitPrice: totalAmount,
         totalPrice: totalAmount,
@@ -130,16 +145,18 @@ const DrawerChoosenMeal = ({ open, onClose, weekData, title, onOrder }) => {
         description: `${translatedWeekMealFrom} ${weekData.weekStart} ${translatedTo} ${weekData.weekEnd}, ${translatedType} ${weekData.type}`,
         image: IMAGE_DEFAULT.IMAGE_WEEK_MEAL,
         itemType: 'WEEK_MEAL'
+        // Không cần truyền customerWeekMealDay object vì đã lưu trong DB
       }
 
       // Gọi redux thunk để add vào cart
-      await dispatch(createCartItem({ customerId, itemData: requestData }))
+      await dispatch(createCartItem({ customerId, itemData: cartItemData }))
       if (customerId) {
         await dispatch(fetchCart(customerId))
       }
       toast.success(translatedAddedToCart)
       onClose()
     } catch (error) {
+      console.error('Error creating customer week meal or adding to cart:', error)
       toast.error(translatedFailedToAdd)
     } finally {
       setOrdering(false)

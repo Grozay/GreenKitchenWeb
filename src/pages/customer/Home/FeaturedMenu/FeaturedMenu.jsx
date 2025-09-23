@@ -161,7 +161,7 @@ const FeaturedMenu = () => {
                   transform: `translateX(-${startIndex * (100 / VISIBLE_COUNT)}%)`
                 }}
               >
-                {mealPackages.map((item, idx) => (
+                {mealPackages.slice().reverse().map((item, idx) => (
                   <Box
                     key={item.id}
                     sx={{

@@ -7,34 +7,22 @@ import Typography from '@mui/material/Typography'
 import Drawer from '@mui/material/Drawer'
 import theme from '~/theme'
 import SauceSuggestionDialog from '~/pages/customer/SmartMeal/Item/HealthyChoice/DialogSauces/SauceSuggestionDialog'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 import SaveDrawerInfoMobile from '~/pages/customer/SavedCustomMeal/Item/HealthyChoice/InfoDetail/DrawerInfo/SaveDrawerInfoMobile' // Thay SaveDrawerInfoMobile
 const SaveHealthyChoiceMobile = ({ itemHealthy }) => {
   const dispatch = useDispatch()
-  const { t } = useTranslation()
   const selectedItems = useSelector(selectCurrentMeal)
   const { totalCalories, totalProtein, totalCarbs, totalFat } = useSelector(selectMealTotals)
-  const currentLang = useSelector(selectCurrentLanguage)
   const [openDrawer1, setOpenDrawer1] = useState(false)
   const [openSauceDialog, setOpenSauceDialog] = useState(false)
   const [hasSuggestedSauce, setHasSuggestedSauce] = useState(false)
   const suggestedSauces = useSelector(state => state.suggestSauce.suggestedSauces)
   const allSauces = itemHealthy.sauce
 
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedSavedMeal = useTranslate('Saved your custom meal', currentLang)
-  // const translatedOrderNow = useTranslate('Order Now', currentLang)
-
   const items = [
-    { label: translatedCalories, value: `${Math.round(totalCalories)}` },
-    { label: translatedProtein, value: `${Math.round(totalProtein)}g` },
-    { label: translatedCarbs, value: `${Math.round(totalCarbs)}g` },
-    { label: translatedFat, value: `${Math.round(totalFat)}g` }
+    { label: 'Calories', value: `${Math.round(totalCalories)}` },
+    { label: 'Protein', value: `${Math.round(totalProtein)}g` },
+    { label: 'Carbs', value: `${Math.round(totalCarbs)}g` },
+    { label: 'Fat', value: `${Math.round(totalFat)}g` }
   ]
 
   // Reset khi đổi protein
@@ -138,7 +126,7 @@ const SaveHealthyChoiceMobile = ({ itemHealthy }) => {
             }
           }}
         >
-          {translatedSavedMeal}
+          Saved your custom meal
         </Box>
       </Box>
       <Drawer

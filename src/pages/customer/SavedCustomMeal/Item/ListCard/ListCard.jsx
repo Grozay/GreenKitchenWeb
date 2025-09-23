@@ -56,7 +56,7 @@ const ListCard = ({ title, index, cards, loading }) => {
               <Skeleton variant="rectangular" height={250} sx={{ borderRadius: 5 }} />
             </Grid>
           ))
-          : cards?.map((card, idx) => (
+          : cards?.slice().reverse().map((card, idx) => (
             <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={idx}>
               <FoodCard card={card} />
             </Grid>

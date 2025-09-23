@@ -6,9 +6,6 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import { useState, useEffect } from 'react'
-import useTranslate from '~/hooks/useTranslate'
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const modalStyle = {
   position: 'absolute',
@@ -28,12 +25,11 @@ const modalStyle = {
 const CustomMealInfoModal = ({ open, onClose, onSave, defaultTitle, defaultDesc }) => {
   const [title, setTitle] = useState(defaultTitle || '')
   const [desc, setDesc] = useState(defaultDesc || '')
-  const currentLang = useSelector(selectCurrentLanguage)
 
-  const translatedSaveYourCustomMeal = useTranslate('Save Your Custom Meal', currentLang)
-  const translatedMealName = useTranslate('Meal Name', currentLang)
-  const translatedDescription = useTranslate('Description', currentLang)
-  const translatedSave = useTranslate('Save', currentLang)
+  const translatedSaveYourCustomMeal = 'Save Your Custom Meal'
+  const translatedMealName = 'Meal Name'
+  const translatedDescription = 'Description'
+  const translatedSave = 'Save'
 
   useEffect(() => {
     setTitle(defaultTitle || '')

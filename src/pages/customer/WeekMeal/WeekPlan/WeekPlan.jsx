@@ -9,9 +9,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import DrawerChoosenMeal from '../DrawerChoosenMeal/DrawerChoosenMeal'
 import ItemWeekPlan from '../ItemWeekPlan/ItemWeekPlan'
 import moment from 'moment'
-import { useTranslation } from 'react-i18next'
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
   const [openDrawer, setOpenDrawer] = useState(false)
@@ -38,19 +35,16 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
   const canPrev = isValidStartDate && weekDiff > -1
   const canNext = isValidStartDate && weekDiff < 1
 
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
-
-  const translatedPrevWeek = t('weekMeal.prevWeek')
-  const translatedNextWeek = t('weekMeal.nextWeek')
-  const translatedOrderNow = t('weekMeal.orderNow')
-  const translatedDay = t('weekMeal.day')
-  const translatedMeal1 = t('weekMeal.meal1')
-  const translatedMeal2 = t('weekMeal.meal2')
-  const translatedMeal3 = t('weekMeal.meal3')
-  const translatedTime1 = t('weekMeal.time1')
-  const translatedTime2 = t('weekMeal.time2')
-  const translatedTime3 = t('weekMeal.time3')
+  const translatedPrevWeek = 'Previous Week'
+  const translatedNextWeek = 'Next Week'
+  const translatedOrderNow = 'Order Now'
+  const translatedDay = 'Day'
+  const translatedMeal1 = 'Breakfast'
+  const translatedMeal2 = 'Lunch'
+  const translatedMeal3 = 'Dinner'
+  const translatedTime1 = '(6:00 - 10:00)'
+  const translatedTime2 = '(11:00 - 14:00)'
+  const translatedTime3 = '(17:00 - 20:00)'
 
   return (
     <Box>

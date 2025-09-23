@@ -159,6 +159,11 @@ export const updateCustomMealAPI = async (id, data) => {
   return response.data
 }
 
+export const deleteCustomMealAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/custom-meals/${id}`)
+  return response.data
+}
+
 // MenuMeal
 export const getMenuMealAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers`)
@@ -388,13 +393,6 @@ export const updateOrderStatusAPI = async (data) => {
   return response.data
 }
 
-export const cancelOrderAPI = async (orderId, note) => {
-  const params = new URLSearchParams()
-  if (note) params.append('note', note)
-  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/orders/${orderId}/cancel?${params.toString()}`)
-  return response.data
-}
-
 export const getOrdersFilteredAPI = async (page, size, status, q, fromDate, toDate) => {
   let url = `${API_ROOT}/apis/v1/orders/filter?page=${page}&size=${size}`
   if (status) url += `&status=${encodeURIComponent(status)}`
@@ -449,6 +447,42 @@ export const updateWeekMealDayAPI = async (weekMealId, dayId, data) => {
 
 export const getWeekMealDayByIdAPI = async (weekMealId, dayId) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/week-meals/${weekMealId}/days/${dayId}`)
+  return response.data
+}
+
+// CustomerWeekMeal APIs
+export const createCustomerWeekMealAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-week-meals`, data)
+  return response.data
+}
+
+export const getCustomerWeekMealsByCustomerIdAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-week-meals/customer/${customerId}`)
+  return response.data
+}
+
+export const getCustomerWeekMealByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-week-meals/${id}`)
+  return response.data
+}
+
+export const updateCustomerWeekMealAPI = async (id, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-week-meals/${id}`, data)
+  return response.data
+}
+
+export const deleteCustomerWeekMealAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/customer-week-meals/${id}`)
+  return response.data
+}
+
+export const updateCustomerWeekMealDayAPI = async (customerWeekMealId, dayId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/customer-week-meals/${customerWeekMealId}/days/${dayId}`, data)
+  return response.data
+}
+
+export const getCustomerWeekMealDayByIdAPI = async (customerWeekMealId, dayId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/customer-week-meals/${customerWeekMealId}/days/${dayId}`)
   return response.data
 }
 
@@ -948,3 +982,14 @@ export const getCustomerEmailTrackingStatsAPI = async (customerId) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/tracking-stats/customer/${customerId}`)
   return response.data
 }
+  // AI Topic Suggestions API
+  export const suggestAITopicsAPI = async ({ category = '', style = 'friendly', audience = 'customers', count = 8, language = 'vi' } = {}) => {
+    const params = new URLSearchParams()
+    if (category) params.append('category', category)
+    if (style) params.append('style', style)
+    if (audience) params.append('audience', audience)
+    if (count) params.append('count', count.toString())
+    if (language) params.append('language', language)
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/suggest-topics?${params.toString()}`)
+    return response.data
+  }

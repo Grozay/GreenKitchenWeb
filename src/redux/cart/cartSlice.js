@@ -90,8 +90,10 @@ export const syncCartAfterLogin = createAsyncThunk(
     // Gọi API addMealToCart cho từng item trong local cart
     for (const item of localCartItems) {
       try {
-        await addMealToCartAPI(customerId, {
-          menuMealId: item.menuMealId || item.id, // Sử dụng menuMealId nếu có, fallback id
+        const itemData = {
+          menuMealId: item.menuMealId || null,
+          customMealId: item.customMealId || null,
+          customerWeekMealDayId: item.customerWeekMealDayId || null,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           totalPrice: item.totalPrice,
@@ -104,9 +106,14 @@ export const syncCartAfterLogin = createAsyncThunk(
           fat: item.fat,
           itemType: item.itemType,
           isCustom: item.isCustom,
-          // Thêm customMeal nếu là custom meal
-          customMeal: item.customMeal || null,
-        })
+          // Thêm các object cần thiết cho display
+          customMeal: item.customMeal || null
+          // customerWeekMealDay không cần truyền vì đã lưu trong DB
+        }
+
+        const response = await addMealToCartAPI(customerId, itemData)
+
+        // customerWeekMealDay đã lưu trong DB, không cần localStorage
       } catch (error) {
         console.error('Error syncing item:', item.id, error)
         // Có thể bỏ qua lỗi hoặc handle (e.g., show toast)
@@ -130,15 +137,18 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCart.fulfilled, (state, action) => {
-        if (action.payload && Array.isArray(action.payload.cartItems)) {
-          state.currentCart = action.payload
-        } else if (action.payload && (action.payload.menuMealId || action.payload.id)) {
-          // Nếu payload là 1 item, wrap lại thành cart chuẩn
+        let cartData = action.payload
+
+        if (cartData && Array.isArray(cartData.cartItems)) {
+          // customerWeekMealDay đã có trong response từ DB, không cần merge từ localStorage
+          state.currentCart = cartData
+        } else if (cartData && (cartData.customerWeekMealDayId || cartData.id)) {
+          // Nếu payload là 1 item, customerWeekMealDay đã có trong item từ DB
           state.currentCart = {
-            cartItems: [action.payload],
-            totalAmount: action.payload.totalPrice || 0,
+            cartItems: [cartData],
+            totalAmount: cartData.totalPrice || 0,
             totalItems: 1,
-            totalQuantity: action.payload.quantity || 1
+            totalQuantity: cartData.quantity || 1
           }
         } else {
           state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
@@ -153,9 +163,16 @@ const cartSlice = createSlice({
           if (!state.currentCart || !Array.isArray(state.currentCart.cartItems)) {
             state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
           }
-          const newItem = action.payload
+
+          // customerWeekMealDay đã lưu trong DB, không cần localStorage
+
+          // Không cần merge weekMeal nữa
+          const newItem = {
+            ...action.payload
+          }
+
           const existIndex = state.currentCart.cartItems.findIndex(
-            item => String(item.menuMealId || item.id) === String(newItem.menuMealId || newItem.id)
+            item => String(item.customerWeekMealDayId || item.menuMealId || item.id) === String(newItem.customerWeekMealDayId || newItem.menuMealId || newItem.id)
           )
           if (existIndex !== -1) {
             // Nếu đã có, tăng quantity và cập nhật totalPrice
@@ -177,9 +194,12 @@ const cartSlice = createSlice({
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         const itemId = String(action.meta.arg.itemId)
+
+        // customerWeekMealDay không lưu trong localStorage
+
         state.currentCart.cartItems = state.currentCart.cartItems.filter(
           item =>
-            String(item.menuMealId || item.customMealId) !== itemId
+            String(item.customerWeekMealDayId || item.menuMealId || item.customMealId || item.id) !== itemId
         )
         state.currentCart.totalItems = state.currentCart.cartItems.length
         state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
