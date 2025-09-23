@@ -9,9 +9,7 @@ import theme from '~/theme'
 import {
   Facebook,
   Twitter,
-  Instagram,
-  LinkedIn,
-  GitHub
+  Instagram
 } from '@mui/icons-material'
 
 const Footer = () => {
@@ -58,15 +56,13 @@ const Footer = () => {
             letterSpacing: '0.5px'
           }}
         >
-          Kết nối với Green Kitchen trên mạng xã hội:
+          Connect with Green Kitchen on social media:
         </Typography>
         <Box>
           {[
             { icon: <Facebook />, link: '#' },
             { icon: <Twitter />, link: '#' },
-            { icon: <Instagram />, link: '#' },
-            { icon: <LinkedIn />, link: '#' },
-            { icon: <GitHub />, link: '#' }
+            { icon: <Instagram />, link: '#' }
           ].map((item, index) => (
             <Link
               key={index}
@@ -111,8 +107,8 @@ const Footer = () => {
                 fontSize: '0.9rem'
               }}
             >
-              Ứng dụng tư vấn thực phẩm lành mạnh, giúp bạn sống khỏe mỗi ngày
-              bằng lựa chọn dinh dưỡng thông minh.
+              A healthy eating advisory app that helps you live well every day
+              with smart, nutrition-focused choices.
             </Typography>
 
             {/* App Store Buttons */}
@@ -132,7 +128,7 @@ const Footer = () => {
               >
                 <img
                   src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
-                  alt="Tải từ App Store"
+                  alt="Download on the App Store"
                   style={{
                     height: '45px',
                     transition: 'all 0.3s ease',
@@ -149,7 +145,7 @@ const Footer = () => {
               >
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                  alt="Tải từ Google Play"
+                  alt="Get it on Google Play"
                   style={{
                     height: '45px',
                     transition: 'all 0.3s ease',
@@ -160,7 +156,7 @@ const Footer = () => {
             </Box>
           </Grid>
 
-          {/* Tính năng */}
+          {/* Features */}
           <Grid size={{ xs: 6, md: 2 }}>
             <Typography
               variant="h6"
@@ -171,17 +167,17 @@ const Footer = () => {
                 fontSize: '1rem'
               }}
             >
-              Tính năng
+              Features
             </Typography>
             {[
-              'AI Tư vấn',
-              'Tìm món ăn',
-              'Lịch sử hỏi đáp',
-              'Thông tin thực phẩm'
+              { label: 'AI Advisor', href: '/ai-chat' },
+              { label: 'Find Meals', href: '/menu' },
+              { label: 'Q&A History', href: '/agent' },
+              { label: 'Food Information', href: '/blog' }
             ].map((item, index) => (
               <Link
                 key={index}
-                href="#"
+                href={item.href}
                 variant="body2"
                 display="block"
                 color="inherit"
@@ -195,13 +191,13 @@ const Footer = () => {
                   }
                 }}
               >
-                {item}
+                {item.label}
               </Link>
             ))}
           </Grid>
           <ChatBox />
 
-          {/* Hữu ích */}
+          {/* Useful */}
           <Grid size={{ xs: 6, md: 2 }}>
             <Typography
               variant="h6"
@@ -212,33 +208,36 @@ const Footer = () => {
                 fontSize: '1rem'
               }}
             >
-              Hữu ích
+              Useful
             </Typography>
-            {['Về chúng tôi', 'Liên hệ', 'Chính sách', 'Hỗ trợ'].map(
-              (item, index) => (
-                <Link
-                  key={index}
-                  href="#"
-                  variant="body2"
-                  display="block"
-                  color="inherit"
-                  sx={{
-                    mb: 1.5,
-                    opacity: 0.8,
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      color: theme.palette.primary.text,
-                      transform: 'translateX(5px)'
-                    }
-                  }}
-                >
-                  {item}
-                </Link>
-              )
-            )}
+            {[
+              { label: 'About Us', href: '/about-us' },
+              { label: 'Contact & Support', href: '/contact-support' },
+              { label: 'Policy', href: '/profile/policy' },
+              { label: 'Tracking Order', href: '/tracking-order' }
+            ].map((item, index) => (
+              <Link
+                key={index}
+                href={item.href}
+                variant="body2"
+                display="block"
+                color="inherit"
+                sx={{
+                  mb: 1.5,
+                  opacity: 0.8,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    color: theme.palette.primary.text,
+                    transform: 'translateX(5px)'
+                  }
+                }}
+              >
+                {item.label}
+              </Link>
+            ))}
           </Grid>
 
-          {/* Liên hệ */}
+          {/* Contact */}
           <Grid size={{ xs: 12, md: 4 }}>
             <Typography
               variant="h6"
@@ -248,11 +247,11 @@ const Footer = () => {
                 fontWeight: 600
               }}
             >
-              Liên hệ
+              Contact
             </Typography>
             <Box component="address" sx={{ opacity: 0.8, lineHeight: 1.8 }}>
               <Typography variant="body2" sx={{ mb: 1 }}>
-                TP.HCM, Việt Nam
+                Ho Chi Minh City, Vietnam
               </Typography>
               <Typography variant="body2" sx={{ mb: 1 }}>
                 Email:{' '}
