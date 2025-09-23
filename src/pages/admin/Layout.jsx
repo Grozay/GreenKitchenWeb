@@ -3,6 +3,7 @@ import { createTheme } from '@mui/material/styles'
 import { AppProvider } from '@toolpad/core/AppProvider'
 import { DashboardLayout } from '@toolpad/core/DashboardLayout'
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
+import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 import DashboardIcon from '@mui/icons-material/Dashboard'
@@ -51,6 +52,7 @@ import WeekMealCreate from './WeekMeal/WeekMealCreate'
 import WeekMealEdit from './WeekMeal/WeekMealEdit'
 import Chat from './Chat/Chat'
 import CustomerDetails from './Customer/CustomerDetails'
+import { toast } from 'react-toastify'
 
 // Component bảo vệ Route dựa trên vai trò
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -297,15 +299,25 @@ function Layout(props) {
         })
       },
       signOut: () => {
-        const { confirmed } = confirmLogout({
+        confirmLogout({
           title: 'Do you want to log out?',
           description: 'This action cannot be undone!',
           cancellationText: 'Cancel',
           confirmationText: 'Confirm'
+        }).then(() => {
+          // User confirmed logout
+          toast.promise(dispatch(logoutEmployeeApi()), {
+            loading: 'Logging out...',
+            success: 'Logged out successfully',
+            error: 'Failed to log out'
+          }).then((res) => {
+            if (!res.error) {
+              navigate('/management/login')
+            }
+          })
+        }).catch(() => {
+          // User cancelled logout - do nothing
         })
-        if (confirmed) {
-          dispatch(logoutEmployeeApi())
-        }
       }
     }
   }, [currentEmployee, dispatch, confirmLogout])
@@ -320,7 +332,7 @@ function Layout(props) {
   }, [location, navigate])
 
   return (
-    <>
+    <Box>
       <AppProvider
         session={session}
         authentication={authentication}
@@ -572,7 +584,7 @@ function Layout(props) {
           </Routes>
         </DashboardLayout>
       </AppProvider>
-    </>
+    </Box>
   )
 }
 

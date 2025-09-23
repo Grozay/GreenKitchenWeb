@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Paper from '@mui/material/Paper'
@@ -22,26 +22,33 @@ import OrderItemsList from './components/OrderItemsList'
 const TrackingOrder = () => {
   const theme = useTheme()
   const navigate = useNavigate()
+  const location = useLocation()
   const [orderId, setOrderId] = useState('')
   const [orderData, setOrderData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchAttempted, setSearchAttempted] = useState(false)
 
-
-  const handleSearch = async () => {
-    if (!orderId.trim()) {
-      setError('Please enter order code')
-      return
+  // Auto-search when orderCode is provided in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search)
+    const orderCodeFromUrl = urlParams.get('orderCode')
+    
+    if (orderCodeFromUrl) {
+      setOrderId(orderCodeFromUrl)
+      // Auto-search with the orderCode from URL
+      handleSearchWithCode(orderCodeFromUrl)
     }
+  }, [location.search])
 
+
+  const handleSearchWithCode = async (code) => {
     setLoading(true)
     setError('')
     setSearchAttempted(true)
 
     try {
-      // Gọi API thông qua apis/index.js
-      const data = await getOrderByCodeAPI(orderId)
+      const data = await getOrderByCodeAPI(code)
       setOrderData(data)
     } catch (err) {
       setError('Order not found with this code')
@@ -49,6 +56,14 @@ const TrackingOrder = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSearch = async () => {
+    if (!orderId.trim()) {
+      setError('Please enter order code')
+      return
+    }
+    await handleSearchWithCode(orderId)
   }
 
   const handleKeyPress = (event) => {
@@ -93,13 +108,15 @@ const TrackingOrder = () => {
         >
           Track Order
         </Typography>
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{ mb: 4 }}
-        >
-          Enter order code to view status and details
-        </Typography>
+        {!new URLSearchParams(location.search).get('orderCode') && (
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 4 }}
+          >
+            Enter order code to view status and details
+          </Typography>
+        )}
 
         {/* Search Section */}
         {!orderData && (

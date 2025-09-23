@@ -12,6 +12,7 @@ import PersonIcon from '@mui/icons-material/Person'
 import PhoneIcon from '@mui/icons-material/Phone'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import PaymentIcon from '@mui/icons-material/Payment'
+import NotesIcon from '@mui/icons-material/Notes'
 import dayjs from 'dayjs'
 
 const OrderConfirmDialog = ({
@@ -21,6 +22,7 @@ const OrderConfirmDialog = ({
   deliveryInfo,
   paymentMethod,
   orderSummary,
+  orderNotes,
   loading
 }) => {
   const formatPrice = (price) => {
@@ -123,6 +125,22 @@ const OrderConfirmDialog = ({
             </Typography>
           </Box>
         </Box>
+
+        {/* Special Requests */}
+        {orderNotes && orderNotes.trim() && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <NotesIcon sx={{ color: '#4C082A' }} />
+              Special Requests
+            </Typography>
+            
+            <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2 }}>
+              <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                "{orderNotes}"
+              </Typography>
+            </Box>
+          </Box>
+        )}
 
         {/* Tóm tắt đơn hàng */}
         <Box>

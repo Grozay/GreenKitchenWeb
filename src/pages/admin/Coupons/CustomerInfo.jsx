@@ -1,10 +1,8 @@
-import {
-  Avatar,
-  Box,
-  Typography,
-  Chip,
-  IconButton
-} from '@mui/material'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
 import { styled } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import StarIcon from '@mui/icons-material/Star'

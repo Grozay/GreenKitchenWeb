@@ -11,6 +11,13 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import Avatar from '@mui/material/Avatar'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import TextField from '@mui/material/TextField'
+import Alert from '@mui/material/Alert'
+import CancelIcon from '@mui/icons-material/Cancel'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getOrderByCodeAPI, updateOrderStatusAPI, getCustomMealByIdAPI, getCustomerWeekMealByIdAPI, cancelOrderAPI } from '~/apis'
@@ -57,6 +64,9 @@ export default function OrderDetails() {
   const [customMealDetails, setCustomMealDetails] = useState({})
   const [weekMealDetails, setWeekMealDetails] = useState({})
   const [showWeekPlan, setShowWeekPlan] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelling, setCancelling] = useState(false)
   const theme = useTheme()
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const navigate = useNavigate()
@@ -134,6 +144,26 @@ export default function OrderDetails() {
       }
     }
   }, [order])
+
+  const handleCancelOrder = async () => {
+    if (!cancelReason.trim()) {
+      toast.error('Please enter a cancel reason')
+      return
+    }
+
+    setCancelling(true)
+    try {
+      const updated = await cancelOrderAPI(order.id, cancelReason.trim())
+      setOrder(updated)
+      setShowCancelModal(false)
+      setCancelReason('')
+      toast.success('Order cancelled successfully')
+    } catch (e) {
+      toast.error('Failed to cancel order')
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   const handleUpdateStatus = async () => {
     if (!order) return
@@ -217,11 +247,6 @@ export default function OrderDetails() {
               </Box>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Chip
-                label={`${getStatusIcon(order.status)} ${order.status}`}
-                color={getStatusColor(order.status)}
-                sx={{ color: 'white', fontWeight: 'bold' }}
-              />
               {currentStep < statusSteps.length - 1 && (
                 <Button
                   onClick={handleUpdateStatus}
@@ -238,28 +263,37 @@ export default function OrderDetails() {
               )}
               {order.status === ORDER_STATUS.PENDING && (
                 <Button
-                  onClick={async () => {
-                    const note = window.prompt('Please enter cancel reason:')
-                    if (note === null) return
-                    try {
-                      const updated = await cancelOrderAPI(order.id, note)
-                      setOrder(updated)
-                      toast.success('Order cancelled')
-                    } catch (e) {
-                      toast.error('Cancel failed')
-                    }
-                  }}
-                  variant="outlined"
+                  onClick={() => setShowCancelModal(true)}
+                  variant="contained"
                   size="small"
                   color="error"
+                  startIcon={<CancelIcon />}
                 >
-                  Cancelled
+                  CANCEL ORDER
                 </Button>
               )}
             </Box>
           </Box>
         </CardContent>
       </Card>
+
+      {/* Cancelled Order Alert */}
+      {order.status === ORDER_STATUS.CANCELLED && (
+        <Alert 
+          severity="error" 
+          icon={<CancelIcon />}
+          sx={{ mb: 2 }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+            Order has been cancelled
+          </Typography>
+          {order.notes && (
+            <Typography variant="body2">
+              {order.notes}
+            </Typography>
+          )}
+        </Alert>
+      )}
 
       {/* Status Progress - Compact */}
       <Card elevation={1} sx={{ mb: 2 }}>
@@ -571,6 +605,41 @@ export default function OrderDetails() {
           </CardContent>
         </Card>
       )}
+
+      {/* Cancel Order Modal */}
+      <Dialog open={showCancelModal} onClose={() => setShowCancelModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Cancel Order</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Please provide a reason for cancelling this order:
+          </Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Cancel Reason"
+            fullWidth
+            multiline
+            rows={3}
+            variant="outlined"
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            placeholder="Enter the reason for cancelling this order..."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowCancelModal(false)} disabled={cancelling}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleCancelOrder} 
+            color="error" 
+            variant="contained"
+            disabled={cancelling || !cancelReason.trim()}
+          >
+            {cancelling ? 'Cancelling...' : 'Confirm Cancel'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   )
 }

@@ -28,7 +28,6 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import PasswordField from '~/components/Form/PasswordField'
-import RememberMeCheckbox from '~/components/Form/RememberMeCheckbox'
 import theme from '~/theme'
 
 function LoginForm() {
@@ -39,7 +38,6 @@ function LoginForm() {
   let [searchParams] = useSearchParams()
   const passwordReseted = searchParams.get('passwordReseted')
 
-  const [rememberMe, setRememberMe] = useState(false)
 
   const submitLogIn = (data) => {
     const { email, password } = data
@@ -117,11 +115,7 @@ function LoginForm() {
                 />
                 <FieldErrorAlert errors={errors} fieldName='password' />
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5em' }}>
-                  <RememberMeCheckbox
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '0.5em' }}>
                   <Link to="/management/reset-password" style={{ textDecoration: 'none' }}>
                     <Typography variant="body2" sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>
                       Forgot Password?
@@ -143,14 +137,6 @@ function LoginForm() {
               </Button>
             </CardActions>
 
-            {/* Divider */}
-            <Box sx={{ padding: '0 1em', display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Divider sx={{ flex: 1 }} />
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                OR
-              </Typography>
-              <Divider sx={{ flex: 1 }} />
-            </Box>
           </MuiCard>
         </Zoom>
       </form>

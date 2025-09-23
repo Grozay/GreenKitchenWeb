@@ -21,6 +21,7 @@ import FilterMobile from './FilterMobile'
 import theme from '~/theme'
 import AppBar from '~/components/AppBar/AppBar'
 import Footer from '~/components/Footer/Footer'
+import DefaultImage from '~/assets/images/default-image.webp'
 
 
 export default function PostLayout() {
