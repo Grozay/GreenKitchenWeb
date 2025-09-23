@@ -28,6 +28,8 @@ import PostDetails from './pages/customer/Posts/PostDetails'
 import { BankTransfer } from './pages/customer/Checkout/BankTransfer'
 import SavedCustomMealLayout from './pages/customer/SavedCustomMeal/SavedCustomMealLayout'
 import SaveSmartMealLayout from './pages/customer/SavedCustomMeal/SavedSmartMealLayout'
+import StoreLocation from './components/StoreLocation'
+import Feedback from './components/Feedback'
 
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
@@ -60,6 +62,8 @@ function App() {
       <Route path="/menu" element={<MenuLayout />} />
       <Route path="/menu/:slug" element={<MenuDetail />} />
       <Route path="/about-us" element={<AboutUs />} />
+      <Route path="/store-location" element={<StoreLocation />} />
+      <Route path="/contact-support" element={<Feedback />} />
       <Route path="/smart-meal-planner" element={<SmartMealLayout />} />
       <Route path="/week-meal-planner" element={<WeekMealLayout />} />
       {/* <Route path="/calo-calculator" element={<CaloCalculatorLayout />} /> */}
