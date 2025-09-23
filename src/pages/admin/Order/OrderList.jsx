@@ -129,7 +129,7 @@ export default function OrderList() {
   }, [orders.length])
 
 
-  // Insert new orders from Redux into the current table instantly (no refresh)
+  // Insert new orders from Redux
   useEffect(() => {
     if (!Array.isArray(newOrders) || newOrders.length === 0) return
     setOrders(prev => {

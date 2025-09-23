@@ -13,7 +13,7 @@ import CardHeader from '@mui/material/CardHeader'
 import Avatar from '@mui/material/Avatar'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { getOrderByCodeAPI, updateOrderStatusAPI, getCustomMealByIdAPI, getByIdWeekMealAPI, cancelOrderAPI } from '~/apis'
+import { getOrderByCodeAPI, updateOrderStatusAPI, getCustomMealByIdAPI, getCustomerWeekMealByIdAPI, cancelOrderAPI } from '~/apis'
 import { Button } from '@mui/material'
 import { ORDER_STATUS } from '~/utils/constants'
 import { toast } from 'react-toastify'
@@ -119,7 +119,7 @@ export default function OrderDetails() {
       const uniqueIds = Array.from(new Set(weekMealIds))
       if (uniqueIds.length > 0) {
         const fetchPromises = uniqueIds.map(id =>
-          getByIdWeekMealAPI(id).catch(() => null)
+          getCustomerWeekMealByIdAPI(id).catch(() => null)
         )
 
         Promise.all(fetchPromises).then(results => {

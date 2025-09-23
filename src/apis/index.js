@@ -393,6 +393,13 @@ export const updateOrderStatusAPI = async (data) => {
   return response.data
 }
 
+export const cancelOrderAPI = async (orderId, note) => {
+  const params = new URLSearchParams()
+  if (note) params.append('note', note)
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/apis/v1/orders/${orderId}/cancel?${params.toString()}`)
+  return response.data
+}
+
 export const getOrdersFilteredAPI = async (page, size, status, q, fromDate, toDate) => {
   let url = `${API_ROOT}/apis/v1/orders/filter?page=${page}&size=${size}`
   if (status) url += `&status=${encodeURIComponent(status)}`
