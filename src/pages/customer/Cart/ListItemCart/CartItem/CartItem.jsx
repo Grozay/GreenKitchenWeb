@@ -8,14 +8,10 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid'
 import { useState } from 'react' // Bỏ useMemo vì sẽ dùng component nhỏ
 import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
-import useTranslate from '~/hooks/useTranslate'
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 // Component nhỏ để dịch từng ingredient (tránh gọi hook trong map)
-const IngredientItem = ({ title, currentLang }) => {
-  const translatedTitle = useTranslate(title || '', currentLang)
+const IngredientItem = ({ title }) => {
+  const translatedTitle = title || ''
   return (
     <Typography
       variant="caption"
@@ -40,13 +36,11 @@ const CartItem = ({
   calculateItemNutrition
 }) => {
   const [confirmDialog, setConfirmDialog] = useState(false)
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
   const nutrition = calculateItemNutrition(item)
 
   // Dịch tự động cho title và description
-  const translatedTitle = useTranslate(getProductTitle() || '', currentLang)
-  const translatedDescription = useTranslate(getProductDescription() || '', currentLang)
+  const translatedTitle = getProductTitle() || ''
+  const translatedDescription = getProductDescription() || ''
 
   // Lấy title đúng chuẩn (ưu tiên menuMeal, customMeal, weekMeal)
   function getProductTitle() {
@@ -77,9 +71,9 @@ const CartItem = ({
   // Lấy description đúng chuẩn
   function getProductDescription() {
     if (item.isCustom) {
-      return item.customMeal?.description || item.description || 'Custom meal với các nguyên liệu được lựa chọn'
+      return item.customMeal?.description || item.description || 'Custom meal with selected ingredients'
     } else if (item.itemType === 'WEEK_MEAL') {
-      return item.description || 'Tuần ăn với các bữa được chọn'
+      return item.description || 'Weekly meal plan with selected meals'
     } else {
       return item.menuMeal?.description || item.description || ''
     }
@@ -108,10 +102,10 @@ const CartItem = ({
   }
 
   const items = [
-    { label: t('nutrition.calories'), value: `${Math.round(nutrition.calories)}`, perUnit: `${Math.round(nutrition.calories / item.quantity)}` },
-    { label: t('nutrition.protein'), value: `${Math.round(nutrition.protein)}g`, perUnit: `${Math.round(nutrition.protein / item.quantity)}g` },
-    { label: t('nutrition.carbs'), value: `${Math.round(nutrition.carbs)}g`, perUnit: `${Math.round(nutrition.carbs / item.quantity)}g` },
-    { label: t('nutrition.fat'), value: `${Math.round(nutrition.fat)}g`, perUnit: `${Math.round(nutrition.fat / item.quantity)}g` }
+    { label: 'calories', value: `${Math.round(nutrition.calories)}`, perUnit: `${Math.round(nutrition.calories / item.quantity)}` },
+    { label: 'protein', value: `${Math.round(nutrition.protein)}g`, perUnit: `${Math.round(nutrition.protein / item.quantity)}g` },
+    { label: 'carbs', value: `${Math.round(nutrition.carbs)}g`, perUnit: `${Math.round(nutrition.carbs / item.quantity)}g` },
+    { label: 'fat', value: `${Math.round(nutrition.fat)}g`, perUnit: `${Math.round(nutrition.fat / item.quantity)}g` }
   ]
 
   return (
@@ -323,14 +317,13 @@ const CartItem = ({
               {item.isCustom && item.customMeal?.details && ( // Sửa item.details thành item.customMeal?.details
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                    {t('cart.ingredients')}
+                    {'ingredients'}
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {item.customMeal.details.slice(0, 5).map((detail) => ( // Dùng item.customMeal.details trực tiếp
                       <IngredientItem
                         key={detail.id}
                         title={detail.title}
-                        currentLang={currentLang}
                       />
                     ))}
                     {item.customMeal.details.length > 5 && ( // Dùng item.customMeal.details
@@ -343,7 +336,7 @@ const CartItem = ({
                           fontSize: '0.7rem'
                         }}
                       >
-                        {t('cart.moreIngredients', { count: item.customMeal.details.length - 5 })}
+                        {`+${item.customMeal.details.length - 5} more`}
                       </Typography>
                     )}
                   </Box>
@@ -359,9 +352,9 @@ const CartItem = ({
         open={confirmDialog}
         onClose={() => setConfirmDialog(false)}
         onConfirm={confirmRemove}
-        title={t('cart.confirmRemoveTitle')}
-        description={t('cart.confirmRemoveDescription', { item: translatedTitle })}
-        btnName={t('cart.remove')}
+        title={'Confirm Remove Item'}
+        description={`Are you sure you want to remove ${translatedTitle} from the cart?`}
+        btnName={'remove'}
       />
     </>
   )

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentMeal, selectMealTotals, clearCart } from '~/redux/meal/mealSlice'
 import { setSuggestedSauces } from '~/redux/meal/suggestSauceSlice'
-import { getSuggestedSauces } from '~/utils/nutrition'
+import { getSuggestedSaucesForMeal } from '~/utils/nutrition'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -10,28 +10,23 @@ import Drawer from '@mui/material/Drawer'
 import theme from '~/theme'
 import DrawerInfoMobile from '~/pages/customer/SmartMeal/Item/HealthyChoice/InfoDetail/DrawerInfo/DrawerInfoMobile'
 import SauceSuggestionDialog from '~/pages/customer/SmartMeal/Item/HealthyChoice/DialogSauces/SauceSuggestionDialog'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const HealthyChoiceMobile = ({ itemHealthy }) => {
   const dispatch = useDispatch()
-  const { t } = useTranslation()
   const selectedItems = useSelector(selectCurrentMeal)
   const { totalCalories, totalProtein, totalCarbs, totalFat } = useSelector(selectMealTotals)
-  const currentLang = useSelector(selectCurrentLanguage)
   const [openDrawer, setOpenDrawer] = useState(false)
   const [openSauceDialog, setOpenSauceDialog] = useState(false)
   const [hasSuggestedSauce, setHasSuggestedSauce] = useState(false)
   const suggestedSauces = useSelector(state => state.suggestSauce.suggestedSauces)
   const allSauces = itemHealthy.sauce
 
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedSuggestSauce = useTranslate('Suggest Sauce', currentLang)
-  const translatedOrderNow = useTranslate('Order Now', currentLang)
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedSuggestSauce = 'Suggest Sauce'
+  const translatedOrderNow = 'Order Now'
 
   const items = [
     { label: translatedCalories, value: `${Math.round(totalCalories)}` },
@@ -47,15 +42,8 @@ const HealthyChoiceMobile = ({ itemHealthy }) => {
 
   // Gợi ý sốt
   const handleSuggestSauce = () => {
-    let sauces = []
     if (selectedItems.protein.length > 0) {
-      selectedItems.protein.forEach(protein => {
-        sauces = [
-          ...sauces,
-          ...getSuggestedSauces(protein, allSauces)
-        ]
-      })
-      sauces = sauces.filter((s, i, arr) => arr.findIndex(x => x.id === s.id) === i)
+      const sauces = getSuggestedSaucesForMeal(selectedItems.protein, allSauces)
       dispatch(setSuggestedSauces(sauces))
     } else {
       dispatch(setSuggestedSauces([]))

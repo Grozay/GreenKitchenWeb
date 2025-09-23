@@ -15,7 +15,7 @@ import Collapse from '@mui/material/Collapse'
 import { Link } from 'react-router-dom'
 import ListItem from '@mui/material/ListItem'
 
-const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
+const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
   const navItemStyle = {
     position: 'relative',
     overflow: 'hidden',
@@ -69,7 +69,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
           <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
-            t={t}
+            // t={t}
             label="home"
             path="/"
           />
@@ -77,7 +77,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
           <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
-            t={t}
+            // t={t}
             label="menu"
             path="/menu"
           />
@@ -85,7 +85,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
           <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
-            t={t}
+            // t={t}
             label="customMeal"
             path="/smart-meal-planner"
           />
@@ -149,7 +149,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
           <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
-            t={t}
+            // t={t}
             label="orderChecking"
             path="/order-checking"
           />
@@ -157,15 +157,15 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
           <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
-            t={t}
-            label="weekMeal"
+            // t={t}
+            label="weekMeal"  
             path="/week-meal-planner"
           />
 
           <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
-            t={t}
+            // t={t}
             label="blog"
             path="/news"
           />
@@ -189,7 +189,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer, t }) => {
           >
             <LogoutIcon sx={{ color: (theme) => theme.palette.text.primary, mt: 1 }} />
             <Typography variant="body1" sx={{ color: (theme) => theme.palette.text.primary, mt: 1 }}>
-              {t('logout')}
+              Logout
             </Typography>
           </Box>
         </Box>

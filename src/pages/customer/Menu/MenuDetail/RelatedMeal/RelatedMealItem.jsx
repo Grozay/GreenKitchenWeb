@@ -1,16 +1,13 @@
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import useTranslate from '~/hooks/useTranslate'
+
 import { Card, CardMedia, CardContent, Typography, Grid } from '@mui/material'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
 
 const RelatedMealItem = ({ item }) => {
   const navigate = useNavigate()
-  const currentLang = useSelector(selectCurrentLanguage)
-  const translatedTitle = useTranslate(item.title, currentLang)
-  const translatedDescription = useTranslate(item.description, currentLang)
-  const translatedVnd = useTranslate('VND', currentLang)
+  const translatedTitle = item.title
+  const translatedDescription = item.description
+  const translatedVnd = 'VND'
 
   return (
     <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>

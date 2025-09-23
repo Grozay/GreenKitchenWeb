@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from 'react'
-import { Box, Grid, Card, CardContent, CardMedia, Typography, Button } from '@mui/material'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Box, Grid, Card, CardContent, CardMedia, Typography, Button, Skeleton } from '@mui/material'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCustomerId } from '~/redux/user/customerSlice'
-import { getCustomMealByIdAPI } from '~/apis'
+import { getCustomMealByIdAPI, deleteCustomMealAPI } from '~/apis'
 import AppBar from '~/components/AppBar/AppBar'
 import Footer from '~/components/Footer/Footer'
 import theme from '~/theme'
-import { useTranslation } from 'react-i18next'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import { setMealFromCustom, setMeal } from '~/redux/meal/mealSlice'
 import { fetchCart, createCartItem } from '~/redux/cart/cartSlice'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 
 // Component nhỏ để dịch từng ingredient
-const IngredientItem = ({ title, currentLang }) => {
-  const translatedTitle = useTranslate(title || '', currentLang)
+const IngredientItem = ({ title }) => {
   return (
     <Typography
       variant="caption"
@@ -29,32 +26,65 @@ const IngredientItem = ({ title, currentLang }) => {
         fontSize: '0.65rem'
       }}
     >
-      {translatedTitle}
+      {title}
     </Typography>
   )
 }
 
+// Skeleton component cho MealCard
+const MealCardSkeleton = () => {
+  return (
+    <Card sx={{
+      maxWidth: 345,
+      height: '100%',
+      borderRadius: 5,
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <Skeleton variant="rectangular" height={140} sx={{ borderRadius: '5px 5px 0 0' }} />
+      <CardContent sx={{
+        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+      }}>
+        <Box>
+          <Skeleton variant="text" height={28} width="80%" sx={{ mb: 1 }} />
+          <Skeleton variant="text" height={20} width="60%" sx={{ mb: 2 }} />
+
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+            {[...Array(4)].map((_, index) => (
+              <Skeleton key={index} variant="rounded" width={60} height={24} />
+            ))}
+          </Box>
+
+          <Box sx={{ mb: 2 }}>
+            {[...Array(4)].map((_, index) => (
+              <Skeleton key={index} variant="text" height={16} width="90%" sx={{ mb: 0.5 }} />
+            ))}
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+          <Skeleton variant="rectangular" height={36} width={80} sx={{ borderRadius: 1 }} />
+          <Skeleton variant="rectangular" height={36} width={80} sx={{ borderRadius: 1 }} />
+          <Skeleton variant="rectangular" height={36} width={40} sx={{ borderRadius: 1 }} />
+        </Box>
+      </CardContent>
+    </Card>
+  )
+}
+
 // Component riêng cho MealCard để sử dụng hooks
-const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
-  const { t } = useTranslation()
-  const currentLang = useSelector(selectCurrentLanguage)
-  
-  // Dịch title và description ở đây (bên trong component)
-  const translatedTitle = useTranslate(meal.title || '', currentLang)
-  const translatedDescription = useTranslate(meal.description || '', currentLang)
-  const translatedPrice = useTranslate('Price:', currentLang)
-  const translatedAdjust = useTranslate('Adjust', currentLang)
-  const translatedAddToCart = useTranslate('Add to Cart', currentLang)
-  const translatedAdding = useTranslate('Adding...', currentLang)
+const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart, onDelete }) => {
 
   const quantity = meal.quantity || 1
   const items = [
-    { label: t('nutrition.calories'), value: `${Math.round(meal.calories)}`, perUnit: `${Math.round(meal.calories / quantity)}` },
-    { label: t('nutrition.protein'), value: `${Math.round(meal.protein)}g`, perUnit: `${Math.round(meal.protein / quantity)}g` },
-    { label: t('nutrition.carbs'), value: `${Math.round(meal.carb)}g`, perUnit: `${Math.round(meal.carb / quantity)}g` },
-    { label: t('nutrition.fat'), value: `${Math.round(meal.fat)}g`, perUnit: `${Math.round(meal.fat / quantity)}g` }
+    { label: 'Calories', value: `${Math.round(meal.calories)}`, perUnit: `${Math.round(meal.calories / quantity)}` },
+    { label: 'Protein', value: `${Math.round(meal.protein)}g`, perUnit: `${Math.round(meal.protein / quantity)}g` },
+    { label: 'Carbs', value: `${Math.round(meal.carb)}g`, perUnit: `${Math.round(meal.carb / quantity)}g` },
+    { label: 'Fat', value: `${Math.round(meal.fat)}g`, perUnit: `${Math.round(meal.fat / quantity)}g` }
   ]
-
   return (
     <Card sx={{
       maxWidth: 345,
@@ -65,9 +95,9 @@ const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
     }}>
       <CardMedia
         component="img"
-        height="140"
+        height="150"
         image={meal.image}
-        alt={translatedTitle}
+        alt={meal.title}
       />
       <CardContent sx={{
         flexGrow: 1,
@@ -90,7 +120,7 @@ const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
               lineHeight: 1.2
             }}
           >
-            {translatedTitle}
+            {meal.title}
           </Typography>
           <Typography
             variant="body2"
@@ -105,7 +135,7 @@ const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
               mb: 1
             }}
           >
-            {translatedDescription}
+            {meal.description}
           </Typography>
           <Typography
             variant="body2"
@@ -119,7 +149,7 @@ const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
               minHeight: '1.2em'
             }}
           >
-            {translatedPrice} {meal.price.toLocaleString()} VND
+            {meal.price.toLocaleString()} VND
           </Typography>
 
           {/* Nutrition Info */}
@@ -157,7 +187,7 @@ const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
           {meal.details && meal.details.length > 0 && (
             <Box sx={{ mt: 1.5 }}>
               <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, fontSize: '0.8rem' }}>
-                {t('cart.ingredients')}
+                Ingredients:
               </Typography>
               <Box sx={{
                 minHeight: '2.4em',
@@ -169,7 +199,6 @@ const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
                     <IngredientItem
                       key={detail.id}
                       title={detail.title}
-                      currentLang={currentLang}
                     />
                   ))}
                   {meal.details.length > 4 && (
@@ -191,27 +220,40 @@ const MealCard = ({ meal, onAdjust, onAddToCart, isAddingToCart }) => {
           )}
         </Box>
 
+        {/* 2 nút trên */}
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
           <Button
             variant="contained"
             sx={{ borderRadius: 5 }}
             onClick={() => onAdjust(meal)}
           >
-            {translatedAdjust}
+            Adjust
           </Button>
+
           <Button
             variant="contained"
-            sx={{
-              borderRadius: 5,
-              backgroundColor: theme.colorSchemes.light.palette.primary.secondary
-            }}
-            onClick={() => onAddToCart(meal)}
-            disabled={isAddingToCart}
-            startIcon={<ShoppingCart />}
+            sx={{ borderRadius: 5 }}
+            onClick={() => onDelete(meal)}
           >
-            {isAddingToCart ? translatedAdding : translatedAddToCart}
+            Delete
           </Button>
         </Box>
+
+        {/* Nút Add to Cart chiếm hết phần còn lại */}
+        <Button
+          variant="contained"
+          sx={{
+            borderRadius: 5,
+            backgroundColor: theme.colorSchemes.light.palette.primary.secondary,
+            width: '100%',
+            mt: 1
+          }}
+          onClick={() => onAddToCart(meal)}
+          disabled={isAddingToCart}
+          startIcon={<ShoppingCart />}
+        >
+          {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+        </Button>
       </CardContent>
     </Card>
   )
@@ -221,38 +263,87 @@ const SavedCustomMealLayout = () => {
   const [customMeals, setCustomMeals] = useState([])
   const [loading, setLoading] = useState(true)
   const [addingToCart, setAddingToCart] = useState({})
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [mealToDelete, setMealToDelete] = useState(null)
   const customerId = useSelector(selectCustomerId)
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  // Translations
-  const translatedLoginRequired = useTranslate('Bạn cần đăng nhập để đặt món!', currentLang)
-  const translatedAddSuccess = useTranslate('Custom meal added to cart successfully!', currentLang)
-  const translatedAddFailed = useTranslate('Failed to add custom meal to cart. Please try again.', currentLang)
-  const translatedSavedCustomMeals = useTranslate('Saved Custom Meals', currentLang)
-  const translatedNoMealsFound = useTranslate('No custom meals found.', currentLang)
-  const translatedLoading = useTranslate('Loading...', currentLang)
+  // Component title với style đẹp như trang Menu
+  const PageTitle = () => (
+    <Box sx={{ textAlign: 'center', mb: 4 }}>
+      <Typography
+        variant="h1"
+        align="center"
+        sx={{
+          fontSize: { xs: '2.5rem', md: '4rem' },
+          fontWeight: 300,
+          letterSpacing: '0.1em',
+          mb: 2,
+          color: theme.palette.text.primary
+        }}
+      >
+        Choose <span style={{ fontWeight: 800, color: theme.palette.primary.secondary }}>Your Custom Meal</span>
+      </Typography>
+      <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mx: 'auto', mb: 4 }} />
+      <Typography
+        variant="body1"
+        align="center"
+        sx={{ maxWidth: '48rem', mx: 'auto', mb: 6, fontSize: { xs: '1rem', md: '1.15rem' }, color: theme.palette.text.textSub }}
+      >
+        Choose your custom meal and adjust the ingredients to your liking.
+      </Typography>
+    </Box>
+  )
 
-  useEffect(() => {
-    const fetchCustomMeals = async () => {
-      if (customerId) {
-        try {
-          const data = await getCustomMealByIdAPI(customerId)
-          const mealsArray = Array.isArray(data) ? data : (data ? [data] : [])
-          setCustomMeals(mealsArray)
-        } catch (error) {
-          console.error('Error fetching custom meals:', error)
-          setCustomMeals([])
-        }
+  const fetchCustomMeals = useCallback(async () => {
+    if (customerId) {
+      try {
+        const data = await getCustomMealByIdAPI(customerId)
+        const mealsArray = Array.isArray(data) ? data : (data ? [data] : [])
+        setCustomMeals(mealsArray)
+      } catch (error) {
+        console.error('Error fetching custom meals:', error)
+        setCustomMeals([])
       }
-      setLoading(false)
     }
-    fetchCustomMeals()
+    setLoading(false)
   }, [customerId])
 
-  if (loading) return <Typography>{translatedLoading}</Typography>
+  useEffect(() => {
+    fetchCustomMeals()
+  }, [fetchCustomMeals])
+
+  if (loading) return (
+    <Box>
+      <AppBar />
+      <Box
+        sx={{
+          mt: theme.fitbowl.appBarHeight,
+          backgroundColor: theme.colorSchemes.light.palette.background.default,
+          minHeight: '100vh',
+          px: { xs: 0, sm: 0, md: 2 },
+          py: { xs: 1, sm: 2, md: 3 }
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Skeleton variant="text" height={60} width={400} sx={{ mx: 'auto', mb: 2 }} />
+            <Skeleton variant="rectangular" width={96} height={4} sx={{ mx: 'auto', mb: 4 }} />
+            <Skeleton variant="text" height={24} width={500} sx={{ mx: 'auto', mb: 2 }} />
+          </Box>
+          <Grid container spacing={2}>
+            {[...Array(8)].map((_, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
+                <MealCardSkeleton />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      </Box>
+      <Footer />
+    </Box>
+  )
 
   const handleAdjust = (meal) => {
     dispatch(setMealFromCustom(meal))
@@ -262,7 +353,7 @@ const SavedCustomMealLayout = () => {
 
   const handleAddToCart = async (meal) => {
     if (!customerId) {
-      toast.error(translatedLoginRequired)
+      toast.error('Please log in to add to cart')
       navigate('/login')
       return
     }
@@ -288,12 +379,33 @@ const SavedCustomMealLayout = () => {
 
       await dispatch(createCartItem({ customerId, itemData: cartRequestData }))
       await dispatch(fetchCart(customerId))
-      toast.success(translatedAddSuccess)
+      toast.success('Custom meal added to cart successfully!')
     } catch (error) {
       console.error('Error adding to cart:', error)
-      toast.error(translatedAddFailed)
+      toast.error('Failed to add custom meal to cart. Please try again.')
     } finally {
       setAddingToCart(prev => ({ ...prev, [meal.id]: false }))
+    }
+  }
+
+  const handleDelete = (meal) => {
+    setMealToDelete(meal)
+    setDeleteModalOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!mealToDelete) return
+
+    try {
+      await deleteCustomMealAPI(mealToDelete.id)
+      toast.success('Deleted successfully')
+      // Load lại dữ liệu sau khi xóa
+      await fetchCustomMeals()
+      setDeleteModalOpen(false)
+      setMealToDelete(null)
+    } catch (error) {
+      console.error('Error deleting custom meal:', error)
+      toast.error('Failed to delete custom meal')
     }
   }
 
@@ -310,18 +422,19 @@ const SavedCustomMealLayout = () => {
         }}
       >
         <Box sx={{ p: 2 }}>
-          <Typography variant="h4" gutterBottom>{translatedSavedCustomMeals}</Typography>
+          <PageTitle />
           {customMeals.length === 0 ? (
-            <Typography>{translatedNoMealsFound}</Typography>
+            <Typography>No custom meals found.</Typography>
           ) : (
             <Grid container spacing={2}>
-              {customMeals.map((meal) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={meal.id}>
-                  <MealCard 
+              {customMeals.slice().reverse().map((meal) => (
+                <Grid size={{ xs: 12, sm: 6, md: 2, lg: 2 }} key={meal.id}>
+                  <MealCard
                     meal={meal}
                     onAdjust={handleAdjust}
                     onAddToCart={handleAddToCart}
                     isAddingToCart={addingToCart[meal.id]}
+                    onDelete={handleDelete}
                   />
                 </Grid>
               ))}
@@ -330,6 +443,19 @@ const SavedCustomMealLayout = () => {
         </Box>
       </Box>
       <Footer />
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        open={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false)
+          setMealToDelete(null)
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Custom Meal"
+        description={`Are you sure you want to delete "${mealToDelete?.title}"? This action cannot be undone.`}
+        btnName="Delete"
+      />
     </Box>
   )
 }

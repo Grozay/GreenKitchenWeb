@@ -22,9 +22,6 @@ import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const SaveDrawerInfo = ({ onClose }) => {
 
@@ -38,22 +35,20 @@ const SaveDrawerInfo = ({ onClose }) => {
   const currentCustomer = useSelector(state => state.customer.currentCustomer)
   const customerId = currentCustomer?.id || null
   const navigate = useNavigate()
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedHealthyMeals = useTranslate('Healthy Meals Just For You', currentLang)
-  const translatedOrOrder = useTranslate('Or order your custom meal', currentLang)
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedTotalPrice = useTranslate('Total Price:', currentLang)
-  const translatedSaveCustom = useTranslate('Save custom meal', currentLang)
-  const translatedSaving = useTranslate('Saving...', currentLang)
-  const translatedFavoriteMix = useTranslate('My favorite mix with quantities', currentLang)
-  const translatedCustomMeal = useTranslate('your custom Meal', currentLang)
-  const translatedLoginToast = useTranslate('You need to log in to place an order!', currentLang)
-  const translatedSaveLoginToast = useTranslate('You need to log in to save the meal!', currentLang)
+  const translatedHealthyMeals = 'Healthy Meals Just For You'
+  const translatedOrOrder = 'Or order your custom meal'
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedTotalPrice = 'Total Price:'
+  const translatedSaveCustom = 'Save custom meal'
+  const translatedSaving = 'Saving...'
+  const translatedFavoriteMix = 'My favorite mix with quantities'
+  const translatedCustomMeal = 'your custom Meal'
+  const translatedLoginToast = 'You need to log in to place an order!'
+  const translatedSaveLoginToast = 'You need to log in to save the meal!'
   const customTotal = calcCustomTotal(selected)
   const allSelectedItems = Object.values(selected).flat()
 
@@ -127,6 +122,7 @@ const SaveDrawerInfo = ({ onClose }) => {
         await dispatch(fetchCart(customerId))
         onClose()
         toast.success('Custom meal added to cart successfully!')
+        dispatch(clearCart())
       } catch (error) {
         toast.error('Failed to add custom meal to cart. Please try again.' + error.message)
       } finally {
@@ -174,11 +170,12 @@ const SaveDrawerInfo = ({ onClose }) => {
           // UPDATE EXISTING MEAL
           await updateCustomMealAPI(meal.id, customMealData)
           navigate('/saved-custom-meals')
-          clearCart()
+          dispatch(clearCart())
           toast.success(`Custom meal "${title}" updated successfully!`)
         } else {
           // CREATE NEW MEAL
           await createCustomMealAPI(customMealData)
+          dispatch(clearCart())
           toast.success(`Custom meal "${title}" saved successfully!`)
         }
         onClose()

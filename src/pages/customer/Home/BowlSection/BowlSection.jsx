@@ -13,26 +13,26 @@ const BowlSection = () => {
     protein: {
       step: 1,
       title: 'Protein',
-      description: 'Choose your favorite protein to start building your bowl.',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2070&auto=format&fit=crop'
+      description: 'Select from our premium grilled chicken, tofu, or fresh fish to fuel your body with high-quality protein.',
+      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3'
     },
     carbs: {
       step: 2,
       title: 'Carbs',
-      description: 'Choose your favorite carbs to complete your bowl.',
-      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=2070&auto=format&fit=crop'
+      description: 'Add nutritious brown rice, quinoa, or sweet potatoes for sustained energy throughout your day.',
+      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3'
     },
     side: {
       step: 3,
       title: 'Side',
-      description: 'Choose your favorite side to enrich your bowl.',
-      image: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?q=80&w=2070&auto=format&fit=crop'
+      description: 'Enhance your bowl with fresh vegetables, avocado, nuts, or cheese for extra flavor and nutrition.',
+      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3'
     },
     sauce: {
       step: 4,
       title: 'Sauce',
-      description: 'Choose your favorite sauce to perfect your bowl.',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop'
+      description: 'Finish with our signature sauces - from tangy vinaigrette to creamy tahini, customize your perfect flavor.',
+      image: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3'
     }
   }
 

@@ -9,25 +9,20 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentMeal, addItem, removeItem } from '~/redux/meal/mealSlice'
 import { setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
 import { toast } from 'react-toastify'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const FoodCard = ({ card }) => {
   const [count, setCount] = useState(0)
   const selectedItems = useSelector(selectCurrentMeal)
   const dispatch = useDispatch()
   const [isFlipped, setIsFlipped] = useState(false)
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedOutOfStock = useTranslate('Sản phẩm đã hết hàng!', currentLang)
-  const translatedTitle = useTranslate(card?.title || '', currentLang)
-  const translatedDescription = useTranslate(card?.description || '', currentLang)
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedOutOfStock = 'This item is out of stock'
+  const translatedTitle = card?.title || ''
+  const translatedDescription = card?.description || ''
 
   useEffect(() => {
     const itemInCart = selectedItems[card.type.toLowerCase()]?.find(item => item.id === card.id)

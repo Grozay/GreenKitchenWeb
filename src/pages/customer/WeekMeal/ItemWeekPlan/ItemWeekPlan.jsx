@@ -10,10 +10,6 @@ import ItemPopover from './ItemPopover'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
 import LunchDiningIcon from '@mui/icons-material/LunchDining'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
-import useTranslate from '~/hooks/useTranslate'
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -76,24 +72,22 @@ const IOSSwitch = styled((props) => (
 }))
 
 const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange }) => {
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedPrice = useTranslate('Price:', currentLang)
-  const translatedCannotOrder = useTranslate('Cannot order this day', currentLang)
-  const translatedSelect = useTranslate('Select', currentLang)
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedPrice = 'Price:'
+  const translatedCannotOrder = 'Cannot order this day'
+  const translatedSelect = 'Select'
 
   // Dịch tự động cho title và description của meal (như trong MenuDetail)
-  const translatedMeal1Title = useTranslate(d.meal1?.title || '', currentLang)
-  const translatedMeal1Description = useTranslate(d.meal1?.description || '', currentLang)
-  const translatedMeal2Title = useTranslate(d.meal2?.title || '', currentLang)
-  const translatedMeal2Description = useTranslate(d.meal2?.description || '', currentLang)
-  const translatedMeal3Title = useTranslate(d.meal3?.title || '', currentLang)
-  const translatedMeal3Description = useTranslate(d.meal3?.description || '', currentLang)
+  const translatedMeal1Title = d.meal1?.title || ''
+  const translatedMeal1Description = d.meal1?.description || ''
+  const translatedMeal2Title = d.meal2?.title || ''
+  const translatedMeal2Description = d.meal2?.description || ''
+  const translatedMeal3Title = d.meal3?.title || ''
+  const translatedMeal3Description = d.meal3?.description || ''
 
   // Meal 1
   const [anchorEl1, setAnchorEl1] = useState(null)

@@ -5,12 +5,10 @@ import Divider from '@mui/material/Divider'
 import { useSelector } from 'react-redux'
 import { selectCurrentCart } from '~/redux/cart/cartSlice'
 import theme from '~/theme'
-import { useTranslation } from 'react-i18next'
 
 const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
   const currentCart = useSelector(selectCurrentCart)
   const totalPrice = currentCart?.totalAmount || 0
-  const { t } = useTranslation()
 
   const handleCheckout = () => {
     navigate('/checkout')
@@ -25,12 +23,12 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
       boxShadow: 1
     }}>
       <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-        {t('cart.summaryTitle')}
+        Cart Summary
       </Typography>
       {/* Item Count */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          {t('cart.itemCount')} ({itemCount})
+          Item(s) ({itemCount})
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: 500 }}>
           {(totalPrice || 0).toLocaleString('en-US')} VNĐ
@@ -42,12 +40,12 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
         <>
           <Divider sx={{ my: 2 }} />
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-            {t('cart.totalNutrition')}
+            Total Nutrition
           </Typography>
 
           <Box sx={{ mb: 1 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" color="text.secondary">{t('cart.energy')}</Typography>
+              <Typography variant="body2" color="text.secondary">Energy</Typography>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {Math.round(totalNutrition.calories)} kcal
               </Typography>
@@ -55,7 +53,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
             <Divider sx={{ my: 0.5 }} />
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 1 }}>
-              <Typography variant="body2" color="text.secondary">{t('cart.protein')}</Typography>
+              <Typography variant="body2" color="text.secondary">Protein</Typography>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {Math.round(totalNutrition.protein)} g
               </Typography>
@@ -63,7 +61,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
             <Divider sx={{ my: 0.5 }} />
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 1 }}>
-              <Typography variant="body2" color="text.secondary">{t('cart.carbs')}</Typography>
+              <Typography variant="body2" color="text.secondary">Carbs</Typography>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {Math.round(totalNutrition.carbs)} g
               </Typography>
@@ -71,7 +69,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
             <Divider sx={{ my: 1 }} />
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-              <Typography variant="body2" color="text.secondary">{t('cart.fat')}</Typography>
+              <Typography variant="body2" color="text.secondary">Fat</Typography>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {Math.round(totalNutrition.fat)} g
               </Typography>
@@ -85,7 +83,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
       {/* Total */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          {t('cart.total')}
+          Total
         </Typography>
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
           {(totalPrice || 0).toLocaleString('en-US')} VNĐ
@@ -112,7 +110,7 @@ const CartSummary = ({ totalNutrition, itemCount, navigate }) => {
           }
         }}
       >
-        {t('cart.checkout')}
+        Checkout
       </Button>
     </Box>
   )

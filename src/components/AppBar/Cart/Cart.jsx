@@ -21,8 +21,6 @@ import Button from '@mui/material/Button'
 import CloseIcon from '@mui/icons-material/Close'
 import Divider from '@mui/material/Divider'
 import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -33,9 +31,9 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 
 // Component nhỏ cho từng item để gọi useTranslate ở top level
 const CartItem = ({ item, currentLang, onItemClick, onRemoveItem }) => {
-  const translatedItemTitle = useTranslate(item.title || '', currentLang)
-  const translatedQuantity = useTranslate('Quantity:', currentLang)
-  const translatedVND = useTranslate('VND', currentLang)
+  const translatedItemTitle = item.title || ''
+  const translatedQuantity = 'Quantity:'
+  const translatedVND = 'VND'
 
   return (
     <MenuItem
@@ -113,7 +111,6 @@ const Cart = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const currentLang = useSelector(selectCurrentLanguage)
 
   // Redux selectors
   const currentCart = useSelector(selectCurrentCart)
@@ -175,18 +172,18 @@ const Cart = () => {
   }
 
   // Dịch tự động cho các chuỗi
-  const translatedCart = useTranslate('Cart', currentLang)
-  const translatedViewCart = useTranslate('VIEW CART', currentLang)
-  const translatedEmptyCart = useTranslate('Your cart is empty', currentLang)
-  const translatedProducts = useTranslate('PRODUCTS', currentLang)
-  const translatedTotal = useTranslate('TOTAL:', currentLang)
-  const translatedCheckout = useTranslate('CHECKOUT', currentLang)
-  const translatedVND = useTranslate('VND', currentLang)
+  const translatedCart = 'Cart'
+  const translatedViewCart = 'VIEW CART'
+  const translatedEmptyCart = 'Your cart is empty'
+  const translatedProducts = 'PRODUCTS'
+  const translatedTotal = 'TOTAL:'
+  const translatedCheckout = 'CHECKOUT'
+  const translatedVND = 'VND'
 
   // Dịch cho ConfirmModal
-  const translatedConfirmTitle = useTranslate('Confirm Remove Item', currentLang)
-  const translatedConfirmDescription = useTranslate('Are you sure you want to remove this item from the cart?', currentLang)
-  const translatedRemoveBtn = useTranslate('Remove', currentLang)
+  const translatedConfirmTitle = 'Confirm Remove Item'
+  const translatedConfirmDescription = 'Are you sure you want to remove this item from the cart?'
+  const translatedRemoveBtn = 'Remove'
 
   return (
     <>
@@ -296,7 +293,7 @@ const Cart = () => {
               <CartItem
                 key={item.menuMealId || item.customMealId}
                 item={item}
-                currentLang={currentLang}
+                // currentLang={currentLang}
                 onItemClick={handleItemClick}
                 onRemoveItem={handleRemoveItem}
               />

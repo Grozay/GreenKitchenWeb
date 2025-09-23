@@ -9,7 +9,6 @@ import { useState } from 'react'
 import DrawerAppBar from '~/components/AppBar/DrawerAppBar/DrawerAppBar'
 import Profile from '~/components/AppBar/Menu/Profile'
 import Cart from '~/components/AppBar/Cart/Cart'
-import { useTranslation } from 'react-i18next'
 import NavItem from '~/components/AppBar/Menu/NavItem'
 import { Link } from 'react-router-dom'
 import TopAppBar from '../TopAppBar/TopAppBar'
@@ -20,7 +19,7 @@ function ResponsiveAppBar() {
   // eslint-disable-next-line no-unused-vars
   const [anchorElNav, setAnchorElNav] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const { t } = useTranslation()
+  // const { t } = useTranslation()
   const handleCloseNavMenu = () => {
     setAnchorElNav(null)
   }
@@ -54,7 +53,7 @@ function ResponsiveAppBar() {
               textWrap: 'nowrap'
             }}
           >
-            {t('navBar.nameWebsite')}
+            Green Kitchen
           </Typography>
 
           {/* Drawer */}
@@ -63,7 +62,7 @@ function ResponsiveAppBar() {
             <DrawerAppBar
               drawerOpen={drawerOpen}
               toggleDrawer={toggleDrawer}
-              t={t}
+              // t={t}
             />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <IconButton
@@ -96,7 +95,7 @@ function ResponsiveAppBar() {
                 px: 1,
               }}
             >
-              {t('navBar.nameWebsite')}
+              Green Kitchen
             </Typography>
             <Cart />
           </Box>
@@ -110,11 +109,11 @@ function ResponsiveAppBar() {
             textWrap: 'nowrap',
             gap: { md: 0, lg: 2 }
           }}>
-            <NavItem to="/menu" label="menu" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/smart-meal-planner" label="customMeal" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/week-meal-planner" label="weekMeal" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/about-us" label="aboutUs" handleCloseNavMenu={handleCloseNavMenu} t={t} />
-            <NavItem to="/blog" label="blog" handleCloseNavMenu={handleCloseNavMenu} t={t} />
+            <NavItem to="/menu" label="MENU" handleCloseNavMenu={handleCloseNavMenu} />
+            <NavItem to="/smart-meal-planner" label="CUSTOM MEAL" handleCloseNavMenu={handleCloseNavMenu} />
+            <NavItem to="/week-meal-planner" label="WEEK MEAL" handleCloseNavMenu={handleCloseNavMenu} />
+            <NavItem to="/about-us" label="ABOUT US" handleCloseNavMenu={handleCloseNavMenu} />
+            <NavItem to="/blog" label="BLOG" handleCloseNavMenu={handleCloseNavMenu} />
           </Box>
 
           {/* cart, profile */}

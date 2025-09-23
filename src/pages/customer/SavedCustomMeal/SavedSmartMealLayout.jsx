@@ -12,9 +12,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 import { getIngredientsAPI } from '~/apis'
 import { setSuggestedSauces, setShowSauceHint, clearSuggestions } from '~/redux/meal/suggestSauceSlice'
-import { getSuggestedSauces } from '~/utils/nutrition'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
+import { getSuggestedSaucesForMeal } from '~/utils/nutrition'
 // import { selectIsCustomerLoggedIn } from '~/redux/user/customerSlice' // Thêm import selector
 import { useNavigate } from 'react-router-dom'
 import SaveMobilechoiceCal from './Item/HealthyChoice/SaveHealthyChoiceMobile'
@@ -29,15 +27,7 @@ const SaveSmartMealLayout = () => {
   const navigate = useNavigate()
   const sauceRef = useRef(null)
   const selectedItems = useSelector(selectCurrentMeal)
-  const currentLang = useSelector(selectCurrentLanguage)
   // const isLoggedIn = useSelector(selectIsCustomerLoggedIn) // Lấy trạng thái đăng nhập
-
-
-  const translatedSelectProtein = useTranslate('SELECT PROTEIN', currentLang)
-  const translatedSelectCarbs = useTranslate('SELECT CARBS', currentLang)
-  const translatedSelectSide = useTranslate('SELECT SIDE', currentLang)
-  const translatedSelectSauce = useTranslate('SELECT SAUCE', currentLang)
-  // const translatedYourSavedCustomMeals = useTranslate('Your saved custom meals', currentLang)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,12 +63,12 @@ const SaveSmartMealLayout = () => {
   }, [])
 
   useEffect(() => {
-    const selectedProtein = selectedItems.protein[selectedItems.protein.length - 1]
-
-    if (selectedProtein && itemHealthy?.sauce) {
-      const suggestions = getSuggestedSauces(selectedProtein, itemHealthy.sauce)
+    if (selectedItems.protein && selectedItems.protein.length > 0 && itemHealthy?.sauce) {
+      const suggestions = getSuggestedSaucesForMeal(selectedItems.protein, itemHealthy.sauce)
       dispatch(setSuggestedSauces(suggestions))
       dispatch(setShowSauceHint(true))
+    } else {
+      dispatch(clearSuggestions())
     }
   }, [selectedItems.protein, itemHealthy, dispatch])
 
@@ -161,16 +151,16 @@ const SaveSmartMealLayout = () => {
 
             <Box sx={{ mx: '15px' }}>
               <Box ref={proteinRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title={translatedSelectProtein} index={1} type="PROTEIN" cards={itemHealthy?.protein} loading={loading} />
+                <ListCard title="SELECT PROTEIN" index={1} type="PROTEIN" cards={itemHealthy?.protein} loading={loading} />
               </Box>
               <Box ref={carbsRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title={translatedSelectCarbs} index={2} type="CARDS" cards={itemHealthy?.carbs} loading={loading} />
+                <ListCard title="SELECT CARBS" index={2} type="CARDS" cards={itemHealthy?.carbs} loading={loading} />
               </Box>
               <Box ref={sideRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title={translatedSelectSide} index={3} type="SIDE" cards={itemHealthy?.side} loading={loading} />
+                <ListCard title="SELECT SIDE" index={3} type="SIDE" cards={itemHealthy?.side} loading={loading} />
               </Box>
               <Box ref={sauceRef} sx={{ scrollMarginTop: `calc(${theme.fitbowl.appBarHeight} + 80px)` }}>
-                <ListCard title={translatedSelectSauce} index={4} type="SAUCE" cards={itemHealthy?.sauce} loading={loading} />
+                <ListCard title="SELECT SAUCE" index={4} type="SAUCE" cards={itemHealthy?.sauce} loading={loading} />
               </Box>
             </Box>
 
