@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
-import { toast } from 'react-toastify'
-import { clearChatData } from '~/utils/chatCleanup'
+
 //khởi tạo gía trị state của 1 cái slice trong redux
 const initialState = {
   currentEmployee: null
@@ -21,13 +20,8 @@ export const loginEmployeeApi = createAsyncThunk(
 
 export const logoutEmployeeApi = createAsyncThunk(
   'employee/logoutEmployeeApi',
-  async (showSuccessMessage = true) => {
+  async () => {
     const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/auth/employee-logout`)
-    if (showSuccessMessage) {
-      toast.success('Logout successfully')
-    }
-    // Clear chat data on logout
-    clearChatData()
     return response.data
   }
 )

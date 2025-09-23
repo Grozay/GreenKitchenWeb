@@ -403,7 +403,6 @@ export default function OrderList() {
                               minWidth: 120,
                               fontWeight: 'bold',
                               textTransform: 'uppercase',
-                              opacity: 0.5
                             }}
                           >
                             CANCELLED
@@ -418,10 +417,9 @@ export default function OrderList() {
                               fontSize: '0.75rem',
                               minWidth: 120,
                               fontWeight: 'bold',
-                              textTransform: 'uppercase',
-                              opacity: 0.5
+                              textTransform: 'uppercase'
                             }}
-                          >
+                          > 
                             COMPLETED
                           </Button>
                         )

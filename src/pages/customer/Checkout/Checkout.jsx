@@ -9,6 +9,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
 import LinearProgress from '@mui/material/LinearProgress'
+import TextField from '@mui/material/TextField'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { toast } from 'react-toastify'
 import DeliveryInfoForm from './DeliveryInfoForm'
@@ -16,7 +17,7 @@ import PaymentMethodForm from './PaymentMethodForm'
 import OrderSummary from './OrderSummary'
 import OrderConfirmDialog from './OrderConfirmDialog'
 import PayPalPaymentForm from './PayPalPaymentForm'
-import { createOrder, customerUseCouponAPI, fetchCustomerDetails, getSettingsByTypeAPI } from '~/apis'
+import { createOrder, customerUseCouponAPI, fetchCustomerDetails, getSettingsByTypeAPI, removeMealFromCartAPI } from '~/apis'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import { selectCurrentCart, clearCart } from '~/redux/cart/cartSlice'
 
@@ -26,7 +27,7 @@ const Checkout = () => {
   const currentCart = useSelector(selectCurrentCart)
   const currentCustomer = useSelector(selectCurrentCustomer)
   const [shippingSettings, setShippingSettings] = useState(null)
-  const [paymentMethod, setPaymentMethod] = useState('cod')
+  const [paymentMethod, setPaymentMethod] = useState(null)
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
@@ -58,6 +59,9 @@ const Checkout = () => {
   // Selected store information
   const [selectedStore, setSelectedStore] = useState(null)
 
+  // Order notes
+  const [orderNotes, setOrderNotes] = useState('')
+
   // Fetch customer details and set default address
   useEffect(() => {
     const fetch = async () => {
@@ -66,8 +70,30 @@ const Checkout = () => {
         const data = await fetchCustomerDetails(currentCustomer.email)
         setCustomerDetails(data)
 
-        // Set default delivery time (current time + 30 minutes)
-        const defaultDeliveryTime = dayjs().add(30, 'minute')
+        // Set default delivery time based on current time rules
+        const now = dayjs()
+        const currentHour = now.hour()
+        let defaultDeliveryTime
+        
+        // If order is placed between 10 PM and 10 AM next day
+        if (currentHour >= 22 || currentHour < 10) {
+          // Set delivery time to 10:40 AM today (or next day if it's already past 10:40 AM)
+          const todayAt1040 = now.hour(10).minute(40).second(0).millisecond(0)
+          if (now.isAfter(todayAt1040)) {
+            // If it's past 10:40 AM, set to next day 10:40 AM
+            const nextDay = now.add(1, 'day')
+            defaultDeliveryTime = nextDay.hour(10).minute(40).second(0).millisecond(0)
+          } else {
+            // If it's before 10:40 AM, set to today 10:40 AM
+            defaultDeliveryTime = todayAt1040
+          }
+        } else {
+          // For other times, set to current time + 40 minutes minimum
+          const minTime = now.add(40, 'minute')
+          // Ensure it's not before 10:40 AM today
+          const earliestTime = now.hour(10).minute(40).second(0)
+          defaultDeliveryTime = minTime.isAfter(earliestTime) ? minTime : earliestTime
+        }
 
         // Set default address if available
         const defaultAddress = data?.addresses?.find(addr => addr.isDefault === true)
@@ -137,7 +163,7 @@ const Checkout = () => {
 
     // Check if free shipping applies
     const isFreeShipping = subtotal >= shippingSettings.freeShippingThreshold ||
-                          customerTier === 'RADIANCE'
+      customerTier === 'RADIANCE'
 
     if (isFreeShipping) {
       return 0
@@ -291,12 +317,12 @@ const Checkout = () => {
           couponDiscount: orderSummary.couponDiscount,
           totalAmount: orderSummary.totalAmount,
           paymentMethod: 'COD',
-          notes: '',
+          notes: orderNotes,
           orderItems: cartItems.map(item => ({
             itemType: item.itemType,
             menuMealId: item.itemType === 'MENU_MEAL' ? item.menuMeal?.id : null,
             customMealId: item.itemType === 'CUSTOM_MEAL' ? item.customMeal?.id : null,
-            weekMealId: item.itemType === 'WEEK_MEAL' ? item.customerWeekMealDay?.id : null,
+            weekMealId: item.itemType === 'WEEK_MEAL' ? item.customerWeekMeal?.id : null,
             weekMealTitle: item.itemType === 'WEEK_MEAL' ? item.title : null,
             weekMealDescription: item.itemType === 'WEEK_MEAL' ? item.description : null,
             weekMealImage: item.itemType === 'WEEK_MEAL' ? item.image : null,
@@ -319,10 +345,21 @@ const Checkout = () => {
                 orderId: response.id,
                 status: 'USED'
               })
-            } catch {
-              // Không fail toàn bộ order nếu update coupon lỗi
+            } catch (error) {
+              toast.error('Failed to update coupon status')
             }
           }
+
+          // Remove cart items from backend
+          const cartItems = currentCart?.cartItems || []
+          const removePromises = cartItems.map(item =>
+            removeMealFromCartAPI(currentCustomer?.id, item.id)
+              .catch(error => {
+                toast.error(`Failed to remove item from cart: ${item.title}`)
+              })
+          )
+
+          await Promise.allSettled(removePromises)
 
           dispatch(clearCart())
           toast.success('Order placed successfully!')
@@ -358,12 +395,12 @@ const Checkout = () => {
         totalAmount: orderSummary.totalAmount,
         paymentMethod: 'PAYPAL',
         paypalOrderId: paymentResult.id,
-        notes: '',
+        notes: orderNotes,
         orderItems: cartItems.map(item => ({
           itemType: item.itemType,
           menuMealId: item.itemType === 'MENU_MEAL' ? item.menuMeal?.id : null,
           customMealId: item.itemType === 'CUSTOM_MEAL' ? item.customMeal?.id : null,
-          weekMealId: item.itemType === 'WEEK_MEAL' ? item.customerWeekMealDay?.id : null,
+          weekMealId: item.itemType === 'WEEK_MEAL' ? item.customerWeekMeal?.id : null,
           weekMealTitle: item.itemType === 'WEEK_MEAL' ? item.title : null,
           weekMealDescription: item.itemType === 'WEEK_MEAL' ? item.description : null,
           weekMealImage: item.itemType === 'WEEK_MEAL' ? item.image : null,
@@ -385,10 +422,21 @@ const Checkout = () => {
               orderId: response.id,
               status: 'USED'
             })
-          } catch {
-            // Ignore coupon error
+          } catch (error) {
+            toast.error('Failed to update coupon status')
           }
         }
+
+        // Remove cart items from backend
+        const cartItems = currentCart?.cartItems || []
+        const removePromises = cartItems.map(item =>
+          removeMealFromCartAPI(currentCustomer?.id, item.id)
+            .catch(error => {
+              toast.error(`Failed to remove item from cart: ${item.title}`)
+            })
+        )
+
+        await Promise.allSettled(removePromises)
 
         dispatch(clearCart())
         toast.success('Order placed and payment successful!')
@@ -502,6 +550,53 @@ const Checkout = () => {
               shippingSettings={shippingSettings}
             />
 
+            {/* Order Notes */}
+            <Box sx={{
+              bgcolor: 'white',
+              p: 3,
+              borderRadius: 2,
+              mb: 3,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}>
+              <Typography variant="h6" sx={{
+                fontWeight: 600,
+                color: '#4C082A',
+                mb: 2
+              }}>
+                Special Requests
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                placeholder="Any special instructions or requests for your order? (e.g., dietary restrictions, delivery instructions, etc.)"
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '& fieldset': {
+                      borderColor: '#e0e0e0'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#4C082A'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#4C082A'
+                    }
+                  }
+                }}
+              />
+              <Typography variant="caption" sx={{
+                color: '#666',
+                mt: 1,
+                display: 'block'
+              }}>
+                Optional - if you have any special requirements
+              </Typography>
+            </Box>
+
             {/* Place Order Button */}
             <Button
               fullWidth
@@ -516,7 +611,7 @@ const Checkout = () => {
                 fontWeight: 600,
                 bgcolor: '#4C082A',
                 '&:hover': {
-                  bgcolor: '#3a0620'
+                  bgcolor: '#6a0f3a'
                 },
                 '&:disabled': {
                   bgcolor: '#e0e0e0'
@@ -526,6 +621,7 @@ const Checkout = () => {
               {loading ? 'Processing...' : 'Place order now'}
             </Button>
           </Grid>
+
         </Grid>
 
         {/* Order Confirm Dialog */}
@@ -536,6 +632,7 @@ const Checkout = () => {
           deliveryInfo={deliveryInfo}
           paymentMethod={paymentMethod}
           orderSummary={orderSummary}
+          orderNotes={orderNotes}
           loading={loading}
         />
 

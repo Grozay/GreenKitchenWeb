@@ -39,6 +39,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate =
   const [loadingCustomers, setLoadingCustomers] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('')
 
   // Load customers only when SPECIFIC_CUSTOMER is selected and not in update mode
   useEffect(() => {
@@ -152,8 +153,8 @@ export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate =
       newErrors.discountValue = 'Percentage discount cannot exceed 100%'
     }
 
-    // Points required validation - only validate when creating
-    if (!isUpdate && (!formData.pointsRequired || formData.pointsRequired < 0)) {
+    // Points required validation
+    if (formData.pointsRequired < 0) {
       newErrors.pointsRequired = 'Points required must be 0 or greater'
     }
 
@@ -357,22 +358,20 @@ export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate =
                 />
               </Grid>
 
-              {/* Coupon Type Selection - Only show when creating */}
-              {!isUpdate && (
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormControl fullWidth>
-                    <InputLabel>Coupon Type</InputLabel>
-                    <Select
-                      value={formData.couponType}
-                      label="Coupon Type"
-                      onChange={(e) => handleInputChange('couponType', e.target.value)}
-                    >
-                      <MenuItem value="GENERAL">General (All Customers)</MenuItem>
-                      <MenuItem value="SPECIFIC_CUSTOMER">Specific Customers Only</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              )}
+              {/* Coupon Type Selection - Move to top */}
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <FormControl fullWidth>
+                  <InputLabel>Coupon Type</InputLabel>
+                  <Select
+                    value={formData.couponType}
+                    label="Coupon Type"
+                    onChange={(e) => handleInputChange('couponType', e.target.value)}
+                  >
+                    <MenuItem value="GENERAL">General (All Customers)</MenuItem>
+                    <MenuItem value="SPECIFIC_CUSTOMER">Specific Customers Only</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
 
               {/* Customer Selection - Only show if SPECIFIC_CUSTOMER and not update */}
               {formData.couponType === 'SPECIFIC_CUSTOMER' && !isUpdate && (
@@ -381,24 +380,54 @@ export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate =
                     Chọn khách hàng cụ thể ({formData.specificCustomers.length} đã chọn)
                   </Typography>
 
-                  <Box sx={{
-                    maxHeight: 300,
-                    overflow: 'auto',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    p: 1,
-                    width: '100%'
-                  }}>
-                    <CustomerList
-                      customers={customers}
-                      loading={loadingCustomers}
-                      onCustomerSelect={handleCustomerSelect}
-                      onCustomerRemove={handleCustomerRemove}
-                      showRemove={false}
-                      emptyMessage="Không có khách hàng nào"
-                    />
-                  </Box>
+                  {/* Customer Search Field */}
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Tìm kiếm khách hàng theo tên, email hoặc số điện thoại..."
+                    value={customerSearchTerm}
+                    onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+
+                  {/* Customer List - Only show when search term exists */}
+                  {customerSearchTerm.trim() && (
+                    <Box sx={{
+                      maxHeight: 300,
+                      overflow: 'auto',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      p: 1,
+                      width: '100%'
+                    }}>
+                      <CustomerList
+                        customers={customers}
+                        loading={loadingCustomers}
+                        onCustomerSelect={handleCustomerSelect}
+                        onCustomerRemove={handleCustomerRemove}
+                        showRemove={false}
+                        emptyMessage="Không có khách hàng nào"
+                        searchTerm={customerSearchTerm}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Show message when no search term */}
+                  {!customerSearchTerm.trim() && (
+                    <Box sx={{ 
+                      textAlign: 'center', 
+                      p: 3, 
+                      border: '1px dashed', 
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      backgroundColor: 'action.hover'
+                    }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Nhập từ khóa tìm kiếm để hiển thị danh sách khách hàng
+                      </Typography>
+                    </Box>
+                  )}
 
                   {formData.specificCustomers.length > 0 && (
                     <Box sx={{ mt: 2, width: '100%' }}>
@@ -488,8 +517,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate =
                   value={formData.pointsRequired}
                   onChange={(e) => handleInputChange('pointsRequired', e.target.value)}
                   error={!!errors.pointsRequired}
-                  helperText={errors.pointsRequired}
-                  disabled={!isUpdate} // Only enabled when updating
+                  helperText={errors.pointsRequired || 'Points required to exchange this coupon (0 or greater)'}
                   slotProps={{
                     htmlInput: { min: 0, step: 1 },
                     inputLabel: { shrink: true }

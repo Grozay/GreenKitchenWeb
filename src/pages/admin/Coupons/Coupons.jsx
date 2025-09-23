@@ -279,7 +279,7 @@ export default function Coupons() {
           {/* General Coupons Tab */}
           <TabPanel value={activeTab} index={0}>
             <TableContainer sx={{ borderRadius: 3, boxShadow: 1 }}>
-              <Table size='small'>
+              <Table size='medium'>
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 'bold' }}>Code</TableCell>
@@ -330,7 +330,7 @@ export default function Coupons() {
           {/* Specific Customer Coupons Tab */}
           <TabPanel value={activeTab} index={1}>
             <TableContainer sx={{ borderRadius: 3, boxShadow: 1 }}>
-              <Table size='small'>
+              <Table size='medium'>
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 'bold' }}>Code</TableCell>
