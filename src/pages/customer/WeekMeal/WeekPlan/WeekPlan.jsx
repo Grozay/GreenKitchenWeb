@@ -230,7 +230,7 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
         </Box>
       </Box>
       {weekData.days.map((d, idx) => (
-        <ItemWeekPlan key={idx} d={d} idx={idx} isSwitch={false} />
+        <ItemWeekPlan key={idx} d={d} idx={idx} isSwitch={false} forceDisabled={undefined} />
       ))}
       <DrawerChoosenMeal open={openDrawer} onClose={handleCloseDrawer} weekData={weekData} title={title} />
     </Box>
