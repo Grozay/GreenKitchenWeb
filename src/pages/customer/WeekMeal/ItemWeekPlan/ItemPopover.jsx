@@ -2,24 +2,18 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
-import useTranslate from '~/hooks/useTranslate'
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const ItemPopover = ({ meal }) => {
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedPrice = useTranslate('Giá:', currentLang)
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedPrice = 'Price:'
 
   // Dịch tự động cho title và description của meal (như trong MenuDetail và ItemWeekPlan)
-  const translatedTitle = useTranslate(meal?.title || '', currentLang)
-  const translatedDescription = useTranslate(meal?.description || '', currentLang)
+  const translatedTitle = meal?.title || ''
+  const translatedDescription = meal?.description || ''
 
   if (!meal) return null
 
@@ -50,7 +44,7 @@ const ItemPopover = ({ meal }) => {
         <Chip label={`${translatedFat} ${meal.fat ?? '--'}g`} color="secondary" size="small" />
       </Box>
       <Typography variant="subtitle2" sx={{ color: 'primary.dark', fontWeight: 500 }}>
-        {translatedPrice} {meal.price ? `${meal.price} VNĐ` : '--'}
+        {translatedPrice} {meal.price ? `${meal.price} VND` : '--'}
       </Typography>
       {meal.image && (
         <Box

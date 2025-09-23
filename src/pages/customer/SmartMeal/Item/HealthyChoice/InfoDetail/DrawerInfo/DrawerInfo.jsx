@@ -14,7 +14,7 @@ import { useTheme } from '@mui/material'
 // import { ItemHealthy } from '~/apis/mockData'
 import { selectCurrentMeal, clearCart } from '~/redux/meal/mealSlice'
 import { fetchCart, createCartItem } from '~/redux/cart/cartSlice' // Sửa: import createCartItem
-import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice } from '~/utils/nutrition'
+import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice, getSuggestionExplanation } from '~/utils/nutrition'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import PageviewIcon from '@mui/icons-material/Pageview'
 import SuggestFood from './SuggestFood'
@@ -26,9 +26,6 @@ import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 
 const DrawerInfo = ({ onClose, itemHealthy }) => {
   const [openInfoModal, setOpenInfoModal] = useState(false)
@@ -37,38 +34,38 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
   const [addingToCart, setAddingToCart] = useState(false)
   const [savingMeal, setSavingMeal] = useState(false)
   const [orderMode, setOrderMode] = useState(false)
+  const [showExplanation, setShowExplanation] = useState(false)
   const theme = useTheme()
   const dispatch = useDispatch()
   const selected = useSelector(selectCurrentMeal)
   const currentCustomer = useSelector(state => state.customer.currentCustomer)
   const customerId = currentCustomer?.id || null
   const navigate = useNavigate()
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedHealthyMeals = useTranslate('Healthy Meals Just For You', currentLang)
-  const translatedReviewSelections = useTranslate('Review My Selections', currentLang)
-  const translatedBalanced = useTranslate('Your meal is well-balanced!', currentLang)
-  const translatedCanOrder = useTranslate('You can now order your custom meal or review your choices.', currentLang)
-  const translatedGoToBuilder = useTranslate('Go to Builder', currentLang)
-  const translatedOrOrder = useTranslate('Or order your custom meal', currentLang)
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedTotalPrice = useTranslate('Total Price:', currentLang)
-  const translatedOrderCustom = useTranslate('Order custom meal', currentLang)
-  const translatedSaveCustom = useTranslate('Save custom meal', currentLang)
-  const translatedAdding = useTranslate('Adding...', currentLang)
-  const translatedSaving = useTranslate('Saving...', currentLang)
-  const translatedFavoriteMix = useTranslate('My favorite mix with quantities', currentLang)
-  const translatedCustomMeal = useTranslate('your custom Meal', currentLang)
-  const translatedLoginToast = useTranslate('You need to log in to place an order!', currentLang)
-  const translatedSaveLoginToast = useTranslate('You need to log in to save the meal!', currentLang)
+  const translatedHealthyMeals = 'Healthy Meals Just For You'
+  const translatedReviewSelections = 'Review My Selections'
+  const translatedBalanced = 'Your meal is well-balanced!'
+  const translatedCanOrder = 'You can now order your custom meal or review your choices.'
+  const translatedGoToBuilder = 'Go to Builder'
+  const translatedOrOrder = 'Or order your custom meal'
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedTotalPrice = 'Total Price:'
+  const translatedOrderCustom = 'Order custom meal'
+  const translatedSaveCustom = 'Save custom meal'
+  const translatedAdding = 'Adding...'
+  const translatedSaving = 'Saving...'
+  const translatedFavoriteMix = 'My favorite mix with quantities'
+  const translatedCustomMeal = 'your custom Meal'
+  const translatedLoginToast = 'You need to log in to place an order!'
+  const translatedSaveLoginToast = 'You need to log in to save the meal!'
 
   const customTotal = calcCustomTotal(selected)
   const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
   const nutritionalAdvice = getNutritionalAdvice(customTotal)
+  const suggestionExplanation = getSuggestionExplanation(suggestedMeals, customTotal)
   const allSelectedItems = Object.values(selected).flat()
 
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
@@ -148,6 +145,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
         await dispatch(fetchCart(customerId))
         onClose()
         toast.success('Custom meal added to cart successfully!')
+        dispatch(clearCart())
       } catch (error) {
         toast.error('Failed to add custom meal to cart. Please try again.' + error.message)
       } finally {
@@ -196,6 +194,7 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
         const savedCustomMeal = await createCustomMealAPI(customMealData)
         onClose()
         toast.success(`Custom meal "${savedCustomMeal.title}" saved successfully!`)
+        dispatch(clearCart())
       } catch (error) {
         toast.error('Failed to save custom meal. Please try again.')
       } finally {
@@ -318,6 +317,51 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
                   </Typography>
                 )}
                 <SuggestFood suggestedMeals={suggestedMeals} />
+
+                {/* AI explanation button */}
+                {suggestedMeals.length > 0 && (
+                  <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<span>🤖</span>}
+                      onClick={() => setShowExplanation(!showExplanation)}
+                      sx={{
+                        borderRadius: 5,
+                        textTransform: 'none',
+                        fontSize: '0.9rem',
+                        px: 2
+                      }}
+                    >
+                      {showExplanation ? 'Hide explanation' : 'Why these suggestions?'}
+                    </Button>
+                  </Box>
+                )}
+
+                {/* Show explanation */}
+                {showExplanation && suggestionExplanation && (
+                  <Box
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      bgcolor: 'background.paper',
+                      borderRadius: 2,
+                      border: `1px solid ${theme.palette.divider}`,
+                      maxHeight: '300px',
+                      overflowY: 'auto'
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        whiteSpace: 'pre-line',
+                        lineHeight: 1.6,
+                        fontFamily: 'monospace'
+                      }}
+                    >
+                      {suggestionExplanation}
+                    </Typography>
+                  </Box>
+                )}
               </>
             )}
           </>

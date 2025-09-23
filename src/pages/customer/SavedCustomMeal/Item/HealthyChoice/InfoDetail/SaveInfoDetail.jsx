@@ -8,9 +8,6 @@ import { useDispatch } from 'react-redux'
 import { clearCart } from '~/redux/meal/mealSlice'
 import theme from '~/theme'
 import { Drawer } from '@mui/material'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
 import SaveDrawerInfo from '~/pages/customer/SavedCustomMeal/Item/HealthyChoice/InfoDetail/DrawerInfo/SaveDrawerInfo'
 
 const SaveInfoDetail = ({ itemHealthy }) => {
@@ -18,15 +15,13 @@ const SaveInfoDetail = ({ itemHealthy }) => {
   const { totalCalories, totalProtein, totalCarbs, totalFat } = useSelector(selectMealTotals)
   const [openDrawer1, setOpenDrawer1] = useState(false)
   // const selectedItems = useSelector(selectCurrentMeal)
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedClearSelections = useTranslate('Clear Selections', currentLang)
-  const translatedSaveYourCustomMeal = useTranslate('Save Your Custom Meal', currentLang)
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedClearSelections = 'Clear Selections'
+  const translatedSaveYourCustomMeal = 'Save Your Custom Meal'
 
   const items = [
     { label: translatedCalories, value: `${Math.round(totalCalories)}` },

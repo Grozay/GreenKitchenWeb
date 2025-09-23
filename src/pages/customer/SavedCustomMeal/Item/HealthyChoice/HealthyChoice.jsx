@@ -4,20 +4,17 @@ import { useSelector } from 'react-redux'
 import { selectCurrentMeal } from '~/redux/meal/mealSlice'
 import EmptyBowl from './EmptyBowl/EmptyBowl'
 import ListCardChoice from './ListCardChoice/ListCardChoice'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import SaveInfoDetail from './InfoDetail/SaveInfoDetail'
 
 const HealthyChoice = ({ itemHealthy }) => {
   const selectedItems = useSelector(selectCurrentMeal)
-  const currentLang = useSelector(selectCurrentLanguage)
 
-  const translatedYourHealthyBowl = useTranslate('Your Healthy Bowl', currentLang)
-  const translatedBuildYourPerfect = useTranslate('Build your perfect healthy bowl - mix, match, and track nutrition in every bite!', currentLang)
-  const translatedProtein = useTranslate('1. Protein', currentLang)
-  const translatedCarbs = useTranslate('2. Carbs', currentLang)
-  const translatedSide = useTranslate('3. Side', currentLang)
-  const translatedSauce = useTranslate('4. Sauce', currentLang)
+  const translatedYourHealthyBowl = 'Your Healthy Bowl'
+  const translatedBuildYourPerfect = 'Build your perfect healthy bowl - mix, match, and track nutrition in every bite!'
+  const translatedProtein = '1. Protein'
+  const translatedCarbs = '2. Carbs'
+  const translatedSide = '3. Side'
+  const translatedSauce = '4. Sauce'
 
   return (
     <Box sx={{

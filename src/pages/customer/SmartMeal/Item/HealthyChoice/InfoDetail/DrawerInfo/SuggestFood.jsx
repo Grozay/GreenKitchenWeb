@@ -4,13 +4,9 @@ import Grid from '@mui/material/Grid'
 import FastfoodIcon from '@mui/icons-material/Fastfood'
 import FoodCard from '~/components/FoodCard/FoodCard'
 import theme from '~/theme'
-import useTranslate from '~/hooks/useTranslate'
-import { useSelector } from 'react-redux'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 
 const SuggestFood = ({ suggestedMeals }) => {
-  const currentLang = useSelector(selectCurrentLanguage)
-  const translatedText = useTranslate('Need to balance your meal? Try adding these:', currentLang)
+  const translatedText = 'Need to balance your meal? Try adding these:'
 
   return (
     <>

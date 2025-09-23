@@ -26,9 +26,7 @@ import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
+
 
 const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const [isReviewing, setIsReviewing] = useState(true)
@@ -45,27 +43,25 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
   const nutritionalAdvice = getNutritionalAdvice(customTotal)
   const allSelectedItems = Object.values(selected).flat()
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedHealthyMeals = useTranslate('Healthy Meals Just For You', currentLang)
-  const translatedReviewSelections = useTranslate('Review My Selections', currentLang)
-  const translatedBalanced = useTranslate('Your meal is well-balanced!', currentLang)
-  const translatedCanOrder = useTranslate('You can now order your custom meal or review your choices.', currentLang)
-  const translatedBackToBuilder = useTranslate('Back to Builder', currentLang)
-  const translatedClearSelections = useTranslate('Clear Selections', currentLang)
-  const translatedOrOrder = useTranslate('Or order your custom meal', currentLang)
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedTotalPrice = useTranslate('Total Price:', currentLang)
-  const translatedOrderMeal = useTranslate('Order meal', currentLang)
-  const translatedSaveMeal = useTranslate('Save meal', currentLang)
-  const translatedAdding = useTranslate('Adding...', currentLang)
-  const translatedSaving = useTranslate('Saving...', currentLang)
-  const translatedLoginToast = useTranslate('You need to log in to place an order!', currentLang)
-  const translatedSaveLoginToast = useTranslate('You need to log in to save the meal!', currentLang)
+  const translatedHealthyMeals = 'Healthy Meals Just For You'
+  const translatedReviewSelections = 'Review My Selections'
+  const translatedBalanced = 'Your meal is well-balanced!'
+  const translatedCanOrder = 'You can now order your custom meal or review your choices.'
+  const translatedBackToBuilder = 'Back to Builder'
+  const translatedClearSelections = 'Clear Selections'
+  const translatedOrOrder = 'Or order your custom meal'
+  const translatedCalories = 'Calories'
+  const translatedProtein = 'Protein'
+  const translatedCarbs = 'Carbs'
+  const translatedFat = 'Fat'
+  const translatedTotalPrice = 'Total Price:'
+  const translatedOrderMeal = 'Order meal'
+  const translatedSaveMeal = 'Save meal'
+  const translatedAdding = 'Adding...'
+  const translatedSaving = 'Saving...'
+  const translatedLoginToast = 'You need to log in to place an order!'
+  const translatedSaveLoginToast = 'You need to log in to save the meal!'
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
   const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
   const handleOrderCustom = () => {
@@ -145,7 +141,7 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
         // Sửa: dùng Redux thunk để add vào cart
         await dispatch(createCartItem({ customerId, itemData: cartRequestData }))
         await dispatch(fetchCart(customerId))
-        // dispatch(clearCart())
+        dispatch(clearCart())
         onClose()
         toast.success('Custom meal added to cart successfully!')
       } catch (error) {
@@ -195,9 +191,9 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
         }
 
         const savedCustomMeal = await createCustomMealAPI(customMealData)
-        dispatch(clearCart())
         onClose()
         toast.success(`Custom meal "${savedCustomMeal.name}" saved successfully!`)
+        dispatch(clearCart())
       } catch (error) {
         toast.error('Failed to save custom meal. Please try again.')
       } finally {

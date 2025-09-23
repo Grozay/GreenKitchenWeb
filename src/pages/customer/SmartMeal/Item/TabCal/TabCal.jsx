@@ -1,7 +1,6 @@
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import theme from '~/theme'
-import { useTranslation } from 'react-i18next'
 
 
 const TabCal = ({ value, handleChange }) => {
@@ -9,7 +8,6 @@ const TabCal = ({ value, handleChange }) => {
   const handleTabChange = (event, newValue) => {
     handleChange(event, newValue)
   }
-  const { t } = useTranslation()
   return (
     <Tabs
       value={value}
@@ -55,10 +53,10 @@ const TabCal = ({ value, handleChange }) => {
         }
       }}
     >
-      <Tab label={t('smartMeal.protein')} />
-      <Tab label={t('smartMeal.carbs')} />
-      <Tab label={t('smartMeal.side')} />
-      <Tab label={t('smartMeal.sauce')} />
+      <Tab label={'PROTEIN'} />
+      <Tab label={'CARBS'} />
+      <Tab label={'SIDE'} />
+      <Tab label={'SAUCE'} />
     </Tabs>
   )
 }

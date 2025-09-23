@@ -6,7 +6,6 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import Typography from '@mui/material/Typography'
 import CartItem from './CartItem/CartItem'
 import CartSummary from '../CartSummary/CartSummary'
-import { useTranslation } from 'react-i18next'
 
 const ListItemCart = ({
   cartItems,
@@ -17,7 +16,6 @@ const ListItemCart = ({
   calculateItemNutrition
 }) => {
   const navigate = useNavigate()
-  const { t } = useTranslation()
 
   return (
     <Box>
@@ -39,7 +37,7 @@ const ListItemCart = ({
           }}>
             <ShoppingCartIcon />
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              {t('cart.cartTitle', { count: cartItems?.length || 0 })}
+              Your Cart ({cartItems?.length || 0})
             </Typography>
           </Box>
         </Box>

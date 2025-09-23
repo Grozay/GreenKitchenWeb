@@ -16,13 +16,11 @@ import {
 } from '~/redux/cart/cartSlice'
 import CartEmpty from './CartEmpty/CartEmpty'
 import ListItemCart from './ListItemCart/ListItemCart'
-import { useTranslation } from 'react-i18next'
 
 const Cart = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
-  const { t } = useTranslation()
 
   // Lấy currentCart từ Redux
   const currentCart = useSelector(selectCurrentCart)
@@ -113,7 +111,7 @@ const Cart = () => {
               sx={{ borderRadius: 5, color: theme.palette.text.primary }}
               aria-label="Back to Menu"
             >
-              {t('cart.backToMenu')}
+              Back to Menu
             </Button>
           </Box>
 

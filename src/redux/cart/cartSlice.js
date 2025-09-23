@@ -90,7 +90,7 @@ export const syncCartAfterLogin = createAsyncThunk(
     // Gọi API addMealToCart cho từng item trong local cart
     for (const item of localCartItems) {
       try {
-        await addMealToCartAPI(customerId, {
+        const itemData = {
           menuMealId: item.menuMealId || item.id, // Sử dụng menuMealId nếu có, fallback id
           quantity: item.quantity,
           unitPrice: item.unitPrice,
@@ -106,7 +106,15 @@ export const syncCartAfterLogin = createAsyncThunk(
           isCustom: item.isCustom,
           // Thêm customMeal nếu là custom meal
           customMeal: item.customMeal || null,
-        })
+          weekMeal: item.weekMeal || null
+        }
+
+        const response = await addMealToCartAPI(customerId, itemData)
+
+        // Lưu weekMeal vào localStorage nếu có
+        if (item.weekMeal && response.id) {
+          localStorage.setItem(`cartItem_weekMeal_${response.id}`, JSON.stringify(item.weekMeal))
+        }
       } catch (error) {
         console.error('Error syncing item:', item.id, error)
         // Có thể bỏ qua lỗi hoặc handle (e.g., show toast)
@@ -130,15 +138,43 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCart.fulfilled, (state, action) => {
-        if (action.payload && Array.isArray(action.payload.cartItems)) {
-          state.currentCart = action.payload
-        } else if (action.payload && (action.payload.menuMealId || action.payload.id)) {
-          // Nếu payload là 1 item, wrap lại thành cart chuẩn
+        let cartData = action.payload
+
+        if (cartData && Array.isArray(cartData.cartItems)) {
+          // Merge weekMeal từ localStorage vào cartItems
+          cartData.cartItems = cartData.cartItems.map(item => {
+            if (item.itemType === 'WEEK_MEAL' && item.id) {
+              const storedWeekMeal = localStorage.getItem(`cartItem_weekMeal_${item.id}`)
+              if (storedWeekMeal) {
+                try {
+                  const weekMeal = JSON.parse(storedWeekMeal)
+                  return { ...item, weekMeal }
+                } catch (error) {
+                  console.error('Error parsing stored weekMeal:', error)
+                }
+              }
+            }
+            return item
+          })
+          state.currentCart = cartData
+        } else if (cartData && (cartData.menuMealId || cartData.id)) {
+          // Nếu payload là 1 item, merge weekMeal và wrap lại thành cart chuẩn
+          let item = cartData
+          if (item.itemType === 'WEEK_MEAL' && item.id) {
+            const storedWeekMeal = localStorage.getItem(`cartItem_weekMeal_${item.id}`)
+            if (storedWeekMeal) {
+              try {
+                item = { ...item, weekMeal: JSON.parse(storedWeekMeal) }
+              } catch (error) {
+                console.error('Error parsing stored weekMeal:', error)
+              }
+            }
+          }
           state.currentCart = {
-            cartItems: [action.payload],
-            totalAmount: action.payload.totalPrice || 0,
+            cartItems: [item],
+            totalAmount: item.totalPrice || 0,
             totalItems: 1,
-            totalQuantity: action.payload.quantity || 1
+            totalQuantity: item.quantity || 1
           }
         } else {
           state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
@@ -153,7 +189,19 @@ const cartSlice = createSlice({
           if (!state.currentCart || !Array.isArray(state.currentCart.cartItems)) {
             state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
           }
-          const newItem = action.payload
+
+          // Lấy weekMeal từ itemData gốc và lưu vào localStorage
+          const itemData = action.meta.arg.itemData
+          if (itemData.weekMeal && action.payload.id) {
+            localStorage.setItem(`cartItem_weekMeal_${action.payload.id}`, JSON.stringify(itemData.weekMeal))
+          }
+
+          // Merge weekMeal vào newItem
+          const newItem = {
+            ...action.payload,
+            weekMeal: itemData.weekMeal || action.payload.weekMeal
+          }
+
           const existIndex = state.currentCart.cartItems.findIndex(
             item => String(item.menuMealId || item.id) === String(newItem.menuMealId || newItem.id)
           )
@@ -164,7 +212,8 @@ const cartSlice = createSlice({
             state.currentCart.cartItems[existIndex] = {
               ...existItem,
               quantity: updatedQuantity,
-              totalPrice: updatedQuantity * existItem.unitPrice
+              totalPrice: updatedQuantity * existItem.unitPrice,
+              weekMeal: itemData.weekMeal || existItem.weekMeal // Giữ weekMeal
             }
           } else {
             // Nếu chưa có, thêm mới
@@ -177,9 +226,13 @@ const cartSlice = createSlice({
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         const itemId = String(action.meta.arg.itemId)
+
+        // Xóa weekMeal khỏi localStorage nếu có
+        localStorage.removeItem(`cartItem_weekMeal_${itemId}`)
+
         state.currentCart.cartItems = state.currentCart.cartItems.filter(
           item =>
-            String(item.menuMealId || item.customMealId) !== itemId
+            String(item.menuMealId || item.customMealId || item.id) !== itemId
         )
         state.currentCart.totalItems = state.currentCart.cartItems.length
         state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)

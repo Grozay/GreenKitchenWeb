@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { Link, useLocation } from 'react-router-dom'
 
-const NavItem = ({ to, label, handleCloseNavMenu, t, fontSize }) => {
+const NavItem = ({ to, label, handleCloseNavMenu, fontSize }) => {
   const location = useLocation()
   const isActive = location.pathname === to || location.pathname.startsWith(`${to}/`)
 
@@ -30,7 +30,7 @@ const NavItem = ({ to, label, handleCloseNavMenu, t, fontSize }) => {
           }
         }}
       >
-        {t(`navBar.${label}`)}
+        {label}
       </Button>
     </Box>
   )

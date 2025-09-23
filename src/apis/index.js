@@ -159,6 +159,11 @@ export const updateCustomMealAPI = async (id, data) => {
   return response.data
 }
 
+export const deleteCustomMealAPI = async (id) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/apis/v1/custom-meals/${id}`)
+  return response.data
+}
+
 // MenuMeal
 export const getMenuMealAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/menu-meals/customers`)

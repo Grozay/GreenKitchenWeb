@@ -17,7 +17,6 @@ import theme from '~/theme'
 import {
   getDetailMenuMealAPI,
   getMenuMealAPI,
-  getMenuMealReviewsAPI,
   createMenuMealReviewAPI,
   updateMenuMealReviewAPI,
   fetchCustomerDetails // Import trực tiếp từ APIs
@@ -25,11 +24,8 @@ import {
 import AppBar from '~/components/AppBar/AppBar'
 import { toast } from 'react-toastify'
 import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
 import RelatedMealItem from '~/pages/customer/Menu/MenuDetail/RelatedMeal/RelatedMealItem'
 import Skeleton from '@mui/material/Skeleton'
-import { useTranslation } from 'react-i18next'
 import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 import Avatar from '@mui/material/Avatar'
 // Xóa import này vì không cần Redux action
@@ -62,46 +58,7 @@ const MenuDetail = () => {
 
   const currentCustomer = useSelector(selectCurrentCustomer)
   const customerId = currentCustomer?.id || null
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
 
-  const translatedTitle = useTranslate(menuMeal?.title || '', currentLang)
-  const translatedDescription = useTranslate(menuMeal?.description || '', currentLang)
-  const translatedNotFound = useTranslate('Meal package not found!', currentLang)
-  const translatedBackToMenu = useTranslate('Back to menu list', currentLang)
-  const translatedPrice = useTranslate('Price', currentLang)
-  const translatedVnd = useTranslate('VND', currentLang)
-  const translatedNutritionalInfo = useTranslate('Nutritional Information', currentLang)
-  const translatedCalories = t('nutrition.calories')
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedQuantity = useTranslate('Quantity', currentLang)
-  const translatedAdding = useTranslate('Adding...', currentLang)
-  const translatedAddToCart = useTranslate('Add to Cart', currentLang)
-  const translatedReviewsComments = useTranslate('Reviews & Comments', currentLang)
-  const translatedWriteReview = useTranslate('Write a Review', currentLang)
-  const translatedYourRating = useTranslate('Your Rating', currentLang)
-  const translatedSubmitReview = useTranslate('Submit Review', currentLang)
-  const translatedCustomerReviews = useTranslate('Customer Reviews', currentLang)
-  const translatedNoReviews = useTranslate('No reviews yet. Be the first to review this dish!', currentLang)
-  const translatedYouMightLike = useTranslate('You might also like', currentLang)
-  const translatedAddedToCart = useTranslate('Added to cart!', currentLang)
-  const translatedReviewSubmitted = useTranslate('Review submitted successfully!', currentLang)
-  const translatedFailedToAddToCart = useTranslate('Failed to add to cart', currentLang)
-  const translatedUpdateReview = useTranslate('Update Review', currentLang)
-  const translatedCancel = useTranslate('Cancel', currentLang)
-  const translatedEdit = useTranslate('Edit', currentLang)
-  const translatedSubmitting = useTranslate('Submitting...', currentLang)
-  const translatedUpdating = useTranslate('Updating...', currentLang)
-  const translatedRatingCannotChange = useTranslate('Rating cannot be changed when editing review', currentLang)
-  const translatedYourReview = useTranslate('Your review', currentLang)
-  const translatedRating = useTranslate('rating', currentLang)
-
-  // Thêm các message mới
-  const translatedMustPurchaseToReview = useTranslate('You must purchase this item to write a review', currentLang)
-  const translatedLoginToReview = useTranslate('Please login to write a review', currentLang)
-  const translatedPurchaseFirst = useTranslate('Purchase this item first to leave a review', currentLang)
 
   // Fetch reviews function
   const fetchReviews = async () => {
@@ -188,7 +145,7 @@ const MenuDetail = () => {
 
       setSnackbarOpen(true)
     } catch (error) {
-      toast.error(translatedFailedToAddToCart)
+      toast.error('Failed to add to cart')
     } finally {
       setAddingToCart(false)
     }
@@ -204,13 +161,13 @@ const MenuDetail = () => {
 
   const handleCommentSubmit = async () => {
     if (!customerId) {
-      toast.error(translatedLoginToReview)
+      toast.error('Please login to write a review')
       return
     }
 
     // Kiểm tra user đã mua sản phẩm chưa
     if (!hasPurchased) {
-      toast.error(translatedMustPurchaseToReview)
+      toast.error('You must purchase this item to write a review')
       return
     }
 
@@ -233,14 +190,14 @@ const MenuDetail = () => {
         await updateMenuMealReviewAPI(editingReview.id, {
           menuMealId: menuMeal.id,
           customerId: customerId,
-          rating: editingReview.rating,  // Giữ nguyên rating cũ
+          rating: editingReview.rating,
           comment: comment.trim()
         })
         toast.success('Review updated successfully!')
         setEditingReview(null)
       } else {
         await createMenuMealReviewAPI(reviewData)
-        toast.success(translatedReviewSubmitted)
+        toast.success('Review submitted successfully!')
       }
 
       setComment('')
@@ -419,14 +376,14 @@ const MenuDetail = () => {
         <AppBar />
         <Box sx={{ maxWidth: '1280px', mx: 'auto', px: 2, py: 6, mt: theme.fitbowl.appBarHeight }}>
           <Typography variant="h5" color="error" align="center">
-            {translatedNotFound}
+            Meal package not found!
           </Typography>
           <Button
             variant="contained"
             sx={{ mt: 4, mx: 'auto', display: 'block', bgcolor: theme.palette.primary.main, color: 'white' }}
             onClick={() => navigate('/menu')}
           >
-            {translatedBackToMenu}
+            Back to menu list
           </Button>
         </Box>
       </Box>
@@ -459,7 +416,7 @@ const MenuDetail = () => {
           }}
           onClick={() => navigate('/menu')}
         >
-          {translatedBackToMenu}
+          Back to menu list
         </Button>
 
         <Grid container spacing={12}>
@@ -494,20 +451,20 @@ const MenuDetail = () => {
                 wordBreak: 'break-word'
               }}
             >
-              {translatedTitle}
+              {menuMeal?.title || ''}
             </Typography>
             <Box sx={{ width: '6rem', height: '0.4rem', bgcolor: theme.palette.primary.secondary, mb: 4 }} />
 
             <Typography variant="body1" sx={{ mb: 4, color: theme.palette.text.textSub, fontSize: { xs: '1rem', md: '1.15rem' } }}>
-              {translatedDescription}
+              {menuMeal?.description || ''}
             </Typography>
 
             <Typography variant="h5" sx={{ fontWeight: 800, color: theme.palette.text.primary, mb: 4 }}>
-              {translatedPrice}: {menuMeal.price.toLocaleString()} {translatedVnd}
+              Price: {menuMeal.price.toLocaleString()} VND
             </Typography>
 
             <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 2 }}>
-              {translatedNutritionalInfo}
+              Nutritional Information
             </Typography>
             <Grid container spacing={2} sx={{ mb: 4 }}>
               <Grid size={{ xs: 6, sm: 3 }}>
@@ -516,7 +473,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.calories)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {translatedCalories}
+                    Calories
                   </Typography>
                 </Box>
               </Grid>
@@ -526,7 +483,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.protein)}g
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {translatedProtein}
+                    Protein
                   </Typography>
                 </Box>
               </Grid>
@@ -536,7 +493,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.carbs)}g
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {translatedCarbs}
+                    Carbs
                   </Typography>
                 </Box>
               </Grid>
@@ -546,7 +503,7 @@ const MenuDetail = () => {
                     {Math.round(menuMeal.fat)}g
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {translatedFat}
+                    Fat
                   </Typography>
                 </Box>
               </Grid>
@@ -554,7 +511,7 @@ const MenuDetail = () => {
 
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
               <Typography variant="body1" sx={{ mr: 2, color: theme.palette.text.primary }}>
-                {translatedQuantity}:
+                Quantity:
               </Typography>
               <IconButton onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
                 <Remove />
@@ -604,7 +561,7 @@ const MenuDetail = () => {
               }}
               onClick={handleAddToCart}
             >
-              {addingToCart ? translatedAdding : translatedAddToCart}
+              {addingToCart ? 'Adding...' : 'Add to Cart'}
             </Button>
           </Grid>
         </Grid>
@@ -613,19 +570,19 @@ const MenuDetail = () => {
         {/* Reviews & Comments */}
         <Box sx={{ mt: 8 }}>
           <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 2 }}>
-            {translatedReviewsComments}
+            Reviews & Comments
           </Typography>
           {/* Hiển thị rating trung bình chỉ khi có review */}
           {reviews.length > 0 && (
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
               <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.primary.secondary, mr: 1 }}>
-                {averageRating ? `${averageRating}/5` : translatedNoReviews}
+                {averageRating ? `${averageRating}/5` : 'No reviews yet. Be the first to review this dish!'}
               </Typography>
               {averageRating && (
                 <Rating value={Number(averageRating)} precision={0.1} readOnly size="medium" />
               )}
               <Typography variant="body2" sx={{ ml: 2, color: theme.palette.text.secondary }}>
-                ({totalReviews} ({translatedRating}))
+                ({totalReviews} rating)
               </Typography>
             </Box>
           )}
@@ -636,10 +593,10 @@ const MenuDetail = () => {
               // Nếu đã review, hiển thị form luôn
               <Box id="review-form" sx={{ mb: 6, p: 3, bgcolor: theme.palette.primary.card, borderRadius: 2 }}>
                 <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
-                  {editingReview ? translatedUpdateReview : translatedWriteReview}
+                  {editingReview ? 'Update Review' : 'Write a Review'}
                 </Typography>
                 <Typography variant="body1" sx={{ mb: 1, color: theme.palette.text.primary }}>
-                  {translatedYourRating}:
+                  Your Rating:
                 </Typography>
                 <Rating
                   value={rating}
@@ -650,12 +607,12 @@ const MenuDetail = () => {
                 />
                 {editingReview && (
                   <Typography variant="caption" sx={{ color: theme.palette.text.secondary, mb: 2, display: 'block' }}>
-                    {translatedRatingCannotChange}
+                    Rating cannot be changed when editing review
                   </Typography>
                 )}
                 <TextareaAutosize
                   minRows={4}
-                  placeholder={editingReview ? 'Update your comment...' : translatedWriteReview}
+                  placeholder={editingReview ? 'Update your comment...' : 'Write a Review'}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   style={{
@@ -682,8 +639,8 @@ const MenuDetail = () => {
                     disabled={!comment.trim() || !rating || submittingReview}
                   >
                     {submittingReview
-                      ? (editingReview ? translatedUpdating : translatedSubmitting)
-                      : (editingReview ? translatedUpdateReview : translatedSubmitReview)
+                      ? (editingReview ? 'Updating...' : 'Submitting...')
+                      : (editingReview ? 'Update Review' : 'Submit Review')
                     }
                   </Button>
                   {editingReview && (
@@ -692,7 +649,7 @@ const MenuDetail = () => {
                       onClick={handleCancelEdit}
                       sx={{ color: theme.palette.text.primary }}
                     >
-                      {translatedCancel}
+                      Cancel
                     </Button>
                   )}
                 </Box>
@@ -708,10 +665,10 @@ const MenuDetail = () => {
               // Form review khi đã mua
               <Box id="review-form" sx={{ mb: 6, p: 3, bgcolor: theme.palette.primary.card, borderRadius: 2 }}>
                 <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
-                  {editingReview ? translatedUpdateReview : translatedWriteReview}
+                  {editingReview ? 'Update Review' : 'Write a Review'}
                 </Typography>
                 <Typography variant="body1" sx={{ mb: 1, color: theme.palette.text.primary }}>
-                  {translatedYourRating}:
+                  Your Rating:
                 </Typography>
                 <Rating
                   value={rating}
@@ -722,12 +679,12 @@ const MenuDetail = () => {
                 />
                 {editingReview && (
                   <Typography variant="caption" sx={{ color: theme.palette.text.secondary, mb: 2, display: 'block' }}>
-                    {translatedRatingCannotChange}
+                    Rating cannot be changed when editing review
                   </Typography>
                 )}
                 <TextareaAutosize
                   minRows={4}
-                  placeholder={editingReview ? 'Update your comment...' : translatedWriteReview}
+                  placeholder={editingReview ? 'Update your comment...' : 'Write a Review'}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   style={{
@@ -754,8 +711,8 @@ const MenuDetail = () => {
                     disabled={!comment.trim() || (!editingReview && !rating) || submittingReview}
                   >
                     {submittingReview
-                      ? (editingReview ? translatedUpdating : translatedSubmitting)
-                      : (editingReview ? translatedUpdateReview : translatedSubmitReview)
+                      ? (editingReview ? 'Updating...' : 'Submitting...')
+                      : (editingReview ? 'Update Review' : 'Submit Review')
                     }
                   </Button>
                   {editingReview && (
@@ -764,7 +721,7 @@ const MenuDetail = () => {
                       onClick={handleCancelEdit}
                       sx={{ color: theme.palette.text.primary }}
                     >
-                      {translatedCancel}
+                      Cancel
                     </Button>
                   )}
                 </Box>
@@ -773,7 +730,7 @@ const MenuDetail = () => {
               // Thông báo khi user chưa mua sản phẩm
               <Box sx={{ mb: 6, p: 3, bgcolor: theme.palette.grey[100], borderRadius: 2, textAlign: 'center' }}>
                 <Typography variant="body1" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
-                  {translatedPurchaseFirst}
+                  Purchase this item first to leave a review
                 </Typography>
                 <Button
                   variant="contained"
@@ -785,7 +742,7 @@ const MenuDetail = () => {
                   onClick={handleAddToCart}
                   disabled={addingToCart}
                 >
-                  {addingToCart ? translatedAdding : translatedAddToCart}
+                  {addingToCart ? 'Adding...' : 'Add to Cart'}
                 </Button>
               </Box>
             )
@@ -793,7 +750,7 @@ const MenuDetail = () => {
             // Thông báo khi user chưa đăng nhập
             <Box sx={{ mb: 6, p: 3, bgcolor: theme.palette.grey[100], borderRadius: 2, textAlign: 'center' }}>
               <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
-                {translatedLoginToReview}
+                Please login to write a review
               </Typography>
             </Box>
           )}
@@ -801,7 +758,7 @@ const MenuDetail = () => {
           {/* Reviews list */}
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 3 }}>
-              {translatedCustomerReviews}
+              Customer Reviews
             </Typography>
 
             {reviewsLoading ? (
@@ -864,7 +821,7 @@ const MenuDetail = () => {
                                 fontWeight: 600
                               }}
                             >
-                              {translatedYourReview}
+                              Your review
                             </Typography>
                           )}
                         </Box>
@@ -891,7 +848,7 @@ const MenuDetail = () => {
               ))
             ) : (
               <Typography variant="body2" sx={{ color: theme.palette.text.secondary, fontStyle: 'italic' }}>
-                {translatedNoReviews}
+                No reviews yet. Be the first to review this dish!
               </Typography>
             )}
           </Box>
@@ -901,7 +858,7 @@ const MenuDetail = () => {
         {relatedMeals.length > 0 && (
           <Box sx={{ mt: 8 }}>
             <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 4 }}>
-              {translatedYouMightLike}
+              You might also like
             </Typography>
             <Grid container spacing={3}>
               {relatedMeals.map((item) => (
@@ -919,7 +876,7 @@ const MenuDetail = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          {`${translatedAddedToCart} ${quantity} ${translatedTitle}!`}
+          {`Added to cart! ${quantity} ${menuMeal?.title || ''}!`}
         </Alert>
       </Snackbar>
     </Box>

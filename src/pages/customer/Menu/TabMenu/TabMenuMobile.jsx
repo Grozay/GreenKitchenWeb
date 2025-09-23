@@ -1,9 +1,7 @@
 import { Tabs, Tab } from '@mui/material'
 import theme from '~/theme'
-import { useTranslation } from 'react-i18next'  // Thêm import
 
 const TabMenuMobile = ({ value, handleChange }) => {
-  const { t } = useTranslation()  // Sử dụng t()
 
   return (
     <Tabs
@@ -53,10 +51,10 @@ const TabMenuMobile = ({ value, handleChange }) => {
         }
       }}
     >
-      <Tab label={t('menu.high')} />
-      <Tab label={t('menu.balance')} />
-      <Tab label={t('menu.low')} />
-      <Tab label={t('menu.vegetarian')} />
+      <Tab label="HIGH" />
+      <Tab label="BALANCE" />
+      <Tab label="LOW" />
+      <Tab label="VEGETARIAN" />
     </Tabs>
   )
 }

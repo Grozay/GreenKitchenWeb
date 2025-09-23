@@ -13,9 +13,7 @@ import { createCartItem, fetchCart } from '~/redux/cart/cartSlice'
 import Grid from '@mui/material/Grid'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
-import useTranslate from '~/hooks/useTranslate'
-import { selectCurrentLanguage } from '~/redux/translations/translationsSlice'
-import { useTranslation } from 'react-i18next'
+// import useTranslate from '~/hooks/useTranslate'
 import {
   selectCurrentCart,
   decreaseQuantity,
@@ -29,23 +27,21 @@ const CardMenu = ({ item, typeBasedIndex }) => {
   const dispatch = useDispatch()
   const [addingToCart, setAddingToCart] = useState(false)
   const customerId = useSelector(state => state.customer.currentCustomer?.id ?? null)
-  const currentLang = useSelector(selectCurrentLanguage)
-  const { t } = useTranslation()
   const currentCart = useSelector(selectCurrentCart)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [itemToRemove, setItemToRemove] = useState(null)
 
 
-  const translatedTitle = useTranslate(item.title, currentLang)
-  // const translatedDescription = useTranslate(item.description, currentLang)
-  const translatedProtein = t('nutrition.protein')
-  const translatedCarbs = t('nutrition.carbs')
-  const translatedFat = t('nutrition.fat')
-  const translatedCalories = t('nutrition.calories')
-  const translatedVnd = useTranslate('VNĐ', currentLang)
-  const translatedOutOfStock = useTranslate('This item is out of stock', currentLang)
-  const translatedAddedToCart = useTranslate('Added to cart successfully!', currentLang)
-  const translatedFailedToAddToCart = useTranslate('Failed to add to cart', currentLang)
+  // const translatedTitle = useTranslate(item.title, currentLang)
+  // // const translatedDescription = useTranslate(item.description, currentLang)
+  // const translatedProtein = t('nutrition.protein')
+  // const translatedCarbs = t('nutrition.carbs')
+  // const translatedFat = t('nutrition.fat')
+  // const translatedCalories = t('nutrition.calories')
+  // const translatedVnd = useTranslate('VNĐ', currentLang)
+  // const translatedOutOfStock = useTranslate('This item is out of stock', currentLang)
+  // const translatedAddedToCart = useTranslate('Added to cart successfully!', currentLang)
+  // const translatedFailedToAddToCart = useTranslate('Failed to add to cart', currentLang)
 
   const handleNavigateToDetail = (slug) => {
     navigate(`/menu/${slug}`)
@@ -58,7 +54,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
 
     // Kiểm tra hết hàng
     if (item.stock === 0) {
-      toast.error(translatedOutOfStock)
+      toast.error('This item is out of stock')
       return
     }
 
@@ -87,9 +83,9 @@ const CardMenu = ({ item, typeBasedIndex }) => {
       if (customerId) {
         await dispatch(fetchCart(customerId))
       }
-      toast.success(translatedAddedToCart)
+      toast.success('Added to cart successfully!')
     } catch {
-      toast.error(translatedFailedToAddToCart)
+      toast.error('Failed to add to cart')
     } finally {
       setAddingToCart(false)
     }
@@ -106,9 +102,9 @@ const CardMenu = ({ item, typeBasedIndex }) => {
   }
 
   const items = [
-    { label: translatedProtein, value: `${Math.round(item.protein)}` },
-    { label: translatedCarbs, value: `${Math.round(item.carbs)}` },
-    { label: translatedFat, value: `${Math.round(item.fat)}` }
+    { label: 'Protein', value: `${Math.round(item.protein)}` },
+    { label: 'Carbs', value: `${Math.round(item.carbs)}` },
+    { label: 'Fat', value: `${Math.round(item.fat)}` }
   ]
 
   const itemFilter = {
@@ -130,7 +126,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
         await dispatch(fetchCart(customerId))
       }
     } catch {
-      toast.error(translatedFailedToAddToCart)
+      toast.error('Failed to add to cart')
     }
   }
 
@@ -144,7 +140,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
           await dispatch(fetchCart(customerId))
         }
       } catch {
-        toast.error(translatedFailedToAddToCart)
+        toast.error('Failed to add to cart')
       }
     } else {
       setItemToRemove(cartItem.id)
@@ -160,7 +156,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
           await dispatch(fetchCart(customerId))
         }
       } catch {
-        toast.error(translatedFailedToAddToCart)
+        toast.error('Failed to add to cart')
       }
     }
     setConfirmDialogOpen(false)
@@ -172,9 +168,9 @@ const CardMenu = ({ item, typeBasedIndex }) => {
     setItemToRemove(null)
   }
 
-  const translatedConfirmTitle = useTranslate('Confirm Remove Item', currentLang)
-  const translatedConfirmDescription = useTranslate('Are you sure you want to remove this item from the cart?', currentLang)
-  const translatedRemoveBtn = useTranslate('Remove', currentLang)
+  // const translatedConfirmTitle = useTranslate('Confirm Remove Item', currentLang)
+  // const translatedConfirmDescription = useTranslate('Are you sure you want to remove this item from the cart?', currentLang)
+  // const translatedRemoveBtn = useTranslate('Remove', currentLang)
 
   return (
     <>
@@ -244,7 +240,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               fontSize: '0.9rem',
               background: 'white'
             }}>
-              {item.calories} {translatedCalories}
+              {item.calories} Calories
             </Box>
           </Box>
         </Box>
@@ -274,7 +270,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
                 color: '#4C082A',
                 fontSize: '0.9rem'
               }}>
-                {item.calories} {translatedCalories}
+                {item.calories} Calories
               </Box>
             </Box>
           </Box>
@@ -292,7 +288,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
                 whiteSpace: 'normal'
               }}
             >
-              {translatedTitle}
+              {item.title}
             </Typography>
           </Box>
           <Box sx={{ borderBottom: '1.5px dashed' }}></Box>
@@ -341,7 +337,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
               fontWeight: 800,
               color: theme.palette.text.textSub
             }}>
-              {Math.round(itemFilter.price).toLocaleString('en-US')} {translatedVnd}
+              {Math.round(itemFilter.price).toLocaleString('en-US')} VND
             </Typography>
             {cartItem ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -398,9 +394,9 @@ const CardMenu = ({ item, typeBasedIndex }) => {
         open={confirmDialogOpen}
         onClose={handleCancelRemove}
         onConfirm={handleConfirmRemove}
-        title={translatedConfirmTitle}
-        description={translatedConfirmDescription}
-        btnName={translatedRemoveBtn}
+        title="Confirm Remove Item"
+        description="Are you sure you want to remove this item from the cart?"
+        btnName="Remove"
       />
     </>
   )
