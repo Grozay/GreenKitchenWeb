@@ -8,7 +8,7 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
-import CircularProgress from '@mui/material/CircularProgress'
+// removed spinner icon per user preference
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import MenuItem from '@mui/material/MenuItem'
@@ -17,15 +17,12 @@ import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 import Grid from '@mui/material/Grid'
 import LinearProgress from '@mui/material/LinearProgress'
-import IconButton from '@mui/material/IconButton'
+// not using IconButton; prefer Button text-only
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import MDEditor from '@uiw/react-md-editor'
-import { createPostAPI, getPostByIdAPI, updatePostAPI, getPostCategoriesAPI, uploadPostImageAPI, generateAIContentAPI, generateAITitleAPI, generateAIContentOnlyAPI } from '~/apis'
+import { createPostAPI, getPostByIdAPI, updatePostAPI, getPostCategoriesAPI, uploadPostImageAPI, generateAIContentAPI, generateAITitleAPI, generateAIContentOnlyAPI, suggestAITopicsAPI } from '~/apis'
 import { toast } from 'react-toastify'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
-import TitleIcon from '@mui/icons-material/Title'
-import ArticleIcon from '@mui/icons-material/Article'
+// removed MUI icons per user preference
 import { useConfirm } from 'material-ui-confirm'
 
 
@@ -63,25 +60,27 @@ export default function PostCreate() {
   const [aiWordCount, setAiWordCount] = useState(500)
   const [aiLanguage, setAiLanguage] = useState('vi')
   const [aiInstructions, setAiInstructions] = useState('')
+  const [topicSuggestions, setTopicSuggestions] = useState([])
+  const [loadingTopics, setLoadingTopics] = useState(false)
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) {
-      toast.error('Vui lòng chọn file để tải lên')
+      toast.error('Please select a file to upload')
       return
     }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
     if (!allowedTypes.includes(file.type)) {
-      setError('Chỉ chấp nhận file JPG, PNG')
+      setError('Only JPG and PNG files are accepted')
       return
     }
 
     // Validate file size (5MB)
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
-      setError('Kích thước file không được vượt quá 5MB')
+      setError('File size must not exceed 5MB')
       return
     }
 
@@ -110,7 +109,7 @@ export default function PostCreate() {
       // store uploaded URL for preview list
       setUploadedImages((prev) => [...prev, url])
     } catch (err) {
-      setError(err?.message || 'Có lỗi xảy ra khi tải lên ảnh')
+      setError(err?.message || 'An error occurred while uploading the image')
       // eslint-disable-next-line no-console
       console.error('Upload error:', err)
     } finally {
@@ -126,14 +125,14 @@ export default function PostCreate() {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
     if (!allowedTypes.includes(file.type)) {
-      setError('Chỉ chấp nhận file JPG, PNG')
+      setError('Only JPG and PNG files are accepted')
       return
     }
 
     // Validate file size (5MB)
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
-      setError('Kích thước file không được vượt quá 5MB')
+      setError('File size must not exceed 5MB')
       return
     }
 
@@ -161,7 +160,7 @@ export default function PostCreate() {
       setImageUrl(url)
       setUploadedImages((prev) => [...prev, url])
     } catch (err) {
-      setError(err.message || 'Có lỗi xảy ra khi tải lên ảnh')
+      setError(err.message || 'An error occurred while uploading the image')
       // eslint-disable-next-line no-console
       console.error('Upload error:', err)
     } finally {
@@ -175,7 +174,7 @@ export default function PostCreate() {
   // AI Content Generation functions
   const generateAIContent = async () => {
     if (!aiTopic.trim()) {
-      toast.error('Vui lòng nhập chủ đề để tạo nội dung')
+      toast.error('Please enter a topic to generate content')
       return
     }
 
@@ -197,20 +196,39 @@ export default function PostCreate() {
         if (response.title) setTitle(response.title)
         if (response.content) setContent(response.content)
         if (response.slug) setSlug(response.slug)
-        toast.success('Tạo nội dung thành công!')
+        toast.success('Content generated successfully!')
       } else {
-        toast.error(response.message || 'Có lỗi xảy ra khi tạo nội dung')
+        toast.error(response.message || 'An error occurred while generating content')
       }
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi tạo nội dung: ' + error.message)
+      toast.error('Error generating content: ' + error.message)
     } finally {
       setAiLoading(false)
     }
   }
 
+  const fetchTopicSuggestions = async () => {
+    setLoadingTopics(true)
+    try {
+      const categoryName = categories.find(c => c.id === selectedCategoryId)?.name || ''
+      const resp = await suggestAITopicsAPI({ category: categoryName, style: aiStyle, audience: aiTargetAudience, count: 10, language: aiLanguage })
+      if (resp?.status === 'success' && Array.isArray(resp.topics)) {
+        setTopicSuggestions(resp.topics)
+        if (resp.topics.length > 0) toast.success('Suggested topics generated')
+        else toast.info('No suitable suggestions')
+      } else {
+        toast.error(resp?.message || 'Unable to suggest topics')
+      }
+    } catch (e) {
+      toast.error('Topic suggestion error: ' + (e?.message || 'Unknown'))
+    } finally {
+      setLoadingTopics(false)
+    }
+  }
+
   const generateAITitle = async () => {
     if (!aiTopic.trim()) {
-      toast.error('Vui lòng nhập chủ đề để tạo tiêu đề')
+      toast.error('Please enter a topic to generate a title')
       return
     }
 
@@ -228,12 +246,12 @@ export default function PostCreate() {
       if (response.status === 'success' && response.title) {
         setTitle(response.title)
         if (response.slug) setSlug(response.slug)
-        toast.success('Tạo tiêu đề thành công!')
+        toast.success('Title generated successfully!')
       } else {
-        toast.error(response.message || 'Có lỗi xảy ra khi tạo tiêu đề')
+        toast.error(response.message || 'An error occurred while generating the title')
       }
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi tạo tiêu đề: ' + error.message)
+      toast.error('Error generating title: ' + error.message)
     } finally {
       setAiLoading(false)
     }
@@ -241,7 +259,7 @@ export default function PostCreate() {
 
   const generateAIContentOnly = async () => {
     if (!aiTopic.trim()) {
-      toast.error('Vui lòng nhập chủ đề để tạo nội dung')
+      toast.error('Please enter a topic to generate content')
       return
     }
 
@@ -261,12 +279,12 @@ export default function PostCreate() {
       
       if (response.status === 'success' && response.content) {
         setContent(response.content)
-        toast.success('Tạo nội dung thành công!')
+        toast.success('Content generated successfully!')
       } else {
-        toast.error(response.message || 'Có lỗi xảy ra khi tạo nội dung')
+        toast.error(response.message || 'An error occurred while generating content')
       }
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi tạo nội dung: ' + error.message)
+      toast.error('Error generating content: ' + error.message)
     } finally {
       setAiLoading(false)
     }
@@ -497,7 +515,6 @@ export default function PostCreate() {
               />
               <Button
                 variant="outlined"
-                startIcon={<TitleIcon />}
                 onClick={generateAITitle}
                 disabled={aiLoading || !aiTopic.trim()}
                 sx={{ minWidth: 'auto', px: 2 }}
@@ -557,23 +574,23 @@ export default function PostCreate() {
                       toast.error('Invalid image URL')
                     }}
                   />
-                  <IconButton
+                  <Button
                     size="small"
                     onClick={() => setImageUrl('')}
                     sx={{
                       position: 'absolute',
                       top: -8,
                       right: -8,
+                      minWidth: 0,
+                      p: '2px 6px',
                       bgcolor: 'error.main',
                       color: 'white',
-                      '&:hover': { bgcolor: 'error.dark' },
-                      width: 24,
-                      height: 24
+                      '&:hover': { bgcolor: 'error.dark' }
                     }}
                     title="Remove thumbnail"
                   >
                     ×
-                  </IconButton>
+                  </Button>
                 </Box>
               )}
             </Box>
@@ -582,21 +599,27 @@ export default function PostCreate() {
 
             {/* AI Content Generation Panel */}
             <Paper sx={{ p: 2, bgcolor: '#f8f9fa' }}>
-              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <AutoFixHighIcon color="primary" />
+              <Typography variant="h6" sx={{ mb: 2 }}>
                 AI Content Generation
               </Typography>
               
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Topic/Chủ đề"
+                    label="Topic"
                     value={aiTopic}
                     onChange={(e) => setAiTopic(e.target.value)}
                     fullWidth
-                    placeholder="Nhập chủ đề cho bài viết..."
-                    helperText="Ví dụ: Lợi ích của rau xanh, Cách nấu ăn healthy..."
+                    placeholder="Enter a topic for the post..."
+                    helperText="E.g., Benefits of green vegetables; Healthy cooking tips..."
                   />
+                  {topicSuggestions?.length > 0 && (
+                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {topicSuggestions.map((t) => (
+                        <Chip key={t} label={t} onClick={() => setAiTopic(t)} clickable variant="outlined" />
+                      ))}
+                    </Box>
+                  )}
                 </Grid>
                 
                 <Grid item xs={12} md={3}>
@@ -607,33 +630,33 @@ export default function PostCreate() {
                       onChange={(e) => setAiStyle(e.target.value)}
                       label="Style"
                     >
-                      <MenuItem value="friendly">Thân thiện</MenuItem>
-                      <MenuItem value="formal">Trang trọng</MenuItem>
-                      <MenuItem value="casual">Gần gũi</MenuItem>
-                      <MenuItem value="professional">Chuyên nghiệp</MenuItem>
+                      <MenuItem value="friendly">Friendly</MenuItem>
+                      <MenuItem value="formal">Formal</MenuItem>
+                      <MenuItem value="casual">Casual</MenuItem>
+                      <MenuItem value="professional">Professional</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
                 
                 <Grid item xs={12} md={3}>
                   <FormControl fullWidth>
-                    <InputLabel>Đối tượng</InputLabel>
+                    <InputLabel>Audience</InputLabel>
                     <Select
                       value={aiTargetAudience}
                       onChange={(e) => setAiTargetAudience(e.target.value)}
-                      label="Đối tượng"
+                      label="Audience"
                     >
-                      <MenuItem value="customers">Khách hàng</MenuItem>
-                      <MenuItem value="general">Tổng quát</MenuItem>
-                      <MenuItem value="employees">Nhân viên</MenuItem>
-                      <MenuItem value="business">Đối tác</MenuItem>
+                      <MenuItem value="customers">Customers</MenuItem>
+                      <MenuItem value="general">General</MenuItem>
+                      <MenuItem value="employees">Employees</MenuItem>
+                      <MenuItem value="business">Partners</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
                 
                 <Grid item xs={12} md={4}>
                   <TextField
-                    label="Số từ"
+                    label="Word Count"
                     type="number"
                     value={aiWordCount}
                     onChange={(e) => setAiWordCount(Number(e.target.value))}
@@ -644,13 +667,13 @@ export default function PostCreate() {
                 
                 <Grid item xs={12} md={4}>
                   <FormControl fullWidth>
-                    <InputLabel>Ngôn ngữ</InputLabel>
+                    <InputLabel>Language</InputLabel>
                     <Select
                       value={aiLanguage}
                       onChange={(e) => setAiLanguage(e.target.value)}
-                      label="Ngôn ngữ"
+                      label="Language"
                     >
-                      <MenuItem value="vi">Tiếng Việt</MenuItem>
+                      <MenuItem value="vi">Vietnamese</MenuItem>
                       <MenuItem value="en">English</MenuItem>
                     </Select>
                   </FormControl>
@@ -659,36 +682,47 @@ export default function PostCreate() {
                 <Grid item xs={12} md={4}>
                   <Stack direction="row" spacing={1}>
                     <Button
+                      variant="outlined"
+                      onClick={fetchTopicSuggestions}
+                      disabled={loadingTopics}
+                      sx={{ flex: 1 }}
+                    >
+                      {loadingTopics ? 'Suggesting...' : 'Suggest topics'}
+                    </Button>
+                    <Button
                       variant="contained"
-                      startIcon={<AutoFixHighIcon />}
                       onClick={generateAIContent}
                       disabled={aiLoading || !aiTopic.trim()}
                       sx={{ flex: 1 }}
                     >
-                      {aiLoading ? 'Đang tạo...' : 'Tạo toàn bộ'}
+                      {aiLoading ? 'Generating...' : 'Generate all'}
                     </Button>
                     <Button
                       variant="outlined"
-                      startIcon={<ArticleIcon />}
                       onClick={generateAIContentOnly}
                       disabled={aiLoading || !aiTopic.trim()}
                       sx={{ flex: 1 }}
                     >
-                      Chỉ nội dung
+                      Content only
                     </Button>
                   </Stack>
                 </Grid>
                 
                 <Grid item xs={12}>
                   <TextField
-                    label="Hướng dẫn bổ sung"
+                    label="Additional instructions"
                     value={aiInstructions}
                     onChange={(e) => setAiInstructions(e.target.value)}
                     fullWidth
                     multiline
-                    rows={2}
-                    placeholder="Thêm hướng dẫn cụ thể cho AI..."
-                    helperText="Ví dụ: Tập trung vào lợi ích sức khỏe, bao gồm công thức nấu ăn..."
+                    rows={8}
+                    placeholder="Add specific instructions for AI..."
+                    helperText="E.g., Focus on health benefits, include recipes, friendly tone, add real facts..."
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        alignItems: 'flex-start'
+                      }
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -737,21 +771,23 @@ export default function PostCreate() {
                   {uploadedImages.map((u) => (
                     <Box key={u} sx={{ position: 'relative' }}>
                       <Box component="img" src={u} alt="uploaded" sx={{ height: 80, width: 120, objectFit: 'cover', borderRadius: 1, border: '1px solid rgba(0,0,0,0.08)' }} />
-                      <IconButton
+                      <Button
                         size="small"
+                        variant="contained"
+                        onClick={() => { navigator.clipboard?.writeText(u); toast.success('Copied!') }}
                         sx={{
                           position: 'absolute',
                           top: 4,
                           right: 4,
-                          bgcolor: 'rgba(0,0,0,0.4)',
+                          minWidth: 0,
+                          p: '2px 6px',
+                          bgcolor: 'rgba(0,0,0,0.6)',
                           color: '#fff',
-                          '&:hover': { bgcolor: 'rgba(0,0,0,0.6)' }
+                          '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' }
                         }}
-                        onClick={() => { navigator.clipboard?.writeText(u); toast.success('Copied!') }}
-                        aria-label="copy-url"
                       >
-                        <ContentCopyIcon fontSize="small" />
-                      </IconButton>
+                        Copy
+                      </Button>
                     </Box>
                   ))}
                 </Box>
@@ -760,7 +796,9 @@ export default function PostCreate() {
             <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button variant="outlined" onClick={handleCancelPost}>Cancel</Button>
               <Button variant="outlined" disabled={!canSave} onClick={() => submitPost('DRAFT')}>Save as Draft</Button>
-              <Button variant="contained" disabled={!canSave} onClick={() => submitPost('PUBLISHED')} startIcon={loading ? <CircularProgress size={16} /> : null}>Publish</Button>
+              <Button variant="contained" disabled={!canSave} onClick={() => submitPost('PUBLISHED')}>
+                {loading ? 'Publishing...' : 'Publish'}
+              </Button>
             </Stack>
           </Stack>
         </form>

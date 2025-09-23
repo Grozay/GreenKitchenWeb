@@ -941,3 +941,14 @@ export const getCustomerEmailTrackingStatsAPI = async (customerId) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-admin/tracking-stats/customer/${customerId}`)
   return response.data
 }
+  // AI Topic Suggestions API
+  export const suggestAITopicsAPI = async ({ category = '', style = 'friendly', audience = 'customers', count = 8, language = 'vi' } = {}) => {
+    const params = new URLSearchParams()
+    if (category) params.append('category', category)
+    if (style) params.append('style', style)
+    if (audience) params.append('audience', audience)
+    if (count) params.append('count', count.toString())
+    if (language) params.append('language', language)
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/suggest-topics?${params.toString()}`)
+    return response.data
+  }
