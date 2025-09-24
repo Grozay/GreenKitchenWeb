@@ -202,7 +202,7 @@ export default function PostLayout() {
                     onMouseEnter={(e) => handleMouseEnter(e, p)}
                     onMouseLeave={handleMouseLeave}
                   >
-                    <CardMedia component="img" sx={{ width: '100%', height: 140 }} image={p.imageUrl || <Skeleton variant="rectangular" width="100%" height="140px" />} alt={p.title} />
+                    <CardMedia component="img" sx={{ width: '100%', height: 140 }} image={p.imageUrl || DefaultImage} alt={p.title} />
                     <CardContent sx={{ flex: 1 }}>
                       <Typography
                         variant="h6"
