@@ -42,10 +42,11 @@ const ConversationItem = memo(({ conversation, isSelected, onSelect, isPending =
   }, [])
 
   // Memoized computed values
-  const customerName = useMemo(() => 
-    conversation.customerName || 'Customer', 
-    [conversation.customerName]
-  )
+  const customerName = useMemo(() => {
+    const name = conversation.customerName || 'Customer'
+    // Map Vietnamese guest name to English
+    return name === 'Khách vãng lai' ? 'Guest' : name
+  }, [conversation.customerName])
 
   const customerPhone = useMemo(() => 
     conversation.customerPhone || 'No phone number', 
