@@ -52,10 +52,10 @@ const Sidebar = memo(({
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  // Memoized function để tránh re-creation
+  // Memoized function to avoid re-creation
   const groupConversationsByDate = useCallback((conversations) => {
     return conversations.reduce((groups, conv) => {
-      // Hỗ trợ nhiều định dạng (ISO, dd/MM/yyyy HH:mm, ...)
+      // Support multiple formats (ISO, dd/MM/yyyy HH:mm, ...)
       let d = dayjs(conv.lastMessageTime, [
         'DD/MM/YYYY HH:mm',
         'DD/MM/YYYY HH:mm:ss',
@@ -93,10 +93,10 @@ const Sidebar = memo(({
     })
   }, [conversations, searchTerm])
 
-  // Nhóm theo ngày
+  // Group by date
   const grouped = useMemo(() => groupConversationsByDate(filteredConversations), [filteredConversations, groupConversationsByDate])
 
-  // Memoized styles để tránh re-calculation
+  // Memoized styles to avoid re-calculation
   const toggleButtonStyles = useMemo(() => ({
     position: 'fixed',
     top: { xs: 8, sm: 16 },
@@ -193,7 +193,7 @@ const Sidebar = memo(({
     setSearchTerm(value)
   }, [])
 
-  // Memoized conversation items để tránh re-renders
+  // Memoized conversation items to avoid re-renders
   const conversationItems = useMemo(() => 
     Object.entries(grouped).map(([date, convs]) => (
       <React.Fragment key={date}>
@@ -218,12 +218,12 @@ const Sidebar = memo(({
 
   return (
     <>
-      {/* Toggle hamburger (chỉ hiện trên mobile khi sidebar đóng) */}
+      {/* Toggle hamburger (only show on mobile when sidebar is closed) */}
       {!isOpen && !isMobile && (
         <IconButton
           onClick={handleToggleOpen}
           sx={toggleButtonStyles}
-          aria-label="Mở danh sách hội thoại"
+          aria-label="Open conversations list"
         >
           <MenuIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
         </IconButton>
@@ -233,11 +233,11 @@ const Sidebar = memo(({
       <Box sx={sidebarStyles}>
         {/* Header */}
         <Box sx={headerStyles}>
-          {/* Nút đóng sidebar trên mobile */}
+          {/* Close sidebar button on mobile */}
           <IconButton
             onClick={handleToggleClose}
             sx={closeButtonStyles}
-            aria-label="Đóng danh sách hội thoại"
+            aria-label="Close conversations list"
           >
             <CloseIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
           </IconButton>
@@ -329,7 +329,7 @@ const Sidebar = memo(({
                   fontSize: { xs: '1.1rem', sm: '1.25rem' }
                 }}
               >
-                {activeTab === 'QUEUE' ? 'Không có cuộc trò chuyện nào trong Queue' : 'Chưa có cuộc trò chuyện nào'}
+                {activeTab === 'QUEUE' ? 'No conversations in Queue' : 'No conversations yet'}
               </Typography>
 
               <Typography
@@ -342,8 +342,8 @@ const Sidebar = memo(({
                 }}
               >
                 {activeTab === 'QUEUE'
-                  ? 'Cuộc trò chuyện sẽ xuất hiện ở đây khi có khách hàng cần hỗ trợ'
-                  : 'Các cuộc trò chuyện của bạn sẽ hiển thị ở đây'
+                  ? 'Conversations will appear here when customers need support'
+                  : 'Your conversations will be displayed here'
                 }
               </Typography>
 
@@ -363,7 +363,7 @@ const Sidebar = memo(({
                   opacity: 0.8
                 }}
               >
-                {activeTab === 'QUEUE' ? '💬 Hỗ trợ khách hàng 24/7' : '👨‍💼 Quản lý cuộc trò chuyện của bạn'}
+                {activeTab === 'QUEUE' ? '💬 24/7 Customer Support' : '👨‍💼 Manage Your Conversations'}
               </Typography>
             </Box>
           )}

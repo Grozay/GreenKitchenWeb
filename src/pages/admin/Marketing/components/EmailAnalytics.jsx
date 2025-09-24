@@ -68,7 +68,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
       setEmailHistory(historyData.content || [])
     } catch (error) {
       console.error('Error loading tracking data:', error)
-      onShowSnackbar('Lỗi tải dữ liệu tracking', 'error')
+      onShowSnackbar('Error loading tracking data', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -99,10 +99,10 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
 
   const getLinkTypeLabel = (linkType) => {
     switch (linkType) {
-      case 'CART': return 'Giỏ hàng'
-      case 'CHECKOUT': return 'Thanh toán'
-      case 'UNSUBSCRIBE': return 'Hủy đăng ký'
-      case 'PREFERENCES': return 'Tùy chọn'
+      case 'CART': return 'Cart'
+      case 'CHECKOUT': return 'Checkout'
+      case 'UNSUBSCRIBE': return 'Unsubscribe'
+      case 'PREFERENCES': return 'Preferences'
       case 'SOCIAL_FACEBOOK': return 'Facebook'
       case 'SOCIAL_INSTAGRAM': return 'Instagram'
       case 'SOCIAL_TWITTER': return 'Twitter'
@@ -145,21 +145,21 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                 Email Tracking Analytics
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Phân tích hiệu quả email marketing qua tracking links
+                Analyze email marketing effectiveness through tracking links
               </Typography>
             </Box>
           </Box>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Thời gian</InputLabel>
+              <InputLabel>Time Range</InputLabel>
               <Select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
               >
-                <MenuItem value="7days">7 ngày</MenuItem>
-                <MenuItem value="30days">30 ngày</MenuItem>
-                <MenuItem value="90days">90 ngày</MenuItem>
-                <MenuItem value="1year">1 năm</MenuItem>
+                <MenuItem value="7days">7 days</MenuItem>
+                <MenuItem value="30days">30 days</MenuItem>
+                <MenuItem value="90days">90 days</MenuItem>
+                <MenuItem value="1year">1 year</MenuItem>
               </Select>
             </FormControl>
             <Button
@@ -168,7 +168,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
               onClick={loadTrackingData}
               disabled={isLoading}
             >
-              Làm mới
+              Refresh
             </Button>
           </Box>
         </Box>
@@ -194,14 +194,14 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                         {trackingData.totalClicks.toLocaleString()}
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Tổng clicks
+                        Total Clicks
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                     <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                      Tất cả tracking links
+                      All tracking links
                     </Typography>
                   </Box>
                 </CardContent>
@@ -220,14 +220,14 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                         {trackingData.clicksLast24h.toLocaleString()}
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Clicks 24h qua
+                        Clicks Last 24h
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                     <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                      Hoạt động gần đây
+                      Recent Activity
                     </Typography>
                   </Box>
                 </CardContent>
@@ -246,14 +246,14 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                         {trackingData.clicksLast7Days.toLocaleString()}
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Clicks 7 ngày qua
+                        Clicks Last 7 Days
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                     <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                      Xu hướng tuần
+                      Weekly Trend
                     </Typography>
                   </Box>
                 </CardContent>
@@ -272,14 +272,14 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                         {Object.keys(trackingData.clicksByLinkType).length}
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Loại links
+                        Link Types
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                     <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                      Đa dạng tương tác
+                      Diverse Interactions
                     </Typography>
                   </Box>
                 </CardContent>
@@ -292,8 +292,8 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             <Grid item xs={12} md={8}>
               <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
                 <CardHeader
-                  title="Phân tích Clicks theo Loại Link"
-                  subheader="Hiểu rõ user behavior khi tương tác với email"
+                  title="Click Analysis by Link Type"
+                  subheader="Understand user behavior when interacting with emails"
                   avatar={
                     <Avatar sx={{ bgcolor: 'grey.100' }}>
                       <LinkIcon sx={{ color: 'text.primary' }} />
@@ -341,7 +341,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                   ) : (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                       <Typography variant="body1" color="text.secondary">
-                        Chưa có dữ liệu tracking
+                        No tracking data available
                       </Typography>
                     </Box>
                   )}
@@ -352,8 +352,8 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
             <Grid item xs={12} md={4}>
               <Card sx={{ height: '100%', border: '1px solid', borderColor: 'divider' }}>
                 <CardHeader
-                  title="Tổng quan Tracking"
-                  subheader="Thống kê tổng hợp"
+                  title="Tracking Overview"
+                  subheader="Summary Statistics"
                   avatar={
                     <Avatar sx={{ bgcolor: 'grey.100' }}>
                       <AnalyticsIcon sx={{ color: 'text.primary' }} />
@@ -366,7 +366,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                       {trackingData.totalClicks.toLocaleString()}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Tổng clicks
+                      Total Clicks
                     </Typography>
                     <LinearProgress 
                       variant="determinate" 
@@ -382,7 +382,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                       {trackingData.clicksLast24h.toLocaleString()}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Clicks 24h qua
+                      Clicks Last 24h
                     </Typography>
                     <LinearProgress 
                       variant="determinate" 
@@ -396,7 +396,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                       {trackingData.clicksLast7Days.toLocaleString()}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Clicks 7 ngày qua
+                      Clicks Last 7 Days
                     </Typography>
                     <LinearProgress 
                       variant="determinate" 
@@ -412,7 +412,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                       {Object.keys(trackingData.clicksByLinkType).length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Loại links được track
+                      Tracked Link Types
                     </Typography>
                   </Box>
                 </CardContent>
@@ -423,8 +423,8 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
           {/* Recent Email History */}
           <Card sx={{ border: '1px solid', borderColor: 'divider' }}>
             <CardHeader
-              title="Lịch sử Email Gần đây"
-              subheader="Các email đã gửi và tracking data"
+              title="Recent Email History"
+              subheader="Sent emails and tracking data"
               avatar={
                 <Avatar sx={{ bgcolor: 'grey.100' }}>
                   <TimelineIcon sx={{ color: 'text.primary' }} />
@@ -446,7 +446,7 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                           primary={
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                                {email.subject || 'Email không có tiêu đề'}
+                                {email.subject || 'Email without subject'}
                               </Typography>
                               <Chip 
                                 label={email.emailType || 'Unknown'} 
@@ -459,9 +459,9 @@ const EmailAnalytics = ({ onShowSnackbar }) => {
                           secondary={
                             <Box sx={{ mt: 1 }}>
                               <Typography variant="body2" color="text.secondary">
-                                Gửi: {email.totalSent || 0} emails | 
-                                Trạng thái: {email.status || 'Unknown'} | 
-                                Ngày: {email.sentAt ? new Date(email.sentAt).toLocaleDateString('vi-VN') : 'N/A'}
+                                Sent: {email.totalSent || 0} emails | 
+                                Status: {email.status || 'Unknown'} | 
+                                Date: {email.sentAt ? new Date(email.sentAt).toLocaleDateString('en-US') : 'N/A'}
                               </Typography>
                             </Box>
                           }

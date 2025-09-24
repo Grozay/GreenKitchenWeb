@@ -101,23 +101,23 @@ const EmailMarketing = ({ onShowSnackbar }) => {
         {
           id: 'welcome',
           name: 'Welcome Email',
-          description: 'Email chào mừng khách hàng mới',
-          subject: 'Chào mừng đến với Green Kitchen!',
-          preview: 'Chào mừng {{customerName}} đến với Green Kitchen...'
+          description: 'Welcome email for new customers',
+          subject: 'Welcome to Green Kitchen!',
+          preview: 'Welcome {{customerName}} to Green Kitchen...'
         },
         {
           id: 'cart-abandonment',
           name: 'Cart Abandonment',
-          description: 'Email nhắc nhở giỏ hàng bỏ dở',
-          subject: 'Bạn quên gì đó trong giỏ hàng!',
-          preview: 'Chúng tôi nhận thấy bạn đã thêm sản phẩm...'
+          description: 'Reminder email for abandoned cart',
+          subject: 'You forgot something in your cart!',
+          preview: 'We noticed you added products...'
         },
         {
           id: 'holiday',
           name: 'Holiday Email',
-          description: 'Email chúc mừng ngày lễ',
-          subject: 'Chúc mừng {{holidayName}}!',
-          preview: 'Nhân dịp {{holidayName}}, Green Kitchen...'
+          description: 'Holiday celebration email',
+          subject: 'Happy {{holidayName}}!',
+          preview: 'On the occasion of {{holidayName}}, Green Kitchen...'
         }
       ]
       setTemplates(mockTemplates)
@@ -161,7 +161,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
   // Email functions
   const handleSendEmail = async () => {
     if (!subject || !content) {
-      onShowSnackbar('Vui lòng điền đầy đủ thông tin', 'warning')
+      onShowSnackbar('Please fill in all required information', 'warning')
       return
     }
 
@@ -170,12 +170,12 @@ const EmailMarketing = ({ onShowSnackbar }) => {
     try {
       if (sendAllCustomers) {
         const res = await broadcastEmailNowAPI({ subject, content })
-        onShowSnackbar(`Đã gửi broadcast: ${res.sent || 0} email`, 'success')
+        onShowSnackbar(`Broadcast sent: ${res.sent || 0} emails`, 'success')
       } else if (previewEmail) {
         await broadcastPreviewAPI(previewEmail, { subject, content })
-        onShowSnackbar('Đã gửi email preview', 'success')
+        onShowSnackbar('Email preview sent', 'success')
       } else {
-        onShowSnackbar('Vui lòng nhập email preview hoặc bật gửi toàn bộ khách hàng', 'warning')
+        onShowSnackbar('Please enter preview email or enable send to all customers', 'warning')
       }
       
       // Reset form
@@ -190,7 +190,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
       loadEmailHistory()
       
     } catch (error) {
-      onShowSnackbar('Có lỗi xảy ra khi gửi email', 'error')
+      onShowSnackbar('Error occurred while sending email', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -198,14 +198,14 @@ const EmailMarketing = ({ onShowSnackbar }) => {
 
   const handleScheduleEmail = async () => {
     if (!scheduledTime) {
-      onShowSnackbar('Vui lòng chọn thời gian gửi', 'warning')
+      onShowSnackbar('Please select send time', 'warning')
       return
     }
 
     const scheduleDate = new Date(scheduledTime)
     const now = new Date()
     if (scheduleDate <= now) {
-      onShowSnackbar('Thời gian lên lịch phải trong tương lai', 'warning')
+      onShowSnackbar('Schedule time must be in the future', 'warning')
       return
     }
 
@@ -216,15 +216,15 @@ const EmailMarketing = ({ onShowSnackbar }) => {
         const scheduleAtISO = new Date(scheduledTime).toISOString()
         const res = await broadcastEmailScheduleAPI({ subject, content, scheduleAt: scheduleAtISO })
         const scheduleTime = new Date(scheduledTime).toLocaleString('vi-VN')
-        onShowSnackbar(`Đã lên lịch gửi email lúc ${scheduleTime}`, 'success')
+        onShowSnackbar(`Email scheduled for ${scheduleTime}`, 'success')
       } else {
-        onShowSnackbar('Bật "Gửi tất cả khách hàng" để lên lịch broadcast', 'warning')
+        onShowSnackbar('Enable "Send to All Customers" to schedule broadcast', 'warning')
       }
       
       loadEmailHistory()
       
     } catch (error) {
-      onShowSnackbar('Có lỗi xảy ra khi lên lịch email', 'error')
+      onShowSnackbar('Error occurred while scheduling email', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -257,12 +257,12 @@ const EmailMarketing = ({ onShowSnackbar }) => {
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'sent': return 'Đã gửi'
-      case 'scheduled': return 'Đã lên lịch'
-      case 'failed': return 'Thất bại'
-      case 'active': return 'Đang hoạt động'
-      case 'completed': return 'Hoàn thành'
-      case 'draft': return 'Nháp' 
+      case 'sent': return 'Sent'
+      case 'scheduled': return 'Scheduled'
+      case 'failed': return 'Failed'
+      case 'active': return 'Active'
+      case 'completed': return 'Completed'
+      case 'draft': return 'Draft' 
       default: return status
     }
   }
@@ -286,7 +286,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
       const data = await getEmailHistoryAPI(0, 10)
       setEmailHistory(data.content || [])
     } catch (error) {
-      onShowSnackbar('Lỗi tải lịch sử email', 'error')
+      onShowSnackbar('Error loading email history', 'error')
     } finally {
       setIsLoadingHistory(false)
     }
@@ -324,7 +324,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                     {emailStats.totalSent.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Tổng email đã gửi
+                    Total Emails Sent
                   </Typography>
                 </Box>
               </Box>
@@ -342,7 +342,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                     {emailStats.opened.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Email đã mở
+                    Emails Opened
                   </Typography>
                 </Box>
               </Box>
@@ -360,7 +360,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                     {emailStats.clicked.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Email đã click
+                    Emails Clicked
                   </Typography>
                 </Box>
               </Box>
@@ -378,7 +378,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                     {emailStats.converted.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Khách hàng chuyển đổi
+                    Converted Customers
                   </Typography>
                 </Box>
               </Box>
@@ -391,9 +391,9 @@ const EmailMarketing = ({ onShowSnackbar }) => {
       <Card variant="outlined">
         <CardContent sx={{ pb: 0 }}>
           <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-            <Tab icon={<EmailIcon />} label="Tạo Email" iconPosition="start" />
+            <Tab icon={<EmailIcon />} label="Create Email" iconPosition="start" />
             <Tab icon={<TemplateIcon />} label="Templates" iconPosition="start" />
-            <Tab icon={<HistoryIcon />} label="Lịch sử" iconPosition="start" />
+            <Tab icon={<HistoryIcon />} label="History" iconPosition="start" />
           </Tabs>
         </CardContent>
       </Card>
@@ -407,19 +407,19 @@ const EmailMarketing = ({ onShowSnackbar }) => {
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                   <EmailIcon sx={{ mr: 1 }} />
-                  Tạo Email Marketing
+                  Create Email Marketing
                 </Typography>
 
                 {selectedTemplate && (
                   <Alert severity="info" sx={{ mb: 2 }}>
                     <Typography variant="body2">
-                      Đang sử dụng template: <strong>{selectedTemplate.name}</strong>
+                      Using template: <strong>{selectedTemplate.name}</strong>
                       <Button 
                         size="small" 
                         onClick={() => setSelectedTemplate(null)}
                         sx={{ ml: 1 }}
                       >
-                        Bỏ chọn
+                        Deselect
                       </Button>
                     </Typography>
                   </Alert>
@@ -427,22 +427,22 @@ const EmailMarketing = ({ onShowSnackbar }) => {
 
                 <TextField
                   fullWidth
-                  label="Tiêu đề email"
+                  label="Email Subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   sx={{ mb: 3 }}
-                  placeholder="Nhập tiêu đề email..."
+                  placeholder="Enter email subject..."
                 />
 
                 <TextField
                   fullWidth
-                  label="Nội dung email"
+                  label="Email Content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   multiline
                   rows={6}
                   sx={{ mb: 3 }}
-                  placeholder="Nhập nội dung email..."
+                  placeholder="Enter email content..."
                 />
 
                 <FormControlLabel
@@ -452,7 +452,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                       onChange={(e) => setIsScheduled(e.target.checked)}
                     />
                   }
-                  label="Lên lịch gửi email"
+                  label="Schedule Email Send"
                   sx={{ mb: 2 }}
                 />
 
@@ -463,25 +463,25 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                       onChange={(e) => setSendAllCustomers(e.target.checked)}
                     />
                   }
-                  label="Gửi tất cả khách hàng"
+                  label="Send to All Customers"
                   sx={{ mb: 2 }}
                 />
 
                 {!sendAllCustomers && (
                   <TextField
                     fullWidth
-                    label="Preview email (gửi thử)"
+                    label="Preview Email (Test Send)"
                     value={previewEmail}
                     onChange={(e) => setPreviewEmail(e.target.value)}
                     sx={{ mb: 3 }}
-                    placeholder="Nhập email để gửi thử..."
+                    placeholder="Enter email for testing..."
                   />
                 )}
 
                 {isScheduled && (
                   <TextField
                     fullWidth
-                    label="Thời gian gửi"
+                    label="Send Time"
                     type="datetime-local"
                     value={scheduledTime}
                     onChange={(e) => setScheduledTime(e.target.value)}
@@ -499,7 +499,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                       disabled={isLoading}
                       sx={{ flex: 1 }}
                     >
-                      {isLoading ? <CircularProgress size={20} /> : 'Lên lịch gửi'}
+                      {isLoading ? <CircularProgress size={20} /> : 'Schedule Send'}
                     </Button>
                   ) : (
                     <Button
@@ -509,7 +509,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                       disabled={isLoading}
                       sx={{ flex: 1 }}
                     >
-                      {isLoading ? <CircularProgress size={20} /> : 'Gửi ngay'}
+                      {isLoading ? <CircularProgress size={20} /> : 'Send Now'}
                     </Button>
                   )}
                 </Box>
@@ -572,7 +572,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Typography variant="h6">Email Templates</Typography>
                   <Button size="small" startIcon={<AddIcon />}>
-                    Tạo mới
+                    Create New
                   </Button>
                 </Box>
                 <List>
@@ -642,7 +642,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                   </Box>
                 ) : (
                   <Alert severity="info">
-                    Chọn một template để xem preview
+                    Select a template to view preview
                   </Alert>
                 )}
               </CardContent>
@@ -656,7 +656,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
           <CardContent>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
               <HistoryIcon sx={{ mr: 1 }} />
-              Lịch sử Email
+              Email History
             </Typography>
 
             {isLoadingHistory ? (
@@ -670,7 +670,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                     <ListItemText
                       primary={
                         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-                          Chưa có lịch sử email nào
+                          No email history yet
                         </Typography>
                       }
                     />
@@ -729,7 +729,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
 
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Button variant="outlined" size="small" onClick={loadEmailHistory}>
-                Tải lại lịch sử
+                Reload History
               </Button>
             </Box>
           </CardContent>

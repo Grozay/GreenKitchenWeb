@@ -62,7 +62,7 @@ const CountdownTimer = ({ holiday, currentTime, calculateCountdown, formatCountd
         />
       </Box>
       <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, textAlign: 'center' }}>
-        {countdown.isOverdue ? 'Đã qua' : `${Math.max(0, totalDays - countdown.days)}/${totalDays} days`}
+        {countdown.isOverdue ? 'Passed' : `${Math.max(0, totalDays - countdown.days)}/${totalDays} days`}
       </Typography>
     </Box>
   )

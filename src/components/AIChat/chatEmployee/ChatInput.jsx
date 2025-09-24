@@ -84,7 +84,7 @@ const ChatInput = memo(({
   // Use refs to avoid closure issues and improve performance
   const sendButtonRef = useRef(null)
   
-  // FIX: Thêm refs để prevent double send
+  // FIX: Add refs to prevent double send
   const lastSendTimeRef = useRef(0)
   const lastInputRef = useRef('')
   const isProcessingRef = useRef(false)
@@ -178,18 +178,18 @@ const ChatInput = memo(({
   // Memoized input props
   const inputProps = useMemo(() => ({
     maxLength: 2000,
-    'aria-label': 'Tin nhắn hỗ trợ khách hàng',
+    'aria-label': 'Customer support message',
     id: inputId
   }), [inputId])
 
   // Memoized placeholder text
   const placeholderText = useMemo(() => 
-    "Nhập tin nhắn để hỗ trợ khách hàng...", []
+    "Enter message to support customers...", []
   )
 
   // Memoized help text
   const helpText = useMemo(() => 
-    isMobile ? 'Enter để gửi' : 'Shift + Enter để xuống dòng, Enter để gửi', 
+    isMobile ? 'Enter to send' : 'Shift + Enter for new line, Enter to send', 
     [isMobile]
   )
 
@@ -223,28 +223,28 @@ const ChatInput = memo(({
     [isMobile]
   )
 
-  // FIX: Cải thiện send function với duplicate prevention mạnh mẽ
+  // FIX: Improve send function with strong duplicate prevention
   const handleSend = useCallback(() => {
     if (isSendDisabled) return
     
     const text = localInput.trim()
     if (!text) return
     
-    // FIX: Prevent double send trong 1 giây
+    // FIX: Prevent double send within 1 second
     const now = Date.now()
     if (now - lastSendTimeRef.current < 1000) {
       console.log('Preventing double send - too soon:', now - lastSendTimeRef.current, 'ms')
       return
     }
     
-    // FIX: Prevent duplicate content send với hash tracking
+    // FIX: Prevent duplicate content send with hash tracking
     const inputHash = `${text}-${now}`
     if (sentInputsRef.current.has(inputHash)) {
       console.log('Preventing duplicate input hash:', inputHash)
       return
     }
     
-    // FIX: Prevent duplicate content send trong 5 giây
+    // FIX: Prevent duplicate content send within 5 seconds
     if (lastInputRef.current === text && now - lastSendTimeRef.current < 5000) {
       console.log('Preventing duplicate content send:', text)
       return
@@ -294,7 +294,7 @@ const ChatInput = memo(({
     handleInputChange(newValue)
   }, [handleInputChange])
 
-  // FIX: Cải thiện key down handler với duplicate prevention
+  // FIX: Improve key down handler with duplicate prevention
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -369,7 +369,7 @@ const ChatInput = memo(({
                   onClick={handleSend}
                   disabled={isSendDisabled}
                   sx={sendButtonStyles}
-                  aria-label="Gửi tin nhắn"
+                  aria-label="Send message"
                 >
                   {isSending ? (
                     <CircularProgress 
@@ -402,7 +402,7 @@ const ChatInput = memo(({
           sx={captionStyles}
         >
           {deferredInput.length}/2000
-          {isInputPending && ' (đang cập nhật...)'}
+          {isInputPending && ' (updating...)'}
         </Typography>
       </Box>
     </Box>

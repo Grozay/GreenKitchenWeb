@@ -87,7 +87,7 @@ function MarketingDashboard() {
           Marketing Dashboard
         </Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-          Quản lý chiến dịch marketing và phân tích khách hàng
+          Manage marketing campaigns and customer analytics
         </Typography>
       </Box>
 
@@ -113,9 +113,9 @@ function MarketingDashboard() {
             }}
           >
             <Tab icon={<EmailIcon />} label="Email Marketing" iconPosition="start" />
-            <Tab icon={<CampaignIcon />} label="Quản lý Chiến dịch" iconPosition="start" />
+            <Tab icon={<CampaignIcon />} label="Campaign Management" iconPosition="start" />
             <Tab icon={<AnalyticsIcon />} label="Analytics" iconPosition="start" />
-            <Tab icon={<ScheduleIcon />} label="Lịch Cart Abandonment" iconPosition="start" />
+            <Tab icon={<ScheduleIcon />} label="Cart Abandonment Schedule" iconPosition="start" />
             <Tab icon={<CalendarTodayIcon />} label="Holiday Planner" iconPosition="start" />
           </Tabs>
         </Paper>

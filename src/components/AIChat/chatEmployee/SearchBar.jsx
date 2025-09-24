@@ -14,7 +14,7 @@ const SearchBar = memo(({ searchTerm, onSearchChange }) => {
 
   // Memoized computed values
   const placeholder = useMemo(() => 
-    isMobile ? "Tìm kiếm..." : "Tìm theo tên, SĐT hoặc nội dung...",
+    isMobile ? "Search..." : "Search by name, phone or content...",
     [isMobile]
   )
 
@@ -62,7 +62,7 @@ const SearchBar = memo(({ searchTerm, onSearchChange }) => {
   }), [])
 
   const inputProps = useMemo(() => ({
-    'aria-label': 'Tìm kiếm hội thoại',
+    'aria-label': 'Search conversations',
     style: { fontSize: 'inherit' }
   }), [])
 
