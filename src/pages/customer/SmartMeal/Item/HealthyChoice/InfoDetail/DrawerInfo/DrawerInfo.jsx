@@ -19,16 +19,20 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import PageviewIcon from '@mui/icons-material/Pageview'
 import SuggestFood from './SuggestFood'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { createCustomMealAPI, addMealToCartAPI } from '~/apis/index' // Import API functions
+import { createCustomMealAPI } from '~/apis/index' // Import API functions
 import { toast } from 'react-toastify'
 import Grid from '@mui/material/Grid'
 import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
 
 const DrawerInfo = ({ onClose, itemHealthy }) => {
   const [openInfoModal, setOpenInfoModal] = useState(false)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [pendingAction, setPendingAction] = useState(null) // 'order' hoặc 'save'
+  const [pendingData, setPendingData] = useState(null) // dữ liệu để thực hiện action (sẽ dùng khi implement retry after login)
 
   const [isReviewing, setIsReviewing] = useState(true)
   const [addingToCart, setAddingToCart] = useState(false)
@@ -59,8 +63,6 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
   const translatedSaving = 'Saving...'
   const translatedFavoriteMix = 'My favorite mix with quantities'
   const translatedCustomMeal = 'your custom Meal'
-  const translatedLoginToast = 'You need to log in to place an order!'
-  const translatedSaveLoginToast = 'You need to log in to save the meal!'
 
   const customTotal = calcCustomTotal(selected)
   const suggestedMeals = getSuggestedMeals(customTotal, itemHealthy, selected)
@@ -85,13 +87,15 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
   const defaultImage = mainProtein?.image || IMAGE_DEFAULT.IMAGE_CUSTOM
   const handleModalSave = async ({ title, desc }) => {
     setOpenInfoModal(false)
+    const actionData = { title, desc }
+
     if (orderMode) {
       // ORDER FLOW
       if (!customerId) {
-        toast.error(translatedLoginToast)
-        setAddingToCart(false)
+        setPendingAction('order')
+        setPendingData(actionData)
+        setConfirmDialogOpen(true)
         setOrderMode(false)
-        navigate('/login')
         return
       }
       setAddingToCart(true)
@@ -147,21 +151,20 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
         toast.success('Custom meal added to cart successfully!')
         dispatch(clearCart())
       } catch (error) {
-        toast.error('Failed to add custom meal to cart. Please try again.' + error.message)
+        toast.error('Failed to add custom meal to cart. Please try again.')
       } finally {
         setAddingToCart(false)
         setOrderMode(false)
       }
     } else {
-      // SAVE FLOW giữ nguyên
-      setSavingMeal(true)
+      // SAVE FLOW
       if (!customerId) {
-        toast.error(translatedSaveLoginToast)
-        setAddingToCart(false)
-        setOrderMode(false)
-        navigate('/login')
+        setPendingAction('save')
+        setPendingData(actionData)
+        setConfirmDialogOpen(true)
         return
       }
+      setSavingMeal(true)
       try {
         const customMealData = {
           customerId: customerId,
@@ -205,6 +208,17 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
 
   const handleCloseDrawer = () => {
     onClose()
+  }
+
+  const handleConfirmLogin = async () => {
+    setConfirmDialogOpen(false)
+    navigate('/login')
+  }
+
+  const handleCancelLogin = () => {
+    setConfirmDialogOpen(false)
+    setPendingAction(null)
+    setPendingData(null)
   }
 
   return (
@@ -445,6 +459,14 @@ const DrawerInfo = ({ onClose, itemHealthy }) => {
           </Button>
         </Box>
       </Box>
+      <ConfirmModal
+        open={confirmDialogOpen}
+        onClose={handleCancelLogin}
+        onConfirm={handleConfirmLogin}
+        title="Login Required"
+        description={`You need to login to ${pendingAction === 'order' ? 'place an order' : 'save the meal'}. Would you like to go to the login page?`}
+        btnName="Login"
+      />
     </Box>
   )
 }

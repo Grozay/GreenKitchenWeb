@@ -424,7 +424,26 @@ const SavedCustomMealLayout = () => {
         <Box sx={{ p: 2 }}>
           <PageTitle />
           {customMeals.length === 0 ? (
-            <Typography>No custom meals found.</Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '50vh',
+                flexDirection: 'column'
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  textAlign: 'center',
+                  color: 'text.secondary',
+                  fontWeight: 500
+                }}
+              >
+                No custom meals found.
+              </Typography>
+            </Box>
           ) : (
             <Grid container spacing={2}>
               {customMeals.slice().reverse().map((meal) => (

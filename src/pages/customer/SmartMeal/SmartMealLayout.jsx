@@ -15,6 +15,7 @@ import { setSuggestedSauces, setShowSauceHint, clearSuggestions } from '~/redux/
 import { getSuggestedSaucesForMeal } from '~/utils/nutrition'
 import { Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 
 const SmartMealLayout = () => {
   const dispatch = useDispatch()
@@ -27,6 +28,7 @@ const SmartMealLayout = () => {
   const sauceRef = useRef(null)
   const selectedItems = useSelector(selectCurrentMeal)
   const navigate = useNavigate()
+  const currentCustomer = useSelector(selectCurrentCustomer)
 
   const translatedSelectProtein = 'SELECT PROTEIN'
   const translatedSelectCarbs = 'SELECT CARBS'
@@ -110,9 +112,11 @@ const SmartMealLayout = () => {
               mb: { xs: 3, md: 0 }
             }}
           >
-            <Box sx={{ flex: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center' }}>
-              <Button variant="contained" color="primary" sx={{ borderRadius: 5 }} onClick={() => navigate('/saved-custom-meals')}>Your Custom meals</Button>
-            </Box>
+            {currentCustomer && (
+              <Box sx={{ flex: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', alignItems: 'center' }}>
+                <Button variant="contained" color="primary" sx={{ borderRadius: 5 }} onClick={() => navigate('/saved-custom-meals')}>Your Custom meals</Button>
+              </Box>
+            )}
             <Box
               sx={{
                 position: 'sticky',

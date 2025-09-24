@@ -81,18 +81,128 @@ const MostFavouriteItems = ({ customBlue }) => {
         </Select>
       </Box>
       <Grid container spacing={2} mt={1}>
-        {items.slice(0, 5).map(item => ( // Limit to 5 items
-          <Grid key={item.id} item size={{ xs: 12, md: 4 }}>
-            <Card sx={{ p: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 0, border: '1px solid #e3f2fd', height: 150 }}>
-              {item.image && <img src={item.image} alt={item.title} style={{ width: 60, height: 60, borderRadius: 8 }} />}
-              <Typography fontWeight={700} sx={{ color: customBlue }}>{item.title}</Typography>
-              <Typography sx={{ color: customBlue, fontWeight: 700 }}>${item.price.toFixed(2)}</Typography>
-              <Typography fontSize={12} color="textSecondary">
-                {item.type} | Ordered: {item.count}
+        {items.length === 0 ? (
+          <Grid item size={{ xs: 12 }}>
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 150,
+              borderRadius: 2,
+            }}>
+              <Typography color="textSecondary" fontSize={16}>
+                No data available
               </Typography>
-            </Card>
+            </Box>
           </Grid>
-        ))}
+        ) : (
+          items.slice(0, 5).map(item => ( // Limit to 5 items
+            <Grid key={item.id} item size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                boxShadow: 0,
+                border: '1px solid #e3f2fd',
+                borderRadius: 2,
+                height: 220,
+                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }
+              }}>
+                <Box sx={{
+                  width: 70,
+                  height: 70,
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: '#f5f5f5',
+                  mb: 1
+                }}>
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  ) : (
+                    <Typography sx={{ color: '#999', fontSize: 12 }}>No Image</Typography>
+                  )}
+                </Box>
+
+                <Typography
+                  fontWeight={700}
+                  sx={{
+                    color: customBlue,
+                    textAlign: 'center',
+                    mb: 0.5,
+                    fontSize: '0.9rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    lineHeight: 1.2,
+                    minHeight: '2.4rem'
+                  }}
+                >
+                  {item.title}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    color: customBlue,
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    mb: 0.5
+                  }}
+                >
+                  ${Math.round(item.price).toLocaleString()}
+                </Typography>
+
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 1,
+                  flexWrap: 'wrap'
+                }}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      color: '#666',
+                      fontWeight: 500,
+                      bgcolor: '#e3f2fd',
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 1
+                    }}
+                  >
+                    {item.type}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      color: '#666',
+                      fontWeight: 500
+                    }}
+                  >
+                    {item.count} orders
+                  </Typography>
+                </Box>
+              </Card>
+            </Grid>
+          ))
+        )}
       </Grid>
     </Card>
   )

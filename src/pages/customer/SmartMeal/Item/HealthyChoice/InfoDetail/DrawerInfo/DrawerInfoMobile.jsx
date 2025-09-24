@@ -17,13 +17,13 @@ import { calcCustomTotal, getSuggestedMeals, getNutritionalAdvice } from '~/util
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import PageviewIcon from '@mui/icons-material/Pageview'
 import SuggestFood from './SuggestFood'
-import SelectedFood from './SelectedFood'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { createCustomMealAPI, addMealToCartAPI } from '~/apis/index'
+import { createCustomMealAPI } from '~/apis/index'
 import { toast } from 'react-toastify'
 import Grid from '@mui/material/Grid'
 import FoodCard from '~/components/FoodCard/FoodCard'
 import CustomMealInfoModal from '~/components/Modals/InfoModal/CustomMealInfoModal'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 import { useNavigate } from 'react-router-dom'
 import { IMAGE_DEFAULT } from '~/utils/constants'
 
@@ -33,6 +33,9 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const [addingToCart, setAddingToCart] = useState(false)
   const [savingMeal, setSavingMeal] = useState(false)
   const [openInfoModal, setOpenInfoModal] = useState(false)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [pendingAction, setPendingAction] = useState(null) // 'order' hoặc 'save'
+  const [pendingData, setPendingData] = useState(null) // dữ liệu để thực hiện action (sẽ dùng khi implement retry after login) // eslint-disable-line no-unused-vars
   const [orderMode, setOrderMode] = useState(false)
   const dispatch = useDispatch()
   const theme = useTheme()
@@ -60,8 +63,6 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
   const translatedSaveMeal = 'Save meal'
   const translatedAdding = 'Adding...'
   const translatedSaving = 'Saving...'
-  const translatedLoginToast = 'You need to log in to place an order!'
-  const translatedSaveLoginToast = 'You need to log in to save the meal!'
   const isBalanced = suggestedMeals.length === 0 && customTotal.calories > 0
   const totalPrice = allSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
   const handleOrderCustom = () => {
@@ -81,13 +82,15 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
 
   const handleModalSave = async ({ title, desc }) => {
     setOpenInfoModal(false)
+    const actionData = { title, desc }
+
     if (orderMode) {
       // ORDER FLOW
       if (!customerId) {
-        toast.error(translatedLoginToast)
-        setAddingToCart(false)
+        setPendingAction('order')
+        setPendingData(actionData)
+        setConfirmDialogOpen(true)
         setOrderMode(false)
-        navigate('/login')
         return
       }
       setAddingToCart(true)
@@ -152,15 +155,13 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
       }
     } else {
       // SAVE FLOW
-
-      setSavingMeal(true)
       if (!customerId) {
-        toast.error(translatedSaveLoginToast)
-        setAddingToCart(false)
-        setOrderMode(false)
-        navigate('/login')
+        setPendingAction('save')
+        setPendingData(actionData)
+        setConfirmDialogOpen(true)
         return
       }
+      setSavingMeal(true)
       try {
         const customMealData = {
           customerId: customerId,
@@ -206,6 +207,16 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
     dispatch(clearCart())
   }
 
+  const handleConfirmLogin = async () => {
+    setConfirmDialogOpen(false)
+    navigate('/login')
+  }
+
+  const handleCancelLogin = () => {
+    setConfirmDialogOpen(false)
+    setPendingAction(null)
+    setPendingData(null)
+  }
 
   const handleCloseDrawer = () => {
     onClose()
@@ -252,6 +263,14 @@ const DrawerInfoMobile = ({ onClose, itemHealthy }) => {
           onSave={handleModalSave}
           defaultTitle={mainProtein ? 'My Custom Bowl' : ''}
           defaultDesc="Custom meal with selected ingredients"
+        />
+        <ConfirmModal
+          open={confirmDialogOpen}
+          onClose={handleCancelLogin}
+          onConfirm={handleConfirmLogin}
+          title="Login Required"
+          description={`You need to login to ${pendingAction === 'order' ? 'place an order' : 'save the meal'}. Would you like to go to the login page?`}
+          btnName="Login"
         />
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

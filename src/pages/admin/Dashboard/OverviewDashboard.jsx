@@ -43,7 +43,7 @@ const OverviewDashboard = ({ customBlue }) => {
     {
       icon: <AttachMoneyIcon sx={{ color: customBlue }} />,
       label: 'Income',
-      value: overview ? overview.totalIncome.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '...',
+      value: overview ? `$${Math.round(overview.totalIncome).toLocaleString()}` : '...',
       changePercent: overview?.incomeChangePercent
     }
   ]
