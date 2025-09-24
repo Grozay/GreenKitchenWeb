@@ -186,14 +186,14 @@ const WeekMealCreate = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
-      <Box sx={{ p: 4, maxWidth: '1200px', mx: 'auto' }}>
+      <Box sx={{ p: 4, maxWidth: '1200px', mx: 'auto', overflowX: 'hidden' }}>
         <Typography variant="h4" gutterBottom>
           {cloneId ? 'Clone WeekMeal' : 'Create WeekMeal'} {/* Thay đổi title nếu clone */}
         </Typography>
 
         {/* Form Controls */}
-        <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
+        <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <FormControl sx={{ minWidth: 250, flex: 1 }}>
             <InputLabel>Meal Type</InputLabel>
             <Select
               value={selectedType}
@@ -212,19 +212,19 @@ const WeekMealCreate = () => {
             label="Week Start (Monday)"
             value={weekStart}
             onChange={handleDateChange}
-            renderInput={(params) => <TextField {...params} fullWidth />}
+            renderInput={(params) => <TextField {...params} sx={{ minWidth: 250, flex: 1 }} />}
           />
         </Box>
 
         {/* Meal Selection Table */}
-        <TableContainer component={Paper}>
-          <Table>
+        <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 600 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Day</TableCell>
-                <TableCell>Breakfast</TableCell>
-                <TableCell>Lunch</TableCell>
-                <TableCell>Dinner</TableCell>
+                <TableCell sx={{ minWidth: 120, fontWeight: 700 }}>Day</TableCell>
+                <TableCell sx={{ minWidth: 200, fontWeight: 700 }}>Breakfast</TableCell>
+                <TableCell sx={{ minWidth: 200, fontWeight: 700 }}>Lunch</TableCell>
+                <TableCell sx={{ minWidth: 200, fontWeight: 700 }}>Dinner</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -236,7 +236,7 @@ const WeekMealCreate = () => {
                       <Select
                         value={selectedMeals[day][mealKey]}
                         onChange={(e) => handleMealChange(day, mealKey, e.target.value)}
-                        fullWidth
+                        sx={{ minWidth: 180, maxWidth: 200 }}
                         displayEmpty
                       >
                         <MenuItem value="">

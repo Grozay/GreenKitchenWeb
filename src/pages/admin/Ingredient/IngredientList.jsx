@@ -113,7 +113,8 @@ const IngredientList = () => {
     {
       field: 'image',
       headerName: 'Image',
-      width: 80,
+      minWidth: 80,
+      flex: 0.5,
       renderCell: (params) => (
         <img
           src={params.value}
@@ -125,18 +126,19 @@ const IngredientList = () => {
       filterable: false,
       editable: false
     },
-    { field: 'title', headerName: 'Title', width: 200, editable: false },
-    { field: 'description', headerName: 'Description', width: 270, editable: false },
-    { field: 'calories', headerName: 'Calories', width: 80, type: 'number', editable: false },
-    { field: 'protein', headerName: 'Protein', width: 60, type: 'number', editable: false },
-    { field: 'carbs', headerName: 'Carbs', width: 60, type: 'number', editable: false },
-    { field: 'fat', headerName: 'Fat', width: 60, type: 'number', editable: false },
-    { field: 'price', headerName: 'Price', width: 80, type: 'number', editable: false },
-    { field: 'stock', headerName: 'Stock', width: 60, type: 'number', editable: false },
+    { field: 'title', headerName: 'Title', minWidth: 150, flex: 1.5, editable: false },
+    { field: 'description', headerName: 'Description', minWidth: 200, flex: 2, editable: false },
+    { field: 'calories', headerName: 'Calories', minWidth: 80, flex: 0.8, type: 'number', editable: false },
+    { field: 'protein', headerName: 'Protein', minWidth: 60, flex: 0.6, type: 'number', editable: false },
+    { field: 'carbs', headerName: 'Carbs', minWidth: 60, flex: 0.6, type: 'number', editable: false },
+    { field: 'fat', headerName: 'Fat', minWidth: 60, flex: 0.6, type: 'number', editable: false },
+    { field: 'price', headerName: 'Price', minWidth: 80, flex: 0.8, type: 'number', editable: false },
+    { field: 'stock', headerName: 'Stock', minWidth: 60, flex: 0.6, type: 'number', editable: false },
     {
       field: 'type',
       headerName: 'Type',
-      width: 100,
+      minWidth: 100,
+      flex: 1,
       renderCell: (params) => (
         <Chip
           label={params.value}
@@ -158,7 +160,8 @@ const IngredientList = () => {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      width: 100,
+      minWidth: 100,
+      flex: 1,
       getActions: (params) => [
         <GridActionsCellItem
           key="more"
@@ -177,6 +180,7 @@ const IngredientList = () => {
         height: 'calc(100vh - 200px)',
         width: '100%',
         p: 3,
+        overflowX: 'hidden',
         '& .actions': { color: 'text.secondary' },
         '& .textPrimary': { color: 'text.primary' }
       }}
@@ -200,11 +204,15 @@ const IngredientList = () => {
         getRowId={(row) => row.id}
         loading={loading}
         showToolbar
+        autoWidth
         sx={{
           boxShadow: 2,
           border: 1,
           borderColor: 'divider',
-          borderRadius: 2
+          borderRadius: 2,
+          '& .MuiDataGrid-root': {
+            overflowX: 'hidden'
+          }
         }}
       />
       <Menu

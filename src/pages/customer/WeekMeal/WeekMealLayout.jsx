@@ -10,6 +10,12 @@ import moment from 'moment'
 import Skeleton from '@mui/material/Skeleton'
 
 import ItemNoData from '~/pages/customer/WeekMeal/ItemWeekPlan/ItemNoData'
+
+import { selectCurrentCustomer } from '~/redux/user/customerSlice'
+import { useSelector } from 'react-redux'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
+
+
 const WeekMealLayout = () => {
   const [dates, setDates] = useState({
     low: moment().isoWeekday(1), // Thứ hai của tuần hiện tại (đảm bảo không phụ thuộc locale)
@@ -29,7 +35,7 @@ const WeekMealLayout = () => {
     high: false,
     vegetarian: false
   })
-
+  const currentCustomer = useSelector(selectCurrentCustomer)
   // Cập nhật mealTypes để sử dụng text cứng
   const mealTypes = [
     { key: 'low', title: 'LOW CALORIES MENU' },
@@ -92,10 +98,8 @@ const WeekMealLayout = () => {
       const newYear = newDate.year()
 
       const weekDiff = (newYear - currentYear) * 52 + (newWeek - currentWeek)
-      console.log('Week diff for', key, ':', weekDiff) // Debug: kiểm tra weekDiff
 
       if (weekDiff < -1 || weekDiff > 1) {
-        console.log('Blocked change for', key, 'due to weekDiff:', weekDiff) // Debug: lý do bị chặn
         return prev
       }
 
@@ -137,18 +141,25 @@ const WeekMealLayout = () => {
               <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3, mb: 4 }} />
             ) : weekData[key] && weekData[key].days && weekData[key].days.length > 0 ? (
               <WeekPlan
+                currentCustomer={currentCustomer}
                 weekData={weekData[key]}
                 title={title}
                 onPrevWeek={() => handleChangeWeek(key, -7)}
                 onNextWeek={() => handleChangeWeek(key, 7)}
               />
             ) : (
-              <ItemNoData title={title} />
+              <ItemNoData
+                title={title}
+                currentWeekDate={dates[key]}
+                onPrevWeek={() => handleChangeWeek(key, -7)}
+                onNextWeek={() => handleChangeWeek(key, 7)}
+              />
             )}
           </Box>
         ))}
       </Box>
       <Footer />
+
     </Box>
   )
 }

@@ -231,34 +231,58 @@ const SalesFiguresDashboard = ({ customBlue }) => {
                 </Select>
               </Box>
             </Box>
-            <PieChart
-              series={[
-                {
-                  data: pieData,
-                  arcLabel: d => `${d.value}%`,
-                  arcLabelMinAngle: 45,
-                  innerRadius: 54,
-                  outerRadius: 80,
-                  startAngle: -90,
-                  endAngle: 270,
-                  cx: 90,
-                  cy: 120,
-                  paddingAngle: 4,
-                  cornerRadius: 8
-                }
-              ]}
-              height={245}
-              width={200}
-              slotProps={{
-                legend: { hidden: true }
-              }}
-              sx={{
-                [`& .${pieArcLabelClasses.root}`]: {
-                  fill: '#fff',
-                  fontWeight: 700
-                }
-              }}
-            />
+            {pieData.length === 0 ? (
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: 245,
+                bgcolor: '#fafafa',
+                borderRadius: 1
+              }}>
+                <Typography color="textSecondary" fontSize={16}>
+                  No data available
+                </Typography>
+              </Box>
+            ) : (
+              <PieChart
+                series={[
+                  {
+                    data: pieData,
+                    arcLabel: d => `${d.value}%`,
+                    arcLabelMinAngle: 45,
+                    innerRadius: 0,
+                    outerRadius: 80,
+                    startAngle: -90,
+                    endAngle: 270,
+                    cx: 90,
+                    cy: 120,
+                    paddingAngle: 4,
+                    cornerRadius: 8,
+                    highlightScope: { none: true },
+                    faded: { innerRadius: 0, additionalRadius: 0 },
+                    highlighted: { innerRadius: 0, additionalRadius: 0 }
+                  }
+                ]}
+                height={245}
+                width={200}
+                slotProps={{
+                  legend: { hidden: true }
+                }}
+                sx={{
+                  [`& .${pieArcLabelClasses.root}`]: {
+                    fill: '#fff',
+                    fontWeight: 700
+                  },
+                  '& .MuiPieArc-root': {
+                    cursor: 'default !important',
+                    '&:hover': {
+                      opacity: '1 !important'
+                    }
+                  }
+                }}
+              />
+            )}
           </Card>
         </Grid>
       </Grid>

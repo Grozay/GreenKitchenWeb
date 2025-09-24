@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import theme from '~/theme'
@@ -8,13 +9,32 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import DrawerChoosenMeal from '../DrawerChoosenMeal/DrawerChoosenMeal'
 import ItemWeekPlan from '../ItemWeekPlan/ItemWeekPlan'
+import ConfirmModal from '~/components/Modals/ComfirmModal/ComfirmModal'
 import moment from 'moment'
 
-const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
+const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek, currentCustomer }) => {
   const [openDrawer, setOpenDrawer] = useState(false)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const navigate = useNavigate()
 
-  const handleOpenDrawer = () => setOpenDrawer(true)
+  const handleOpenDrawer = () => {
+    if (!currentCustomer) {
+      setConfirmDialogOpen(true)
+      return
+    }
+    setOpenDrawer(true)
+  }
+
   const handleCloseDrawer = () => setOpenDrawer(false)
+
+  const handleConfirmLogin = () => {
+    setConfirmDialogOpen(false)
+    navigate('/login')
+  }
+
+  const handleCancelLogin = () => {
+    setConfirmDialogOpen(false)
+  }
 
   const currentDate = moment()
 
@@ -233,6 +253,14 @@ const WeekPlan = ({ weekData, title, onPrevWeek, onNextWeek }) => {
         <ItemWeekPlan key={idx} d={d} idx={idx} isSwitch={false} forceDisabled={undefined} />
       ))}
       <DrawerChoosenMeal open={openDrawer} onClose={handleCloseDrawer} weekData={weekData} title={title} />
+      <ConfirmModal
+        open={confirmDialogOpen}
+        onClose={handleCancelLogin}
+        onConfirm={handleConfirmLogin}
+        title="Login Required"
+        description="You need to login to place an order. Would you like to go to the login page?"
+        btnName="Login"
+      />
     </Box>
   )
 }

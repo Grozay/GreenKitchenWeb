@@ -39,7 +39,7 @@ export default function Dashboard() {
       </Grid>
 
       {/* Recent Order Request & Daily Trending Menus */}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} sx={{ pb: 4 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper elevation={3} sx={{ borderRadius: 3, p: 2, height: '100%' }}>
             <RecentOrderRequest customBlue={customBlue} />
