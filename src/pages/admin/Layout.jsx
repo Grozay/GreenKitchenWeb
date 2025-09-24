@@ -158,6 +158,12 @@ const NAVIGATION = (currentEmployee, newOrderCount, totalChatCount) => {
         kind: 'header',
         title: 'MAIN MENU'
       },
+       // Dashboard
+       {
+        segment: 'management/',
+        title: 'Dashboard',
+        icon: <DashboardIcon />
+      },
       // Orders
       {
         segment: 'management/orders',
@@ -357,7 +363,7 @@ function Layout(props) {
             <Route
               index
               element={
-                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN]}>
+                <ProtectedRoute allowedRoles={[EMPLOYEE_ROLES.ADMIN, EMPLOYEE_ROLES.EMPLOYEE]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
