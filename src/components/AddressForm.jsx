@@ -32,7 +32,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
         const data = await response.json()
         setProvinces(data || [])
       } catch (error) {
-        toast.error('Lỗi tải danh sách tỉnh/thành phố')
+        toast.error('Error loading provinces/cities list')
       }
     }
     fetchProvinces()
@@ -60,7 +60,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
           setWards([])
         } catch (error) {
           console.error('Error fetching districts:', error)
-          toast.error('Lỗi tải danh sách quận/huyện')
+          toast.error('Error loading districts list')
         }
       }
       fetchDistricts()
@@ -93,7 +93,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
           setSelectedWard('')
         } catch (error) {
           console.error('Error fetching wards:', error)
-          toast.error('Lỗi tải danh sách phường/xã')
+          toast.error('Error loading wards list')
         }
       }
       fetchWards()
@@ -126,12 +126,12 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
   // Hàm gọi HERE Geocode API để lấy tọa độ
   const handleCheckAddress = async () => {
     if (!fullAddress.trim()) {
-      toast.error('Vui lòng nhập đầy đủ thông tin địa chỉ')
+      toast.error('Please enter complete address information')
       return
     }
 
     if (!hereApiKey) {
-      toast.error('Thiếu HERE Maps API Key')
+      toast.error('Missing HERE Maps API Key')
       return
     }
 
@@ -144,7 +144,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
       const data = await response.json()
       
       if (!data.items || data.items.length === 0) {
-        toast.error('Không tìm thấy địa chỉ phù hợp')
+        toast.error('No suitable address found')
         return
       }
 
@@ -157,12 +157,12 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
       setLatitude(lat)
       setLongitude(lng)
 
-      toast.success('Địa chỉ đã được chuẩn hóa thành công')
+      toast.success('Address has been standardized successfully')
 
       // Chỉ gọi callback nếu autoSave = true
       if (autoSave && onAddressReady) {
         onAddressReady({
-          name: restaurantName || 'Tên nhà hàng',
+          name: restaurantName || 'Restaurant Name',
           address: title,
           latitude: lat,
           longitude: lng
@@ -170,7 +170,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
       }
 
     } catch (error) {
-      toast.error('Lỗi gọi HERE Geocode API')
+      toast.error('Error calling HERE Geocode API')
     } finally {
       setLoading(false)
     }
@@ -179,7 +179,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
   // Hàm lưu vào database (chỉ gọi khi user bấm nút Save)
   const handleSaveToDatabase = () => {
     if (!geocodedAddress || !latitude || !longitude) {
-      toast.error('Vui lòng kiểm tra địa chỉ trước khi lưu')
+      toast.error('Please check address before saving')
       return
     }
 
@@ -188,29 +188,29 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
     const lng = parseFloat(longitude)
     
     if (isNaN(lat) || isNaN(lng)) {
-      toast.error('Tọa độ không hợp lệ')
+      toast.error('Invalid coordinates')
       return
     }
 
     if (lat < -90 || lat > 90) {
-      toast.error('Latitude phải trong khoảng -90 đến 90')
+      toast.error('Latitude must be between -90 and 90')
       return
     }
 
     if (lng < -180 || lng > 180) {
-      toast.error('Longitude phải trong khoảng -180 đến 180')
+      toast.error('Longitude must be between -180 and 180')
       return
     }
 
     if (onAddressReady) {
       // Validate tên nhà hàng
       if (!restaurantName.trim()) {
-        toast.error('Vui lòng nhập tên nhà hàng trước khi lưu')
+        toast.error('Please enter restaurant name before saving')
         return
       }
 
       const payload = {
-        name: restaurantName.trim() || 'Tên nhà hàng',
+        name: restaurantName.trim() || 'Restaurant Name',
         address: geocodedAddress,
         latitude: lat,
         longitude: lng,
@@ -218,7 +218,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
       }
       console.log('Sending data to BE:', payload)
       onAddressReady(payload)
-      toast.success('Đã lưu vào cơ sở dữ liệu')
+      toast.success('Saved to database')
     }
   }
 
@@ -237,7 +237,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
   return (
     <Paper sx={{ p: 3 }}>
       <Typography variant="h6" fontWeight={700} mb={3}>
-        Form Nhập Địa Chỉ Việt Nam
+        Vietnam Address Entry Form
       </Typography>
 
       <Stack spacing={3}>
@@ -254,7 +254,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
             setSelectedProvince(code)
           }}
           renderInput={(params) => (
-            <TextField {...params} label="Tỉnh/Thành phố" placeholder="Nhập để tìm nhanh..." />
+            <TextField {...params} label="Province/City" placeholder="Type to search quickly..." />
           )}
         />
 
@@ -272,7 +272,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
             setSelectedDistrict(code)
           }}
           renderInput={(params) => (
-            <TextField {...params} label="Quận/Huyện" placeholder="Nhập để tìm nhanh..." />
+            <TextField {...params} label="District" placeholder="Type to search quickly..." />
           )}
         />
 
@@ -290,40 +290,25 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
             setSelectedWard(code)
           }}
           renderInput={(params) => (
-            <TextField {...params} label="Phường/Xã" placeholder="Nhập để tìm nhanh..." />
+            <TextField {...params} label="Ward" placeholder="Type to search quickly..." />
           )}
         />
 
         {/* Nhập số nhà + tên đường */}
         <TextField
-          label="Số nhà + Tên đường"
+          label="House Number + Street Name"
           value={street}
           onChange={(e) => setStreet(e.target.value)}
           fullWidth
-          placeholder="Ví dụ: 123 Nguyễn Trãi"
+          placeholder="e.g. 123 Nguyen Trai"
         />
 
-        {/* Debug info */}
-        <Alert severity="info">
-          <Typography variant="body2" fontWeight={700} mb={1}>
-            Debug Info:
-          </Typography>
-          <Typography variant="body2">
-            <strong>Province:</strong> {selectedProvince} | 
-            <strong> District:</strong> {selectedDistrict} | 
-            <strong> Ward:</strong> {selectedWard}
-          </Typography>
-          <Typography variant="body2">
-            <strong>Districts count:</strong> {districts.length} | 
-            <strong> Wards count:</strong> {wards.length}
-          </Typography>
-        </Alert>
-
-        {/* Preview địa chỉ đầy đủ */}
+      
+        {/* Preview full address */}
         {fullAddress && (
           <Alert severity="success">
             <Typography variant="body2">
-              <strong>Địa chỉ đầy đủ:</strong> {fullAddress}
+              <strong>Full Address:</strong> {fullAddress}
             </Typography>
           </Alert>
         )}
@@ -336,7 +321,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
             disabled={loading || !fullAddress.trim()}
             sx={{ minWidth: 150 }}
           >
-            {loading ? 'Đang kiểm tra...' : 'Lấy Tọa Độ'}
+            {loading ? 'Checking...' : 'Get Coordinates'}
           </Button>
           {geocodedAddress && latitude && longitude && (
             <Button
@@ -346,7 +331,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
               disabled={loading}
               sx={{ minWidth: 150 }}
             >
-              Lưu Vào DB
+              Save to DB
             </Button>
           )}
           <Button
@@ -358,17 +343,17 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
           </Button>
         </Stack>
 
-        {/* Kết quả HERE Geocode */}
+        {/* HERE Geocode Results */}
         {geocodedAddress && (
           <Alert severity="success">
             <Typography variant="body2" fontWeight={700} mb={2}>
-              ✅ Kết quả chuẩn hóa từ HERE API:
+              ✅ Standardized results from HERE API:
             </Typography>
             <Typography variant="body2" mb={1}>
-              <strong>📍 Địa chỉ chuẩn:</strong> {geocodedAddress}
+              <strong>📍 Standard Address:</strong> {geocodedAddress}
             </Typography>
             <Typography variant="body2" mb={1}>
-              <strong>🌍 Tọa độ:</strong> 
+              <strong>🌍 Coordinates:</strong> 
             </Typography>
             <Box sx={{ ml: 2, p: 1, bgcolor: 'rgba(0,0,0,0.05)', borderRadius: 1 }}>
               <Typography variant="body2" fontFamily="monospace">
@@ -381,11 +366,11 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
           </Alert>
         )}
 
-        {/* Hiển thị tọa độ dạng copy-able */}
+        {/* Display copy-able coordinates */}
         {latitude && longitude && (
           <Alert severity="info">
             <Typography variant="body2" fontWeight={700} mb={1}>
-              📋 Tọa độ để copy:
+              📋 Coordinates to copy:
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <TextField
@@ -402,7 +387,7 @@ const AddressForm = ({ onAddressReady, restaurantName = '', autoSave = false }) 
                 variant="outlined"
                 onClick={() => {
                   navigator.clipboard.writeText(`${latitude}, ${longitude}`)
-                  toast.success('Đã copy tọa độ!')
+                  toast.success('Coordinates copied!')
                 }}
               >
                 Copy

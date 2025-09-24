@@ -79,7 +79,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
       setCampaigns(data.content || [])
       setTotalPages(data.totalPages || 0)
     } catch (error) {
-      onShowSnackbar('Lỗi tải danh sách chiến dịch', 'error')
+      onShowSnackbar('Error loading campaigns list', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -90,7 +90,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
       const data = await getEmailStatisticsAPI()
       setStats(data)
     } catch (error) {
-      console.error('Lỗi tải thống kê:', error)
+      console.error('Error loading statistics:', error)
     }
   }
 
@@ -124,7 +124,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
 
   const handleSaveCampaign = async () => {
     if (!formData.subject || !formData.content) {
-      onShowSnackbar('Vui lòng điền đầy đủ thông tin', 'warning')
+      onShowSnackbar('Please fill in all required information', 'warning')
       return
     }
 
@@ -133,7 +133,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
       
       if (formData.isScheduled) {
         if (!formData.scheduledAt) {
-          onShowSnackbar('Vui lòng chọn thời gian lên lịch', 'warning')
+          onShowSnackbar('Please select schedule time', 'warning')
           return
         }
         
@@ -143,22 +143,22 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
           content: formData.content,
           scheduleAt: scheduleAtISO
         })
-        onShowSnackbar('Đã lên lịch chiến dịch email', 'success')
+        onShowSnackbar('Email campaign scheduled', 'success')
       } else {
         if (formData.sendAllCustomers) {
           await broadcastEmailNowAPI({
             subject: formData.subject,
             content: formData.content
           })
-          onShowSnackbar('Đã gửi chiến dịch email', 'success')
+          onShowSnackbar('Email campaign sent', 'success')
         } else if (formData.previewEmail) {
           await broadcastPreviewAPI(formData.previewEmail, {
             subject: formData.subject,
             content: formData.content
           })
-          onShowSnackbar('Đã gửi email preview', 'success')
+          onShowSnackbar('Email preview sent', 'success')
         } else {
-          onShowSnackbar('Vui lòng nhập email preview hoặc bật gửi toàn bộ khách hàng', 'warning')
+          onShowSnackbar('Please enter preview email or enable send to all customers', 'warning')
           return
         }
       }
@@ -168,7 +168,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
       loadStats()
       
     } catch (error) {
-      onShowSnackbar('Lỗi lưu chiến dịch: ' + error.message, 'error')
+      onShowSnackbar('Error saving campaign: ' + error.message, 'error')
     } finally {
       setIsCreating(false)
     }
@@ -185,9 +185,9 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'sent': return 'Đã gửi'
-      case 'scheduled': return 'Đã lên lịch'
-      case 'failed': return 'Thất bại'
+      case 'sent': return 'Sent'
+      case 'scheduled': return 'Scheduled'
+      case 'failed': return 'Failed'
       default: return status
     }
   }
@@ -203,7 +203,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
                 {stats.totalEmails || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Tổng email đã gửi
+                Total Emails Sent
               </Typography>
             </CardContent>
           </Card>
@@ -215,7 +215,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
                 {stats.emailTypeCounts?.broadcast || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Email broadcast
+                Broadcast Emails
               </Typography>
             </CardContent>
           </Card>
@@ -227,7 +227,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
                 {stats.emailTypeCounts?.preview || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Email preview
+                Preview Emails
               </Typography>
             </CardContent>
           </Card>
@@ -249,7 +249,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
       {/* Actions */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">Quản lý Chiến dịch Email</Typography>
+          <Typography variant="h6">Email Campaign Management</Typography>
           <Box>
             <Button
               variant="outlined"
@@ -257,14 +257,14 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
               onClick={loadCampaigns}
               sx={{ mr: 1 }}
             >
-              Làm mới
+              Refresh
             </Button>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleCreateCampaign}
             >
-              Tạo chiến dịch
+              Create Campaign
             </Button>
           </Box>
         </Box>
@@ -276,12 +276,12 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Tiêu đề</TableCell>
-                <TableCell>Loại</TableCell>
-                <TableCell>Trạng thái</TableCell>
-                <TableCell>Số lượng gửi</TableCell>
-                <TableCell>Ngày tạo</TableCell>
-                <TableCell>Hành động</TableCell>
+                <TableCell>Subject</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Sent Count</TableCell>
+                <TableCell>Created Date</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -295,7 +295,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
                 <TableRow>
                   <TableCell colSpan={6} align="center">
                     <Typography variant="body2" color="text.secondary">
-                      Chưa có chiến dịch nào
+                      No campaigns yet
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -355,14 +355,14 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
       {/* Dialog tạo/sửa chiến dịch */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
-          {editingCampaign ? 'Sửa chiến dịch' : 'Tạo chiến dịch mới'}
+          {editingCampaign ? 'Edit Campaign' : 'Create New Campaign'}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Tiêu đề email"
+                label="Email Subject"
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                 required
@@ -371,7 +371,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Nội dung email"
+                label="Email Content"
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 multiline
@@ -381,7 +381,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <InputLabel>Loại email</InputLabel>
+                <InputLabel>Email Type</InputLabel>
                 <Select
                   value={formData.emailType}
                   onChange={(e) => setFormData({ ...formData, emailType: e.target.value })}
@@ -400,14 +400,14 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
                     onChange={(e) => setFormData({ ...formData, isScheduled: e.target.checked })}
                   />
                 }
-                label="Lên lịch gửi"
+                label="Schedule Send"
               />
             </Grid>
             {formData.isScheduled && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Thời gian gửi"
+                  label="Send Time"
                   type="datetime-local"
                   value={formData.scheduledAt}
                   onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
@@ -423,24 +423,24 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
                     onChange={(e) => setFormData({ ...formData, sendAllCustomers: e.target.checked })}
                   />
                 }
-                label="Gửi tất cả khách hàng"
+                label="Send to All Customers"
               />
             </Grid>
             {!formData.sendAllCustomers && (
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Email preview"
+                  label="Preview Email"
                   value={formData.previewEmail}
                   onChange={(e) => setFormData({ ...formData, previewEmail: e.target.value })}
-                  placeholder="Nhập email để gửi thử"
+                  placeholder="Enter email for testing"
                 />
               </Grid>
             )}
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
           <Button 
             onClick={handleSaveCampaign} 
             variant="contained" 

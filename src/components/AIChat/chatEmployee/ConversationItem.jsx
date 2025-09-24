@@ -25,7 +25,7 @@ const ConversationItem = memo(({ conversation, isSelected, onSelect, isPending =
     if (now.isSame(messageTime, 'day')) {
       return messageTime.format('HH:mm')
     } else if (now.subtract(1, 'day').isSame(messageTime, 'day')) {
-      return 'Hôm qua'
+      return 'Yesterday'
     } else {
       return messageTime.format('DD/MM')
     }
@@ -43,17 +43,17 @@ const ConversationItem = memo(({ conversation, isSelected, onSelect, isPending =
 
   // Memoized computed values
   const customerName = useMemo(() => 
-    conversation.customerName || 'Khách hàng', 
+    conversation.customerName || 'Customer', 
     [conversation.customerName]
   )
 
   const customerPhone = useMemo(() => 
-    conversation.customerPhone || 'Không có số điện thoại', 
+    conversation.customerPhone || 'No phone number', 
     [conversation.customerPhone]
   )
 
   const lastMessage = useMemo(() => 
-    conversation.lastMessage || 'Chưa có tin nhắn', 
+    conversation.lastMessage || 'No messages yet', 
     [conversation.lastMessage]
   )
 

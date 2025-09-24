@@ -74,7 +74,7 @@ export default function Stores() {
       const data = await getStoresAPI()
       setStores(Array.isArray(data) ? data : [])
     } catch (e) {
-      toast.error('Lỗi tải danh sách chi nhánh')
+      toast.error('Error loading stores list')
     } finally {
       setLoading(false)
     }
@@ -85,7 +85,7 @@ export default function Stores() {
       // Validation: Kiểm tra tên nhà hàng
       const baseName = restaurantName.trim()
       if (!baseName) {
-        toast.error('Vui lòng nhập tên nhà hàng')
+        toast.error('Please enter restaurant name')
         return
       }
       
@@ -105,7 +105,7 @@ export default function Stores() {
         setStores((prev) => prev.map(store => 
           store.id === editStore.id ? updated : store
         ))
-        toast.success('Đã cập nhật chi nhánh thành công')
+        toast.success('Store updated successfully')
         setIsEditMode(false)
         setEditStore(null)
         setRestaurantName('')
@@ -113,7 +113,7 @@ export default function Stores() {
         // Tạo chi nhánh mới
         const created = await createStoreAPI(finalData)
         setStores((prev) => [created, ...prev])
-        toast.success('Đã lưu chi nhánh thành công')
+        toast.success('Store saved successfully')
       }
       
       setActiveTab(1) // Chuyển sang tab danh sách
@@ -121,9 +121,9 @@ export default function Stores() {
       const errorMessage = e?.response?.data?.message || 
                           e?.response?.data || 
                           e?.message || 
-                          'Lỗi lưu chi nhánh'
+                          'Error saving store'
       
-      toast.error(`Lỗi: ${errorMessage}`)
+      toast.error(`Error: ${errorMessage}`)
     }
   }
 
@@ -133,10 +133,10 @@ export default function Stores() {
     try {
       await deleteStoreAPI(deleteDialog.store.id)
       setStores(prev => prev.filter(s => s.id !== deleteDialog.store.id))
-      toast.success('Đã xóa chi nhánh thành công')
+      toast.success('Store deleted successfully')
       setDeleteDialog({ open: false, store: null })
     } catch (e) {
-      toast.error('Lỗi xóa chi nhánh')
+      toast.error('Error deleting store')
     }
   }
 
@@ -169,10 +169,10 @@ export default function Stores() {
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
-          Quản lý Chi nhánh
+          Store Management
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Thêm mới và quản lý các chi nhánh của Green Kitchen
+          Add and manage Green Kitchen stores
         </Typography>
       </Box>
 
@@ -182,26 +182,26 @@ export default function Stores() {
           <Tabs value={activeTab} onChange={handleTabChange} aria-label="store management tabs">
             <Tab 
               icon={<AddIcon />} 
-              label="Thêm Chi nhánh" 
+              label="Add Store" 
               iconPosition="start"
               sx={{ minHeight: 64 }}
             />
             <Tab 
               icon={<StorefrontIcon />} 
-              label="Danh sách Chi nhánh" 
+              label="Store List" 
               iconPosition="start"
               sx={{ minHeight: 64 }}
             />
             <Tab 
               icon={<MapIcon />} 
-              label="Bản đồ Chi nhánh" 
+              label="Store Map" 
               iconPosition="start"
               sx={{ minHeight: 64 }}
             />
           </Tabs>
         </Box>
 
-        {/* Tab 1: Thêm Chi nhánh */}
+        {/* Tab 1: Add Store */}
         <TabPanel value={activeTab} index={0}>
           <Grid container spacing={3}>
             <Grid size={12}>
@@ -209,17 +209,17 @@ export default function Stores() {
                 <CardContent>
                   <Typography variant="h6" fontWeight={600} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                     {isEditMode ? <EditIcon color="primary" /> : <AddIcon color="primary" />}
-                    {isEditMode ? 'Chỉnh sửa Chi nhánh' : 'Thông tin Chi nhánh'}
+                    {isEditMode ? 'Edit Store' : 'Store Information'}
                   </Typography>
                   
                   <Grid container spacing={3} sx={{ mb: 3 }}>
                     <Grid size={12}>
                       <TextField
-                        label="Tên nhà hàng"
+                        label="Restaurant Name"
                         value={restaurantName}
                         onChange={(e) => setRestaurantName(e.target.value)}
                         fullWidth
-                        placeholder="Ví dụ: Nguyễn Trãi"
+                        placeholder="e.g. Nguyen Trai"
                         InputProps={{
                           startAdornment: autoAddGreenKitchen ? (
                             <InputAdornment position="start">
@@ -233,8 +233,8 @@ export default function Stores() {
                           ) : null
                         }}
                         helperText={autoAddGreenKitchen 
-                          ? 'Tên sẽ tự động thêm GreenKitchen ở đầu'
-                          : 'Nhập tên đầy đủ của chi nhánh'
+                          ? 'Name will automatically add GreenKitchen at the beginning'
+                          : 'Enter the full name of the store'
                         }
                       />
                     </Grid>
@@ -250,10 +250,10 @@ export default function Stores() {
                         label={
                           <Box>
                             <Typography variant="body2" fontWeight={500}>
-                              Tự động thêm GreenKitchen
+                              Auto add GreenKitchen
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
-                              Bật để tự động thêm GreenKitchen vào đầu tên chi nhánh
+                              Enable to automatically add GreenKitchen to the beginning of store name
                             </Typography>
                           </Box>
                         }
@@ -265,10 +265,10 @@ export default function Stores() {
                   {isEditMode && (
                     <Box sx={{ mb: 3, p: 2, bgcolor: 'info.main', borderRadius: 2 }}>
                       <Typography variant="body2" sx={{ color: 'text.primary' }} fontWeight={500}>
-                        📝 Đang chỉnh sửa: {editStore?.name}
+                        📝 Editing: {editStore?.name}
                       </Typography>
                       <Typography variant="caption" color="info.dark">
-                        Thay đổi thông tin địa chỉ và nhấn Lưu Vào DB để cập nhật
+                        Change address information and click Save to DB to update
                       </Typography>
                     </Box>
                   )}
@@ -286,7 +286,7 @@ export default function Stores() {
                         onClick={handleCancelEdit}
                         sx={{ borderRadius: 2 }}
                       >
-                        Hủy chỉnh sửa
+                        Cancel Edit
                       </Button>
                     </Box>
                   )}
@@ -301,7 +301,7 @@ export default function Stores() {
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>
-                Danh sách Chi nhánh ({stores.length})
+                Store List ({stores.length})
               </Typography>
               <Button
                 variant="outlined"
@@ -309,30 +309,30 @@ export default function Stores() {
                 onClick={() => setActiveTab(0)}
                 sx={{ borderRadius: 2 }}
               >
-                Thêm Chi nhánh
+                Add Store
               </Button>
             </Box>
 
             {loading ? (
               <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography>Đang tải...</Typography>
+                <Typography>Loading...</Typography>
               </Box>
             ) : stores.length === 0 ? (
               <Card sx={{ textAlign: 'center', py: 4 }}>
                 <CardContent>
                   <StorefrontIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Chưa có chi nhánh nào
+                    No stores yet
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                    Hãy thêm chi nhánh đầu tiên để bắt đầu
+                    Add your first store to get started
                   </Typography>
                   <Button
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => setActiveTab(0)}
                   >
-                    Thêm Chi nhánh
+                    Add Store
                   </Button>
                 </CardContent>
               </Card>
@@ -341,11 +341,11 @@ export default function Stores() {
                 <Table>
                   <TableHead>
                     <TableRow sx={{ bgcolor: 'background.paper' }}>
-                      <TableCell sx={{ fontWeight: 600 }}>Tên Chi nhánh</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Địa chỉ</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Tọa độ</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600 }}>Thao tác</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Store Name</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Coordinates</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600 }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -378,11 +378,11 @@ export default function Stores() {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Chip
-                            label={store.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                            color={store.isActive ? 'success' : 'default'}
-                            size="small"
-                          />
+                            <Chip
+                              label={store.isActive ? 'Active' : 'Inactive'}
+                              color={store.isActive ? 'success' : 'default'}
+                              size="small"
+                            />
                         </TableCell>
                         <TableCell align="center">
                           <Stack direction="row" spacing={1} justifyContent="center">
@@ -417,24 +417,24 @@ export default function Stores() {
             <CardContent>
               <Typography variant="h6" fontWeight={600} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <MapIcon color="primary" />
-                Bản đồ Chi nhánh
+                Store Map
               </Typography>
               
               {stores.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <MapIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Chưa có chi nhánh để hiển thị
+                    No stores to display
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                    Thêm chi nhánh để xem trên bản đồ
+                    Add stores to view on map
                   </Typography>
                   <Button
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => setActiveTab(0)}
                   >
-                    Thêm Chi nhánh
+                    Add Store
                   </Button>
                 </Box>
               ) : (
@@ -451,10 +451,10 @@ export default function Stores() {
                   <Box sx={{ textAlign: 'center' }}>
                     <MapIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
                     <Typography variant="h6" color="text.secondary" gutterBottom>
-                      Bản đồ sẽ được tích hợp ở đây
+                      Map will be integrated here
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {stores.length} chi nhánh đã được thêm
+                      {stores.length} stores have been added
                     </Typography>
                   </Box>
                 </Box>
@@ -471,19 +471,19 @@ export default function Stores() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Xác nhận xóa</DialogTitle>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Bạn có chắc chắn muốn xóa chi nhánh <strong>{deleteDialog.store?.name}</strong>?
-            Hành động này không thể hoàn tác.
+            Are you sure you want to delete store <strong>{deleteDialog.store?.name}</strong>?
+            This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialog({ open: false, store: null })}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleDeleteStore} color="error" variant="contained">
-            Xóa
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

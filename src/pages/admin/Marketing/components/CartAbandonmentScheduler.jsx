@@ -79,7 +79,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       const data = await getAllCartAbandonmentSchedulesAPI()
       setSchedules(data)
     } catch (error) {
-      onShowSnackbar('Lỗi tải danh sách lịch', 'error')
+      onShowSnackbar('Error loading schedules list', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -90,7 +90,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       const data = await getCartAbandonmentScheduleStatisticsAPI()
       setStatistics(data)
     } catch (error) {
-      console.error('Lỗi tải thống kê:', error)
+      console.error('Error loading statistics:', error)
     }
   }
 
@@ -126,17 +126,17 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
 
   const handleSaveSchedule = async () => {
     if (!formData.scheduleName) {
-      onShowSnackbar('Vui lòng nhập tên lịch', 'warning')
+      onShowSnackbar('Please enter schedule name', 'warning')
       return
     }
 
     try {
       if (editingSchedule) {
         await updateCartAbandonmentScheduleAPI(editingSchedule.id, formData)
-        onShowSnackbar('Đã cập nhật lịch thành công', 'success')
+        onShowSnackbar('Schedule updated successfully', 'success')
       } else {
         await createCartAbandonmentScheduleAPI(formData)
-        onShowSnackbar('Đã tạo lịch mới thành công', 'success')
+        onShowSnackbar('New schedule created successfully', 'success')
       }
       
       setOpenDialog(false)
@@ -144,19 +144,19 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       loadStatistics()
       
     } catch (error) {
-      onShowSnackbar('Lỗi lưu lịch: ' + error.message, 'error')
+      onShowSnackbar('Error saving schedule: ' + error.message, 'error')
     }
   }
 
   const handleDeleteSchedule = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa lịch này?')) {
+    if (window.confirm('Are you sure you want to delete this schedule?')) {
       try {
         await deleteCartAbandonmentScheduleAPI(id)
-        onShowSnackbar('Đã xóa lịch thành công', 'success')
+        onShowSnackbar('Schedule deleted successfully', 'success')
         loadSchedules()
         loadStatistics()
       } catch (error) {
-        onShowSnackbar('Lỗi xóa lịch: ' + error.message, 'error')
+        onShowSnackbar('Error deleting schedule: ' + error.message, 'error')
       }
     }
   }
@@ -164,11 +164,11 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
   const handleToggleSchedule = async (id) => {
     try {
       await toggleCartAbandonmentScheduleAPI(id)
-      onShowSnackbar('Đã cập nhật trạng thái lịch', 'success')
+      onShowSnackbar('Schedule status updated', 'success')
       loadSchedules()
       loadStatistics()
     } catch (error) {
-      onShowSnackbar('Lỗi cập nhật trạng thái: ' + error.message, 'error')
+      onShowSnackbar('Error updating status: ' + error.message, 'error')
     }
   }
 
@@ -177,7 +177,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
   }
 
   const getStatusText = (isActive) => {
-    return isActive ? 'Hoạt động' : 'Tạm dừng'
+    return isActive ? 'Active' : 'Inactive'
   }
 
   return (
@@ -191,7 +191,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                 {statistics.totalSchedules || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Tổng số lịch
+                Total Schedules
               </Typography>
             </CardContent>
           </Card>
@@ -203,7 +203,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                 {statistics.activeSchedules || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Lịch đang hoạt động
+                Active Schedules
               </Typography>
             </CardContent>
           </Card>
@@ -215,7 +215,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                 {statistics.dailyEnabledSchedules || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Lịch hàng ngày
+                Daily Schedules
               </Typography>
             </CardContent>
           </Card>
@@ -227,7 +227,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                 {statistics.eveningEnabledSchedules || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Lịch buổi tối
+                Evening Schedules
               </Typography>
             </CardContent>
           </Card>
@@ -237,7 +237,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       {/* Actions */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">Quản lý Lịch Cart Abandonment</Typography>
+          <Typography variant="h6">Cart Abandonment Schedule Management</Typography>
           <Box>
             <Button
               variant="outlined"
@@ -245,14 +245,14 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
               onClick={loadSchedules}
               sx={{ mr: 1 }}
             >
-              Làm mới
+              Refresh
             </Button>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleCreateSchedule}
             >
-              Tạo lịch mới
+              Create New Schedule
             </Button>
           </Box>
         </Box>
@@ -264,13 +264,13 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Tên lịch</TableCell>
-                <TableCell>Thời gian hàng ngày</TableCell>
-                <TableCell>Thời gian buổi tối</TableCell>
-                <TableCell>Khoảng cách</TableCell>
-                <TableCell>Trạng thái</TableCell>
-                <TableCell>Mô tả</TableCell>
-                <TableCell>Hành động</TableCell>
+                <TableCell>Schedule Name</TableCell>
+                <TableCell>Daily Time</TableCell>
+                <TableCell>Evening Time</TableCell>
+                <TableCell>Interval</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -284,7 +284,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                 <TableRow>
                   <TableCell colSpan={7} align="center">
                     <Typography variant="body2" color="text.secondary">
-                      Chưa có lịch nào
+                      No schedules yet
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -304,7 +304,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                         </Box>
                       ) : (
                         <Typography variant="body2" color="text.secondary">
-                          Tắt
+                          Off
                         </Typography>
                       )}
                     </TableCell>
@@ -316,7 +316,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                         </Box>
                       ) : (
                         <Typography variant="body2" color="text.secondary">
-                          Tắt
+                          Off
                         </Typography>
                       )}
                     </TableCell>
@@ -325,7 +325,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                         <Chip label={`${schedule.intervalHours}h`} size="small" color="info" />
                       ) : (
                         <Typography variant="body2" color="text.secondary">
-                          Tắt
+                          Off
                         </Typography>
                       )}
                     </TableCell>
@@ -338,7 +338,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {schedule.description || 'Không có mô tả'}
+                        {schedule.description || 'No description'}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -371,14 +371,14 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       {/* Dialog tạo/sửa lịch */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
-          {editingSchedule ? 'Sửa lịch' : 'Tạo lịch mới'}
+          {editingSchedule ? 'Edit Schedule' : 'Create New Schedule'}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Tên lịch"
+                label="Schedule Name"
                 value={formData.scheduleName}
                 onChange={(e) => setFormData({ ...formData, scheduleName: e.target.value })}
                 required
@@ -387,7 +387,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Mô tả"
+                label="Description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 multiline
@@ -397,7 +397,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
             
             <Grid item xs={12}>
               <Divider sx={{ my: 2 }}>
-                <Typography variant="subtitle2">Cấu hình thời gian</Typography>
+                <Typography variant="subtitle2">Time Configuration</Typography>
               </Divider>
             </Grid>
             
@@ -409,14 +409,14 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                     onChange={(e) => setFormData({ ...formData, isDailyEnabled: e.target.checked })}
                   />
                 }
-                label="Bật lịch hàng ngày"
+                label="Enable Daily Schedule"
               />
             </Grid>
             {formData.isDailyEnabled && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Thời gian hàng ngày"
+                  label="Daily Time"
                   type="time"
                   value={formData.dailyTime}
                   onChange={(e) => setFormData({ ...formData, dailyTime: e.target.value })}
@@ -433,14 +433,14 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                     onChange={(e) => setFormData({ ...formData, isEveningEnabled: e.target.checked })}
                   />
                 }
-                label="Bật lịch buổi tối"
+                label="Enable Evening Schedule"
               />
             </Grid>
             {formData.isEveningEnabled && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Thời gian buổi tối"
+                  label="Evening Time"
                   type="time"
                   value={formData.eveningTime}
                   onChange={(e) => setFormData({ ...formData, eveningTime: e.target.value })}
@@ -457,23 +457,23 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                     onChange={(e) => setFormData({ ...formData, isIntervalEnabled: e.target.checked })}
                   />
                 }
-                label="Bật lịch theo khoảng cách"
+                label="Enable Interval Schedule"
               />
             </Grid>
             {formData.isIntervalEnabled && (
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Khoảng cách (giờ)</InputLabel>
+                  <InputLabel>Interval (hours)</InputLabel>
                   <Select
                     value={formData.intervalHours}
                     onChange={(e) => setFormData({ ...formData, intervalHours: e.target.value })}
                   >
-                    <MenuItem value={1}>1 giờ</MenuItem>
-                    <MenuItem value={2}>2 giờ</MenuItem>
-                    <MenuItem value={3}>3 giờ</MenuItem>
-                    <MenuItem value={6}>6 giờ</MenuItem>
-                    <MenuItem value={12}>12 giờ</MenuItem>
-                    <MenuItem value={24}>24 giờ</MenuItem>
+                    <MenuItem value={1}>1 hour</MenuItem>
+                    <MenuItem value={2}>2 hours</MenuItem>
+                    <MenuItem value={3}>3 hours</MenuItem>
+                    <MenuItem value={6}>6 hours</MenuItem>
+                    <MenuItem value={12}>12 hours</MenuItem>
+                    <MenuItem value={24}>24 hours</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -481,13 +481,13 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
           <Button 
             onClick={handleSaveSchedule} 
             variant="contained" 
             startIcon={<ScheduleIcon />}
           >
-            {editingSchedule ? 'Cập nhật lịch' : 'Tạo lịch'}
+            {editingSchedule ? 'Update Schedule' : 'Create Schedule'}
           </Button>
         </DialogActions>
       </Dialog>

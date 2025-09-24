@@ -83,7 +83,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
 
   const handleCreateCoupon = async () => {
     if (!couponForm.code || !couponForm.title || !couponForm.discountValue) {
-      onShowSnackbar('Vui lòng điền đầy đủ thông tin bắt buộc', 'warning')
+      onShowSnackbar('Please fill in all required information', 'warning')
       return
     }
 
@@ -93,12 +93,12 @@ const CouponManagement = ({ onShowSnackbar }) => {
       // TODO: Gọi API tạo coupon thực tế
       // const response = await createCouponAPI(couponForm)
       
-      onShowSnackbar('Coupon đã được tạo thành công!', 'success')
+      onShowSnackbar('Coupon created successfully!', 'success')
       setOpenCreateDialog(false)
       resetForm()
       
     } catch (error) {
-      onShowSnackbar('Có lỗi xảy ra khi tạo coupon', 'error')
+      onShowSnackbar('Error occurred while creating coupon', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -106,7 +106,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
 
   const handleEditCoupon = async () => {
     if (!couponForm.code || !couponForm.title || !couponForm.discountValue) {
-      onShowSnackbar('Vui lòng điền đầy đủ thông tin bắt buộc', 'warning')
+      onShowSnackbar('Please fill in all required information', 'warning')
       return
     }
 
@@ -116,27 +116,27 @@ const CouponManagement = ({ onShowSnackbar }) => {
       // TODO: Gọi API cập nhật coupon thực tế
       // const response = await updateCouponAPI(selectedCoupon.id, couponForm)
       
-      onShowSnackbar('Coupon đã được cập nhật thành công!', 'success')
+      onShowSnackbar('Coupon updated successfully!', 'success')
       setOpenEditDialog(false)
       resetForm()
       
     } catch (error) {
-      onShowSnackbar('Có lỗi xảy ra khi cập nhật coupon', 'error')
+      onShowSnackbar('Error occurred while updating coupon', 'error')
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleDeleteCoupon = async (couponId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa coupon này?')) {
+    if (window.confirm('Are you sure you want to delete this coupon?')) {
       try {
         // TODO: Gọi API xóa coupon thực tế
         // await deleteCouponAPI(couponId)
         
-        onShowSnackbar('Coupon đã được xóa thành công!', 'success')
+        onShowSnackbar('Coupon deleted successfully!', 'success')
         
       } catch (error) {
-        onShowSnackbar('Có lỗi xảy ra khi xóa coupon', 'error')
+        onShowSnackbar('Error occurred while deleting coupon', 'error')
       }
     }
   }
@@ -176,7 +176,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
   }
 
   const getDiscountTypeText = (type) => {
-    return type === 'percentage' ? 'Phần trăm' : 'Số tiền cố định'
+    return type === 'percentage' ? 'Percentage' : 'Fixed Amount'
   }
 
   const getDiscountTypeIcon = (type) => {
@@ -188,7 +188,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
   }
 
   const getStatusText = (isActive) => {
-    return isActive ? 'Đang hoạt động' : 'Đã tắt'
+    return isActive ? 'Active' : 'Inactive'
   }
 
   const formatCurrency = (amount) => {
@@ -212,7 +212,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
                     {couponStats.totalCoupons}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Tổng số coupon
+                    Total Coupons
                   </Typography>
                 </Box>
               </Box>
@@ -230,7 +230,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
                     {couponStats.activeCoupons}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Coupon đang hoạt động
+                    Active Coupons
                   </Typography>
                 </Box>
               </Box>
@@ -248,7 +248,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
                     {couponStats.totalUsage.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Lượt sử dụng
+                    Usage Count
                   </Typography>
                 </Box>
               </Box>
@@ -266,7 +266,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
                     {formatCurrency(couponStats.totalDiscount)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Tổng giảm giá
+                    Total Discount
                   </Typography>
                 </Box>
               </Box>
@@ -279,7 +279,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
       <Paper sx={{ p: 2, bgcolor: '#f8f9fa' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-            Quản lý Coupon
+            Coupon Management
           </Typography>
           <Button
             variant="contained"
@@ -287,7 +287,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
             onClick={() => setOpenCreateDialog(true)}
             sx={{ bgcolor: 'primary.main' }}
           >
-            Tạo Coupon Mới
+            Create New Coupon
           </Button>
         </Box>
       </Paper>
@@ -298,13 +298,13 @@ const CouponManagement = ({ onShowSnackbar }) => {
           <Table>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.main' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Mã Coupon</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Tên</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Loại giảm giá</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Giá trị</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Sử dụng</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Trạng thái</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Hành động</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Coupon Code</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Name</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Discount Type</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Value</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Usage</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Status</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -363,12 +363,12 @@ const CouponManagement = ({ onShowSnackbar }) => {
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Tooltip title="Xem chi tiết">
+                      <Tooltip title="View Details">
                         <IconButton size="small" color="info">
                           <VisibilityIcon />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Chỉnh sửa">
+                      <Tooltip title="Edit">
                         <IconButton 
                           size="small" 
                           color="primary"
@@ -377,7 +377,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Xóa">
+                      <Tooltip title="Delete">
                         <IconButton 
                           size="small" 
                           color="error"
@@ -404,91 +404,91 @@ const CouponManagement = ({ onShowSnackbar }) => {
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AddIcon color="primary" />
-          Tạo Coupon Mới
+          Create New Coupon
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={3} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Mã coupon *"
+                label="Coupon Code *"
                 value={couponForm.code}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, code: e.target.value }))}
-                placeholder="VD: WELCOME20"
-                helperText="Mã coupon duy nhất, không được trùng lặp"
+                placeholder="e.g. WELCOME20"
+                helperText="Unique coupon code, cannot be duplicated"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Tên coupon *"
+                label="Coupon Name *"
                 value={couponForm.title}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="VD: Chào mừng khách hàng mới"
+                placeholder="e.g. Welcome new customers"
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Mô tả"
+                label="Description"
                 value={couponForm.description}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, description: e.target.value }))}
                 multiline
                 rows={2}
-                placeholder="Mô tả chi tiết về coupon"
+                placeholder="Description chi tiết về coupon"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <InputLabel>Loại giảm giá *</InputLabel>
+                <InputLabel>Discount Type *</InputLabel>
                 <Select
                   value={couponForm.discountType}
                   onChange={(e) => setCouponForm(prev => ({ ...prev, discountType: e.target.value }))}
-                  label="Loại giảm giá *"
+                  label="Discount Type *"
                 >
-                  <MenuItem value="percentage">Phần trăm (%)</MenuItem>
-                  <MenuItem value="fixed">Số tiền cố định (VNĐ)</MenuItem>
+                  <MenuItem value="percentage">Percentage (%)</MenuItem>
+                  <MenuItem value="fixed">Fixed Amount (VND)</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Giá trị giảm giá *"
+                label="Discount Value *"
                 value={couponForm.discountValue}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, discountValue: e.target.value }))}
                 placeholder={couponForm.discountType === 'percentage' ? '20' : '50000'}
-                helperText={couponForm.discountType === 'percentage' ? 'Nhập số phần trăm (0-100)' : 'Nhập số tiền (VNĐ)'}
+                helperText={couponForm.discountType === 'percentage' ? 'Enter percentage (0-100)' : 'Enter amount (VND)'}
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Đơn hàng tối thiểu"
+                label="Minimum Order Amount"
                 value={couponForm.minOrderAmount}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, minOrderAmount: e.target.value }))}
                 placeholder="200000"
-                helperText="Số tiền tối thiểu để áp dụng coupon (VNĐ)"
+                helperText="Minimum amount to apply coupon (VND)"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Giảm giá tối đa"
+                label="Maximum Discount"
                 value={couponForm.maxDiscount}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, maxDiscount: e.target.value }))}
                 placeholder="100000"
-                helperText="Giảm giá tối đa cho mỗi đơn hàng (VNĐ)"
+                helperText="Maximum Discount cho mỗi đơn hàng (VNĐ)"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Giới hạn sử dụng"
+                label="Usage Limit"
                 value={couponForm.usageLimit}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, usageLimit: e.target.value }))}
                 placeholder="500"
-                helperText="Số lần sử dụng tối đa của coupon"
+                helperText="Maximum usage count for the coupon"
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -499,13 +499,13 @@ const CouponManagement = ({ onShowSnackbar }) => {
                     onChange={(e) => setCouponForm(prev => ({ ...prev, isActive: e.target.checked }))}
                   />
                 }
-                label="Kích hoạt ngay"
+                label="Activate Now"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Ngày bắt đầu"
+                label="Start Date"
                 type="date"
                 value={couponForm.validFrom}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, validFrom: e.target.value }))}
@@ -515,7 +515,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Ngày kết thúc"
+                label="End Date"
                 type="date"
                 value={couponForm.validTo}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, validTo: e.target.value }))}
@@ -525,14 +525,14 @@ const CouponManagement = ({ onShowSnackbar }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenCreateDialog(false)}>Hủy</Button>
+          <Button onClick={() => setOpenCreateDialog(false)}>Cancel</Button>
           <Button 
             variant="contained" 
             onClick={handleCreateCoupon}
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : <AddIcon />}
           >
-            {isLoading ? 'Đang tạo...' : 'Tạo Coupon'}
+            {isLoading ? 'Creating...' : 'Create Coupon'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -546,91 +546,91 @@ const CouponManagement = ({ onShowSnackbar }) => {
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <EditIcon color="primary" />
-          Chỉnh sửa Coupon
+          Edit Coupon
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={3} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Mã coupon *"
+                label="Coupon Code *"
                 value={couponForm.code}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, code: e.target.value }))}
-                placeholder="VD: WELCOME20"
-                helperText="Mã coupon duy nhất, không được trùng lặp"
+                placeholder="e.g. WELCOME20"
+                helperText="Unique coupon code, cannot be duplicated"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Tên coupon *"
+                label="Coupon Name *"
                 value={couponForm.title}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="VD: Chào mừng khách hàng mới"
+                placeholder="e.g. Welcome new customers"
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Mô tả"
+                label="Description"
                 value={couponForm.description}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, description: e.target.value }))}
                 multiline
                 rows={2}
-                placeholder="Mô tả chi tiết về coupon"
+                placeholder="Description chi tiết về coupon"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <InputLabel>Loại giảm giá *</InputLabel>
+                <InputLabel>Discount Type *</InputLabel>
                 <Select
                   value={couponForm.discountType}
                   onChange={(e) => setCouponForm(prev => ({ ...prev, discountType: e.target.value }))}
-                  label="Loại giảm giá *"
+                  label="Discount Type *"
                 >
-                  <MenuItem value="percentage">Phần trăm (%)</MenuItem>
-                  <MenuItem value="fixed">Số tiền cố định (VNĐ)</MenuItem>
+                  <MenuItem value="percentage">Percentage (%)</MenuItem>
+                  <MenuItem value="fixed">Fixed Amount (VND)</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Giá trị giảm giá *"
+                label="Discount Value *"
                 value={couponForm.discountValue}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, discountValue: e.target.value }))}
                 placeholder={couponForm.discountType === 'percentage' ? '20' : '50000'}
-                helperText={couponForm.discountType === 'percentage' ? 'Nhập số phần trăm (0-100)' : 'Nhập số tiền (VNĐ)'}
+                helperText={couponForm.discountType === 'percentage' ? 'Enter percentage (0-100)' : 'Enter amount (VND)'}
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Đơn hàng tối thiểu"
+                label="Minimum Order Amount"
                 value={couponForm.minOrderAmount}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, minOrderAmount: e.target.value }))}
                 placeholder="200000"
-                helperText="Số tiền tối thiểu để áp dụng coupon (VNĐ)"
+                helperText="Minimum amount to apply coupon (VND)"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Giảm giá tối đa"
+                label="Maximum Discount"
                 value={couponForm.maxDiscount}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, maxDiscount: e.target.value }))}
                 placeholder="100000"
-                helperText="Giảm giá tối đa cho mỗi đơn hàng (VNĐ)"
+                helperText="Maximum Discount cho mỗi đơn hàng (VNĐ)"
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Giới hạn sử dụng"
+                label="Usage Limit"
                 value={couponForm.usageLimit}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, usageLimit: e.target.value }))}
                 placeholder="500"
-                helperText="Số lần sử dụng tối đa của coupon"
+                helperText="Maximum usage count for the coupon"
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -647,7 +647,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Ngày bắt đầu"
+                label="Start Date"
                 type="date"
                 value={couponForm.validFrom}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, validFrom: e.target.value }))}
@@ -657,7 +657,7 @@ const CouponManagement = ({ onShowSnackbar }) => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Ngày kết thúc"
+                label="End Date"
                 type="date"
                 value={couponForm.validTo}
                 onChange={(e) => setCouponForm(prev => ({ ...prev, validTo: e.target.value }))}
@@ -667,14 +667,14 @@ const CouponManagement = ({ onShowSnackbar }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Hủy</Button>
+          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
           <Button 
             variant="contained" 
             onClick={handleEditCoupon}
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : <EditIcon />}
           >
-            {isLoading ? 'Đang cập nhật...' : 'Cập nhật Coupon'}
+            {isLoading ? 'Updating...' : 'Update Coupon'}
           </Button>
         </DialogActions>
       </Dialog>

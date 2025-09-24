@@ -92,7 +92,7 @@ export default function MessageList({
           alignItems: 'center',
           width: { xs: '100%', sm: 'auto' }
         }}>
-          {/* Nút Back cho mobile */}
+          {/* Back button for mobile */}
           {isMobile && selectedConv && onBack && (
             <IconButton
               onClick={onBack}
@@ -104,7 +104,7 @@ export default function MessageList({
                   backgroundColor: 'rgba(46, 125, 50, 0.08)'
                 }
               }}
-              aria-label="Quay lại danh sách chat"
+              aria-label="Back to chat list"
             >
               <ArrowBackIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
             </IconButton>
@@ -131,7 +131,7 @@ export default function MessageList({
                 whiteSpace: 'nowrap'
               }}
             >
-              {selectedConv?.customerName || 'Chọn hội thoại'}
+              {selectedConv?.customerName || 'Select conversation'}
             </Typography>
             {selectedConv && (
               <Typography 
@@ -144,7 +144,7 @@ export default function MessageList({
                   whiteSpace: 'nowrap'
                 }}
               >
-                {selectedConv.customerPhone || 'Không có SĐT'}
+                {selectedConv.customerPhone || 'No phone number'}
               </Typography>
             )}
           </Box>
@@ -179,7 +179,7 @@ export default function MessageList({
                   px: { xs: 1, sm: 1.5 }
                 }}
               >
-                Trả về AI
+                Release to AI
             </Button>
           )}
         </Box>
@@ -217,7 +217,7 @@ export default function MessageList({
               color="text.secondary"
                 sx={{ mt: 6, fontStyle: 'italic' }}
             >
-                Chưa có tin nhắn nào
+                No messages yet
             </Typography>
             ) : (
               messages.map((m, idx) => {
@@ -342,7 +342,7 @@ export default function MessageList({
               Green Kitchen Support
             </Typography>
             <Typography align="center">
-              Chọn hội thoại để bắt đầu hỗ trợ khách hàng
+              Select a conversation to start customer support
             </Typography>
           </Box>
         )}

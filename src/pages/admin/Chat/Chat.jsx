@@ -7,7 +7,7 @@ import Skeleton from '@mui/material/Skeleton'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-// Lazy load EmployeeChat component để cải thiện LCP
+// Lazy load EmployeeChat component to improve LCP
 const EmployeeChat = lazy(() => import('~/components/AIChat/chatEmployee/EmployeeMessenger'))
 
 // Loading skeleton component
@@ -111,7 +111,7 @@ export default function Chat() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  // Memoized styles để tránh re-calculation
+  // Memoized styles to avoid re-calculation
   const containerStyles = useMemo(() => ({
     p: { xs: 1, sm: 2, md: 3 },
     height: '100%',
@@ -122,13 +122,13 @@ export default function Chat() {
   const chatContainerStyles = useMemo(() => ({
     flex: 1, 
     minHeight: 0,
-    // Trên mobile, chat chiếm toàn màn hình
+    // On mobile, chat takes full screen
     height: isMobile ? 'calc(100vh - 32px)' : 'auto'
   }), [isMobile])
 
   return (
     <Box sx={{ ...containerStyles, bgcolor: 'background.default', minHeight: '100vh' }}>
-      {/* Chat component chiếm toàn bộ không gian còn lại */}
+      {/* Chat component takes all remaining space */}
       <Box sx={chatContainerStyles}>
         <Suspense fallback={<ChatSkeleton />}>
           <EmployeeChat />
