@@ -12,12 +12,12 @@ const initialState = {
   currentCart: null
 }
 
-// Async thunks: chỉ gọi API khi có customerId
+// Async thunks: only call API when customerId exists
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async (customerId) => {
     if (!customerId) {
-      // Chưa đăng nhập, trả về cart rỗng
+      // Not logged in, return empty cart
       return { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
     }
     const response = await getCartByCustomerIdAPI(customerId)
@@ -29,7 +29,7 @@ export const createCartItem = createAsyncThunk(
   'cart/createCartItem',
   async ({ customerId, itemData }) => {
     if (!customerId) {
-      // Chưa đăng nhập, trả về itemData để reducer tự thêm vào cart
+      // Not logged in, return itemData for reducer to add to cart automatically
       return itemData
     }
     const response = await addMealToCartAPI(customerId, itemData)
@@ -41,7 +41,7 @@ export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
   async ({ customerId, itemId }) => {
     if (!customerId) {
-      // Chưa đăng nhập, trả về itemId để reducer tự xoá khỏi cart
+      // Not logged in, return itemId for reducer to remove from cart automatically
       return itemId
     }
     await removeMealFromCartAPI(customerId, itemId)
@@ -71,7 +71,7 @@ export const decreaseQuantity = createAsyncThunk(
   }
 )
 
-// Thêm asyncThunk để sync local cart lên DB sau login
+// Add asyncThunk to sync local cart to DB after login
 export const syncCartAfterLogin = createAsyncThunk(
   'cart/syncCartAfterLogin',
   async (customerId, { getState, dispatch }) => {
@@ -82,12 +82,12 @@ export const syncCartAfterLogin = createAsyncThunk(
       return
     }
 
-    // Chỉ clear nếu có local items
+    // Only clear if there are local items
     if (localCartItems.length > 0) {
       dispatch(clearCart())
     }
 
-    // Gọi API addMealToCart cho từng item trong local cart
+    // Call API addMealToCart for each item in local cart
     for (const item of localCartItems) {
       try {
         const itemData = {
@@ -106,21 +106,21 @@ export const syncCartAfterLogin = createAsyncThunk(
           fat: item.fat,
           itemType: item.itemType,
           isCustom: item.isCustom,
-          // Thêm các object cần thiết cho display
+          // Add necessary objects for display
           customMeal: item.customMeal || null
-          // customerWeekMealDay không cần truyền vì đã lưu trong DB
+          // customerWeekMealDay does not need to be passed as it is already saved in DB
         }
 
         const response = await addMealToCartAPI(customerId, itemData)
 
-        // customerWeekMealDay đã lưu trong DB, không cần localStorage
+        // customerWeekMealDay is already saved in DB, no need for localStorage
       } catch (error) {
         console.error('Error syncing item:', item.id, error)
-        // Có thể bỏ qua lỗi hoặc handle (e.g., show toast)
+        // Can skip error or handle it (e.g., show toast)
       }
     }
 
-    // Sau khi sync, fetch lại cart từ DB
+    // After sync, fetch cart from DB again
     const updatedCart = await getCartByCustomerIdAPI(customerId)
     return updatedCart
   }
@@ -140,10 +140,10 @@ const cartSlice = createSlice({
         let cartData = action.payload
 
         if (cartData && Array.isArray(cartData.cartItems)) {
-          // customerWeekMealDay đã có trong response từ DB, không cần merge từ localStorage
+          // customerWeekMealDay is already in the response from DB, no need to merge from localStorage
           state.currentCart = cartData
         } else if (cartData && (cartData.customerWeekMealDayId || cartData.id)) {
-          // Nếu payload là 1 item, customerWeekMealDay đã có trong item từ DB
+          // If payload is 1 item, customerWeekMealDay is already in the item from DB
           state.currentCart = {
             cartItems: [cartData],
             totalAmount: cartData.totalPrice || 0,
@@ -155,18 +155,18 @@ const cartSlice = createSlice({
         }
       })
       .addCase(createCartItem.fulfilled, (state, action) => {
-        // Nếu payload là cart object (có cartItems), gán luôn
+        // If payload is cart object (has cartItems), assign directly
         if (action.payload && Array.isArray(action.payload.cartItems)) {
           state.currentCart = action.payload
         } else {
-          // Luôn đảm bảo currentCart là object có cartItems là mảng
+          // Always ensure currentCart is an object with cartItems as array
           if (!state.currentCart || !Array.isArray(state.currentCart.cartItems)) {
             state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
           }
 
-          // customerWeekMealDay đã lưu trong DB, không cần localStorage
+          // customerWeekMealDay is saved in DB, no need for localStorage
 
-          // Không cần merge weekMeal nữa
+          // No need to merge weekMeal anymore
           const newItem = {
             ...action.payload
           }
@@ -175,7 +175,7 @@ const cartSlice = createSlice({
             item => String(item.customerWeekMealDayId || item.menuMealId || item.id) === String(newItem.customerWeekMealDayId || newItem.menuMealId || newItem.id)
           )
           if (existIndex !== -1) {
-            // Nếu đã có, tăng quantity và cập nhật totalPrice
+            // If already exists, increase quantity and update totalPrice
             const existItem = state.currentCart.cartItems[existIndex]
             const updatedQuantity = existItem.quantity + newItem.quantity
             state.currentCart.cartItems[existIndex] = {
@@ -184,7 +184,7 @@ const cartSlice = createSlice({
               totalPrice: updatedQuantity * existItem.unitPrice
             }
           } else {
-            // Nếu chưa có, thêm mới
+            // If not exists, add new
             state.currentCart.cartItems.push(newItem)
           }
           state.currentCart.totalItems = state.currentCart.cartItems.length
@@ -195,7 +195,7 @@ const cartSlice = createSlice({
       .addCase(removeFromCart.fulfilled, (state, action) => {
         const itemId = String(action.meta.arg.itemId)
 
-        // customerWeekMealDay không lưu trong localStorage
+        // customerWeekMealDay is not stored in localStorage
 
         state.currentCart.cartItems = state.currentCart.cartItems.filter(
           item =>
@@ -233,12 +233,12 @@ const cartSlice = createSlice({
         state.currentCart.totalAmount = state.currentCart.cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
         state.currentCart.totalQuantity = state.currentCart.cartItems.reduce((sum, item) => sum + item.quantity, 0)
       })
-      // Thêm case cho syncCartAfterLogin
+      // Add case for syncCartAfterLogin
       .addCase(syncCartAfterLogin.fulfilled, (state, action) => {
         if (action.payload && Array.isArray(action.payload.cartItems)) {
-          state.currentCart = action.payload // Update với cart đã merge từ DB
+          state.currentCart = action.payload // Update with cart merged from DB
         } else {
-          // Nếu không có payload, giữ nguyên hoặc set rỗng
+          // If no payload, keep as is or set empty
           state.currentCart = { cartItems: [], totalAmount: 0, totalItems: 0, totalQuantity: 0 }
         }
       })

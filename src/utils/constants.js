@@ -57,23 +57,23 @@ export const EMPLOYEE_ROLES = {
 
 // Error Messages
 export const ERROR_MESSAGES = {
-  NETWORK_ERROR: 'Lỗi kết nối mạng. Vui lòng thử lại.',
-  UNAUTHORIZED: 'Bạn không có quyền truy cập.',
-  NOT_FOUND: 'Không tìm thấy dữ liệu.',
-  SERVER_ERROR: 'Lỗi máy chủ. Vui lòng thử lại sau.',
-  VALIDATION_ERROR: 'Dữ liệu không hợp lệ.',
-  TOKEN_EXPIRED: 'Phiên đăng nhập đã hết hạn.',
-  UNKNOWN_ERROR: 'Đã có lỗi xảy ra.'
+  NETWORK_ERROR: 'Network connection error. Please try again.',
+  UNAUTHORIZED: 'You do not have access permission.',
+  NOT_FOUND: 'Data not found.',
+  SERVER_ERROR: 'Server error. Please try again later.',
+  VALIDATION_ERROR: 'Invalid data.',
+  TOKEN_EXPIRED: 'Login session has expired.',
+  UNKNOWN_ERROR: 'An error occurred.'
 }
 
 // Success Messages
 export const SUCCESS_MESSAGES = {
-  LOGIN_SUCCESS: 'Đăng nhập thành công!',
-  REGISTER_SUCCESS: 'Đăng ký thành công!',
-  ORDER_CREATED: 'Đặt hàng thành công!',
-  ORDER_UPDATED: 'Cập nhật đơn hàng thành công!',
-  PAYMENT_SUCCESS: 'Thanh toán thành công!',
-  PROFILE_UPDATED: 'Cập nhật thông tin thành công!'
+  LOGIN_SUCCESS: 'Login successful!',
+  REGISTER_SUCCESS: 'Registration successful!',
+  ORDER_CREATED: 'Order created successfully!',
+  ORDER_UPDATED: 'Order updated successfully!',
+  PAYMENT_SUCCESS: 'Payment successful!',
+  PROFILE_UPDATED: 'Profile updated successfully!'
 }
 
 export const IMAGE_DEFAULT = {
@@ -82,7 +82,7 @@ export const IMAGE_DEFAULT = {
 }
 
 export const HEALTHY_MESSAGES = {
-  mealOrder1: 'Bữa sáng là khởi đầu hoàn hảo cho ngày mới, đừng bỏ lỡ để nạp năng lượng nhé!',
-  mealOrder2: 'Bữa trưa giúp bạn tiếp tục bứt phá, hãy chọn món để nạp năng lượng!',
-  mealOrder3: 'Ăn uống đúng giờ giúp cơ thể khỏe mạnh, đừng quên chăm sóc bản thân nhé!'
+  mealOrder1: 'Breakfast is the perfect start to your day, don\'t miss it to energize yourself!',
+  mealOrder2: 'Lunch helps you continue to break through, choose a dish to energize!',
+  mealOrder3: 'Eating on time helps keep your body healthy, don\'t forget to take care of yourself!'
 }
