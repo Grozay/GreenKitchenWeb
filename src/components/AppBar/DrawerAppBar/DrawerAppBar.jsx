@@ -12,8 +12,10 @@ import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { useState } from 'react'
 import Collapse from '@mui/material/Collapse'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import ListItem from '@mui/material/ListItem'
+import { useSelector } from 'react-redux'
+import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 
 const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
   const navItemStyle = {
@@ -31,10 +33,13 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
   }
 
   const [open, setOpen] = useState(false)
-
+  const navigate = useNavigate()
   const handleClick = () => {
     setOpen(!open)
   }
+
+  const currentCustomer = useSelector(selectCurrentCustomer)
+
 
   return (
     <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
@@ -54,14 +59,14 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
       >
         {/* Profile */}
         <List>
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 4, cursor: 'pointer' }} onClick={() => {navigate('/profile/overview')}}>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Tooltip title="Remy Sharp">
-                <Avatar alt="User Avatar" sx={{ width: 80, height: 80 }} />
+              <Tooltip title={currentCustomer?.name}>
+                <Avatar alt="User Avatar" sx={{ width: 80, height: 80 }} src={currentCustomer?.avatar} />
               </Tooltip>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Typography variant="body1" sx={{ color: 'black', mt: 1 }}>Remy Sharp</Typography>
+              <Typography variant="body1" sx={{ color: 'black', mt: 1 }}>{currentCustomer?.fullName}</Typography>
             </Box>
           </Box>
 
@@ -70,7 +75,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="home"
+            label="Home"
             path="/"
           />
 
@@ -78,7 +83,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="menu"
+            label="Menu"
             path="/menu"
           />
 
@@ -86,7 +91,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="customMeal"
+            label="Custom Meal"
             path="/smart-meal-planner"
           />
 
@@ -150,7 +155,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="orderChecking"
+            label="Order Checking"
             path="/order-checking"
           />
 
@@ -158,7 +163,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="weekMeal"  
+            label="Week Meal"  
             path="/week-meal-planner"
           />
 
@@ -166,7 +171,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="blog"
+            label="Blog"
             path="/news"
           />
 

@@ -34,10 +34,10 @@ import Feedback from './components/Feedback'
 const ProtectedRoute = ({ user }) => {
   const location = useLocation()
   if (!user) {
-    // Hiển thị thông báo cho user biết họ cần đăng nhập
-    toast.info('Vui lòng đăng nhập để tiếp tục')
+    // Show notification to user that they need to login
+    toast.info('Please login to continue')
 
-    // Lưu location hiện tại để redirect sau khi login
+    // Save current location to redirect after login
     return <Navigate to='/login' state={{ from: location }} replace={true} />
   }
   return <Outlet />
