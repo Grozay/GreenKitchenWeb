@@ -446,7 +446,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
   const formatCountdown = (countdown) => {
     if (countdown.isOverdue) {
-      return 'Đã qua'
+      return 'Passed'
     }
 
     if (countdown.days > 0) {
@@ -543,68 +543,68 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
   const generateLocalTemplate = (holiday) => {
     const holidayName = holiday.name.toLowerCase()
     let templateType = 'generic'
-    let subject = `${holiday.name} - Ưu Đãi Đặc Biệt Từ Green Kitchen!`
+    let subject = `${holiday.name} - Special Offers from Green Kitchen!`
     let content = ''
 
     if (holidayName.includes('tết') || holidayName.includes('tet') || holidayName.includes('nguyên đán')) {
       templateType = 'tet'
-      subject = 'Chúc Mừng Năm Mới - Ưu Đãi Đặc Biệt Từ Green Kitchen!'
+      subject = 'Happy New Year - Special Offers from Green Kitchen!'
     } else if (holidayName.includes('black friday')) {
       templateType = 'black_friday'
-      subject = 'BLACK FRIDAY - Siêu Sale Lên Đến 50% Tại Green Kitchen!'
+      subject = 'BLACK FRIDAY - Up To 50% OFF at Green Kitchen!'
     } else if (holidayName.includes('thanksgiving')) {
       templateType = 'thanksgiving'
-      subject = 'Thanksgiving Special - Cảm Ơn Quý Khách Hàng!'
+      subject = 'Thanksgiving Special - Thank You to Our Customers!'
     } else if (holidayName.includes('cyber monday')) {
       templateType = 'cyber_monday'
-      subject = 'CYBER MONDAY - Deal Sốc Chỉ Có Online!'
+      subject = 'CYBER MONDAY - Online-Only Mega Deals!'
     } else if (holidayName.includes('quốc khánh') || holidayName.includes('national day')) {
       templateType = 'national_day'
-      subject = 'Chào Mừng Ngày Quốc Khánh - Ưu Đãi Đặc Biệt!'
+      subject = 'Happy National Day - Special Offers!'
     } else if (holidayName.includes('giáng sinh') || holidayName.includes('christmas')) {
       templateType = 'christmas'
-      subject = 'Merry Christmas - Quà Tặng Đặc Biệt Từ Green Kitchen!'
+      subject = 'Merry Christmas - Special Gifts from Green Kitchen!'
     } else if (holidayName.includes('valentine')) {
       templateType = 'valentine'
-      subject = 'Valentine\'s Day - Bữa Tối Lãng Mạn Cho Cặp Đôi!'
+      subject = 'Valentine\'s Day - A Romantic Dinner for Two!'
     } else if (holidayName.includes('phụ nữ') || holidayName.includes('women')) {
       templateType = 'womens_day'
-      subject = 'Ngày Quốc Tế Phụ Nữ - Tôn Vinh Vẻ Đẹp Tự Nhiên!'
+      subject = 'International Women\'s Day - Celebrating Natural Beauty!'
     }
 
     // Generate basic content
-    const holidayDate = new Date(holiday.date).toLocaleDateString('vi-VN')
+    const holidayDate = new Date(holiday.date).toLocaleDateString('en-US')
     content = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #4caf50, #8bc34a); padding: 20px; border-radius: 10px;">
         <div style="text-align: center; color: white; margin-bottom: 30px;">
           <h1 style="margin: 0; font-size: 28px;">${holiday.name}!</h1>
-          <p style="font-size: 16px; margin: 10px 0;">Ưu đãi đặc biệt từ Green Kitchen</p>
+          <p style="font-size: 16px; margin: 10px 0;">Exclusive offers from Green Kitchen</p>
         </div>
         
         <div style="background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px;">
           <h2 style="color: #2e7d32; margin-top: 0;">Dear {{customerName}},</h2>
           
-          <p>Nhân dịp <strong>${holiday.name}</strong> (${holidayDate}), Green Kitchen xin gửi đến bạn những ưu đãi đặc biệt!</p>
+          <p>On the occasion of <strong>${holiday.name}</strong> (${holidayDate}), Green Kitchen is delighted to bring you special offers!</p>
           
           <div style="background: #e8f5e8; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="color: #2e7d32; margin-top: 0;">Ưu Đãi Đặc Biệt:</h3>
+            <h3 style="color: #2e7d32; margin-top: 0;">Special Offers:</h3>
             <ul style="color: #333; line-height: 1.6;">
-              <li><strong>15% OFF</strong> cho tất cả đơn hàng</li>
-              <li><strong>Miễn phí ship</strong> cho đơn hàng từ 300,000 VNĐ</li>
-              <li><strong>Combo đặc biệt</strong> với giá ưu đãi</li>
-              <li><strong>Quà tặng</strong> món tráng miệng miễn phí</li>
+              <li><strong>15% OFF</strong> on all orders</li>
+              <li><strong>Free delivery</strong> for orders from 300,000 VND</li>
+              <li><strong>Special combos</strong> at promotional prices</li>
+              <li><strong>Complimentary dessert</strong> with every order</li>
             </ul>
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
             <a href="{{frontendUrl}}/menu" style="background: #4caf50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px; display: inline-block;">
-              Đặt Món Ngay
+              Order Now
             </a>
           </div>
           
           <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
-            Chúc bạn một ngày ${holiday.name} vui vẻ!<br>
-            <strong>Green Kitchen Team</strong>
+            Wishing you a wonderful ${holiday.name}!<br>
+            <strong>The Green Kitchen Team</strong>
           </p>
         </div>
       </div>
@@ -730,36 +730,36 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
     const holidayDate = new Date(holiday.date).toLocaleDateString('vi-VN')
 
     // Generate template based on type
-    let subject = `${holiday.name} - Ưu Đãi Đặc Biệt Từ Green Kitchen!`
+    let subject = `${holiday.name} - Special Offers from Green Kitchen!`
     let content = ''
 
     switch (templateType.toLowerCase()) {
       case 'tet':
-        subject = 'Chúc Mừng Năm Mới - Ưu Đãi Đặc Biệt Từ Green Kitchen!'
+        subject = 'Happy New Year - Special Offers from Green Kitchen!'
         break
       case 'black_friday':
-        subject = 'BLACK FRIDAY - Siêu Sale Lên Đến 50% Tại Green Kitchen!'
+        subject = 'BLACK FRIDAY - Up To 50% OFF at Green Kitchen!'
         break
       case 'thanksgiving':
-        subject = 'Thanksgiving Special - Cảm Ơn Quý Khách Hàng!'
+        subject = 'Thanksgiving Special - Thank You to Our Customers!'
         break
       case 'cyber_monday':
-        subject = 'CYBER MONDAY - Deal Sốc Chỉ Có Online!'
+        subject = 'CYBER MONDAY - Online-Only Mega Deals!'
         break
       case 'national_day':
-        subject = 'Chào Mừng Ngày Quốc Khánh - Ưu Đãi Đặc Biệt!'
+        subject = 'Happy National Day - Special Offers!'
         break
       case 'christmas':
-        subject = 'Merry Christmas - Quà Tặng Đặc Biệt Từ Green Kitchen!'
+        subject = 'Merry Christmas - Special Gifts from Green Kitchen!'
         break
       case 'valentine':
-        subject = 'Valentine\'s Day - Bữa Tối Lãng Mạn Cho Cặp Đôi!'
+        subject = 'Valentine\'s Day - A Romantic Dinner for Two!'
         break
       case 'womens_day':
-        subject = 'Ngày Quốc Tế Phụ Nữ - Tôn Vinh Vẻ Đẹp Tự Nhiên!'
+        subject = 'International Women\'s Day - Celebrating Natural Beauty!'
         break
       default:
-        subject = `${holiday.name} - Ưu Đãi Đặc Biệt Từ Green Kitchen!`
+        subject = `${holiday.name} - Special Offers from Green Kitchen!`
     }
 
     // Generate basic content (same as generateLocalTemplate)
@@ -767,33 +767,33 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #4caf50, #8bc34a); padding: 20px; border-radius: 10px;">
         <div style="text-align: center; color: white; margin-bottom: 30px;">
           <h1 style="margin: 0; font-size: 28px;">${holiday.name}!</h1>
-          <p style="font-size: 16px; margin: 10px 0;">Ưu đãi đặc biệt từ Green Kitchen</p>
+          <p style="font-size: 16px; margin: 10px 0;">Exclusive offers from Green Kitchen</p>
         </div>
         
         <div style="background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px;">
           <h2 style="color: #2e7d32; margin-top: 0;">Dear {{customerName}},</h2>
           
-          <p>Nhân dịp <strong>${holiday.name}</strong> (${holidayDate}), Green Kitchen xin gửi đến bạn những ưu đãi đặc biệt!</p>
+          <p>On the occasion of <strong>${holiday.name}</strong> (${holidayDate}), Green Kitchen is delighted to bring you special offers!</p>
           
           <div style="background: #e8f5e8; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="color: #2e7d32; margin-top: 0;">Ưu Đãi Đặc Biệt:</h3>
+            <h3 style="color: #2e7d32; margin-top: 0;">Special Offers:</h3>
             <ul style="color: #333; line-height: 1.6;">
-              <li><strong>15% OFF</strong> cho tất cả đơn hàng</li>
-              <li><strong>Miễn phí ship</strong> cho đơn hàng từ 300,000 VNĐ</li>
-              <li><strong>Combo đặc biệt</strong> với giá ưu đãi</li>
-              <li><strong>Quà tặng</strong> món tráng miệng miễn phí</li>
+              <li><strong>15% OFF</strong> on all orders</li>
+              <li><strong>Free delivery</strong> for orders from 300,000 VND</li>
+              <li><strong>Special combos</strong> at promotional prices</li>
+              <li><strong>Complimentary dessert</strong> with every order</li>
             </ul>
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
             <a href="{{frontendUrl}}/menu" style="background: #4caf50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px; display: inline-block;">
-              Đặt Món Ngay
+              Order Now
             </a>
           </div>
           
           <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
-            Chúc bạn một ngày ${holiday.name} vui vẻ!<br>
-            <strong>Green Kitchen Team</strong>
+            Wishing you a wonderful ${holiday.name}!<br>
+            <strong>The Green Kitchen Team</strong>
           </p>
         </div>
       </div>
@@ -1179,14 +1179,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                   <Typography variant="body2" color="text.secondary">
                     Select holidays from public APIs to save to your database or schedule email campaigns
                   </Typography>
-                  {scheduledHolidays.length > 0 && (
-                    <Alert severity="info" sx={{ mt: 1 }}>
-                      <Typography variant="body2">
-                        <strong>{scheduledHolidays.length} holidays</strong> have been scheduled and are hidden from this list.
-                        Check the Upcoming Holidays tab to see scheduled campaigns.
-                      </Typography>
-                    </Alert>
-                  )}
+               
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button size="small" variant="outlined" onClick={selectAllHolidays}>
@@ -1195,15 +1188,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                   <Button size="small" variant="outlined" onClick={deselectAllHolidays}>
                     Deselect All
                   </Button>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={saveSelectedHolidays}
-                    disabled={savingSelected || getCurrentYearSelectedCount() === 0}
-                    sx={{ mr: 1 }}
-                  >
-                    {savingSelected ? 'Saving...' : `Import to DB (${getCurrentYearSelectedCount()})`}
-                  </Button>
+
                   <Button
                     size="small"
                     variant="contained"
@@ -1269,15 +1254,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
                 return (
                   <>
-                    {getCurrentYearSelectedCount() > 0 && (
-                      <Alert severity="info" sx={{ mb: 2 }}>
-                        Selected {getCurrentYearSelectedCount()} holiday(s) for {selectedYear}.
-                        <br />
-                        • Click Import to DB to save holidays to database only
-                        <br />
-                        • Click Schedule Email to create automated email campaigns
-                      </Alert>
-                    )}
+                    
 
                     {passedHolidays.length > 0 && (
                       <Alert severity="warning" sx={{ mb: 2 }}>
@@ -1442,7 +1419,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                       {h.name}
                                       {isPassed && (
                                         <Chip
-                                          label="Đã qua"
+                                          label="Pased"
                                           size="small"
                                           color="default"
                                           variant="outlined"
@@ -1531,7 +1508,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                       })
                                     }}
                                   >
-                                    {isPassed ? 'Đã qua' : 'Schedule'}
+                                    {isPassed ? 'Passed' : 'Schedule'}
                                   </Button>
                                 </Stack>
                               </CardContent>

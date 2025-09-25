@@ -28,7 +28,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import IconButton from '@mui/material/IconButton'
-import Stack from '@mui/material/Stack'
+import { toast } from 'react-toastify'
 
 // Icons
 import EmailIcon from '@mui/icons-material/Email'
@@ -198,14 +198,14 @@ const EmailMarketing = ({ onShowSnackbar }) => {
 
   const handleScheduleEmail = async () => {
     if (!scheduledTime) {
-      onShowSnackbar('Please select send time', 'warning')
+      toast.error('Please select send time')
       return
     }
 
     const scheduleDate = new Date(scheduledTime)
     const now = new Date()
     if (scheduleDate <= now) {
-      onShowSnackbar('Schedule time must be in the future', 'warning')
+      toast.error('Schedule time must be in the future')
       return
     }
 
@@ -518,7 +518,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
           </Grid>
 
           {/* One-off Email */}
-          <Grid item xs={12} md={6}>
+          {/* <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
@@ -559,7 +559,7 @@ const EmailMarketing = ({ onShowSnackbar }) => {
                 </Button>
               </CardContent>
             </Card>
-          </Grid>
+          </Grid> */}
         </Grid>
       )}
 

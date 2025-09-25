@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -30,6 +30,10 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
+import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
+import FormHelperText from '@mui/material/FormHelperText'
+import InputAdornment from '@mui/material/InputAdornment'
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -55,6 +59,12 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const [editingSchedule, setEditingSchedule] = useState(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [scheduleToDelete, setScheduleToDelete] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [errors, setErrors] = useState({ scheduleName: '', dailyTime: '', eveningTime: '' })
+  const [nameStatus, setNameStatus] = useState('idle') // idle | checking | ok | conflict
+  const nameCheckTimerRef = useRef(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -125,10 +135,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
   }
 
   const handleSaveSchedule = async () => {
-    if (!formData.scheduleName) {
-      onShowSnackbar('Please enter schedule name', 'warning')
-      return
-    }
+    if (!validateForm()) return
 
     try {
       if (editingSchedule) {
@@ -148,17 +155,114 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
     }
   }
 
-  const handleDeleteSchedule = async (id) => {
-    if (window.confirm('Are you sure you want to delete this schedule?')) {
-      try {
-        await deleteCartAbandonmentScheduleAPI(id)
-        onShowSnackbar('Schedule deleted successfully', 'success')
-        loadSchedules()
-        loadStatistics()
-      } catch (error) {
-        onShowSnackbar('Error deleting schedule: ' + error.message, 'error')
+  // Validation helpers
+  const isMorningTime = (time) => {
+    if (!time) return false
+    const [h] = time.split(':').map(Number)
+    return h >= 5 && h < 12
+  }
+
+  const isEveningTime = (time) => {
+    if (!time) return false
+    const [h] = time.split(':').map(Number)
+    return h >= 17 && h <= 22
+  }
+
+  // Generate time options by 15 minutes between startHour and endHour inclusive
+  const generateTimeOptions = (startHour, endHour) => {
+    const options = []
+    for (let h = startHour; h <= endHour; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        if (h === endHour && m > 45) break
+        const hh = String(h).padStart(2, '0')
+        const mm = String(m).padStart(2, '0')
+        options.push(`${hh}:${mm}`)
       }
     }
+    return options
+  }
+
+  const morningOptions = generateTimeOptions(5, 11)
+  const eveningOptions = generateTimeOptions(17, 22)
+
+  const validateForm = () => {
+    let valid = true
+    const newErrors = { scheduleName: '', dailyTime: '', eveningTime: '' }
+    if (!formData.scheduleName || formData.scheduleName.trim().length === 0) {
+      newErrors.scheduleName = 'Schedule name is required'
+      valid = false
+    }
+    if (nameStatus === 'checking') valid = false
+    if (nameStatus === 'conflict' && (!editingSchedule || editingSchedule.scheduleName !== formData.scheduleName)) {
+      newErrors.scheduleName = 'Schedule name already exists'
+      valid = false
+    }
+
+    if (formData.isDailyEnabled && !isMorningTime(formData.dailyTime)) {
+      newErrors.dailyTime = 'Please select a morning time (05:00 - 11:59)'
+      valid = false
+    }
+    if (formData.isEveningEnabled && !isEveningTime(formData.eveningTime)) {
+      newErrors.eveningTime = 'Please select an evening time (17:00 - 22:00)'
+      valid = false
+    }
+    setErrors(newErrors)
+    if (!valid) onShowSnackbar?.('Please fix validation errors', 'warning')
+    return valid
+  }
+
+  const handleScheduleNameChange = (value) => {
+    setFormData(prev => ({ ...prev, scheduleName: value }))
+    setErrors(prev => ({ ...prev, scheduleName: '' }))
+    if (nameCheckTimerRef.current) clearTimeout(nameCheckTimerRef.current)
+    const trimmed = (value || '').trim()
+    if (!trimmed) {
+      setNameStatus('idle')
+      return
+    }
+    // If name unchanged in edit mode, skip check
+    if (editingSchedule && trimmed === editingSchedule.scheduleName) {
+      setNameStatus('ok')
+      return
+    }
+    setNameStatus('checking')
+    nameCheckTimerRef.current = setTimeout(async () => {
+      try {
+        const excludeId = editingSchedule ? editingSchedule.id : null
+        const result = await checkCartAbandonmentScheduleNameAPI(trimmed, excludeId)
+        const exists = typeof result === 'object' && result !== null && 'exists' in result ? result.exists : result
+        setNameStatus(exists ? 'conflict' : 'ok')
+      } catch (e) {
+        setNameStatus('idle')
+      }
+    }, 400)
+  }
+
+  const handleDeleteSchedule = (schedule) => {
+    setScheduleToDelete(schedule)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteSchedule = async () => {
+    if (!scheduleToDelete) return
+    try {
+      setIsDeleting(true)
+      await deleteCartAbandonmentScheduleAPI(scheduleToDelete.id)
+      onShowSnackbar('Schedule deleted successfully', 'success')
+      await loadSchedules()
+      await loadStatistics()
+    } catch (error) {
+      onShowSnackbar('Error deleting schedule: ' + error.message, 'error')
+    } finally {
+      setIsDeleting(false)
+      setDeleteDialogOpen(false)
+      setScheduleToDelete(null)
+    }
+  }
+
+  const cancelDeleteSchedule = () => {
+    setDeleteDialogOpen(false)
+    setScheduleToDelete(null)
   }
 
   const handleToggleSchedule = async (id) => {
@@ -354,7 +458,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                       </IconButton>
                       <IconButton 
                         size="small" 
-                        onClick={() => handleDeleteSchedule(schedule.id)}
+                        onClick={() => handleDeleteSchedule(schedule)}
                         color="error"
                       >
                         <DeleteIcon />
@@ -375,109 +479,142 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Schedule Name"
-                value={formData.scheduleName}
-                onChange={(e) => setFormData({ ...formData, scheduleName: e.target.value })}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                multiline
-                rows={2}
-              />
-            </Grid>
-            
-            <Grid item xs={12}>
-              <Divider sx={{ my: 2 }}>
-                <Typography variant="subtitle2">Time Configuration</Typography>
-              </Divider>
-            </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isDailyEnabled}
-                    onChange={(e) => setFormData({ ...formData, isDailyEnabled: e.target.checked })}
+            <Grid item xs={12} md={7}>
+              <Stack spacing={2}>
+                <Box>
+                  <TextField
+                    fullWidth
+                    label="Schedule Name"
+                    value={formData.scheduleName}
+                    onChange={(e) => handleScheduleNameChange(e.target.value)}
+                    required
+                    error={Boolean(errors.scheduleName)}
+                    helperText={
+                      errors.scheduleName ||
+                      (nameStatus === 'checking' ? 'Checking name availability…' : '')
+                    }
+                    placeholder="e.g. Morning Daily + Evening Remind"
                   />
-                }
-                label="Enable Daily Schedule"
-              />
-            </Grid>
-            {formData.isDailyEnabled && (
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Daily Time"
-                  type="time"
-                  value={formData.dailyTime}
-                  onChange={(e) => setFormData({ ...formData, dailyTime: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-            )}
-            
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isEveningEnabled}
-                    onChange={(e) => setFormData({ ...formData, isEveningEnabled: e.target.checked })}
+                </Box>
+                <Box>
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    multiline
+                    rows={2}
+                    placeholder="Optional description for this schedule"
                   />
-                }
-                label="Enable Evening Schedule"
-              />
+                </Box>
+
+                <Divider textAlign="left">
+                  <Typography variant="subtitle2">Time Configuration</Typography>
+                </Divider>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.isDailyEnabled}
+                          onChange={(e) => {
+                            const next = e.target.checked
+                            setFormData(prev => ({
+                              ...prev,
+                              isDailyEnabled: next,
+                              dailyTime: next ? (isMorningTime(prev.dailyTime) ? prev.dailyTime : '09:00') : prev.dailyTime
+                            }))
+                          }}
+                        />
+                      }
+                      label={
+                        <Tooltip title="Send once per day at specific time">
+                          <Typography>Enable Daily Schedule</Typography>
+                        </Tooltip>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth disabled={!formData.isDailyEnabled}>
+                      <InputLabel>Daily Time</InputLabel>
+                      <Select
+                        label="Daily Time"
+                        value={isMorningTime(formData.dailyTime) ? formData.dailyTime : ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, dailyTime: e.target.value }))}
+                        error={Boolean(errors.dailyTime)}
+                      >
+                        {morningOptions.map(t => (
+                          <MenuItem key={t} value={t}>{t}</MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText>{errors.dailyTime || 'Morning only (05:00 - 11:45)'}</FormHelperText>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.isEveningEnabled}
+                          onChange={(e) => {
+                            const next = e.target.checked
+                            setFormData(prev => ({
+                              ...prev,
+                              isEveningEnabled: next,
+                              eveningTime: next ? (isEveningTime(prev.eveningTime) ? prev.eveningTime : '18:00') : prev.eveningTime
+                            }))
+                          }}
+                        />
+                      }
+                      label={
+                        <Tooltip title="Send another reminder in the evening">
+                          <Typography>Enable Evening Schedule</Typography>
+                        </Tooltip>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth disabled={!formData.isEveningEnabled}>
+                      <InputLabel>Evening Time</InputLabel>
+                      <Select
+                        label="Evening Time"
+                        value={isEveningTime(formData.eveningTime) ? formData.eveningTime : ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, eveningTime: e.target.value }))}
+                        error={Boolean(errors.eveningTime)}
+                      >
+                        {eveningOptions.map(t => (
+                          <MenuItem key={t} value={t}>{t}</MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText>{errors.eveningTime || 'Evening only (17:00 - 22:00)'}</FormHelperText>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </Stack>
             </Grid>
-            {formData.isEveningEnabled && (
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Evening Time"
-                  type="time"
-                  value={formData.eveningTime}
-                  onChange={(e) => setFormData({ ...formData, eveningTime: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-            )}
-            
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isIntervalEnabled}
-                    onChange={(e) => setFormData({ ...formData, isIntervalEnabled: e.target.checked })}
-                  />
-                }
-                label="Enable Interval Schedule"
-              />
+
+            <Grid item xs={12} md={5}>
+              <Card variant="outlined">
+                <CardContent>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Summary</Typography>
+                  <Stack spacing={1}>
+                    <Typography variant="body2" color="text.secondary">
+                      Name: <strong>{formData.scheduleName || '—'}</strong>
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Daily: {formData.isDailyEnabled ? formData.dailyTime : 'Off'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Evening: {formData.isEveningEnabled ? formData.eveningTime : 'Off'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Interval: {formData.isIntervalEnabled ? `${formData.intervalHours}h` : 'Off'}
+                    </Typography>
+                  </Stack>
+                </CardContent>
+              </Card>
             </Grid>
-            {formData.isIntervalEnabled && (
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Interval (hours)</InputLabel>
-                  <Select
-                    value={formData.intervalHours}
-                    onChange={(e) => setFormData({ ...formData, intervalHours: e.target.value })}
-                  >
-                    <MenuItem value={1}>1 hour</MenuItem>
-                    <MenuItem value={2}>2 hours</MenuItem>
-                    <MenuItem value={3}>3 hours</MenuItem>
-                    <MenuItem value={6}>6 hours</MenuItem>
-                    <MenuItem value={12}>12 hours</MenuItem>
-                    <MenuItem value={24}>24 hours</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            )}
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -486,8 +623,30 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
             onClick={handleSaveSchedule} 
             variant="contained" 
             startIcon={<ScheduleIcon />}
+            disabled={nameStatus === 'checking'}
           >
             {editingSchedule ? 'Update Schedule' : 'Create Schedule'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog xác nhận xóa */}
+      <Dialog open={deleteDialogOpen} onClose={cancelDeleteSchedule} maxWidth="xs" fullWidth>
+        <DialogTitle>Delete Schedule</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            Are you sure you want to delete this schedule?
+          </Typography>
+          {scheduleToDelete && (
+            <Typography variant="body2" color="text.secondary">
+              {scheduleToDelete.scheduleName}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDeleteSchedule} disabled={isDeleting}>Cancel</Button>
+          <Button onClick={confirmDeleteSchedule} color="error" variant="contained" disabled={isDeleting}>
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>
