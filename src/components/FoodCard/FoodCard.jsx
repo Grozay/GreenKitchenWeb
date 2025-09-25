@@ -161,8 +161,9 @@ const FoodCard = ({ card }) => {
               textOverflow: 'ellipsis',
               width: '100%',
               px: 1,
-              mt: 'auto',
-              mb: 2
+              minHeight: 40,
+              lineHeight: 1.2,
+              mb: 1
             }}
           >
             {translatedTitle}
@@ -179,7 +180,7 @@ const FoodCard = ({ card }) => {
               gap: { xs: 0.3, md: 0.4 },
               justifyContent: 'center',
               backgroundColor: theme.palette.primary.card,
-              mt: 'auto',
+              mt: 1,
               mb: 2,
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
             }}
