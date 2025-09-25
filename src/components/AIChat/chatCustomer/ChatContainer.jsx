@@ -87,7 +87,7 @@ function ChatContainer({
                 color: 'primary.contrastText'
               }}
             >
-  Chat với Nhân viên GreenKitchen
+  Chat with GreenKitchen Employee
             </Typography>
 
           </Box>

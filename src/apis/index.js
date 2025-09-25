@@ -674,13 +674,6 @@ export const toggleCartAbandonmentScheduleAPI = async (id) => {
   return response.data
 }
 
-export const checkCartAbandonmentScheduleNameAPI = async (scheduleName, excludeId = null) => {
-  const params = new URLSearchParams({ scheduleName })
-  if (excludeId) params.append('excludeId', excludeId)
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/check-name?${params}`)
-  return response.data
-}
-
 export const getCartAbandonmentScheduleStatisticsAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/statistics`)
   return response.data
@@ -998,5 +991,12 @@ export const getCustomerEmailTrackingStatsAPI = async (customerId) => {
     if (count) params.append('count', count.toString())
     if (language) params.append('language', language)
     const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/posts/ai/suggest-topics?${params.toString()}`)
+    return response.data
+  }
+  export const checkCartAbandonmentScheduleNameAPI = async (scheduleName, excludeId = null) => {
+    const params = new URLSearchParams({ scheduleName })
+    const safeExcludeId = (excludeId === null || excludeId === undefined) ? 0 : excludeId
+    params.append('excludeId', safeExcludeId)
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/check-name?${params}`)
     return response.data
   }
