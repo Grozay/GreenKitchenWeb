@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -30,6 +30,10 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Pagination from '@mui/material/Pagination'
+import Stack from '@mui/material/Stack'
+import CardHeader from '@mui/material/CardHeader'
+import FormHelperText from '@mui/material/FormHelperText'
+import InputAdornment from '@mui/material/InputAdornment'
 
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
@@ -55,6 +59,9 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [stats, setStats] = useState({})
+  const [filterText, setFilterText] = useState('')
+  const [filterType, setFilterType] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
 
   // Form state
   const [formData, setFormData] = useState({
@@ -76,7 +83,13 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
     try {
       setIsLoading(true)
       const data = await getEmailHistoryAPI(page, 10)
-      setCampaigns(data.content || [])
+      const list = data.content || []
+      // Sort newest first by createdAt (fallback to sentAt/scheduledAt)
+      list.sort((a, b) => {
+        const getTs = (x) => new Date(x?.createdAt || x?.sentAt || x?.scheduledAt || 0).getTime()
+        return getTs(b) - getTs(a)
+      })
+      setCampaigns(list)
       setTotalPages(data.totalPages || 0)
     } catch (error) {
       onShowSnackbar('Error loading campaigns list', 'error')
@@ -192,6 +205,13 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
     }
   }
 
+  const filteredCampaigns = useMemo(() => {
+    return campaigns
+      .filter(c => (filterType ? c.emailType === filterType : true))
+      .filter(c => (filterStatus ? c.status === filterStatus : true))
+      .filter(c => (filterText ? (c.subject?.toLowerCase().includes(filterText.toLowerCase()) || c.content?.toLowerCase().includes(filterText.toLowerCase())) : true))
+  }, [campaigns, filterText, filterType, filterStatus])
+
   return (
     <Box>
       {/* Header với thống kê */}
@@ -272,6 +292,36 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
 
       {/* Danh sách chiến dịch */}
       <Paper>
+        <Box sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <TextField
+            size="small"
+            label="Search"
+            placeholder="Subject or content"
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+          />
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>Type</InputLabel>
+            <Select label="Type" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="broadcast">Broadcast</MenuItem>
+              <MenuItem value="preview">Preview</MenuItem>
+              <MenuItem value="cart_abandonment">Cart Abandonment</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>Status</InputLabel>
+            <Select label="Status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="sent">Sent</MenuItem>
+              <MenuItem value="scheduled">Scheduled</MenuItem>
+              <MenuItem value="failed">Failed</MenuItem>
+            </Select>
+          </FormControl>
+          {(filterText || filterType || filterStatus) && (
+            <Button size="small" onClick={() => { setFilterText(''); setFilterType(''); setFilterStatus('') }}>Clear</Button>
+          )}
+        </Box>
         <TableContainer>
           <Table>
             <TableHead>
@@ -300,7 +350,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
                   </TableCell>
                 </TableRow>
               ) : (
-                campaigns.map((campaign) => (
+                filteredCampaigns.map((campaign) => (
                   <TableRow key={campaign.id}>
                     <TableCell>
                       <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
@@ -358,86 +408,129 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
           {editingCampaign ? 'Edit Campaign' : 'Create New Campaign'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Email Subject"
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Email Content"
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                multiline
-                rows={6}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Email Type</InputLabel>
-                <Select
-                  value={formData.emailType}
-                  onChange={(e) => setFormData({ ...formData, emailType: e.target.value })}
-                >
-                  <MenuItem value="broadcast">Broadcast</MenuItem>
-                  <MenuItem value="preview">Preview</MenuItem>
-                  <MenuItem value="cart_abandonment">Cart Abandonment</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isScheduled}
-                    onChange={(e) => setFormData({ ...formData, isScheduled: e.target.checked })}
-                  />
-                }
-                label="Schedule Send"
-              />
-            </Grid>
-            {formData.isScheduled && (
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Send Time"
-                  type="datetime-local"
-                  value={formData.scheduledAt}
-                  onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
-                />
+          {(() => {
+            const subjectLen = (formData.subject || '').length
+            const contentLen = (formData.content || '').length
+            const maxSubject = 150
+            const maxContent = 10000
+            const nowIso = new Date().toISOString().slice(0, 16)
+            return (
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid item xs={12} md={7}>
+                  <Stack spacing={2}>
+                    <TextField
+                      fullWidth
+                      label="Email Subject"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      required
+                      inputProps={{ maxLength: maxSubject }}
+                      helperText={`${subjectLen}/${maxSubject}`}
+                    />
+
+                    <TextField
+                      fullWidth
+                      label="Email Content"
+                      value={formData.content}
+                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                      multiline
+                      rows={8}
+                      required
+                      inputProps={{ maxLength: maxContent }}
+                      helperText={`${contentLen.toLocaleString()} chars`}
+                    />
+
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                          <InputLabel>Email Type</InputLabel>
+                          <Select
+                            value={formData.emailType}
+                            onChange={(e) => setFormData({ ...formData, emailType: e.target.value })}
+                            label="Email Type"
+                          >
+                            <MenuItem value="broadcast">Broadcast</MenuItem>
+                            <MenuItem value="preview">Preview</MenuItem>
+                          </Select>
+                          <FormHelperText>
+                            Broadcast: send to all; Preview: send to a test email
+                          </FormHelperText>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={formData.isScheduled}
+                              onChange={(e) => setFormData({ ...formData, isScheduled: e.target.checked })}
+                            />
+                          }
+                          label="Schedule Send"
+                        />
+                        {formData.isScheduled && (
+                          <TextField
+                            fullWidth
+                            sx={{ mt: 1 }}
+                            label="Send Time"
+                            type="datetime-local"
+                            value={formData.scheduledAt}
+                            onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
+                            InputLabelProps={{ shrink: true }}
+                            inputProps={{ min: nowIso }}
+                            helperText="Select a future time to schedule"
+                          />
+                        )}
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={formData.sendAllCustomers}
+                              onChange={(e) => setFormData({ ...formData, sendAllCustomers: e.target.checked })}
+                            />
+                          }
+                          label="Send to All Customers"
+                        />
+                      </Grid>
+                      {!formData.sendAllCustomers && (
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            label="Preview Email"
+                            value={formData.previewEmail}
+                            onChange={(e) => setFormData({ ...formData, previewEmail: e.target.value })}
+                            placeholder="Enter email for testing"
+                          />
+                        </Grid>
+                      )}
+                    </Grid>
+                  </Stack>
+                </Grid>
+
+                <Grid item xs={12} md={5}>
+                  <Card variant="outlined">
+                    <CardHeader title="Live Preview" subheader="Rendered as plain text" />
+                    <CardContent sx={{ pt: 0 }}>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Subject
+                      </Typography>
+                      <Typography variant="body1" sx={{ mb: 2, fontWeight: 600 }}>
+                        {formData.subject || '—'}
+                      </Typography>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Content
+                      </Typography>
+                      <Box sx={{ p: 1.5, bgcolor: 'background.paper', border: '1px dashed', borderColor: 'divider', borderRadius: 1, maxHeight: 260, overflow: 'auto' }}>
+                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                          {formData.content || '—'}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
               </Grid>
-            )}
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.sendAllCustomers}
-                    onChange={(e) => setFormData({ ...formData, sendAllCustomers: e.target.checked })}
-                  />
-                }
-                label="Send to All Customers"
-              />
-            </Grid>
-            {!formData.sendAllCustomers && (
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Preview Email"
-                  value={formData.previewEmail}
-                  onChange={(e) => setFormData({ ...formData, previewEmail: e.target.value })}
-                  placeholder="Enter email for testing"
-                />
-              </Grid>
-            )}
-          </Grid>
+            )
+          })()}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
@@ -447,7 +540,7 @@ const EmailCampaignManager = ({ onShowSnackbar }) => {
             disabled={isCreating}
             startIcon={isCreating ? <CircularProgress size={20} /> : <SendIcon />}
           >
-            {isCreating ? 'Đang lưu...' : 'Lưu chiến dịch'}
+            {isCreating ? 'Saving...' : 'Save Campaign'}
           </Button>
         </DialogActions>
       </Dialog>
