@@ -27,7 +27,7 @@ const MenuMealCreate = () => {
   const [searchParams] = useSearchParams()
   const cloneSlug = searchParams.get('clone') // Lấy slug từ query
 
-  const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm({
+  const { handleSubmit, control, formState: { errors }, reset, setValue } = useForm({
     defaultValues: {
       title: '',
       description: '',
@@ -83,13 +83,13 @@ const MenuMealCreate = () => {
       const previewUrl = URL.createObjectURL(croppedImage)
       setImagePreview(previewUrl)
       // Chuyển blob thành file để set vào form
-      const file = new File([croppedImage], 'cropped-image.jpg', { type: 'image/jpeg' })
+      const file = new File([croppedImage], 'cropped-image.png', { type: 'image/png' })
       setValue('image', [file])
       setCropModalOpen(false)
       // Revoke imageSrc
       if (imageSrc) URL.revokeObjectURL(imageSrc)
       setImageSrc(null)
-    } catch (e) {
+    } catch {
       toast.error('Failed to crop image')
     }
   }
@@ -123,33 +123,31 @@ const MenuMealCreate = () => {
       const fetchCloneData = async () => {
         try {
           const data = await getDetailMenuMealAPI(cloneSlug)
-          // Set dữ liệu vào form
-          setValue('title', data.title || '')
-          setValue('description', data.description || '')
-          setValue('calories', data.calories || '')
-          setValue('protein', data.protein || '')
-          setValue('carbs', data.carbs || '')
-          setValue('fat', data.fat || '')
-          setValue('price', data.price || '')
-          setValue('stock', data.stock || '')
-          setValue('type', data.type || 'BALANCE')
-          // Set image nếu có
+          // Reset toàn bộ form với dữ liệu mới
+          reset({
+            title: data.title || '',
+            description: data.description || '',
+            calories: data.calories || '',
+            protein: data.protein || '',
+            carbs: data.carbs || '',
+            fat: data.fat || '',
+            price: data.price || '',
+            stock: data.stock || '',
+            type: data.type || 'BALANCE',
+            image: '' // Reset image field
+          })
+          // Set image preview
           if (data.image) {
             setImagePreview(data.image)
-            // Nếu cần, tạo file từ URL để set vào form
-            // const response = await fetch(data.image)
-            // const blob = await response.blob()
-            // const file = new File([blob], 'cloned-image.jpg', { type: 'image/jpeg' })
-            // setValue('image', [file])
           }
           toast.info('Data cloned successfully! You can edit before creating.')
-        } catch (error) {
+        } catch {
           toast.error('Failed to clone data')
         }
       }
       fetchCloneData()
     }
-  }, [cloneSlug, setValue])
+  }, [cloneSlug, reset])
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
@@ -160,121 +158,210 @@ const MenuMealCreate = () => {
         <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <Grid container spacing={2}>
             <Grid size={12}>
-              <TextField
-                label="Title"
-                fullWidth
-                {...register('title', { required: 'Title is required' })}
-                error={!!errors.title}
-                helperText={errors.title?.message}
-                variant="outlined"
+              <Controller
+                name="title"
+                control={control}
+                rules={{ required: 'Title is required' }}
+                render={({ field }) => (
+                  <TextField
+                    label="Title"
+                    fullWidth
+                    {...field}
+                    error={!!errors.title}
+                    helperText={errors.title?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid size={12}>
-              <TextField
-                label="Description"
-                fullWidth
-                multiline
-                rows={3}
-                {...register('description', { required: 'Description is required' })}
-                error={!!errors.description}
-                helperText={errors.description?.message}
-                variant="outlined"
+              <Controller
+                name="description"
+                control={control}
+                rules={{ required: 'Description is required' }}
+                render={({ field }) => (
+                  <TextField
+                    label="Description"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    {...field}
+                    error={!!errors.description}
+                    helperText={errors.description?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 4 }}>
-              <TextField
-                label="Calories"
-                type="number"
-                fullWidth
-                InputProps={{ endAdornment: <InputAdornment position="end">kcal</InputAdornment> }}
-                {...register('calories', { required: 'Calories is required', min: 0 })}
-                error={!!errors.calories}
-                helperText={errors.calories?.message}
-                variant="outlined"
+              <Controller
+                name="calories"
+                control={control}
+                rules={{ required: 'Calories is required', min: 0 }}
+                render={({ field }) => (
+                  <TextField
+                    label="Calories"
+                    type="number"
+                    fullWidth
+                    InputProps={{ endAdornment: <InputAdornment position="end">kcal</InputAdornment> }}
+                    {...field}
+                    error={!!errors.calories}
+                    helperText={errors.calories?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
-              <TextField
-                label="Protein"
-                type="number"
-                fullWidth
-                InputProps={{ endAdornment: <InputAdornment position="end">g</InputAdornment> }}
-                {...register('protein', { required: 'Protein is required', min: 0 })}
-                error={!!errors.protein}
-                helperText={errors.protein?.message}
-                variant="outlined"
+              <Controller
+                name="protein"
+                control={control}
+                rules={{ required: 'Protein is required', min: 0 }}
+                render={({ field }) => (
+                  <TextField
+                    label="Protein"
+                    type="number"
+                    fullWidth
+                    InputProps={{ endAdornment: <InputAdornment position="end">g</InputAdornment> }}
+                    {...field}
+                    error={!!errors.protein}
+                    helperText={errors.protein?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
-              <TextField
-                label="Carbs"
-                type="number"
-                fullWidth
-                InputProps={{ endAdornment: <InputAdornment position="end">g</InputAdornment> }}
-                {...register('carbs', { required: 'Carbs is required', min: 0 })}
-                error={!!errors.carbs}
-                helperText={errors.carbs?.message}
-                variant="outlined"
+              <Controller
+                name="carbs"
+                control={control}
+                rules={{ required: 'Carbs is required', min: 0 }}
+                render={({ field }) => (
+                  <TextField
+                    label="Carbs"
+                    type="number"
+                    fullWidth
+                    InputProps={{ endAdornment: <InputAdornment position="end">g</InputAdornment> }}
+                    {...field}
+                    error={!!errors.carbs}
+                    helperText={errors.carbs?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
-              <TextField
-                label="Fat"
-                type="number"
-                fullWidth
-                InputProps={{ endAdornment: <InputAdornment position="end">g</InputAdornment> }}
-                {...register('fat', { required: 'Fat is required', min: 0 })}
-                error={!!errors.fat}
-                helperText={errors.fat?.message}
-                variant="outlined"
+              <Controller
+                name="fat"
+                control={control}
+                rules={{ required: 'Fat is required', min: 0 }}
+                render={({ field }) => (
+                  <TextField
+                    label="Fat"
+                    type="number"
+                    fullWidth
+                    InputProps={{ endAdornment: <InputAdornment position="end">g</InputAdornment> }}
+                    {...field}
+                    error={!!errors.fat}
+                    helperText={errors.fat?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
-              <TextField
-                label="Price"
-                type="number"
-                fullWidth
-                InputProps={{ endAdornment: <InputAdornment position="end">VNĐ</InputAdornment> }}
-                {...register('price', { required: 'Price is required', min: 0 })}
-                error={!!errors.price}
-                helperText={errors.price?.message}
-                variant="outlined"
+              <Controller
+                name="price"
+                control={control}
+                rules={{ required: 'Price is required', min: 0 }}
+                render={({ field }) => (
+                  <TextField
+                    label="Price"
+                    type="number"
+                    fullWidth
+                    InputProps={{ endAdornment: <InputAdornment position="end">VNĐ</InputAdornment> }}
+                    {...field}
+                    error={!!errors.price}
+                    helperText={errors.price?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
-              <TextField
-                label="Stock"
-                type="number"
-                fullWidth
-                {...register('stock', { required: 'Stock is required', min: 0 })}
-                error={!!errors.stock}
-                helperText={errors.stock?.message}
-                variant="outlined"
+              <Controller
+                name="stock"
+                control={control}
+                rules={{ required: 'Stock is required', min: 0 }}
+                render={({ field }) => (
+                  <TextField
+                    label="Stock"
+                    type="number"
+                    fullWidth
+                    {...field}
+                    error={!!errors.stock}
+                    helperText={errors.stock?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid size={12}>
-              <TextField
-                select
-                label="Type"
-                fullWidth
-                defaultValue="BALANCE"
-                {...register('type', { required: 'Type is required' })}
-                error={!!errors.type}
-                helperText={errors.type?.message}
-                variant="outlined"
-              >
-                {typeOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                ))}
-              </TextField>
+              <Controller
+                name="type"
+                control={control}
+                rules={{ required: 'Type is required' }}
+                render={({ field }) => (
+                  <TextField
+                    select
+                    label="Type"
+                    fullWidth
+                    {...field}
+                    error={!!errors.type}
+                    helperText={errors.type?.message}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  >
+                    {typeOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
             </Grid>
             <Grid size={12}>
               <Controller
                 name="image"
                 control={control}
                 rules={{ required: 'Image is required' }}
-                render={({ field }) => (
+                render={() => (
                   <>
                     <Button
                       variant="outlined"

@@ -8,6 +8,9 @@ export default async function getCroppedImg(imageSrc, pixelCrop, width = 300, he
   canvas.height = height
   const ctx = canvas.getContext('2d')
 
+  // Set nền trong suốt
+  ctx.clearRect(0, 0, width, height)
+
   ctx.drawImage(
     image,
     pixelCrop.x,
@@ -21,6 +24,7 @@ export default async function getCroppedImg(imageSrc, pixelCrop, width = 300, he
   )
 
   return new Promise(resolve => {
-    canvas.toBlob(blob => resolve(blob), 'image/jpeg', 1)
+    // Dùng PNG để giữ nền trong suốt
+    canvas.toBlob(blob => resolve(blob), 'image/png', 1)
   })
 }

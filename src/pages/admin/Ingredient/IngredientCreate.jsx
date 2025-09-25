@@ -84,7 +84,7 @@ const IngredientCreate = () => {
       const previewUrl = URL.createObjectURL(croppedImage)
       setImagePreview(previewUrl)
       // Chuyển blob thành file để set vào form
-      const file = new File([croppedImage], 'cropped-image.jpg', { type: 'image/jpeg' })
+      const file = new File([croppedImage], 'cropped-image.png', { type: 'image/png' })
       setValue('image', [file])
       setCropModalOpen(false)
       // Revoke imageSrc
@@ -169,6 +169,9 @@ const IngredientCreate = () => {
                 error={!!errors.title}
                 helperText={errors.title?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={12}>
@@ -181,6 +184,9 @@ const IngredientCreate = () => {
                 error={!!errors.description}
                 helperText={errors.description?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
 
@@ -194,6 +200,9 @@ const IngredientCreate = () => {
                 error={!!errors.calories}
                 helperText={errors.calories?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -206,6 +215,9 @@ const IngredientCreate = () => {
                 error={!!errors.protein}
                 helperText={errors.protein?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -218,6 +230,9 @@ const IngredientCreate = () => {
                 error={!!errors.carbs}
                 helperText={errors.carbs?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -230,6 +245,9 @@ const IngredientCreate = () => {
                 error={!!errors.fat}
                 helperText={errors.fat?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -242,6 +260,9 @@ const IngredientCreate = () => {
                 error={!!errors.price}
                 helperText={errors.price?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -253,6 +274,9 @@ const IngredientCreate = () => {
                 error={!!errors.stock}
                 helperText={errors.stock?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={12}>
@@ -265,6 +289,9 @@ const IngredientCreate = () => {
                 error={!!errors.type}
                 helperText={errors.type?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               >
                 {typeOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>

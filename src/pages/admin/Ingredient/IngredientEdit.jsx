@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
@@ -9,9 +9,12 @@ import Paper from '@mui/material/Paper'
 import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
+import Modal from '@mui/material/Modal'
 import { getByIdIngredientsAPI, updateIngredientsAPI, updateIngredientImageAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import { useNavigate, useParams } from 'react-router-dom'
+import Cropper from 'react-easy-crop'
+import getCroppedImg from '~/utils/getCroppedImg'
 
 const typeOptions = [
   { value: 'PROTEIN', label: 'Protein' },
@@ -40,7 +43,56 @@ const IngredientEdit = () => {
   const [imagePreview, setImagePreview] = useState(null)
   const [initialImage, setInitialImage] = useState(null)
   const [ingredientId, setIngredientId] = useState(null)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+  const [imageSrc, setImageSrc] = useState(null)
   const navigate = useNavigate()
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      const img = new Image()
+      img.onload = () => {
+        if (img.width === 300 && img.height === 300) {
+          // Revoke URL cũ nếu có
+          if (imagePreview && imagePreview !== initialImage) URL.revokeObjectURL(imagePreview)
+          // Ảnh đúng kích thước, set trực tiếp
+          setImagePreview(URL.createObjectURL(file))
+          // Ảnh đúng kích thước sẽ được set trong onChange handler của input
+        } else {
+          // Ảnh không đúng, mở modal crop
+          setImageSrc(URL.createObjectURL(file))
+          setCropModalOpen(true)
+        }
+      }
+      img.src = URL.createObjectURL(file)
+    }
+  }
+
+  const handleCropSave = async (field) => {
+    try {
+      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, 300, 300)
+      // Revoke URL cũ
+      if (imagePreview && imagePreview !== initialImage) URL.revokeObjectURL(imagePreview)
+      const previewUrl = URL.createObjectURL(croppedImage)
+      setImagePreview(previewUrl)
+      // Chuyển blob thành file để set vào form
+      const file = new File([croppedImage], 'cropped-image.png', { type: 'image/png' })
+      field.onChange([file])
+      setCropModalOpen(false)
+      // Revoke imageSrc
+      if (imageSrc) URL.revokeObjectURL(imageSrc)
+      setImageSrc(null)
+    } catch {
+      toast.error('Failed to crop image')
+    }
+  }
 
   useEffect(() => {
     const fetchIngredient = async () => {
@@ -124,6 +176,9 @@ const IngredientEdit = () => {
                 error={!!errors.title}
                 helperText={errors.title?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={12}>
@@ -136,6 +191,9 @@ const IngredientEdit = () => {
                 error={!!errors.description}
                 helperText={errors.description?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -148,6 +206,9 @@ const IngredientEdit = () => {
                 error={!!errors.calories}
                 helperText={errors.calories?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -160,6 +221,9 @@ const IngredientEdit = () => {
                 error={!!errors.protein}
                 helperText={errors.protein?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -172,6 +236,9 @@ const IngredientEdit = () => {
                 error={!!errors.carbs}
                 helperText={errors.carbs?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -184,6 +251,9 @@ const IngredientEdit = () => {
                 error={!!errors.fat}
                 helperText={errors.fat?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -196,6 +266,9 @@ const IngredientEdit = () => {
                 error={!!errors.price}
                 helperText={errors.price?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
@@ -207,6 +280,9 @@ const IngredientEdit = () => {
                 error={!!errors.stock}
                 helperText={errors.stock?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={12}>
@@ -223,6 +299,9 @@ const IngredientEdit = () => {
                     error={!!errors.type}
                     helperText={errors.type?.message}
                     variant="outlined"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
                   >
                     {typeOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
@@ -251,10 +330,18 @@ const IngredientEdit = () => {
                         type="file"
                         accept="image/*"
                         hidden
-                        onChange={e => {
-                          field.onChange(e.target.files)
-                          if (e.target.files && e.target.files[0]) {
-                            setImagePreview(URL.createObjectURL(e.target.files[0]))
+                        onChange={(e) => {
+                          handleImageChange(e)
+                          // Nếu ảnh đúng kích thước 300x300, set trực tiếp vào field
+                          const file = e.target.files[0]
+                          if (file) {
+                            const img = new Image()
+                            img.onload = () => {
+                              if (img.width === 300 && img.height === 300) {
+                                field.onChange([file])
+                              }
+                            }
+                            img.src = URL.createObjectURL(file)
                           }
                         }}
                       />
@@ -284,6 +371,34 @@ const IngredientEdit = () => {
           </Grid>
         </form>
       </Paper>
+
+      {/* Modal Crop */}
+      <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
+          <Typography variant="h6" mb={2}>Crop Image to 300x300</Typography>
+          <Box sx={{ position: 'relative', height: 300, width: '100%' }}>
+            <Cropper
+              image={imageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={1} // 1:1 để đảm bảo vuông
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+            />
+          </Box>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+            <Button onClick={() => setCropModalOpen(false)}>Cancel</Button>
+            <Controller
+              name="image"
+              control={control}
+              render={({ field }) => (
+                <Button onClick={() => handleCropSave(field)} variant="contained">Save Crop</Button>
+              )}
+            />
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   )
 }
