@@ -303,112 +303,108 @@ export const getSuggestionExplanation = (suggestedMeals, customTotal) => {
   return explanation
 }
 
-// Define sauce recommendations based on protein characteristics
-const PROTEIN_TYPE_SAUCES = {
-  // Lean proteins (high protein, low fat)
-  'lean_meat': ['Teriyaki Sauce', 'Sriracha Mayo'], // chicken, turkey
+// Smart sauce recommendation system based on nutritional analysis
+// No more hard-coded mappings - uses real nutritional data instead
 
-  // Red meats (high protein, medium-high fat)
-  'red_meat': ['Basil Pesto', 'Teriyaki Sauce'], // beef, lamb
 
-  // Fatty fish (high protein, high fat - omega 3)
-  'fatty_fish': ['Cilantro Lime Sauce'], // salmon, mackerel
-
-  // White fish (high protein, low fat)
-  'white_fish': ['Cilantro Lime Sauce'], // cod, tilapia, halibut
-
-  // Shellfish (high protein, varies fat)
-  'shellfish': ['Cilantro Lime Sauce', 'Sriracha Mayo'], // shrimp, crab, lobster
-
-  // Pork (high protein, varies fat)
-  'pork': ['Teriyaki Sauce', 'Basil Pesto'], // pork, bacon, ham
-
-  // Plant-based (lower protein, varies fat)
-  'plant_based': ['Sriracha Mayo', 'Cilantro Lime Sauce'] // tofu, tempeh, seitan
-}
-
-// Classification rules based on nutritional profile and name patterns
-const classifyProteinType = (protein) => {
-  const title = protein.title?.toLowerCase() || ''
-  const proteinPer100g = protein.protein || 0
-  const fatPer100g = protein.fat || 0
-
-  // First, try name-based classification for specific cases
-  if (title.includes('salmon') || title.includes('mackerel') || title.includes('sardine')) {
-    return 'fatty_fish'
-  }
-
-  if (title.includes('shrimp') || title.includes('prawn') || title.includes('crab') || title.includes('lobster')) {
-    return 'shellfish'
-  }
-
-  if (title.includes('tofu') || title.includes('tempeh') || title.includes('seitan') || title.includes('soy')) {
-    return 'plant_based'
-  }
-
-  if (title.includes('chicken') || title.includes('turkey')) {
-    return 'lean_meat'
-  }
-
-  if (title.includes('beef') || title.includes('lamb') || title.includes('veal')) {
-    return 'red_meat'
-  }
-
-  if (title.includes('pork') || title.includes('bacon') || title.includes('ham') || title.includes('sausage')) {
-    return 'pork'
-  }
-
-  if (title.includes('fish') || title.includes('cod') || title.includes('tilapia') || title.includes('halibut') ||
-      title.includes('tuna') || title.includes('sea bass') || title.includes('mahi mahi')) {
-    return 'white_fish'
-  }
-
-  // Fallback: Use nutritional profile for classification
-  if (proteinPer100g >= 20) { // High protein
-    if (fatPer100g >= 10) { // High fat
-      return 'fatty_fish' // Likely fatty fish
-    } else if (fatPer100g >= 5) { // Medium fat
-      return 'red_meat' // Likely red meat
-    } else { // Low fat
-      return 'lean_meat' // Likely lean meat or white fish
-    }
-  } else if (proteinPer100g >= 10) { // Medium protein
-    return 'pork' // Likely pork or processed meat
-  } else { // Low protein
-    return 'plant_based' // Likely plant-based
-  }
-}
-
-// Get suggested sauces for a single protein
+// Get suggested sauces for a single protein based on nutritional analysis
 export const getSuggestedSauces = (protein, allSauces) => {
   if (!protein || !allSauces) return []
 
-  // Automatically classify protein type based on name and nutritional profile
-  const proteinType = classifyProteinType(protein)
+  // Tính toán profile dinh dưỡng của protein
+  const proteinCalories = protein.calories || 0
+  const proteinMacros = {
+    protein: proteinCalories > 0 ? (protein.protein || 0) * 4 / proteinCalories : 0, // % calo từ protein
+    carbs: proteinCalories > 0 ? (protein.carbs || 0) * 4 / proteinCalories : 0, // % calo từ carbs
+    fat: proteinCalories > 0 ? (protein.fat || 0) * 9 / proteinCalories : 0 // % calo từ fat
+  }
 
-  // Get recommended sauces for this protein type
-  const suggestedSauceNames = PROTEIN_TYPE_SAUCES[proteinType] || []
+  // Xác định "nhu cầu" của protein này
+  const needs = {
+    // Nếu protein ít calo (< 200), cần sốt bổ sung calo
+    calories: proteinCalories < 200 ? 'more' : 'less',
 
-  // Filter available sauces that match recommendations
-  return allSauces.filter(sauce => suggestedSauceNames.includes(sauce.title))
+    // Nếu protein ít chất béo (< 30% calo), cần sốt bổ sung chất béo
+    fat: proteinMacros.fat < 0.3 ? 'more_fat' : 'less_fat',
+
+    // Nếu protein ít carbs (< 20% calo), cần sốt bổ sung carbs
+    carbs: proteinMacros.carbs < 0.2 ? 'more_carbs' : 'less_carbs',
+
+    // Nếu protein ít protein (< 50% calo), cần sốt bổ sung protein
+    protein: proteinMacros.protein < 0.5 ? 'more_protein' : 'less_protein'
+  }
+
+  // Score từng sốt dựa trên việc đáp ứng nhu cầu
+  const scoredSauces = allSauces.map(sauce => {
+    const sauceCalories = sauce.calories || 0
+    if (sauceCalories === 0) return { ...sauce, score: -Infinity }
+
+    const sauceMacros = {
+      protein: (sauce.protein || 0) * 4 / sauceCalories,
+      carbs: (sauce.carbs || 0) * 4 / sauceCalories,
+      fat: (sauce.fat || 0) * 9 / sauceCalories
+    }
+
+    let score = 0
+
+    // Điểm cho calo
+    if (needs.calories === 'more' && sauceCalories >= 50) score += 0.3
+    else if (needs.calories === 'less' && sauceCalories <= 30) score += 0.2
+
+    // Điểm cho chất béo
+    if (needs.fat === 'more_fat' && sauceMacros.fat > 0.4) score += 0.4
+    else if (needs.fat === 'less_fat' && sauceMacros.fat < 0.2) score += 0.2
+
+    // Điểm cho carbs
+    if (needs.carbs === 'more_carbs' && sauceMacros.carbs > 0.5) score += 0.3
+    else if (needs.carbs === 'less_carbs' && sauceMacros.carbs < 0.3) score += 0.2
+
+    // Điểm cho protein
+    if (needs.protein === 'more_protein' && sauceMacros.protein > 0.3) score += 0.3
+    else if (needs.protein === 'less_protein' && sauceMacros.protein < 0.2) score += 0.2
+
+    // Ưu tiên sốt vừa phải (30-80 calo)
+    if (sauceCalories >= 30 && sauceCalories <= 80) score += 0.2
+
+    return {
+      ...sauce,
+      score,
+      debugInfo: {
+        needs,
+        sauceMacros: {
+          protein: Math.round(sauceMacros.protein * 100) + '%',
+          carbs: Math.round(sauceMacros.carbs * 100) + '%',
+          fat: Math.round(sauceMacros.fat * 100) + '%'
+        }
+      }
+    }
+  })
+
+  // Sắp xếp theo điểm và trả về top 3
+  return scoredSauces
+    .filter(sauce => sauce.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
 }
 
-// Get suggested sauces for multiple proteins - each protein gets its own suggestions
+// Get suggested sauces for multiple proteins - combines suggestions from all proteins
 export const getSuggestedSaucesForMeal = (selectedProteins, allSauces) => {
   if (!selectedProteins || !allSauces || selectedProteins.length === 0) return []
 
-  // Each protein gets suggestions based on its own characteristics
+  // Mỗi protein gợi ý sốt riêng dựa trên nhu cầu dinh dưỡng
   const allSuggestions = []
   selectedProteins.forEach(protein => {
     const proteinSuggestions = getSuggestedSauces(protein, allSauces)
     allSuggestions.push(...proteinSuggestions)
   })
 
-  // Remove duplicates (same sauce suggested for multiple proteins)
-  const uniqueSuggestions = allSuggestions.filter((sauce, index, arr) =>
-    arr.findIndex(s => s.id === sauce.id) === index
-  )
+  // Loại bỏ trùng lặp và sắp xếp theo điểm cao nhất
+  const uniqueSuggestions = allSuggestions
+      .filter((sauce, index, arr) =>
+        arr.findIndex(s => s.id === sauce.id) === index
+      )
+      .sort((a, b) => b.score - a.score)
 
-  // Limit to top 4 suggestions
+  // Giới hạn 4 gợi ý tốt nhất
   return uniqueSuggestions.slice(0, 4)
 }

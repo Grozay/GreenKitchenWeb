@@ -10,19 +10,23 @@ const SuggestFood = ({ suggestedMeals }) => {
 
   return (
     <>
-      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, px: 1 }}>
         <FastfoodIcon sx={{ color: theme.palette.primary.secondary }} />
         <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
           {translatedText}
         </Typography>
       </Box>
-      <Grid container spacing={2} sx={{ mx: 2, my: 2 }}>
-        {suggestedMeals.map((item, index) => (
-          <Grid size={{ xs: 12, sm: 6, md: 2 }} key={index}>
-            <FoodCard card={item} />
-          </Grid>
-        ))}
-      </Grid>
+      <Box sx={{ px: 1 }}>
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          {suggestedMeals.map((item, index) => (
+            <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2 }} key={index}>
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <FoodCard card={item} />
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
     </>
   )
 }

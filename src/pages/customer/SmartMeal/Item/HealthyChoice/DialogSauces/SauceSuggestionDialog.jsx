@@ -16,11 +16,14 @@ const modalStyle = {
   bgcolor: 'background.paper',
   borderRadius: 4,
   boxShadow: 24,
-  p: 4,
-  minWidth: 400,
-  maxWidth: 700,
+  p: { xs: 2, sm: 3, md: 4 },
+  minWidth: { xs: 320, sm: 400 },
+  maxWidth: { xs: '95vw', sm: 700 },
   width: '90%',
-  outline: 'none'
+  maxHeight: '90vh',
+  overflowY: 'auto',
+  outline: 'none',
+  zIndex: 9999 // Đảm bảo modal ở trên cùng
 }
 
 const SauceSuggestionModal = ({
