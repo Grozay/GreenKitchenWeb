@@ -92,7 +92,7 @@ function OtpForm({ onNext, email }) {
   return (
     <form onSubmit={handleSubmit(submitLogIn)} >
       <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-        <MuiCard sx={{ minWidth: 480, maxWidth: 480, marginTop: '1em' }}>
+        <MuiCard sx={{ width: 390, marginTop: '1em' }}>
           <Box sx={{
             margin: '1em',
             display: 'flex',
