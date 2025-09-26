@@ -179,6 +179,7 @@ const WeekMealEdit = () => {
             value={weekStart}
             disabled
             onChange={(newDate) => setWeekStart(moment(newDate).startOf('week').add(1, 'days'))}
+            format="DD/MM/YYYY"
             renderInput={(params) => <TextField {...params} sx={{ minWidth: 250, flex: 1 }} />}
           />
         </Box>

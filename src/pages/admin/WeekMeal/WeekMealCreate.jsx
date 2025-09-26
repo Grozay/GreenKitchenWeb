@@ -212,6 +212,7 @@ const WeekMealCreate = () => {
             label="Week Start (Monday)"
             value={weekStart}
             onChange={handleDateChange}
+            format="DD/MM/YYYY"
             renderInput={(params) => <TextField {...params} sx={{ minWidth: 250, flex: 1 }} />}
           />
         </Box>

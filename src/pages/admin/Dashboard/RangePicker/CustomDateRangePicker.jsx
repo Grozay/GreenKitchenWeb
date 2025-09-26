@@ -69,12 +69,13 @@ const CustomDateRangePicker = ({ onDateRangeChange, currentDateRange, onQuickSel
   const isInvalid = startDate.isAfter(endDate)
 
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}>
+    <LocalizationProvider dateAdapter={AdapterMoment} >
       <Box display="flex" flexDirection="row" justifyContent="space-between" gap={2}>
         <Box display="flex" alignItems="center" gap={2}>
           <DatePicker
             label="Start Date"
             value={startDate}
+            format="DD/MM/YYYY"
             onChange={(date) => {
               setStartDate(date)
               setSelectedOption(null) // Reset on manual change
@@ -84,6 +85,7 @@ const CustomDateRangePicker = ({ onDateRangeChange, currentDateRange, onQuickSel
           <DatePicker
             label="End Date"
             value={endDate}
+            format="DD/MM/YYYY"
             onChange={(date) => {
               setEndDate(date)
               setSelectedOption(null) // Reset on manual change
