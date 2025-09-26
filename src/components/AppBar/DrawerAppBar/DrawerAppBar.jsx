@@ -14,8 +14,11 @@ import { useState } from 'react'
 import Collapse from '@mui/material/Collapse'
 import { Link, useNavigate } from 'react-router-dom'
 import ListItem from '@mui/material/ListItem'
-import { useSelector } from 'react-redux'
-import { selectCurrentCustomer } from '~/redux/user/customerSlice'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectCurrentCustomer, logoutCustomerApi } from '~/redux/user/customerSlice'
+import { clearCart } from '~/redux/cart/cartSlice'
+import { useConfirm } from 'material-ui-confirm'
+import { clearChatData } from '~/utils/chatCleanup'
 
 const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
   const navItemStyle = {
@@ -32,13 +35,32 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
     }
   }
 
-  const [open, setOpen] = useState(false)
+  // const [open, setOpen] = useState(false)
   const navigate = useNavigate()
-  const handleClick = () => {
-    setOpen(!open)
-  }
+  const dispatch = useDispatch()
+  const confirm = useConfirm()
+
+  // const handleClick = () => {
+  //   setOpen(!open)
+  // }
 
   const currentCustomer = useSelector(selectCurrentCustomer)
+
+  const handleLogout = async () => {
+    const { confirmed } = await confirm({
+      title: 'Are you sure you want to logout?',
+      cancellationText: 'Cancel',
+      confirmationText: 'Confirm'
+    })
+    if (confirmed) {
+      dispatch(logoutCustomerApi())
+        .then(() => {
+          dispatch(clearCart())
+          clearChatData()
+          navigate('/login')
+        })
+    }
+  }
 
 
   return (
@@ -59,10 +81,16 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
       >
         {/* Profile */}
         <List>
-          <Box sx={{ mb: 4, cursor: 'pointer' }} onClick={() => {navigate('/profile/overview')}}>
+          <Box sx={{ mb: 4, cursor: 'pointer' }} onClick={() => { navigate('/profile/overview') }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Tooltip title={currentCustomer?.name}>
-                <Avatar alt="User Avatar" sx={{ width: 80, height: 80 }} src={currentCustomer?.avatar} />
+              <Tooltip title={currentCustomer?.firstName || 'User'}>
+                <Avatar 
+                  alt="User Avatar" 
+                  sx={{ width: 80, height: 80 }} 
+                  src={currentCustomer?.avatar}
+                >
+                  {!currentCustomer?.avatar && (currentCustomer?.firstName?.charAt(0) || 'U')}
+                </Avatar>
               </Tooltip>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -155,15 +183,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="Order Checking"
-            path="/order-checking"
-          />
-
-          <DrawerAppBarItem
-            toggleDrawer={toggleDrawer}
-            navItemStyle={navItemStyle}
-            // t={t}
-            label="Week Meal"  
+            label="Week Meal"
             path="/week-meal-planner"
           />
 
@@ -171,8 +191,40 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
-            label="Blog"
-            path="/news"
+            label="Order Tracking"
+            path="/tracking-order"
+          />
+
+          <DrawerAppBarItem
+            toggleDrawer={toggleDrawer}
+            navItemStyle={navItemStyle}
+            // t={t}
+            label="Green Blog"
+            path="/blog"
+          />
+
+<DrawerAppBarItem
+            toggleDrawer={toggleDrawer}
+            navItemStyle={navItemStyle}
+            // t={t}
+            label="Contact & Support"
+            path="/contact-support"
+          />
+
+<DrawerAppBarItem
+            toggleDrawer={toggleDrawer}
+            navItemStyle={navItemStyle}
+            // t={t}
+            label="About Us"
+            path="/about-us"
+          />
+
+          <DrawerAppBarItem
+            toggleDrawer={toggleDrawer}
+            navItemStyle={navItemStyle}
+            // t={t}
+            label="Store Location"
+            path="/store-location"
           />
 
         </List>
@@ -180,6 +232,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
         {/* Logout Button */}
         <Box>
           <Box
+            onClick={handleLogout}
             sx={{
               display: 'flex',
               gap: 1,

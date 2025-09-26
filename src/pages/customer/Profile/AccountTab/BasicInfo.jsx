@@ -24,6 +24,8 @@ import { toast } from 'react-toastify'
 
 export default function BasicInfo({ basicInfo, setBasicInfo }) {
   const [openDialog, setOpenDialog] = useState(false)
+  const isPhoneLogin = basicInfo?.isPhoneLogin
+  const isEmailLogin = basicInfo?.isEmailLogin
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -45,8 +47,27 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
   }
 
   const submitUpdate = async (data) => {
-    const { email, firstName, lastName, phone, gender, birthDate } = data
-    await toast.promise(updateCustomerInfo({ email, firstName, lastName, phone, gender, birthDate }), {
+    const { firstName, lastName, gender, birthDate, email, phone } = data
+    
+    // Chỉ gửi email và phone nếu không bị disabled
+    const updateData = {
+      firstName,
+      lastName,
+      gender,
+      birthDate
+    }
+    
+    // Thêm email nếu không phải email login
+    if (isEmailLogin !== true) {
+      updateData.email = email
+    }
+    
+    // Thêm phone nếu không phải phone login
+    if (isPhoneLogin !== true) {
+      updateData.phone = phone
+    }
+    
+    await toast.promise(updateCustomerInfo(updateData), {
       pending: 'Updating...',
       success: 'Updated successfully!',
       error: 'Update failed!'
@@ -57,7 +78,8 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
           ...prev,
           firstName,
           lastName,
-          phone,
+          phone: isPhoneLogin === true ? prev.phone : phone, // Giữ nguyên phone nếu là phone login
+          email: isEmailLogin === true ? prev.email : email, // Giữ nguyên email nếu là email login
           gender,
           birthDate,
           fullName: `${firstName} ${lastName}`
@@ -216,8 +238,10 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                     label="Phone Number"
                     variant="outlined"
                     error={!!errors['phone']}
+                    disabled={isPhoneLogin === true}
+                    helperText={isPhoneLogin === true ? 'Phone number cannot be changed (used for login)' : ''}
                     {...register('phone', {
-                      required: FIELD_REQUIRED_MESSAGE
+                      required: isPhoneLogin !== true ? FIELD_REQUIRED_MESSAGE : false
                     })}
                   />
                   <FieldErrorAlert errors={errors} fieldName='phone' />
@@ -260,11 +284,15 @@ export default function BasicInfo({ basicInfo, setBasicInfo }) {
                   <TextField
                     fullWidth
                     label="Email"
-                    value={basicInfo?.email || ''}
                     variant="outlined"
-                    disabled
-                    helperText="Email cannot be changed"
+                    error={!!errors['email']}
+                    disabled={isEmailLogin === true}
+                    helperText={isEmailLogin === true ? 'Email cannot be changed (used for login)' : ''}
+                    {...register('email', {
+                      required: isEmailLogin !== true ? FIELD_REQUIRED_MESSAGE : false
+                    })}
                   />
+                  <FieldErrorAlert errors={errors} fieldName='email' />
                 </Grid>
               </Grid>
             </Box>

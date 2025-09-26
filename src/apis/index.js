@@ -149,6 +149,12 @@ export const getCustomMealByIdAPI = async (id) => {
   return response.data
 }
 
+//Kiet use
+export const fetchCustomMealByIdAPI = async (id) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/custom-meals/${id}`)
+  return response.data
+}
+
 export const createCustomerHealthyInfoAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/apis/v1/customer-health-info`, data)
   return response.data

@@ -62,8 +62,11 @@ const Profile = () => {
           >
             <Avatar
               sx={{ width: 26, height: 26 }}
+              src={currentCustomer?.avatar}
               alt="profile"
-            />
+            >
+              {!currentCustomer?.avatar && (currentCustomer?.firstName?.charAt(0) || 'U')}
+            </Avatar>
           </IconButton>
         </Tooltip>
       </Box>

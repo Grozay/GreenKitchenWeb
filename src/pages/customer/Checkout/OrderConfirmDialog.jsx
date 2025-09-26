@@ -136,7 +136,7 @@ const OrderConfirmDialog = ({
             
             <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2 }}>
               <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                "{orderNotes}"
+                {orderNotes}
               </Typography>
             </Box>
           </Box>
