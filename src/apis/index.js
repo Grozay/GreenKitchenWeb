@@ -1000,3 +1000,44 @@ export const getCustomerEmailTrackingStatsAPI = async (customerId) => {
     const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/cart-abandonment-schedule/check-name?${params}`)
     return response.data
   }
+
+// Email Logs APIs
+export const getCartEmailLogsAPI = async (page = 0, size = 20, customerId = null, emailType = null, startDate = null, endDate = null) => {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  if (customerId) params.append('customerId', customerId.toString())
+  if (emailType) params.append('emailType', emailType)
+  if (startDate) params.append('startDate', startDate)
+  if (endDate) params.append('endDate', endDate)
+  
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-logs/cart-emails?${params}`)
+  return response.data
+}
+
+export const getCartEmailLogsByCustomerAPI = async (customerId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-logs/cart-emails/customer/${customerId}`)
+  return response.data
+}
+
+export const checkRecentCartEmailsAPI = async (customerId, days = 7) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-logs/cart-emails/customer/${customerId}/recent?days=${days}`)
+  return response.data
+}
+
+export const getEmailLogStatisticsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-logs/cart-emails/statistics`)
+  return response.data
+}
+
+export const getEmailTrackingAPI = async (page = 0, size = 20, customerId = null, emailType = null) => {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  if (customerId) params.append('customerId', customerId.toString())
+  if (emailType) params.append('emailType', emailType)
+  
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-logs/tracking?${params}`)
+  return response.data
+}
+
+export const getTrackingStatisticsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/apis/v1/email-logs/tracking/statistics`)
+  return response.data
+}

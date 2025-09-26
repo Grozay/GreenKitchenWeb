@@ -5,7 +5,7 @@ import SmartToyIcon from '@mui/icons-material/SmartToy' // Icon mới cho AI
 import HeadsetIcon from '@mui/icons-material/Headset' // Icon mới cho Employee
 
 // ===== CHAT AVATAR CONFIGURATION =====
-// Dễ dàng thay đổi avatar cho từng loại sender
+// Easy to change avatar for each sender type
 export const CHAT_AVATARS = {
   CUSTOMER: {
     icon: PersonIcon,
@@ -29,12 +29,12 @@ export const CHAT_AVATARS = {
   }
 }
 
-// Hàm lấy avatar config theo sender role
+// Function to get avatar config by sender role
 export const getAvatarConfig = (senderRole) => {
   return CHAT_AVATARS[senderRole] || CHAT_AVATARS.SYSTEM
 }
 
-// Hàm render avatar component - trả về thông tin cần thiết, không render JSX
+// Function to render avatar component - returns necessary info, not JSX
 export const getAvatarInfo = (senderRole, size = 'medium') => {
   const config = getAvatarConfig(senderRole)
   const IconComponent = config.icon
@@ -59,10 +59,10 @@ export const getAvatarInfo = (senderRole, size = 'medium') => {
 
 // ===== SENDER NAME CONFIGURATION =====
 export const SENDER_NAMES = {
-  CUSTOMER: (customerName) => customerName || 'Bạn',
+  CUSTOMER: (customerName) => customerName || 'You',
   AI: 'AI GreenKitchen',
-  EMP: 'Nhân viên GreenKitchen',
-  SYSTEM: 'Hệ thống'
+  EMP: 'GreenKitchen Employee',
+  SYSTEM: 'System'
 }
 
 export const getSenderName = (senderRole, customerName = '') => {
