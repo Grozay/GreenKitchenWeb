@@ -4,8 +4,10 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
+import { useNavigate } from 'react-router-dom'
 
 export default function MemberCoupons({ membership, customerCoupons }) {
+  const navigate = useNavigate()
   return (
     <Grid size={12} sx={{
       width: '100%',
@@ -87,8 +89,7 @@ export default function MemberCoupons({ membership, customerCoupons }) {
                         size="small"
                         sx={{ borderRadius: 2, px: 2, fontWeight: 'bold', fontSize: '0.875rem' }}
                         onClick={() => {
-                          // TODO: Implement use coupon functionality
-                          alert('Coupon usage functionality will be implemented in orders')
+                          navigate('/menu')
                         }}
                       >
                         Use Now

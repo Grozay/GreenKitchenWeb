@@ -20,7 +20,7 @@ import Alert from '@mui/material/Alert'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { getOrderByCodeAPI, updateOrderStatusAPI, getCustomMealByIdAPI, getCustomerWeekMealByIdAPI, cancelOrderAPI } from '~/apis'
+import { getOrderByCodeAPI, updateOrderStatusAPI, fetchCustomMealByIdAPI, getCustomerWeekMealByIdAPI, cancelOrderAPI } from '~/apis'
 import { Button } from '@mui/material'
 import { ORDER_STATUS } from '~/utils/constants'
 import { toast } from 'react-toastify'
@@ -103,7 +103,7 @@ export default function OrderDetails() {
       if (customMealIds.length > 0) {
         // Fetch details for all custom meals in the order
         const fetchPromises = customMealIds.map(id =>
-          getCustomMealByIdAPI(id).catch(() => null) // Handle errors gracefully
+          fetchCustomMealByIdAPI(id).catch(() => null) // Handle errors gracefully
         )
 
         Promise.all(fetchPromises).then(results => {

@@ -10,7 +10,6 @@ import Grid from '@mui/material/Grid'
 import Avatar from '@mui/material/Avatar'
 import Divider from '@mui/material/Divider'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
-import LinearProgress from '@mui/material/LinearProgress'
 import ScheduleIcon from '@mui/icons-material/Schedule'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import RestaurantIcon from '@mui/icons-material/Restaurant'
@@ -22,7 +21,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import Chip from '@mui/material/Chip'
 import theme from '~/theme'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { getOrderByCodeAPI, getCustomMealByIdAPI } from '~/apis'
+import { getOrderByCodeAPI, fetchCustomMealByIdAPI } from '~/apis'
 
 export default function OrderDetails({ orderCode: propOrderCode }) {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
@@ -64,7 +63,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
           if (customMealIds.length > 0) {
             // Fetch details for all custom meals in the order
             const fetchPromises = customMealIds.map(id =>
-              getCustomMealByIdAPI(id).catch(() => null) // Handle errors gracefully
+              fetchCustomMealByIdAPI(id).catch(() => null) // Handle errors gracefully
             )
 
             const customMealResults = await Promise.all(fetchPromises)

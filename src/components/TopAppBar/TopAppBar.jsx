@@ -5,7 +5,6 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu'
 import SpaIcon from '@mui/icons-material/Spa'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import InfoIcon from '@mui/icons-material/Info'
 import AssistantIcon from '@mui/icons-material/Assistant'
 import LanguageSelect from '../AppBar/LanguageSelect/LanguageSelect'
 
@@ -70,10 +69,10 @@ function TopAppBar() {
         <Link href="/contact-support" underline="hover" color="#fff" sx={{ fontWeight: 500, color: (theme) => theme.palette.primary.main, display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <AssistantIcon sx={{ fontSize: 18, mr: 0.5 }} /> Contact & Support
         </Link>
-        <Divider orientation="vertical" flexItem sx={{ bgcolor: (theme) => theme.palette.primary.main }} />
+        {/* <Divider orientation="vertical" flexItem sx={{ bgcolor: (theme) => theme.palette.primary.main }} />
         <Link href="/about-us" underline="hover" color="#fff" sx={{ fontWeight: 500, color: (theme) => theme.palette.primary.main, display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <LanguageSelect />
-        </Link>
+        </Link> */}
       </Box>
     </Box>
   )

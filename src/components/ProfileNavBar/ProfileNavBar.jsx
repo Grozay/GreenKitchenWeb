@@ -6,13 +6,15 @@ import Typography from '@mui/material/Typography'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import Avatar from '@mui/material/Avatar'
 import Logout from '@mui/icons-material/Logout'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { logoutCustomerApi } from '~/redux/user/customerSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { clearChatData } from '~/utils/chatCleanup'
+import { useSelector } from 'react-redux'
+import { selectCurrentCustomer } from '~/redux/user/customerSlice'
 
 function ProfileNavBar() {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -20,6 +22,7 @@ function ProfileNavBar() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const confirm = useConfirm()
+  const currentCustomer = useSelector(selectCurrentCustomer)
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -85,7 +88,12 @@ function ProfileNavBar() {
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
         >
-          <AccountCircleIcon fontSize="large" />
+          <Avatar
+            src={currentCustomer?.avatar}
+            sx={{ width: 32, height: 32 }}
+          >
+            {!currentCustomer?.avatar && (currentCustomer?.firstName?.charAt(0) || 'U')}
+          </Avatar>
         </IconButton>
 
         <Menu
