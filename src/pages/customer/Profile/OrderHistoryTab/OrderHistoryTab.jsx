@@ -64,11 +64,6 @@ export default function OrderHistoryTab({ customerDetails }) {
     return dayjs(b.createdAt || b.deliveryTime).valueOf() - dayjs(a.createdAt || a.deliveryTime).valueOf()
   })
 
-  const handleViewOrderDetails = (order) => {
-    // TODO: Implement view details functionality
-    alert(`View order details #${order.id}`)
-  }
-
   return (
     <Box sx={{
       width: '100%',
@@ -123,6 +118,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                     label="From Date"
                     value={startDate}
                     onChange={handleStartDateChange}
+                    format="DD/MM/YYYY"
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -144,6 +140,7 @@ export default function OrderHistoryTab({ customerDetails }) {
                     value={endDate}
                     onChange={handleEndDateChange}
                     minDate={startDate}
+                    format="DD/MM/YYYY"
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -203,7 +200,6 @@ export default function OrderHistoryTab({ customerDetails }) {
                     <OrderCard
                       key={order.id}
                       order={order}
-                      onViewDetails={handleViewOrderDetails}
                     />
                   ))}
                 </Box>

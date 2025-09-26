@@ -20,6 +20,7 @@ import Chip from '@mui/material/Chip'
 import { getAllCouponsAPI, deleteCouponAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import Typography from '@mui/material/Typography'
+import { formatDate } from '~/utils/formatter'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -111,11 +112,13 @@ export default function Coupons() {
   // Get general coupons
   const getGeneralCoupons = () => {
     return filterCoupons(allCoupons, searchText, typeFilter, statusFilter, 'GENERAL')
+      .sort((a, b) => new Date(b.createdAt || b.validUntil) - new Date(a.createdAt || a.validUntil))
   }
 
   // Get specific customer coupons
   const getSpecificCustomerCoupons = () => {
     return filterCoupons(allCoupons, searchText, typeFilter, statusFilter, 'SPECIFIC_CUSTOMER')
+      .sort((a, b) => new Date(b.createdAt || b.validUntil) - new Date(a.createdAt || a.validUntil))
   }
 
   const handleDelete = async (coupon) => {
@@ -308,7 +311,7 @@ export default function Coupons() {
                       </TableCell>
                       <TableCell>{formatDiscount(coupon)}</TableCell>
                       <TableCell>{coupon.pointsRequired}</TableCell>
-                      <TableCell>{new Date(coupon.validUntil).toLocaleDateString()}</TableCell>
+                      <TableCell>{formatDate(coupon.validUntil)}</TableCell>
                       <TableCell>
                         <Chip label={coupon.status} size="small" color={getStatusColor(coupon.status)} />
                       </TableCell>
@@ -319,7 +322,28 @@ export default function Coupons() {
                   ))}
                   {getGeneralCoupons().length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No general coupons found</TableCell>
+                      <TableCell colSpan={8} align="center">
+                        <Box sx={{ py: 6, px: 4 }}>
+                          <Typography
+                            variant="h6"
+                            color="text.secondary"
+                            sx={{
+                              fontSize: '1.2rem',
+                              fontWeight: 500,
+                              mb: 1
+                            }}
+                          >
+                            No general coupons found
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: '0.9rem' }}
+                          >
+                            Try adjusting your search criteria or create a new coupon
+                          </Typography>
+                        </Box>
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -359,7 +383,7 @@ export default function Coupons() {
                       </TableCell>
                       <TableCell>{formatDiscount(coupon)}</TableCell>
                       <TableCell>{coupon.pointsRequired}</TableCell>
-                      <TableCell>{new Date(coupon.validUntil).toLocaleDateString()}</TableCell>
+                      <TableCell>{formatDate(coupon.validUntil)}</TableCell>
                       <TableCell>
                         <Chip label={coupon.status} size="small" color={getStatusColor(coupon.status)} />
                       </TableCell>
@@ -370,7 +394,28 @@ export default function Coupons() {
                   ))}
                   {getSpecificCustomerCoupons().length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No specific customer coupons found</TableCell>
+                      <TableCell colSpan={8} align="center">
+                        <Box sx={{ py: 6, px: 4 }}>
+                          <Typography
+                            variant="h6"
+                            color="text.secondary"
+                            sx={{
+                              fontSize: '1.2rem',
+                              fontWeight: 500,
+                              mb: 1
+                            }}
+                          >
+                            No specific customer coupons found
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: '0.9rem' }}
+                          >
+                            Try adjusting your search criteria or create a new customer-specific coupon
+                          </Typography>
+                        </Box>
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>

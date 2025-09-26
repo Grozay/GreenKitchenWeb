@@ -54,7 +54,7 @@ export default function RecentOrdersCard({ recentOrders, getStatusLabel, getStat
                 }}>
                 <Grid size={8}>
                   <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>Order: #{o.id}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>Order: #{o.orderCode}</Typography>
                     <Typography variant="caption" color="text.secondary">
                       Order Date: {new Date(o.createdAt || o.deliveryTime).toLocaleDateString('vi-VN')}
                     </Typography>

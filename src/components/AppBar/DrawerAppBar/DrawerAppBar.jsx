@@ -1,37 +1,30 @@
 import List from '@mui/material/List'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemText from '@mui/material/ListItemText'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
 import Avatar from '@mui/material/Avatar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import LogoutIcon from '@mui/icons-material/Logout'
+import Person from '@mui/icons-material/Person'
 import DrawerAppBarItem from './DrawerAppBarItem'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
-import { useState } from 'react'
-import Collapse from '@mui/material/Collapse'
-import { Link, useNavigate } from 'react-router-dom'
-import ListItem from '@mui/material/ListItem'
+import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentCustomer, logoutCustomerApi } from '~/redux/user/customerSlice'
 import { clearCart } from '~/redux/cart/cartSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { clearChatData } from '~/utils/chatCleanup'
+import { Divider } from '@mui/material'
 
 const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
   const navItemStyle = {
     position: 'relative',
     overflow: 'hidden',
-    padding: '0.5rem 1rem',
-    fontWeight: 900,
-    fontSize: '2rem',
+    padding: '0.7rem',
+    fontSize: '1.5rem',
     fontSmoothing: 'antialiased',
     transition: 'all 0.3s ease-in-out',
     '&:hover': {
-      backgroundColor: (theme) => theme.palette.text.hover,
-      borderRadius: '50px'
+      backgroundColor: (theme) => theme.palette.text.hover
     }
   }
 
@@ -84,12 +77,12 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
           <Box sx={{ mb: 4, cursor: 'pointer' }} onClick={() => { navigate('/profile/overview') }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <Tooltip title={currentCustomer?.firstName || 'User'}>
-                <Avatar 
-                  alt="User Avatar" 
-                  sx={{ width: 80, height: 80 }} 
+                <Avatar
+                  alt="User Avatar"
+                  sx={{ width: 80, height: 80 }}
                   src={currentCustomer?.avatar}
                 >
-                  {!currentCustomer?.avatar && (currentCustomer?.firstName?.charAt(0) || 'U')}
+                  {!currentCustomer?.avatar && <Person sx={{ fontSize: 40 }} />}
                 </Avatar>
               </Tooltip>
             </Box>
@@ -97,6 +90,8 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
               <Typography variant="body1" sx={{ color: 'black', mt: 1 }}>{currentCustomer?.fullName}</Typography>
             </Box>
           </Box>
+
+          <Divider />
 
           {/* Navigation Items */}
           <DrawerAppBarItem
@@ -187,6 +182,8 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             path="/week-meal-planner"
           />
 
+          <Divider />
+
           <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
@@ -203,7 +200,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             path="/blog"
           />
 
-<DrawerAppBarItem
+          <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
@@ -211,7 +208,7 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             path="/contact-support"
           />
 
-<DrawerAppBarItem
+          <DrawerAppBarItem
             toggleDrawer={toggleDrawer}
             navItemStyle={navItemStyle}
             // t={t}
@@ -226,6 +223,8 @@ const DrawerAppBar = ({ drawerOpen, toggleDrawer }) => {
             label="Store Location"
             path="/store-location"
           />
+
+          <Divider />
 
         </List>
 

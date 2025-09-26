@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import { getAllUsersAPI, getCustomerCouponsByCouponIdAPI } from '~/apis'
 import { toast } from 'react-toastify'
+import { formatDateToMinute } from '~/utils/formatter'
 
 const ViewCouponModal = ({ open, onClose, couponId, allCoupons }) => {
   const [assignedCustomers, setAssignedCustomers] = useState([])
@@ -120,7 +121,7 @@ const ViewCouponModal = ({ open, onClose, couponId, allCoupons }) => {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Typography variant="subtitle2" color="text.secondary">Valid Until</Typography>
-                  <Typography>{new Date(coupon.validUntil).toLocaleString()}</Typography>
+                  <Typography>{formatDateToMinute(coupon.validUntil)}</Typography>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Typography variant="subtitle2" color="text.secondary">Status</Typography>

@@ -26,10 +26,11 @@ import Pagination from '@mui/material/Pagination'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
-import { API_ROOT, ORDER_STATUS } from '~/utils/constants'
+import { ORDER_STATUS } from '~/utils/constants'
 import { getOrdersFilteredAPI, updateOrderStatusAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import LinearProgress from '@mui/material/LinearProgress'
+import { formatDateToMinute } from '~/utils/formatter'
 // WebSocket handled globally in Layout.jsx; do not subscribe here to avoid duplicates
 import Popper from '@mui/material/Popper'
 import Grid from '@mui/material/Grid'
@@ -255,7 +256,7 @@ export default function OrderList() {
                   <Typography variant="body2" sx={{ color: '#222' }}>Customer: {order.recipientName || (order.customer && order.customer.recipientName) || '-'}</Typography>
                   <Typography variant="body2" sx={{ color: '#222' }}>Total: {order.totalAmount ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount) : '-'}</Typography>
                   <Typography variant="body2" sx={{ color: '#222' }}>Status: {order.status || '-'}</Typography>
-                  <Typography variant="body2" sx={{ color: '#555' }}>Created: {order.createdDate ? new Date(order.createdDate).toLocaleString() : (order.createdAt ? new Date(order.createdAt).toLocaleString() : '-')}</Typography>
+                  <Typography variant="body2" sx={{ color: '#555' }}>Created: {order.createdDate ? formatDateToMinute(order.createdDate) : (order.createdAt ? formatDateToMinute(order.createdAt) : '-')}</Typography>
                 </Box>
               ))
             )}
@@ -271,6 +272,7 @@ export default function OrderList() {
                 label="From date"
                 value={fromDate}
                 onChange={handleFromDateChange}
+                format="DD/MM/YYYY"
                 sx={{ width: '100%' }}
                 slotProps={{ textField: { size: 'small' } }}
               />
@@ -283,6 +285,7 @@ export default function OrderList() {
                 label="To date"
                 value={toDate}
                 onChange={handleToDateChange}
+                format="DD/MM/YYYY"
                 sx={{ width: '100%' }}
                 slotProps={{ textField: { size: 'small' } }}
               />
@@ -366,7 +369,7 @@ export default function OrderList() {
                     <TableCell>
                       <Chip label={order.status} color={getStatusColor(order.status)} sx={{ fontWeight: 'bold' }} />
                     </TableCell>
-                    <TableCell>{order.createdDate ? new Date(order.createdDate).toLocaleString() : (order.createdAt ? new Date(order.createdAt).toLocaleString() : '-')}</TableCell>
+                    <TableCell>{order.createdDate ? formatDateToMinute(order.createdDate) : (order.createdAt ? formatDateToMinute(order.createdAt) : '-')}</TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {canUpdateStatus ? (
                         <Button
@@ -402,7 +405,7 @@ export default function OrderList() {
                               fontSize: '0.75rem',
                               minWidth: 120,
                               fontWeight: 'bold',
-                              textTransform: 'uppercase',
+                              textTransform: 'uppercase'
                             }}
                           >
                             CANCELLED
@@ -419,7 +422,7 @@ export default function OrderList() {
                               fontWeight: 'bold',
                               textTransform: 'uppercase'
                             }}
-                          > 
+                          >
                             COMPLETED
                           </Button>
                         )
@@ -436,7 +439,26 @@ export default function OrderList() {
                         <CircularProgress size={40} />
                       </Box>
                     ) : (
-                      'No orders found'
+                      <Box sx={{ py: 6, px: 4 }}>
+                        <Typography
+                          variant="h6"
+                          color="text.secondary"
+                          sx={{
+                            fontSize: '1.2rem',
+                            fontWeight: 500,
+                            mb: 1
+                          }}
+                        >
+                          No orders found
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontSize: '0.9rem' }}
+                        >
+                          Try adjusting your search criteria or date range
+                        </Typography>
+                      </Box>
                     )}
                   </TableCell>
                 </TableRow>

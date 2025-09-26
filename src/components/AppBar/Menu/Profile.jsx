@@ -65,7 +65,7 @@ const Profile = () => {
               src={currentCustomer?.avatar}
               alt="profile"
             >
-              {!currentCustomer?.avatar && (currentCustomer?.firstName?.charAt(0) || 'U')}
+              {!currentCustomer?.avatar && <Person fontSize="small" />}
             </Avatar>
           </IconButton>
         </Tooltip>

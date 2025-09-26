@@ -10,18 +10,16 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import Divider from '@mui/material/Divider'
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
 import SaveIcon from '@mui/icons-material/Save'
+import { toast } from 'react-toastify'
 import SettingsIcon from '@mui/icons-material/Settings'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 
 const Settings = () => {
   const [settings, setSettings] = useState({})
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const [isLoading, setIsLoading] = useState(false)
 
-  const { register, handleSubmit, setValue, watch } = useForm({
+  const { register, handleSubmit, setValue } = useForm({
     defaultValues: settings
   })
 
@@ -38,11 +36,7 @@ const Settings = () => {
           }
         })
       } catch (error) {
-        setSnackbar({
-          open: true,
-          message: 'Error loading settings: ' + error.message,
-          severity: 'error'
-        })
+        toast.error('Error loading settings: ' + error.message)
       }
     }
     loadSettings()
@@ -70,17 +64,9 @@ const Settings = () => {
 
       // Update local state
       setSettings(data)
-      setSnackbar({
-        open: true,
-        message: 'Settings saved successfully!',
-        severity: 'success'
-      })
+      toast.success('Settings saved successfully!')
     } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'Error saving settings: ' + error.message,
-        severity: 'error'
-      })
+      toast.error('Error saving settings: ' + error.message)
     } finally {
       setIsLoading(false)
     }
@@ -103,10 +89,6 @@ const Settings = () => {
     }
 
     return flattened
-  }
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false })
   }
 
 
@@ -208,18 +190,6 @@ const Settings = () => {
         </Card>
 
       </Box>
-
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

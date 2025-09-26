@@ -580,7 +580,7 @@ const DeliveryInfoForm = ({
         defaultAddress.city || 'TP. Hồ Chí Minh'
       ).then(customerCoords => {
         // Calculate distances to all stores
-        const storesWithDistanceData = MOCK_STORES.map(store => ({
+        const storesWithDistanceData = allStores.map(store => ({
           ...store,
           distance: calculateDistance(
             customerCoords.lat,
