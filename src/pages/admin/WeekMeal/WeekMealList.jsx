@@ -115,6 +115,7 @@ const WeekMealList = () => {
             label="Select Date "
             value={selectedDate}
             onChange={handleDateChange}
+            format="DD/MM/YYYY"
             renderInput={(params) => <TextField {...params} fullWidth />}
           />
         </Box>
