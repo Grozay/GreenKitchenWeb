@@ -522,7 +522,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
           {/* Email Logs Actions */}
           <Paper sx={{ p: 2, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6">Email Logs - Khách hàng đã nhận email</Typography>
+              <Typography variant="h6">Email Logs - Customers who have received email</Typography>
               <Button
                 variant="outlined"
                 startIcon={<RefreshIcon />}
@@ -540,7 +540,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
           {/* Email Tracking Actions */}
           <Paper sx={{ p: 2, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6">Email Tracking - Theo dõi click links</Typography>
+              <Typography variant="h6">Email Tracking - Track click links</Typography>
               <Button
                 variant="outlined"
                 startIcon={<RefreshIcon />}
