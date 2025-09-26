@@ -13,7 +13,7 @@ const customBlue = '#2196F3'
 
 export default function Dashboard() {
   return (
-    <Box sx={{ bgcolor: '#f8f7fa', p: 3, minHeight: '100vh' }}>
+    <Box sx={{ p: 3, minHeight: '100vh' }}>
       {/* Overview */}
       <Paper elevation={3} sx={{ borderRadius: 3, p: 2, mb: 2 }}>
         <OverviewDashboard customBlue={customBlue} />
