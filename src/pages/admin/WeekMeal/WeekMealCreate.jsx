@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react' // Loại bỏ useLocation khỏi đây
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom' // Thêm useLocation vào đây
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -43,7 +43,6 @@ const daysOfWeek = [
 
 const WeekMealCreate = () => {
   const navigate = useNavigate()
-  const location = useLocation()
   const [searchParams] = useSearchParams()
   const cloneId = searchParams.get('clone') // Lấy ID từ query
 
@@ -176,7 +175,8 @@ const WeekMealCreate = () => {
 
       await createWeekMealAPI(data)
       toast.success('WeekMeal created successfully')
-      navigate('/management/week-meals/list') // Navigate back to list
+      // Navigate back to list with the created week date
+      navigate(`/management/week-meals/list?type=${selectedType.toLowerCase()}&date=${weekStart.format('YYYY-MM-DD')}`)
     } catch (error) {
       toast.error('Failed to create WeekMeal')
     } finally {
@@ -191,6 +191,21 @@ const WeekMealCreate = () => {
           {cloneId ? 'Clone WeekMeal' : 'Create WeekMeal'} {/* Thay đổi title nếu clone */}
         </Typography>
 
+        {cloneId && (
+          <Box sx={{
+            mb: 3,
+            p: 2,
+            bgcolor: 'info.light',
+            borderRadius: 1,
+            border: '1px solid',
+            borderColor: 'info.main'
+          }}>
+            <Typography variant="body2" sx={{ color: 'info.dark', fontWeight: 500 }}>
+              ℹ️ Clone Mode: Meal type is locked from the original. You can only change the week start date.
+            </Typography>
+          </Box>
+        )}
+
         {/* Form Controls */}
         <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <FormControl sx={{ minWidth: 250, flex: 1 }}>
@@ -199,6 +214,7 @@ const WeekMealCreate = () => {
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
               label="Meal Type"
+              disabled={!!cloneId} // Disable khi clone
             >
               {mealTypes.map(({ key, title }) => (
                 <MenuItem key={key} value={key}>
@@ -266,7 +282,7 @@ const WeekMealCreate = () => {
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? 'Creating...' : 'Create WeekMeal'}
+            {loading ? (cloneId ? 'Cloning...' : 'Creating...') : (cloneId ? 'Clone WeekMeal' : 'Create WeekMeal')}
           </Button>
         </Box>
 

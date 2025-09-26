@@ -53,7 +53,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
     if (addingToCart) return
 
     // Kiểm tra hết hàng
-    if (item.stock === 0) {
+    if (item.stock === 0 || item.stock <= 0) {
       toast.error('This item is out of stock')
       return
     }
@@ -276,10 +276,11 @@ const CardMenu = ({ item, typeBasedIndex }) => {
           </Box>
           <Box>
             <Typography
-              variant="body2"
+              variant="body1"
               sx={{
                 my: 1,
-                height: '40px',
+                height: '50px',
+                fontWeight: 500,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
@@ -333,12 +334,23 @@ const CardMenu = ({ item, typeBasedIndex }) => {
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <Typography variant="h6" sx={{
-              fontWeight: 800,
-              color: theme.palette.text.textSub
-            }}>
-              {Math.round(itemFilter.price).toLocaleString('en-US')} VND
-            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Typography variant="h6" sx={{
+                fontWeight: 800,
+                color: theme.palette.text.textSub
+              }}>
+                {Math.round(itemFilter.price).toLocaleString('en-US')} VND
+              </Typography>
+              {(item.stock === 0 || item.stock <= 0) && (
+                <Typography variant="caption" sx={{
+                  color: theme.palette.error.main,
+                  fontWeight: 500,
+                  fontSize: '0.75rem'
+                }}>
+                  Out of stock
+                </Typography>
+              )}
+            </Box>
             {cartItem ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <IconButton
@@ -358,11 +370,15 @@ const CardMenu = ({ item, typeBasedIndex }) => {
                 </Typography>
                 <IconButton
                   onClick={handleIncrease}
+                  disabled={item.stock === 0 || item.stock <= 0}
                   sx={{
                     color: theme.palette.primary.secondary,
                     '&:hover': {
                       bgcolor: theme.palette.primary.secondary,
                       color: 'white'
+                    },
+                    '&:disabled': {
+                      color: theme.palette.grey[400]
                     }
                   }}
                 >
@@ -372,7 +388,7 @@ const CardMenu = ({ item, typeBasedIndex }) => {
             ) : (
               <IconButton
                 onClick={handleAddToCart}
-                disabled={addingToCart}
+                disabled={addingToCart || item.stock === 0 || item.stock <= 0}
                 sx={{
                   color: theme.palette.primary.secondary,
                   '&:hover': {

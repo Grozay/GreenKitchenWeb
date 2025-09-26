@@ -129,7 +129,6 @@ const MenuMealEdit = () => {
       }
 
       const fixedData = {
-        ...data,
         title: String(data.title ?? ''),
         description: String(data.description ?? ''),
         calories: String(data.calories ?? ''),
@@ -141,7 +140,7 @@ const MenuMealEdit = () => {
         type: String(data.type ?? ''),
         slug: slug
       }
-      delete fixedData.image // Không gửi trường image
+      // Không gửi field image trong update thông tin
 
       // Gửi update thông tin (không gửi file)
       await updateMenuMealAPI(mealId, fixedData)
@@ -251,6 +250,9 @@ const MenuMealEdit = () => {
                 error={!!errors.fat}
                 helperText={errors.fat?.message}
                 variant="outlined"
+                InputLabelProps={{
+                  shrink: true
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>

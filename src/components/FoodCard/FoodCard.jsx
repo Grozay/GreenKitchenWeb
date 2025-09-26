@@ -123,6 +123,26 @@ const FoodCard = ({ card }) => {
             }
           }}
         >
+          {/* Thông báo hết stock */}
+          {card.stock === 0 && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                backgroundColor: theme.palette.error.main,
+                color: 'white',
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                zIndex: 1
+              }}
+            >
+              Out of stock
+            </Box>
+          )}
           <Box
             sx={{
               width: 120,
@@ -210,6 +230,12 @@ const FoodCard = ({ card }) => {
             <IconButton
               size="small"
               onClick={handleIncrease}
+              disabled={card.stock === 0}
+              sx={{
+                '&:disabled': {
+                  color: theme.palette.grey[400]
+                }
+              }}
             >
               <AddIcon fontSize="small" />
             </IconButton>
@@ -235,6 +261,26 @@ const FoodCard = ({ card }) => {
             justifyContent: 'center'
           }}
         >
+          {/* Thông báo hết stock cho mặt sau */}
+          {card.stock === 0 && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                backgroundColor: theme.palette.error.main,
+                color: 'white',
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                zIndex: 1
+              }}
+            >
+              Out of stock
+            </Box>
+          )}
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
             <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant='body2' >{translatedCalories}</Typography>
@@ -312,6 +358,12 @@ const FoodCard = ({ card }) => {
             <IconButton
               size="small"
               onClick={handleIncrease}
+              disabled={card.stock === 0}
+              sx={{
+                '&:disabled': {
+                  color: theme.palette.grey[400]
+                }
+              }}
             >
               <AddIcon fontSize="small" />
             </IconButton>
