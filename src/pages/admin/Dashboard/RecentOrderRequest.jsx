@@ -32,6 +32,7 @@ const RecentOrderRequest = ({ customBlue, dailyIncome }) => {
       </Card>
     )
   }
+  console.log('🚀 ~ RecentOrderRequest ~ orders:', orders)
 
   return (
     <Card sx={{ p: 2, boxShadow: 0 }}>

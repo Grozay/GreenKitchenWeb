@@ -105,6 +105,16 @@ const MenuMealCreate = () => {
           formData.append(key, value)
         }
       })
+
+      // Nếu không có ảnh và đang clone, thêm thông báo
+      if (!data.image || data.image.length === 0) {
+        if (cloneSlug) {
+          toast.warning('Please upload an image for the cloned meal')
+          setLoading(false)
+          return
+        }
+      }
+
       await createMenuMealAPI(formData)
       toast.success('Meal created successfully!')
       reset()
@@ -136,10 +146,9 @@ const MenuMealCreate = () => {
             type: data.type || 'BALANCE',
             image: '' // Reset image field
           })
-          // Set image preview
-          if (data.image) {
-            setImagePreview(data.image)
-          }
+          // Không copy ảnh khi clone, để user upload ảnh mới
+          setImagePreview(null)
+          setValue('image', '')
           toast.info('Data cloned successfully! You can edit before creating.')
         } catch {
           toast.error('Failed to clone data')
@@ -147,7 +156,7 @@ const MenuMealCreate = () => {
       }
       fetchCloneData()
     }
-  }, [cloneSlug, reset])
+  }, [cloneSlug, reset, setValue])
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
@@ -360,7 +369,7 @@ const MenuMealCreate = () => {
               <Controller
                 name="image"
                 control={control}
-                rules={{ required: 'Image is required' }}
+                rules={{ required: cloneSlug ? false : 'Image is required' }}
                 render={() => (
                   <>
                     <Button
@@ -369,7 +378,7 @@ const MenuMealCreate = () => {
                       fullWidth
                       sx={{ mb: 1, textTransform: 'none' }}
                     >
-                      {imagePreview ? 'Change Image' : 'Upload Image'}
+                      {imagePreview ? 'Change Image' : (cloneSlug ? 'Upload Image (Required)' : 'Upload Image')}
                       <input
                         type="file"
                         accept="image/*"
@@ -396,7 +405,7 @@ const MenuMealCreate = () => {
                 sx={{ px: 5, py: 1.5, borderRadius: 2, fontWeight: 600, fontSize: 18 }}
                 startIcon={loading && <CircularProgress size={22} color="inherit" />}
               >
-                {loading ? 'Creating...' : 'Create Meal'}
+                {loading ? 'Creating...' : (cloneSlug ? 'Create Cloned Meal' : 'Create Meal')}
               </Button>
             </Grid>
           </Grid>

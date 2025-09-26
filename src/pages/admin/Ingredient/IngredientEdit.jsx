@@ -131,7 +131,6 @@ const IngredientEdit = () => {
       }
 
       const fixedData = {
-        ...data,
         title: String(data.title ?? ''),
         description: String(data.description ?? ''),
         calories: String(data.calories ?? ''),
@@ -142,6 +141,7 @@ const IngredientEdit = () => {
         stock: String(data.stock ?? ''),
         type: String(data.type ?? '')
       }
+      // Không gửi field image trong update thông tin
 
       // Gửi update thông tin (không gửi file)
       await updateIngredientsAPI(ingredientId, fixedData)

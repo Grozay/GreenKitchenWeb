@@ -81,6 +81,12 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange, forceDisabled }) => {
   const translatedCannotOrder = 'Cannot order this day'
   const translatedSelect = 'Select'
 
+  // Function to format price with commas
+  const formatPrice = (price) => {
+    if (!price) return '--'
+    return `${price.toLocaleString()}VNĐ`
+  }
+
   // Dịch tự động cho title và description của meal (như trong MenuDetail)
   const translatedMeal1Title = d.meal1?.title || ''
   const translatedMeal1Description = d.meal1?.description || ''
@@ -223,7 +229,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange, forceDisabled }) => {
             {d.meal1?.carbs ?? '--'}g | {translatedFat} {d.meal1?.fat ?? '--'}g
           </Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            {translatedPrice} {d.meal1?.price ? `${d.meal1.price}VNĐ` : '--'}
+            {translatedPrice} {formatPrice(d.meal1?.price)}
           </Typography>
         </Box>
         <Popover
@@ -281,7 +287,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange, forceDisabled }) => {
             {d.meal2?.carbs ?? '--'}g | {translatedFat} {d.meal2?.fat ?? '--'}g
           </Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            {translatedPrice} {d.meal2?.price ? `${d.meal2.price}VNĐ` : '--'}
+            {translatedPrice} {formatPrice(d.meal2?.price)}
           </Typography>
         </Box>
         <Popover
@@ -339,7 +345,7 @@ const ItemWeekPlan = ({ d, idx, isSwitch, onSwitchChange, forceDisabled }) => {
             {d.meal3?.carbs ?? '--'}g | {translatedFat} {d.meal3?.fat ?? '--'}g
           </Typography>
           <Typography sx={{ fontSize: '0.95rem', color: theme.palette.text.textSub }}>
-            {translatedPrice} {d.meal3?.price ? `${d.meal3.price}VNĐ` : '--'}
+            {translatedPrice} {formatPrice(d.meal3?.price)}
           </Typography>
         </Box>
         <Popover

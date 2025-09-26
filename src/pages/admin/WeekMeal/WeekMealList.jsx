@@ -20,7 +20,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import moment from 'moment'
 import { getWeekMealPlanAPI } from '~/apis'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy' // Thêm icon clone
 
@@ -34,8 +34,18 @@ const mealTypes = [
 
 const WeekMealList = () => {
   const navigate = useNavigate() // Thêm hook navigate
-  const [selectedType, setSelectedType] = useState('low') // Default meal type
-  const [selectedDate, setSelectedDate] = useState(moment().startOf('week').add(1, 'days')) // Always set to Monday
+  const [searchParams] = useSearchParams()
+
+  // Parse query params
+  const typeParam = searchParams.get('type')
+  const dateParam = searchParams.get('date')
+
+  // Set initial values from URL params or defaults
+  const initialType = typeParam || 'low'
+  const initialDate = dateParam ? moment(dateParam) : moment().startOf('week').add(1, 'days')
+
+  const [selectedType, setSelectedType] = useState(initialType) // Set from URL or default
+  const [selectedDate, setSelectedDate] = useState(initialDate) // Set from URL or default
   const [weekData, setWeekData] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -47,6 +57,19 @@ const WeekMealList = () => {
       .catch(() => setWeekData(null))
       .finally(() => setLoading(false))
   }
+
+  // Update state when URL params change
+  useEffect(() => {
+    if (typeParam) {
+      setSelectedType(typeParam)
+    }
+    if (dateParam) {
+      const newDate = moment(dateParam)
+      if (newDate.isValid()) {
+        setSelectedDate(newDate)
+      }
+    }
+  }, [typeParam, dateParam])
 
   // Call API when type or date changes
   useEffect(() => {
@@ -94,7 +117,7 @@ const WeekMealList = () => {
         </Box>
 
         {/* Select meal type */}
-        <FormControl fullWidth sx={{ mb: 2}}>
+        <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Meal Type</InputLabel>
           <Select
             value={selectedType}

@@ -106,6 +106,16 @@ const IngredientCreate = () => {
           formData.append(key, value)
         }
       })
+
+      // Nếu không có ảnh và đang clone, thêm thông báo
+      if (!data.image || data.image.length === 0) {
+        if (cloneId) {
+          toast.warning('Please upload an image for the cloned ingredient')
+          setLoading(false)
+          return
+        }
+      }
+
       await createIngredientsAPI(formData)
       toast.success('Ingredient created successfully!')
       setValue('image', '')
@@ -124,7 +134,6 @@ const IngredientCreate = () => {
       const fetchCloneData = async () => {
         try {
           const data = await getByIdIngredientsAPI(cloneId)
-          console.log('🚀 ~ fetchCloneData ~ data:', data)
           // Set dữ liệu vào form
           setValue('title', data.title || '')
           setValue('description', data.description || '')
@@ -135,17 +144,11 @@ const IngredientCreate = () => {
           setValue('price', data.price || '')
           setValue('stock', data.stock || '')
           setValue('type', data.type || 'PROTEIN')
-          // Set image nếu có
-          if (data.image) {
-            setImagePreview(data.image)
-            // Nếu cần, tạo file từ URL để set vào form
-            // const response = await fetch(data.image)
-            // const blob = await response.blob()
-            // const file = new File([blob], 'cloned-image.jpg', { type: 'image/jpeg' })
-            // setValue('image', [file])
-          }
+          // Không copy ảnh khi clone, để user upload ảnh mới
+          setImagePreview(null)
+          setValue('image', '')
           toast.info('Data cloned successfully! You can edit before creating.')
-        } catch (error) {
+        } catch {
           toast.error('Failed to clone data')
         }
       }
@@ -302,8 +305,8 @@ const IngredientCreate = () => {
               <Controller
                 name="image"
                 control={control}
-                rules={{ required: 'Image is required' }}
-                render={({ field }) => (
+                rules={{ required: cloneId ? false : 'Image is required' }}
+                render={() => (
                   <>
                     <Button
                       variant="outlined"
@@ -311,7 +314,7 @@ const IngredientCreate = () => {
                       fullWidth
                       sx={{ mb: 1, textTransform: 'none' }}
                     >
-                      {imagePreview ? 'Change Image' : 'Upload Image'}
+                      {imagePreview ? 'Change Image' : (cloneId ? 'Upload Image (Required)' : 'Upload Image')}
                       <input
                         type="file"
                         accept="image/*"
@@ -338,7 +341,7 @@ const IngredientCreate = () => {
                 sx={{ px: 5, py: 1.5, borderRadius: 2, fontWeight: 600, fontSize: 18 }}
                 startIcon={loading && <CircularProgress size={22} color="inherit" />}
               >
-                {loading ? 'Creating...' : 'Create Ingredient'}
+                {loading ? 'Creating...' : (cloneId ? 'Create Cloned Ingredient' : 'Create Ingredient')}
               </Button>
             </Grid>
           </Grid>

@@ -8,8 +8,6 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import TextField from '@mui/material/TextField'
-import Snackbar from '@mui/material/Snackbar'
-import Alert from '@mui/material/Alert'
 import Rating from '@mui/material/Rating'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import { ShoppingCart, Add, Remove, ArrowBack, Edit } from '@mui/icons-material'
@@ -38,7 +36,6 @@ const MenuDetail = () => {
   const [menuMeal, setMenuMeal] = useState(null)
   const [mealPackages, setMealPackages] = useState([])
   const [quantity, setQuantity] = useState(1)
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(true)
@@ -50,7 +47,6 @@ const MenuDetail = () => {
   const [submittingReview, setSubmittingReview] = useState(false)
   const [editingReview, setEditingReview] = useState(null)
   const [totalReviews, setTotalReviews] = useState(0)
-  const [currentPage, setCurrentPage] = useState(0)
 
   // Thêm state để kiểm tra user đã mua sản phẩm này chưa
   const [hasPurchased, setHasPurchased] = useState(false)
@@ -116,6 +112,12 @@ const MenuDetail = () => {
   const handleAddToCart = async () => {
     if (!menuMeal || addingToCart) return
 
+    // Kiểm tra hết hàng
+    if (menuMeal.stock === 0 || menuMeal.stock <= 0) {
+      toast.error('This item is out of stock')
+      return
+    }
+
     try {
       setAddingToCart(true)
 
@@ -143,17 +145,15 @@ const MenuDetail = () => {
 
       setQuantity(1)
 
-      setSnackbarOpen(true)
+      toast.success(`Added to cart! ${quantity} ${menuMeal?.title || ''}!`)
     } catch (error) {
+      console.error('Error adding to cart:', error)
       toast.error('Failed to add to cart')
     } finally {
       setAddingToCart(false)
     }
   }
 
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false)
-  }
 
   const handleQuantityChange = (delta) => {
     setQuantity((prev) => Math.max(1, prev + delta))
@@ -395,8 +395,15 @@ const MenuDetail = () => {
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : null
 
+  // Sắp xếp các meal theo calo gần với meal hiện tại nhất
   const relatedMeals = mealPackages
     .filter((item) => item.slug !== slug)
+    .sort((a, b) => {
+      const currentCalories = menuMeal?.calories || 0
+      const diffA = Math.abs(a.calories - currentCalories)
+      const diffB = Math.abs(b.calories - currentCalories)
+      return diffA - diffB
+    })
     .slice(0, 3)
 
   // Thêm biến kiểm tra user đã review chưa
@@ -513,12 +520,21 @@ const MenuDetail = () => {
               <Typography variant="body1" sx={{ mr: 2, color: theme.palette.text.primary }}>
                 Quantity:
               </Typography>
-              <IconButton onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
+              <IconButton
+                onClick={() => handleQuantityChange(-1)}
+                disabled={quantity <= 1 || menuMeal.stock === 0 || menuMeal.stock <= 0}
+                sx={{
+                  '&:disabled': {
+                    color: theme.palette.grey[400]
+                  }
+                }}
+              >
                 <Remove />
               </IconButton>
               <TextField
                 value={quantity}
                 type="number"
+                disabled={menuMeal.stock === 0 || menuMeal.stock <= 0}
                 inputProps={{ min: 1, style: { textAlign: 'center', color: theme.palette.text.primary } }}
                 sx={{
                   width: '60px',
@@ -529,40 +545,74 @@ const MenuDetail = () => {
                   },
                   '& input[type=number]': {
                     '-moz-appearance': 'textfield'
+                  },
+                  '& .MuiInputBase-input.Mui-disabled': {
+                    color: theme.palette.grey[400]
                   }
                 }}
                 onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
               />
-              <IconButton onClick={() => handleQuantityChange(1)}>
+              <IconButton
+                onClick={() => handleQuantityChange(1)}
+                disabled={menuMeal.stock === 0 || menuMeal.stock <= 0}
+                sx={{
+                  '&:disabled': {
+                    color: theme.palette.grey[400]
+                  }
+                }}
+              >
                 <Add />
               </IconButton>
             </Box>
 
-            <Button
-              variant="contained"
-              startIcon={<ShoppingCart />}
-              disabled={addingToCart}
-              sx={{
-                bgcolor: theme.palette.primary.secondary,
-                color: 'white',
-                fontWeight: 500,
-                textTransform: 'none',
-                borderRadius: '8px',
-                px: 3,
-                py: 1.5,
-                fontSize: '1rem',
-                '&:hover': {
-                  bgcolor: theme.palette.primary.main,
-                  transform: 'scale(1.02)'
-                },
-                '&:disabled': {
-                  bgcolor: theme.palette.grey[400]
-                }
-              }}
-              onClick={handleAddToCart}
-            >
-              {addingToCart ? 'Adding...' : 'Add to Cart'}
-            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {menuMeal.stock === 0 || menuMeal.stock <= 0 ? (
+                <Box sx={{
+                  p: 2,
+                  bgcolor: theme.palette.error.light + '20',
+                  border: `1px solid ${theme.palette.error.main}`,
+                  borderRadius: 2,
+                  textAlign: 'center'
+                }}>
+                  <Typography variant="body1" sx={{
+                    color: theme.palette.error.main,
+                    fontWeight: 600,
+                    mb: 1
+                  }}>
+                    Out of Stock
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                    This item is currently unavailable
+                  </Typography>
+                </Box>
+              ) : (
+                <Button
+                  variant="contained"
+                  startIcon={<ShoppingCart />}
+                  disabled={addingToCart}
+                  sx={{
+                    bgcolor: theme.palette.primary.secondary,
+                    color: 'white',
+                    fontWeight: 500,
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    px: 3,
+                    py: 1.5,
+                    fontSize: '1rem',
+                    '&:hover': {
+                      bgcolor: theme.palette.primary.main,
+                      transform: 'scale(1.02)'
+                    },
+                    '&:disabled': {
+                      bgcolor: theme.palette.grey[400]
+                    }
+                  }}
+                  onClick={handleAddToCart}
+                >
+                  {addingToCart ? 'Adding...' : 'Add to Cart'}
+                </Button>
+              )}
+            </Box>
           </Grid>
         </Grid>
 
@@ -603,7 +653,7 @@ const MenuDetail = () => {
                   onChange={(event, newValue) => setRating(newValue)}
                   precision={0.5}
                   sx={{ mb: 2 }}
-                  disabled={editingReview}  // Disable khi edit
+                  disabled={editingReview} // Disable khi edit
                 />
                 {editingReview && (
                   <Typography variant="caption" sx={{ color: theme.palette.text.secondary, mb: 2, display: 'block' }}>
@@ -790,7 +840,7 @@ const MenuDetail = () => {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Avatar
-                        src={review.customer?.avatar}  // Thêm src để hiển thị ảnh avatar nếu có
+                        src={review.customer?.avatar} // Thêm src để hiển thị ảnh avatar nếu có
                         sx={{
                           width: 40,
                           height: 40,
@@ -858,27 +908,21 @@ const MenuDetail = () => {
         {relatedMeals.length > 0 && (
           <Box sx={{ mt: 8 }}>
             <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 4 }}>
-              You might also like
+              Similar Calorie Meals
             </Typography>
             <Grid container spacing={3}>
               {relatedMeals.map((item) => (
-                <RelatedMealItem key={item.id} item={item} />
+                <RelatedMealItem
+                  key={item.id}
+                  item={item}
+                  currentCalories={menuMeal?.calories}
+                />
               ))}
             </Grid>
           </Box>
         )}
       </Box>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          {`Added to cart! ${quantity} ${menuMeal?.title || ''}!`}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

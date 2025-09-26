@@ -1,13 +1,18 @@
 
-import { Card, CardMedia, CardContent, Typography, Grid } from '@mui/material'
+import { Card, CardMedia, CardContent, Typography, Grid, Box } from '@mui/material'
 import theme from '~/theme'
 import { useNavigate } from 'react-router-dom'
 
-const RelatedMealItem = ({ item }) => {
+const RelatedMealItem = ({ item, currentCalories }) => {
   const navigate = useNavigate()
   const translatedTitle = item.title
   const translatedDescription = item.description
   const translatedVnd = 'VND'
+  const translatedCalories = 'Calories'
+
+  // Tính độ chênh lệch calo
+  const calorieDiff = Math.abs(item.calories - (currentCalories || 0))
+  const isSimilarCalorie = calorieDiff <= 50 // Gần nhau nếu chênh lệch <= 50 calo
 
   return (
     <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
@@ -43,6 +48,35 @@ const RelatedMealItem = ({ item }) => {
           >
             {translatedTitle}
           </Typography>
+
+          {/* Hiển thị calo với badge nếu tương tự */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: theme.palette.text.secondary,
+                fontWeight: 500
+              }}
+            >
+              {translatedCalories}: {Math.round(item.calories)}
+            </Typography>
+            {isSimilarCalorie && (
+              <Box
+                sx={{
+                  bgcolor: theme.palette.success.main,
+                  color: 'white',
+                  px: 1,
+                  py: 0.25,
+                  borderRadius: 1,
+                  fontSize: '0.7rem',
+                  fontWeight: 600
+                }}
+              >
+                Similar
+              </Box>
+            )}
+          </Box>
+
           <Typography variant="body2" sx={{ mb: 2, color: theme.palette.text.textSub }}>
             {translatedDescription}
           </Typography>
