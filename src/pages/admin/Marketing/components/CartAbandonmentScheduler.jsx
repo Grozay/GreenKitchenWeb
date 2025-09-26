@@ -139,7 +139,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       const data = await getCartAbandonmentScheduleStatisticsAPI()
       setStatistics(data)
     } catch (error) {
-      console.error('Error loading statistics:', error)
+      // silent
     }
   }
 
@@ -172,7 +172,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       const data = await getEmailLogStatisticsAPI()
       setEmailLogStats(data)
     } catch (error) {
-      console.error('Error loading email log statistics:', error)
+      // silent
     }
   }
 
@@ -181,9 +181,11 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
       const data = await getTrackingStatisticsAPI()
       setTrackingStats(data)
     } catch (error) {
-      console.error('Error loading tracking statistics:', error)
+      // silent
     }
   }
+
+  
 
   const handleCreateSchedule = () => {
     setEditingSchedule(null)
@@ -272,10 +274,10 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
     if (!time) return false
     if (time instanceof Date) {
       const h = time.getHours()
-      return h >= 17 && h <= 22
+      return h >= 13 && h <= 22
     }
     const [h] = time.split(':').map(Number)
-    return h >= 17 && h <= 22
+    return h >= 13 && h <= 22
   }
 
   // Helper function to format time for display
@@ -460,6 +462,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
             </CardContent>
           </Card>
         </Grid>
+        
       </Grid>
 
       {/* Tabs Navigation */}
@@ -504,6 +507,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                 >
                   Refresh
                 </Button>
+                
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -962,7 +966,7 @@ const CartAbandonmentScheduler = ({ onShowSnackbar }) => {
                             slotProps={{
                               textField: {
                                 error: Boolean(errors.eveningTime),
-                                helperText: errors.eveningTime || 'Evening time recommended (17:00 - 22:00)',
+                                helperText: errors.eveningTime || 'Evening time recommended (13:00 - 22:00)',
                                 placeholder: "HH:MM",
                                 sx: {
                                   width: 200,
