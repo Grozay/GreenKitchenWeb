@@ -40,7 +40,7 @@ function ChatInput({
         size="small"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Nhập tin nhắn..."
+        placeholder="Type your message..."
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()

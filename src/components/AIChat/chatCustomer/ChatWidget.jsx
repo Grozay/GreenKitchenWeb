@@ -145,7 +145,7 @@ function ChatWidget({ conversationId = null, initialMode = 'AI' }) {
         console.log('📊 Conversation status updated:', status)
         setConversationStatus(status)
         setChatMode(status === 'EMP' ? 'EMP' : 'AI')
-        // Optional: toast thông báo "Nhân viên đã tham gia hỗ trợ"
+        // Optional: toast notification "Employee has joined support"
       } catch (error) {
         console.error('Failed to fetch conversation status:', error)
       }

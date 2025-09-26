@@ -463,7 +463,7 @@ const EmployeeMessenger = memo(() => {
               }
             } catch (err) {
               if (isMounted.current) {
-                setSnackbar({ open: true, msg: 'Mark read thất bại!', sev: 'error' })
+                setSnackbar({ open: true, msg: 'Mark read failed!', sev: 'error' })
               }
               console.error('Mark read error:', err)
             }

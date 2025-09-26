@@ -88,6 +88,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
   // Schedule dialog state
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false)
   const [selectedHolidayForSchedule, setSelectedHolidayForSchedule] = useState(null)
+  const [editingSchedule, setEditingSchedule] = useState(null) // Track which schedule is being edited
   const [emailTemplate, setEmailTemplate] = useState(null)
   const [templateTypes, setTemplateTypes] = useState([])
   const [selectedTemplateType, setSelectedTemplateType] = useState('')
@@ -119,7 +120,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         const adminList = await adminListHolidaysAPI()
         setAdminHolidays(adminList)
 
-        // Load public API holidays
+        // Load public API holidays (this will also merge manual holidays from adminList)
         await loadPublicHolidays()
 
         // Load scheduled holidays
@@ -148,8 +149,8 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       // Get Vietnamese Tet dates
       const tetHolidays = getVietnameseTetDates(year)
 
-      // Combine all public holidays
-      const allPublicHolidays = [
+      // Combine all public holidays from APIs and static sources
+      const basePublicHolidays = [
         ...vnHolidays.map(h => ({
           id: h.date,
           name: h.name,
@@ -164,6 +165,33 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
         ...spEvents,
         ...tetHolidays // Add Vietnamese Tet
       ].filter(h => h.date) // Remove null entries
+
+      // Preserve manually added holidays for the same year from state
+      const manualHolidaysForYearFromState = (publicHolidays || [])
+        .filter(h => h?.source === 'manual' && new Date(h.date).getFullYear() === year)
+
+      // Also load manual holidays from database (adminHolidays) for the same year
+      const manualHolidaysForYearFromDb = (adminHolidays || [])
+        .filter(h => new Date(h.date).getFullYear() === year)
+        .map(h => ({
+          id: h.id.toString(),
+          name: h.name,
+          date: h.date,
+          country: h.country || 'VN',
+          lunar: !!h.lunar,
+          source: 'manual',
+          year: new Date(h.date).getFullYear(),
+          description: h.description
+        }))
+
+      // Merge and deduplicate by (name, date)
+      const keyOf = (h) => `${h.name}|${new Date(h.date).toDateString()}`
+      const uniqueMap = new Map()
+      for (const h of [...basePublicHolidays, ...manualHolidaysForYearFromState, ...manualHolidaysForYearFromDb]) {
+        const k = keyOf(h)
+        if (!uniqueMap.has(k)) uniqueMap.set(k, h)
+      }
+      const allPublicHolidays = Array.from(uniqueMap.values())
 
       // Use current scheduled holidays if provided, otherwise use state
       const scheduledHolidaysToCheck = currentScheduledHolidays || scheduledHolidays
@@ -302,8 +330,25 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       payload.lunar = !!payload.lunar
       const res = await adminCreateHolidayAPI(payload)
       setAdminHolidays(prev => [res, ...prev])
-      onShowSnackbar?.('Holiday created', 'success')
+      
+      // Add to public holidays list for scheduling
+      const newPublicHoliday = {
+        id: res.id.toString(), // Convert to string for consistency
+        name: res.name,
+        date: res.date,
+        country: res.country,
+        lunar: res.lunar,
+        source: 'manual',
+        year: new Date(res.date).getFullYear(),
+        description: res.description
+      }
+      setPublicHolidays(prev => [newPublicHoliday, ...prev])
+      
+      onShowSnackbar?.('Holiday created and added to Public Holidays list', 'success')
       setForm({ name: '', country: 'VN', date: '', lunar: false, recurrenceType: 'NONE', description: '' })
+      
+      // Switch to Public Holidays tab to show the new holiday
+      setActiveTab(1)
     } catch (e) {
       onShowSnackbar?.('Failed to create holiday', 'error')
     } finally {
@@ -499,12 +544,17 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
     try {
       setLoadingTemplate(true)
       setSelectedHolidayForSchedule(holiday)
+      setEditingSchedule(null) // Reset editing state for new schedule
 
       // Check if holiday is from database (has numeric ID) or public API (has string ID)
       let template
       if (typeof holiday.id === 'number' || (typeof holiday.id === 'string' && !isNaN(holiday.id))) {
         // Holiday from database - load template from API
         template = await getHolidayEmailTemplateAPI(parseInt(holiday.id))
+        // Normalize to English if API returns Vietnamese content
+        if (template && isVietnameseContent(template)) {
+          template = generateLocalTemplate(holiday)
+        }
       } else {
         // Holiday from public API - generate template locally
         template = generateLocalTemplate(holiday)
@@ -619,6 +669,15 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
     }
   }
 
+  // Detect if a template appears to be in Vietnamese
+  const isVietnameseContent = (tpl) => {
+    const text = `${tpl?.subject || ''} ${tpl?.content || ''}`.toLowerCase()
+    // Heuristic: presence of Vietnamese diacritics or common Vietnamese words
+    const hasDiacritics = /[ăâđêôơưáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(text)
+    const hasCommonVi = /(quý khách|kính gửi|khuyến mãi|ưu đãi|giảm giá|đặt hàng)/i.test(text)
+    return hasDiacritics || hasCommonVi
+  }
+
   const loadTemplateWithType = async (templateType) => {
     if (!selectedHolidayForSchedule) return
 
@@ -630,6 +689,10 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       if (typeof selectedHolidayForSchedule.id === 'number' || (typeof selectedHolidayForSchedule.id === 'string' && !isNaN(selectedHolidayForSchedule.id))) {
         // Holiday from database - load template from API
         template = await getHolidayEmailTemplateWithTypeAPI(parseInt(selectedHolidayForSchedule.id), templateType)
+        // Normalize to English if API returns Vietnamese content
+        if (template && isVietnameseContent(template)) {
+          template = generateLocalTemplateWithType(selectedHolidayForSchedule, templateType)
+        }
       } else {
         // Holiday from public API - generate template locally with specific type
         template = generateLocalTemplateWithType(selectedHolidayForSchedule, templateType)
@@ -697,6 +760,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
   // Handle edit scheduled holiday email
   const handleEditScheduled = (scheduled) => {
+    // Set editing state
+    setEditingSchedule(scheduled)
+    
     // Open schedule dialog with pre-filled data
     setSelectedHolidayForSchedule({
       id: scheduled.holidayId,
@@ -722,6 +788,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       templateType: scheduled.templateType || 'generic'
     })
 
+    setSelectedTemplateType(scheduled.templateType || 'generic')
     setScheduleDialogOpen(true)
   }
 
@@ -816,48 +883,43 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
     setScheduling(true)
     try {
-      // Check if holiday is from database (has numeric ID) or public API (has string ID)
-      if (typeof selectedHolidayForSchedule.id === 'number' || (typeof selectedHolidayForSchedule.id === 'string' && !isNaN(selectedHolidayForSchedule.id))) {
-        // Holiday from database - use API directly
-        const scheduleData = {
-          holidayId: parseInt(selectedHolidayForSchedule.id),
-          scheduleAt: new Date(scheduleForm.scheduleAt).toISOString(),
-          customSubject: scheduleForm.customSubject,
-          customContent: scheduleForm.customContent,
-          targetAudience: scheduleForm.targetAudience,
-          isActive: scheduleForm.isActive,
-          daysBefore: scheduleForm.daysBefore,
-          templateType: selectedTemplateType
-        }
+      const scheduleData = {
+        holidayId: parseInt(selectedHolidayForSchedule.id),
+        scheduleAt: new Date(scheduleForm.scheduleAt).toISOString(),
+        customSubject: scheduleForm.customSubject,
+        customContent: scheduleForm.customContent,
+        targetAudience: scheduleForm.targetAudience,
+        isActive: scheduleForm.isActive,
+        daysBefore: scheduleForm.daysBefore,
+        templateType: selectedTemplateType
+      }
 
-        await scheduleHolidayEmailAPI(scheduleData)
-        onShowSnackbar?.('Email scheduled successfully!', 'success')
+      if (editingSchedule) {
+        // Update existing schedule
+        await updateScheduledHolidayEmailAPI(editingSchedule.id, scheduleData)
+        onShowSnackbar?.('Email schedule updated successfully!', 'success')
       } else {
-        // Holiday from public API - save to database first, then schedule
-        const holidayData = {
-          name: selectedHolidayForSchedule.name,
-          country: selectedHolidayForSchedule.country || 'VN',
-          date: selectedHolidayForSchedule.date,
-          lunar: selectedHolidayForSchedule.lunar || false,
-          recurrenceType: 'YEARLY_GREGORIAN',
-          description: selectedHolidayForSchedule.description || ''
+        // Check if holiday is from database (has numeric ID) or public API (has string ID)
+        if (typeof selectedHolidayForSchedule.id === 'number' || (typeof selectedHolidayForSchedule.id === 'string' && !isNaN(selectedHolidayForSchedule.id))) {
+          // Holiday from database - use API directly
+          await scheduleHolidayEmailAPI(scheduleData)
+          onShowSnackbar?.('Email scheduled successfully!', 'success')
+        } else {
+          // Holiday from public API - save to database first, then schedule
+          const holidayData = {
+            name: selectedHolidayForSchedule.name,
+            country: selectedHolidayForSchedule.country || 'VN',
+            date: selectedHolidayForSchedule.date,
+            lunar: selectedHolidayForSchedule.lunar || false,
+            recurrenceType: 'YEARLY_GREGORIAN',
+            description: selectedHolidayForSchedule.description || ''
+          }
+
+          const savedHoliday = await adminCreateHolidayAPI(holidayData)
+          scheduleData.holidayId = savedHoliday.id
+          await scheduleHolidayEmailAPI(scheduleData)
+          onShowSnackbar?.('Holiday saved and email scheduled successfully!', 'success')
         }
-
-        const savedHoliday = await adminCreateHolidayAPI(holidayData)
-
-        const scheduleData = {
-          holidayId: savedHoliday.id,
-          scheduleAt: new Date(scheduleForm.scheduleAt).toISOString(),
-          customSubject: scheduleForm.customSubject,
-          customContent: scheduleForm.customContent,
-          targetAudience: scheduleForm.targetAudience,
-          isActive: scheduleForm.isActive,
-          daysBefore: scheduleForm.daysBefore,
-          templateType: selectedTemplateType
-        }
-
-        await scheduleHolidayEmailAPI(scheduleData)
-        onShowSnackbar?.('Holiday saved and email scheduled successfully!', 'success')
       }
 
       // Refresh scheduled holidays first
@@ -868,6 +930,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
 
       setScheduleDialogOpen(false)
       setSelectedHolidayForSchedule(null)
+      setEditingSchedule(null)
       setEmailTemplate(null)
     } catch (error) {
       console.error('Failed to schedule email:', error)
@@ -1327,9 +1390,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                     )}
                                     {h.source && (
                                       <Chip
-                                        label="Public API"
+                                        label={h.source === 'manual' ? 'Manual' : 'Public API'}
                                         size="small"
-                                        color="info"
+                                        color={h.source === 'manual' ? 'secondary' : 'info'}
                                         sx={{ ml: 1 }}
                                       />
                                     )}
@@ -1451,9 +1514,9 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
                                       )}
                                       {h.source && (
                                         <Chip
-                                          label="Public API"
+                                          label={h.source === 'manual' ? 'Manual' : 'Public API'}
                                           size="small"
-                                          color="info"
+                                          color={h.source === 'manual' ? 'secondary' : 'info'}
                                           sx={{
                                             ml: 1,
                                             ...(isPassed && {
@@ -1569,7 +1632,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
       >
         <DialogTitle>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="h6"> Schedule Holiday Email</Typography>
+            <Typography variant="h6">{editingSchedule ? 'Edit' : 'Schedule'} Holiday Email</Typography>
             {selectedHolidayForSchedule && (
               <Chip
                 label={selectedHolidayForSchedule.name}
@@ -1754,7 +1817,7 @@ const HolidayPlanner = ({ onShowSnackbar }) => {
             disabled={scheduling}
             color="primary"
           >
-            {scheduling ? ' Scheduling...' : ' Schedule Email'}
+            {scheduling ? (editingSchedule ? ' Updating...' : ' Scheduling...') : (editingSchedule ? ' Update Email' : ' Schedule Email')}
           </Button>
         </DialogActions>
       </Dialog>

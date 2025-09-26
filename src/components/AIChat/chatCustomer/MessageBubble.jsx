@@ -26,7 +26,7 @@ function MessageBubble({ message, customerName, isOwn }) {
         >
           <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 700, mb: 1 }}>
             <IconComponent fontSize="small" />
-            Hệ thống
+            System
           </Typography>
           <Typography variant="body2" sx={{ fontSize: { xs: 15, sm: 16 }, color: 'text.secondary', whiteSpace: 'pre-line' }}>
             {message.content}
