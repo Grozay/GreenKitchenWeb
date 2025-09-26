@@ -160,10 +160,10 @@ export default function OrderDetails() {
       setOrder(updated)
       setShowCancelModal(false)
       setCancelReason('')
-      
+
       // Remove from new orders in Redux store
       dispatch(removeNewOrder(order.id))
-      
+
       toast.success('Order cancelled successfully')
     } catch (error) {
       toast.error('Failed to cancel order: ' + (error?.message || 'Unknown error'))
@@ -201,10 +201,10 @@ export default function OrderDetails() {
       if (nextStep === ORDER_STATUS.DELIVERED) updatedFields.deliveredAt = now
       if (nextStep === ORDER_STATUS.CANCELED) updatedFields.canceledAt = now
       setOrder({ ...order, ...updatedFields })
-      
+
       // Remove from new orders in Redux store when status changes
       dispatch(removeNewOrder(order.id))
-      
+
       setStatusUpdating(false)
     })
   }
