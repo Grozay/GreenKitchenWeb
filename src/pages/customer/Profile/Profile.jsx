@@ -112,10 +112,7 @@ function Profile() {
 
   return (
     <Container
-      maxWidth={false}
-      sx={{
-        maxWidth: { lg: '1350px', xl: '1500px' }
-      }}
+      maxWidth='xl'
     >
       <ProfileNavBar />
       <Box
@@ -166,11 +163,25 @@ function Profile() {
           >
             <Tab
               disabled
-              sx={{ minHeight: 80, justifyContent: 'flex-start', textAlign: 'left', cursor: 'default', mb: 2 }}
+              sx={{
+                minHeight: 80,
+                justifyContent: 'flex-start',
+                textAlign: 'left',
+                cursor: 'default',
+                mb: 2,
+                alignItems: 'flex-start',
+                '& .MuiTab-root': {
+                  alignItems: 'flex-start'
+                },
+                '& .MuiTab-wrapper': {
+                  alignItems: 'flex-start',
+                  justifyContent: 'flex-start'
+                }
+              }}
               label={
-                <Box>
-                  <Box fontWeight={700} fontSize={16}>{currentCustomer.fullName}</Box>
-                  <Box fontSize={14} color="text.secondary">{currentCustomer.email}</Box>
+                <Box sx={{ textAlign: 'left', width: '100%' }}>
+                  <Box fontWeight={700} fontSize={16} sx={{ textAlign: 'left' }}>{currentCustomer.fullName}</Box>
+                  <Box fontSize={14} color="text.secondary" sx={{ textAlign: 'left' }}>{currentCustomer.email}</Box>
                 </Box>
               }
             />
@@ -179,35 +190,35 @@ function Profile() {
             <Tab
               label="Overview"
               value={TABS.OVERVIEW}
-              icon={<AssessmentIcon fontSize='medium'/>}
+              icon={<AssessmentIcon fontSize='medium' />}
               iconPosition="start"
               component={Link}
-              to="/profile/overview"/>
+              to="/profile/overview" />
             <Tab
               label="Account Information"
               value={TABS.ACCOUNT}
-              icon={<ManageAccountsIcon fontSize='medium'/>}
+              icon={<ManageAccountsIcon fontSize='medium' />}
               iconPosition='start'
               component={Link}
               to="/profile/account" />
             <Tab
               label="Membership Tier"
               value={TABS.MEMBERSHIP}
-              icon={<LoyaltyIcon fontSize='medium'/>}
+              icon={<LoyaltyIcon fontSize='medium' />}
               iconPosition="start"
               component={Link}
               to="/profile/membership" />
             <Tab
               label="Order History"
               value={TABS.ORDERHISTORY}
-              icon={<LocalShippingIcon fontSize='medium'/>}
+              icon={<LocalShippingIcon fontSize='medium' />}
               iconPosition="start"
               component={Link}
               to="/profile/order-history" />
             <Tab
               label="TDEE Information"
               value={TABS.TDEEPROFILE}
-              icon={<FitnessCenterIcon fontSize='medium'/>}
+              icon={<FitnessCenterIcon fontSize='medium' />}
               iconPosition="start"
               component={Link}
               to="/profile/tdee-profile" />
@@ -218,24 +229,24 @@ function Profile() {
             <Tab
               label="Support and Feedback"
               value={TABS.FEEDBACK}
-              icon={<RateReviewIcon fontSize='medium'/>}
+              icon={<RateReviewIcon fontSize='medium' />}
               iconPosition="start"
               component={Link}
               to="/profile/feedback" />
-                         <Tab
-               label="Store Search"
-               value={TABS.STORELOCATION}
-               icon={<StorefrontIcon fontSize='medium'/>}
-               iconPosition="start"
-               component={Link}
-               to="/profile/store-location" />
-             <Tab
-               label="Usage Policy"
-               value={TABS.POLICY}
-               icon={<PolicyIcon fontSize='medium'/>}
-               iconPosition="start"
-               component={Link}
-               to="/profile/policy" />
+            <Tab
+              label="Store Search"
+              value={TABS.STORELOCATION}
+              icon={<StorefrontIcon fontSize='medium' />}
+              iconPosition="start"
+              component={Link}
+              to="/profile/store-location" />
+            <Tab
+              label="Usage Policy"
+              value={TABS.POLICY}
+              icon={<PolicyIcon fontSize='medium' />}
+              iconPosition="start"
+              component={Link}
+              to="/profile/policy" />
           </TabList>
           <Box
             sx={{

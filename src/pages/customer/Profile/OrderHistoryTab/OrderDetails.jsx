@@ -21,7 +21,8 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import Chip from '@mui/material/Chip'
 import theme from '~/theme'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { getOrderByCodeAPI, fetchCustomMealByIdAPI } from '~/apis'
+import { getOrderByCodeAPI, fetchCustomMealByIdAPI, getCustomerWeekMealByIdAPI } from '~/apis'
+import WeekMealPlan from '~/components/WeekMealPlan/WeekMealPlan'
 
 export default function OrderDetails({ orderCode: propOrderCode }) {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
@@ -31,6 +32,7 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [customMealDetails, setCustomMealDetails] = useState({})
+  const [weekMealDetails, setWeekMealDetails] = useState({})
 
   const code = propOrderCode || orderId
 
@@ -83,6 +85,32 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
 
     fetchOrderDetails()
   }, [code])
+
+  // Fetch week meal details when order is loaded
+  useEffect(() => {
+    if (order && order.orderItems) {
+      const weekMealIds = order.orderItems
+        .filter(item => item.itemType === 'WEEK_MEAL' && item.weekMealId)
+        .map(item => item.weekMealId)
+
+      const uniqueIds = Array.from(new Set(weekMealIds))
+      if (uniqueIds.length > 0) {
+        const fetchPromises = uniqueIds.map(id =>
+          getCustomerWeekMealByIdAPI(id).catch(() => null)
+        )
+
+        Promise.all(fetchPromises).then(results => {
+          const detailsMap = {}
+          uniqueIds.forEach((id, index) => {
+            if (results[index]) {
+              detailsMap[id] = results[index]
+            }
+          })
+          setWeekMealDetails(detailsMap)
+        })
+      }
+    }
+  }, [order])
 
   // progress helper removed — UI now shows step dots instead of a progress bar
   // Stepper status config
@@ -323,6 +351,21 @@ export default function OrderDetails({ orderCode: propOrderCode }) {
           </Box>
         </CardContent>
       </Card>
+
+      {/* Week Meal Plan Section */}
+      {order.orderItems?.some(item => item.itemType === 'WEEK_MEAL' && item.weekMealId && weekMealDetails[item.weekMealId]) && (
+        <Card sx={{ mb: 2, borderRadius: 2 }}>
+          <CardContent>
+            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>Week Meal Plan</Typography>
+            {order.orderItems
+              .filter(item => item.itemType === 'WEEK_MEAL' && item.weekMealId && weekMealDetails[item.weekMealId])
+              .map((item, idx) => (
+                <WeekMealPlan key={`${item.weekMealId}-${idx}`} data={weekMealDetails[item.weekMealId]} />
+              ))}
+          </CardContent>
+        </Card>
+      )}
+
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 12, md: 6 }}>
           <Card sx={{ borderRadius: 2 }}>

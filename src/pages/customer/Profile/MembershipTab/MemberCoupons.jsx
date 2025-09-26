@@ -4,6 +4,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
+import Tooltip from '@mui/material/Tooltip'
 import { useNavigate } from 'react-router-dom'
 
 export default function MemberCoupons({ membership, customerCoupons }) {
@@ -41,23 +42,24 @@ export default function MemberCoupons({ membership, customerCoupons }) {
               }}>
                 <CardContent sx={{ p: 2 }}>
                   <Box sx={{ mb: 1.5 }}>
-                    <Typography variant="subtitle1" sx={{
-                      fontWeight: 'bold',
-                      color: customerCoupon.status === 'AVAILABLE' ? '#4caf50' : '#ff9800',
-                      fontSize: '1rem'
-                    }}>
-                      🎫 {customerCoupon.couponName || 'Coupon'}
-                    </Typography>
+                    <Tooltip
+                      title={customerCoupon.couponDescription || 'No description available'}
+                      arrow
+                      placement="top"
+                    >
+                      <Typography variant="subtitle1" sx={{
+                        fontWeight: 'bold',
+                        color: customerCoupon.status === 'AVAILABLE' ? '#4caf50' : '#ff9800',
+                        fontSize: '1rem'
+                      }}>
+                        🎫 {customerCoupon.couponName || 'Coupon'}
+                      </Typography>
+                    </Tooltip>
                   </Box>
                   <Box sx={{ textAlign: 'left', mb: 1.5 }}>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
                       <strong>Code:</strong> {customerCoupon.couponCode}
                     </Typography>
-                    {customerCoupon.couponDescription && (
-                      <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                        <strong>Description:</strong> {customerCoupon.couponDescription}
-                      </Typography>
-                    )}
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
                       <strong>Discount:</strong>{' '}
                       {customerCoupon.couponType === 'PERCENTAGE'

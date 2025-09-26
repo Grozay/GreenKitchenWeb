@@ -415,10 +415,10 @@ export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate =
 
                   {/* Show message when no search term */}
                   {!customerSearchTerm.trim() && (
-                    <Box sx={{ 
-                      textAlign: 'center', 
-                      p: 3, 
-                      border: '1px dashed', 
+                    <Box sx={{
+                      textAlign: 'center',
+                      p: 3,
+                      border: '1px dashed',
                       borderColor: 'divider',
                       borderRadius: 1,
                       backgroundColor: 'action.hover'
@@ -530,6 +530,7 @@ export default function CreateCouponModal({ open, onClose, onSuccess, isUpdate =
                   label="Valid Until"
                   value={formData.validUntil}
                   onChange={(newValue) => handleInputChange('validUntil', newValue)}
+                  format="DD/MM/YYYY HH:mm"
                   slotProps={{
                     textField: {
                       fullWidth: true,

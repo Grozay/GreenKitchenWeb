@@ -80,7 +80,7 @@ const OrderConfirmDialog = ({
             <LocationOnIcon sx={{ color: '#4C082A' }} />
             Delivery Information
           </Typography>
-          
+
           <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2, mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <PersonIcon sx={{ fontSize: 16, color: '#666' }} />
@@ -88,21 +88,21 @@ const OrderConfirmDialog = ({
                 <strong>Recipient:</strong> {deliveryInfo.recipientName}
               </Typography>
             </Box>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <PhoneIcon sx={{ fontSize: 16, color: '#666' }} />
               <Typography variant="body2">
                 <strong>Phone:</strong> {deliveryInfo.recipientPhone}
               </Typography>
             </Box>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
               <LocationOnIcon sx={{ fontSize: 16, color: '#666', mt: 0.2 }} />
               <Typography variant="body2">
                 <strong>Address:</strong> {getFullAddress()}
               </Typography>
             </Box>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <AccessTimeIcon sx={{ fontSize: 16, color: '#666' }} />
               <Typography variant="body2">
@@ -118,7 +118,7 @@ const OrderConfirmDialog = ({
             <PaymentIcon sx={{ color: '#4C082A' }} />
             Payment Method
           </Typography>
-          
+
           <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2 }}>
             <Typography variant="body2">
               {getPaymentMethodText(paymentMethod)}
@@ -133,7 +133,7 @@ const OrderConfirmDialog = ({
               <NotesIcon sx={{ color: '#4C082A' }} />
               Special Requests
             </Typography>
-            
+
             <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2 }}>
               <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
                 {orderNotes}
@@ -147,7 +147,7 @@ const OrderConfirmDialog = ({
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#2c2c2c' }}>
             Order Summary
           </Typography>
-          
+
           <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
               <Typography variant="body2">Subtotal:</Typography>
@@ -155,14 +155,14 @@ const OrderConfirmDialog = ({
                 {formatPrice(orderSummary.subtotal)}
               </Typography>
             </Box>
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
               <Typography variant="body2">Shipping Fee:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {orderSummary.shippingFee > 0 ? formatPrice(orderSummary.shippingFee) : 'Free'}
               </Typography>
             </Box>
-            
+
             {orderSummary.membershipDiscount > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="body2" sx={{ color: '#00B389' }}>Membership Discount:</Typography>
@@ -171,7 +171,7 @@ const OrderConfirmDialog = ({
                 </Typography>
               </Box>
             )}
-            
+
             {orderSummary.couponDiscount > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="body2" sx={{ color: '#00B389' }}>Coupon Discount:</Typography>
@@ -180,9 +180,9 @@ const OrderConfirmDialog = ({
                 </Typography>
               </Box>
             )}
-            
+
             <Divider sx={{ my: 2 }} />
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>Total:</Typography>
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#4C082A' }}>

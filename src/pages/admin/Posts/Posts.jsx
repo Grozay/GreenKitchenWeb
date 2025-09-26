@@ -24,6 +24,7 @@ import { getPostCategoriesAPI, getPostByIdAPI, getPostsFilteredAPI } from '~/api
 import Pagination from '@mui/material/Pagination'
 import { toast } from 'react-toastify'
 import { Typography } from '@mui/material'
+import { formatDateToMinute } from '~/utils/formatter'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
 
@@ -197,7 +198,7 @@ export default function Posts() {
       </Paper>
 
       {/* Loading Indicator */}
-      {searching && (
+      {(searching || loading) && (
         <LinearProgress sx={{ mb: 1 }} />
       )}
 
@@ -285,7 +286,7 @@ export default function Posts() {
                     }
                   />
                 </TableCell>
-                <TableCell>{p.publishedAt ? new Date(p.publishedAt).toLocaleString() : '-'}</TableCell>
+                <TableCell>{p.publishedAt ? formatDateToMinute(p.publishedAt) : '-'}</TableCell>
                 <TableCell align="right">
                   <Button size="small" onClick={() => handleEdit(p.id)}>Edit</Button>
                 </TableCell>
@@ -299,7 +300,26 @@ export default function Posts() {
                       <CircularProgress size={40} />
                     </Box>
                   ) : (
-                    'No posts found'
+                    <Box sx={{ py: 6, px: 4 }}>
+                      <Typography
+                        variant="h6"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: '1.2rem',
+                          fontWeight: 500,
+                          mb: 1
+                        }}
+                      >
+                        No posts found
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: '0.9rem' }}
+                      >
+                        Try adjusting your search criteria or filters
+                      </Typography>
+                    </Box>
                   )}
                 </TableCell>
               </TableRow>

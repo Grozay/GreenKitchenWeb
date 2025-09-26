@@ -4,6 +4,7 @@ import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import { formatDate } from '~/utils/formatter'
 
 export default function WeekMealPlan({ data }) {
   if (!data) return null
@@ -72,7 +73,7 @@ export default function WeekMealPlan({ data }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Week Meal Plan</Typography>
             <Typography variant="body2" color="text.secondary">({type})</Typography>
-            <Typography variant="body2" color="text.secondary">{weekStart} ~ {weekEnd}</Typography>
+            <Typography variant="body2" color="text.secondary">{formatDate(weekStart)} ~ {formatDate(weekEnd)}</Typography>
           </Box>
         }
         sx={{ py: 1, '& .MuiCardHeader-content': { overflow: 'hidden' } }}
@@ -83,7 +84,7 @@ export default function WeekMealPlan({ data }) {
             <Grid size={{ xs: 12, md: 6 }} key={idx}>
               <Card variant="outlined" sx={{ p: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{mapDay(d.day)} • {d.date}</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{mapDay(d.day)} • {formatDate(d.date)}</Typography>
                   {d.type && (
                     <Typography variant="caption" color="text.secondary">{d.type}</Typography>
                   )}
@@ -101,5 +102,3 @@ export default function WeekMealPlan({ data }) {
     </Card>
   )
 }
-
-

@@ -49,7 +49,7 @@ function CustomerDetails() {
 
   if (error || !data) {
     return (
-      <Container maxWidth="lg" sx={{ py: 3 }}>
+      <Container maxWidth="xl" sx={{ py: 3 }}>
         <Typography color="error" sx={{ mb: 2 }}>{error || 'Customer not found'}</Typography>
         <Button variant="text" onClick={() => navigate('/management/customers')}>← Back to Customers</Button>
       </Container>
@@ -83,7 +83,7 @@ function CustomerDetails() {
   const pointsTotalPages = Math.max(1, Math.ceil((sortedPoints.length || 0) / pageSize))
 
   return (
-    <Container maxWidth="lg" sx={{ py: 2 }}>
+    <Container maxWidth="xl" sx={{ py: 2 }}>
       <Button variant="text" onClick={() => navigate('/management/customers')}>← Back to Customers</Button>
 
       {/* Header */}
@@ -109,7 +109,7 @@ function CustomerDetails() {
       <Grid container spacing={2}>
         {/* Membership */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={{ borderTop: '4px solid #22c55e' }}>
+          <Card sx={{ borderTop: '4px solid #22c55e', minHeight: 240 }}>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Membership</Typography>
               {data.membership ? (
@@ -145,7 +145,7 @@ function CustomerDetails() {
 
         {/* Basic Info */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <Card sx={{ borderTop: '4px solid #3b82f6' }}>
+          <Card sx={{ borderTop: '4px solid #3b82f6', minHeight: 240 }}>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Basic Information</Typography>
               <Grid container spacing={2}>
@@ -176,7 +176,7 @@ function CustomerDetails() {
 
         {/* Orders */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderTop: '4px solid #8b5cf6' }}>
+          <Card sx={{ borderTop: '4px solid #8b5cf6', minHeight: 280 }}>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Recent Orders</Typography>
               {Array.isArray(data.orders) && data.orders.length > 0 ? (
@@ -215,7 +215,7 @@ function CustomerDetails() {
 
         {/* Point History */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderTop: '4px solid #f59e0b' }}>
+          <Card sx={{ borderTop: '4px solid #f59e0b', minHeight: 280 }}>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Point History</Typography>
               {Array.isArray(data.pointHistories) && data.pointHistories.length > 0 ? (

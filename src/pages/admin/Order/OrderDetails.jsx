@@ -20,6 +20,8 @@ import Alert from '@mui/material/Alert'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { removeNewOrder } from '~/redux/order/orderSlice'
 import { getOrderByCodeAPI, updateOrderStatusAPI, fetchCustomMealByIdAPI, getCustomerWeekMealByIdAPI, cancelOrderAPI } from '~/apis'
 import { Button } from '@mui/material'
 import { ORDER_STATUS } from '~/utils/constants'
@@ -31,7 +33,7 @@ import PersonIcon from '@mui/icons-material/Person'
 import PaymentIcon from '@mui/icons-material/Payment'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import WeekMealPlan from './WeekMealPlan'
+import WeekMealPlan from '~/components/WeekMealPlan/WeekMealPlan'
 
 
 function getStatusColor(status) {
@@ -58,6 +60,7 @@ function getStatusIcon(status) {
 
 export default function OrderDetails() {
   const { orderCode } = useParams()
+  const dispatch = useDispatch()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [statusUpdating, setStatusUpdating] = useState(false)
@@ -157,9 +160,13 @@ export default function OrderDetails() {
       setOrder(updated)
       setShowCancelModal(false)
       setCancelReason('')
+      
+      // Remove from new orders in Redux store
+      dispatch(removeNewOrder(order.id))
+      
       toast.success('Order cancelled successfully')
-    } catch (e) {
-      toast.error('Failed to cancel order')
+    } catch (error) {
+      toast.error('Failed to cancel order: ' + (error?.message || 'Unknown error'))
     } finally {
       setCancelling(false)
     }
@@ -194,6 +201,10 @@ export default function OrderDetails() {
       if (nextStep === ORDER_STATUS.DELIVERED) updatedFields.deliveredAt = now
       if (nextStep === ORDER_STATUS.CANCELED) updatedFields.canceledAt = now
       setOrder({ ...order, ...updatedFields })
+      
+      // Remove from new orders in Redux store when status changes
+      dispatch(removeNewOrder(order.id))
+      
       setStatusUpdating(false)
     })
   }
@@ -217,7 +228,7 @@ export default function OrderDetails() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 1 }}>
+    <Container maxWidth="xl" sx={{ py: 2 }}>
       {/* Back Button */}
       <Box sx={{ mb: 1 }}>
         <Button
@@ -242,7 +253,7 @@ export default function OrderDetails() {
                   ORDER #{order.orderCode || order.code}
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  {order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
+                  {order.createdAt ? formatDateToMinute(order.createdAt) : ''}
                 </Typography>
               </Box>
             </Box>
@@ -279,8 +290,8 @@ export default function OrderDetails() {
 
       {/* Cancelled Order Alert */}
       {order.status === ORDER_STATUS.CANCELLED && (
-        <Alert 
-          severity="error" 
+        <Alert
+          severity="error"
           icon={<CancelIcon />}
           sx={{ mb: 2 }}
         >
@@ -507,28 +518,26 @@ export default function OrderDetails() {
               avatar={<PersonIcon color="primary" />}
               sx={{ py: 1 }}
             />
-            <CardContent sx={{ py: 1 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Recipient:</Typography>
-                  <Typography variant="body2">{order.recipientName || 'N/A'}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Phone:</Typography>
-                  <Typography variant="body2">{order.recipientPhone || 'N/A'}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Address:</Typography>
-                  <Typography variant="body2" sx={{ textAlign: 'right', maxWidth: '60%' }}>
-                    {[order.street, order.ward, order.district, order.city].filter(Boolean).join(', ') || 'N/A'}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Delivery Time:</Typography>
-                  <Typography variant="body2">
-                    {order.deliveryTime ? new Date(order.deliveryTime).toLocaleString() : 'Not specified'}
-                  </Typography>
-                </Box>
+            <CardContent sx={{ py: 1, minHeight: 240, display: 'flex', justifyContent: 'space-between', flexDirection: 'column', gap: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Recipient:</Typography>
+                <Typography variant="body2">{order.recipientName || 'N/A'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Phone:</Typography>
+                <Typography variant="body2">{order.recipientPhone || 'N/A'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Address:</Typography>
+                <Typography variant="body2" sx={{ textAlign: 'right', maxWidth: '60%' }}>
+                  {order.street || 'N/A'}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Delivery Time:</Typography>
+                <Typography variant="body2">
+                  {order.deliveryTime ? formatDateToMinute(order.deliveryTime) : 'Not specified'}
+                </Typography>
               </Box>
             </CardContent>
           </Card>
@@ -541,55 +550,53 @@ export default function OrderDetails() {
               avatar={<PaymentIcon color="primary" />}
               sx={{ py: 1 }}
             />
-            <CardContent sx={{ py: 1 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Method:</Typography>
-                  <Typography variant="body2">{order.paymentMethod || 'N/A'}</Typography>
-                </Box>
+            <CardContent sx={{ py: 1, display: 'flex', flexDirection: 'column', gap: 1, minHeight: 240, justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Method:</Typography>
+                <Typography variant="body2">{order.paymentMethod || 'N/A'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Status:</Typography>
+                <Chip
+                  label={order.paymentStatus || 'PENDING'}
+                  size="small"
+                  color={order.paymentStatus === 'COMPLETED' ? 'success' : 'warning'}
+                />
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Subtotal:</Typography>
+                <Typography variant="body2">{order.subtotal?.toLocaleString() || 0}₫</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Shipping:</Typography>
+                <Typography variant="body2">{order.shippingFee?.toLocaleString() || 0}₫</Typography>
+              </Box>
+              {(order.membershipDiscount > 0 || order.couponDiscount > 0) && (
+                <>
+                  {order.membershipDiscount > 0 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>Member Discount:</Typography>
+                      <Typography variant="body2" color="success.main">-{order.membershipDiscount?.toLocaleString()}₫</Typography>
+                    </Box>
+                  )}
+                  {order.couponDiscount > 0 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>Coupon Discount:</Typography>
+                      <Typography variant="body2" color="success.main">-{order.couponDiscount?.toLocaleString()}₫</Typography>
+                    </Box>
+                  )}
+                </>
+              )}
+              <Box sx={{ borderTop: '1px solid #e0e0e0', pt: 1, mt: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Status:</Typography>
-                  <Chip
-                    label={order.paymentStatus || 'PENDING'}
-                    size="small"
-                    color={order.paymentStatus === 'COMPLETED' ? 'success' : 'warning'}
-                  />
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Subtotal:</Typography>
-                  <Typography variant="body2">{order.subtotal?.toLocaleString() || 0}₫</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Shipping:</Typography>
-                  <Typography variant="body2">{order.shippingFee?.toLocaleString() || 0}₫</Typography>
-                </Box>
-                {(order.membershipDiscount > 0 || order.couponDiscount > 0) && (
-                  <>
-                    {order.membershipDiscount > 0 && (
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>Member Discount:</Typography>
-                        <Typography variant="body2" color="success.main">-{order.membershipDiscount?.toLocaleString()}₫</Typography>
-                      </Box>
-                    )}
-                    {order.couponDiscount > 0 && (
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>Coupon Discount:</Typography>
-                        <Typography variant="body2" color="success.main">-{order.couponDiscount?.toLocaleString()}₫</Typography>
-                      </Box>
-                    )}
-                  </>
-                )}
-                <Box sx={{ borderTop: '1px solid #e0e0e0', pt: 1, mt: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                      {order.totalAmount?.toLocaleString()}₫
-                    </Typography>
-                  </Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'right' }}>
-                    Points: {order.pointEarn}
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                    {order.totalAmount?.toLocaleString()}₫
                   </Typography>
                 </Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'right' }}>
+                  Points: {order.pointEarn}
+                </Typography>
               </Box>
             </CardContent>
           </Card>
@@ -630,9 +637,9 @@ export default function OrderDetails() {
           <Button onClick={() => setShowCancelModal(false)} disabled={cancelling}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleCancelOrder} 
-            color="error" 
+          <Button
+            onClick={handleCancelOrder}
+            color="error"
             variant="contained"
             disabled={cancelling || !cancelReason.trim()}
           >

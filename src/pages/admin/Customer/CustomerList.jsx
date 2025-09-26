@@ -169,7 +169,26 @@ export default function CustomerList() {
                           <CircularProgress size={40} />
                         </Box>
                       ) : (
-                        'No customers found'
+                        <Box sx={{ py: 6, px: 4 }}>
+                          <Typography
+                            variant="h6"
+                            color="text.secondary"
+                            sx={{
+                              fontSize: '1.2rem',
+                              fontWeight: 500,
+                              mb: 1
+                            }}
+                          >
+                            No customers found
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: '0.9rem' }}
+                          >
+                            Try adjusting your search criteria
+                          </Typography>
+                        </Box>
                       )}
                     </TableCell>
                   </TableRow>

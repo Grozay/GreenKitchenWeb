@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-export default function OrderCard({ order, onViewDetails }) {
+export default function OrderCard({ order }) {
   const getStatusColor = (status) => {
     switch (status) {
     case 'PENDING': return 'warning'
@@ -52,7 +52,7 @@ export default function OrderCard({ order, onViewDetails }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#2e7d32', fontSize: '14px' }}>
-              Order #{order.id}
+              Order: {order.orderCode}
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '14px' }}>
               {dayjs(order.deliveryTime).format('DD/MM/YYYY HH:mm')}
