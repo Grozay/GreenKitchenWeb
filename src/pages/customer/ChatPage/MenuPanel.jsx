@@ -353,16 +353,16 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
             gap: 1
           }}
         >
-          🍽️ Gợi ý món ăn
+          🍽️ Food Suggestions
         </Typography>
         <Typography
           variant="body2"
           color="text.secondary"
           sx={{ fontSize: { xs: '0.875rem', md: '0.8rem', lg: '0.875rem' } }}
         >
-          {hasProducts ? `${filteredProducts.length} món được tìm thấy` :
-            hasMenuProducts ? 'Sử dụng bộ lọc để tìm món phù hợp' :
-              'Hãy chat để nhận gợi ý món ăn'}
+          {hasProducts ? `${filteredProducts.length} dishes found` :
+            hasMenuProducts ? 'Use filters to find suitable dishes' :
+              'Chat to get food suggestions'}
         </Typography>
       </Box>
 
@@ -377,7 +377,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
           {/* Search */}
           <TextField
             fullWidth
-            placeholder="Tìm kiếm món ăn..."
+            placeholder="Search dishes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             size="small" // Size nhỏ hơn cho 40% width
@@ -432,7 +432,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                 minWidth: 'auto'
               }}
             >
-              Bộ lọc {activeFilters > 0 && `(${activeFilters})`}
+              Filters {activeFilters > 0 && `(${activeFilters})`}
             </Button>
 
             {activeFilters > 0 && (
@@ -444,7 +444,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                 variant="text"
                 sx={{ fontSize: { xs: '0.75rem', md: '0.7rem', lg: '0.75rem' } }}
               >
-                Xóa
+                Clear
               </Button>
             )}
           </Box>
@@ -456,7 +456,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                 {/* Hàng 1: Price & Calories */}
                 <Grid item xs={12} sm={6}>
                   <CompactFilter
-                    label="Giá tiền"
+                    label="Price"
                     icon={<AttachMoneyIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
                     color="primary.main"
                     minValue={priceMin}
@@ -474,7 +474,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
 
                 <Grid item xs={12} sm={6}>
                   <CompactFilter
-                    label="Calo"
+                    label="Calories"
                     icon={<WhatshotIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
                     color="error.main"
                     minValue={caloMin}
@@ -493,7 +493,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                 {/* Hàng 2: Carb & Protein */}
                 <Grid item xs={12} sm={6}>
                   <CompactFilter
-                    label="Carb"
+                    label="Carbs"
                     icon={<GrainIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
                     color="info.main"
                     minValue={carbMin}
@@ -524,7 +524,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                 {/* Hàng 3: Fat (chiếm 1 cột, cột còn lại để trống để cân bằng) */}
                 <Grid item xs={12} sm={6}>
                   <CompactFilter
-                    label="Chất béo"
+                    label="Fat"
                     icon={<LocalPizzaIcon sx={{ mr: 0.5, fontSize: '0.9rem' }} />}
                     color="warning.main"
                     minValue={fatMin}
@@ -573,7 +573,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                   fontSize: { xs: '1.125rem', md: '1rem', lg: '1.125rem' }
                 }}
               >
-                🤖 Chưa có gợi ý món ăn
+                🤖 No food suggestions yet
               </Typography>
               <Typography
                 variant="body1"
@@ -584,7 +584,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                   lineHeight: 1.4
                 }}
               >
-                Hãy chat với AI để nhận gợi ý những món ăn phù hợp với nhu cầu của bạn
+                Chat with AI to get food suggestions that suit your needs
               </Typography>
               <Box sx={{
                 p: { xs: 2, md: 1.5, lg: 2 },
@@ -601,7 +601,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                     fontSize: { xs: '0.75rem', md: '0.7rem', lg: '0.75rem' }
                   }}
                 >
-                  Ví dụ: &quot;Tôi muốn món ăn ít calo&quot;, &quot;Gợi ý món Việt Nam&quot;
+                  Example: &quot;I want low calorie dishes&quot;, &quot;Suggest Vietnamese food&quot;
                 </Typography>
               </Box>
             </Box>
@@ -626,7 +626,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                   fontSize: { xs: '1.125rem', md: '1rem', lg: '1.125rem' }
                 }}
               >
-                🔍 Không tìm thấy món ăn
+                🔍 No dishes found
               </Typography>
               <Typography
                 variant="body1"
@@ -637,7 +637,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                   lineHeight: 1.4
                 }}
               >
-                Không có món ăn nào phù hợp với bộ lọc hiện tại
+                No dishes match current filters
               </Typography>
               <Button
                 variant="outlined"
@@ -649,7 +649,7 @@ export default function MenuPanel({ menuProducts, chatMessages }) {
                   borderRadius: 2
                 }}
               >
-                Xóa bộ lọc
+                Clear filters
               </Button>
             </Box>
           </Box>

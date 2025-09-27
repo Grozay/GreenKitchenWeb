@@ -67,11 +67,11 @@ export default function HistoryChatLayout() {
               borderBottom: '1px solid', borderColor: 'divider',
               background: (t) => `linear-gradient(180deg, ${t.palette.background.paper}, ${t.palette.background.default})`
             }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>Cuộc hội thoại</Typography>
+              <Typography variant="h6" fontWeight={700} sx={{ mb: 1, color: 'primary.main' }}>Chat Conversations</Typography>
               <TextField
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Tìm theo ID..."
+                placeholder="Search by ID..."
                 size="small"
                 fullWidth
                 InputProps={{
@@ -132,7 +132,7 @@ export default function HistoryChatLayout() {
                                 <Chip label="AI" size="small" color="default" variant="outlined" sx={{ height: 20 }} />
                               </Box>
                             }
-                            secondary="Nhấn để xem chi tiết"
+                            secondary="Click to view details"
                           />
                         </ListItemButton>
                         {idx < filteredConversations.length - 1 && <Divider />}
@@ -154,7 +154,7 @@ export default function HistoryChatLayout() {
               </Fade>
             ) : (
               <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary', p: 2 }}>
-                <Typography>Chọn một cuộc hội thoại để xem chi tiết</Typography>
+                <Typography>Select a conversation to view details</Typography>
               </Box>
             )}
           </Box>

@@ -19,12 +19,12 @@ function ChatInput({
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
   
-  // Sử dụng utility function để kiểm tra có thể gửi tin nhắn không
+  // Use utility function to check if message can be sent
   const canSend = canSendMessage(chatMode, awaitingAI, isCustomerLoggedIn, input)
 
   const handleQuickMessageSelect = (message) => {
     setInput(message.text)
-    setAnchorEl(null) // Đóng popover
+    setAnchorEl(null) // Close popover
   }
 
   const handleMoreClick = (event) => {
@@ -94,7 +94,7 @@ function ChatInput({
         size="small"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Nhập tin nhắn..."
+        placeholder="Type a message..."
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()

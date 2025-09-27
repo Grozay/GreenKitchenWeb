@@ -33,11 +33,11 @@ export default function FoodMenuCarousel({ products, onSelect }) {
     }}>
       <Stack direction="row" alignItems="center" spacing={2} mb={2}>
         <Typography variant="h6" fontWeight={700} color="primary">
-          Gợi ý món ăn cho bạn
+          Food suggestions for you
         </Typography>
         {/* Cá nhân hóa */}
-        <Chip label="Ăn chay" color="success" sx={{ fontWeight: 500 }} />
-        <Chip label="Ít carb" color="info" sx={{ fontWeight: 500 }} />
+        <Chip label="Vegetarian" color="success" sx={{ fontWeight: 500 }} />
+        <Chip label="Low carb" color="info" sx={{ fontWeight: 500 }} />
       </Stack>
       <Box sx={{ position: 'relative' }}>
         <IconButton
@@ -77,7 +77,7 @@ export default function FoodMenuCarousel({ products, onSelect }) {
       </Box>
       <Stack direction="row" justifyContent="center" mt={2} spacing={2}>
         <Button variant="contained" color="primary" sx={{ borderRadius: 3 }}>
-          Xem tất cả món
+          View all dishes
         </Button>
       </Stack>
     </Box>

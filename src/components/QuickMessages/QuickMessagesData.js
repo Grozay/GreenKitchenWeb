@@ -1,113 +1,113 @@
-// Danh sách tin nhắn nhanh cho GreenKitchen
+// Quick messages list for GreenKitchen
 export const quickMessages = [
   {
     id: 'greeting',
-    text: 'Xin chào! Tôi cần hỗ trợ',
+    text: 'Hello! I need assistance',
     icon: '👋',
-    category: 'Chào hỏi',
-    tags: ['chào', 'hỗ trợ', 'xin chào']
+    category: 'Greeting',
+    tags: ['hello', 'assistance', 'help', 'greeting']
   },
   {
     id: 'menu',
-    text: 'Bạn có thể cho tôi xem menu không?',
+    text: 'Can you show me the menu?',
     icon: '🍽️',
-    category: 'Thực đơn',
-    tags: ['menu', 'thực đơn', 'món ăn', 'danh sách']
+    category: 'Menu',
+    tags: ['menu', 'food', 'dishes', 'list']
   },
   {
     id: 'order',
-    text: 'Tôi muốn đặt món',
+    text: 'I want to order food',
     icon: '📝',
-    category: 'Đặt món',
-    tags: ['đặt món', 'đặt hàng', 'order', 'mua']
+    category: 'Order',
+    tags: ['order', 'buy', 'purchase', 'food']
   },
   {
     id: 'delivery',
-    text: 'Bạn có giao hàng không?',
+    text: 'Do you deliver?',
     icon: '🚚',
-    category: 'Giao hàng',
-    tags: ['giao hàng', 'delivery', 'ship', 'vận chuyển']
+    category: 'Delivery',
+    tags: ['delivery', 'ship', 'shipping', 'transport']
   },
   {
     id: 'price',
-    text: 'Món này giá bao nhiêu?',
+    text: 'How much is this dish?',
     icon: '💰',
-    category: 'Giá cả',
-    tags: ['giá', 'giá cả', 'bao nhiêu', 'price', 'cost']
+    category: 'Price',
+    tags: ['price', 'cost', 'how much', 'money']
   },
   {
     id: 'hours',
-    text: 'Giờ mở cửa của bạn là gì?',
+    text: 'What are your opening hours?',
     icon: '🕐',
-    category: 'Giờ mở cửa',
-    tags: ['giờ mở cửa', 'mở cửa', 'đóng cửa', 'business hours']
+    category: 'Hours',
+    tags: ['hours', 'opening', 'closing', 'business hours']
   },
   {
     id: 'location',
-    text: 'Địa chỉ của bạn ở đâu?',
+    text: 'Where is your address?',
     icon: '📍',
-    category: 'Địa chỉ',
-    tags: ['địa chỉ', 'ở đâu', 'location', 'address']
+    category: 'Location',
+    tags: ['address', 'location', 'where', 'place']
   },
   {
     id: 'special',
-    text: 'Bạn có món đặc biệt nào không?',
+    text: 'Do you have any special dishes?',
     icon: '⭐',
-    category: 'Món đặc biệt',
-    tags: ['món đặc biệt', 'special', 'signature', 'nổi tiếng']
+    category: 'Special',
+    tags: ['special', 'signature', 'famous', 'unique']
   },
   {
     id: 'vegetarian',
-    text: 'Bạn có món chay không?',
+    text: 'Do you have vegetarian options?',
     icon: '🥬',
-    category: 'Chế độ ăn',
-    tags: ['chay', 'vegetarian', 'vegan', 'không thịt']
+    category: 'Diet',
+    tags: ['vegetarian', 'vegan', 'no meat', 'plant-based']
   },
   {
     id: 'spicy',
-    text: 'Món này có cay không?',
+    text: 'Is this dish spicy?',
     icon: '🌶️',
-    category: 'Chế độ ăn',
-    tags: ['cay', 'spicy', 'độ cay', 'nhiều ớt']
+    category: 'Diet',
+    tags: ['spicy', 'hot', 'pepper', 'chili']
   },
   {
     id: 'reservation',
-    text: 'Tôi muốn đặt bàn',
+    text: 'I want to make a reservation',
     icon: '🪑',
-    category: 'Đặt bàn',
-    tags: ['đặt bàn', 'reservation', 'booking', 'chỗ ngồi']
+    category: 'Reservation',
+    tags: ['reservation', 'booking', 'table', 'seat']
   },
   {
     id: 'payment',
-    text: 'Bạn nhận thanh toán bằng gì?',
+    text: 'What payment methods do you accept?',
     icon: '💳',
-    category: 'Thanh toán',
-    tags: ['thanh toán', 'payment', 'tiền mặt', 'thẻ', 'momo']
+    category: 'Payment',
+    tags: ['payment', 'cash', 'card', 'momo', 'methods']
   },
   {
     id: 'promotion',
-    text: 'Bạn có khuyến mãi gì không?',
+    text: 'Do you have any promotions?',
     icon: '🎉',
-    category: 'Khuyến mãi',
-    tags: ['khuyến mãi', 'promotion', 'giảm giá', 'discount', 'ưu đãi']
+    category: 'Promotion',
+    tags: ['promotion', 'discount', 'offer', 'deal']
   },
   {
     id: 'quality',
-    text: 'Nguyên liệu của bạn có tươi không?',
+    text: 'Are your ingredients fresh?',
     icon: '🥩',
-    category: 'Chất lượng',
-    tags: ['nguyên liệu', 'tươi', 'chất lượng', 'fresh', 'quality']
+    category: 'Quality',
+    tags: ['ingredients', 'fresh', 'quality', 'organic']
   },
   {
     id: 'portion',
-    text: 'Khẩu phần món này như thế nào?',
+    text: 'What is the portion size like?',
     icon: '🍽️',
-    category: 'Khẩu phần',
-    tags: ['khẩu phần', 'size', 'lớn', 'nhỏ', 'đủ ăn']
+    category: 'Portion',
+    tags: ['portion', 'size', 'large', 'small', 'enough']
   }
 ]
 
-// Nhóm tin nhắn theo category
+// Group messages by category
 export const groupedQuickMessages = quickMessages.reduce((acc, message) => {
   if (!acc[message.category]) {
     acc[message.category] = []
@@ -116,7 +116,7 @@ export const groupedQuickMessages = quickMessages.reduce((acc, message) => {
   return acc
 }, {})
 
-// Tìm kiếm tin nhắn nhanh
+// Search quick messages
 export const searchQuickMessages = (query) => {
   if (!query || query.trim() === '') return quickMessages
   
@@ -129,12 +129,12 @@ export const searchQuickMessages = (query) => {
   )
 }
 
-// Lấy tin nhắn theo category
+// Get messages by category
 export const getQuickMessagesByCategory = (category) => {
   return quickMessages.filter(message => message.category === category)
 }
 
-// Lấy tin nhắn theo ID
+// Get message by ID
 export const getQuickMessageById = (id) => {
   return quickMessages.find(message => message.id === id)
 }

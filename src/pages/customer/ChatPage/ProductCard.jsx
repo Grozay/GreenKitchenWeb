@@ -142,7 +142,7 @@ export default function ProductCard({
           component="img"
           height={typeof config.imageHeight === 'object' ? config.imageHeight.lg : config.imageHeight}
           image={imageError ? 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400' : (product?.image || 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=400')}
-          alt={product?.title || 'Món ăn'}
+          alt={product?.title || 'Dish'}
           onLoad={() => setImageLoaded(true)}
           onError={() => setImageError(true)}
           sx={{
@@ -162,7 +162,7 @@ export default function ProductCard({
         {/* Badges and labels */}
         {product?.isNew && (
           <Chip
-            label="Mới"
+            label="New"
             size="small"
             sx={{
               position: 'absolute',
@@ -262,7 +262,7 @@ export default function ProductCard({
             fontSize: { xs: '0.875rem', md: '1rem', lg: '1.125rem' } // Font size responsive
           }}
         >
-          {product?.title || 'Món chưa đặt tên'}
+          {product?.title || 'Untitled dish'}
         </Typography>
 
         {/* Category */}
