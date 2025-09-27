@@ -270,9 +270,9 @@ export default function ChatPanel({ onMessagesUpdate }) {
     if (chatMode === 'AI' && awaitingAI) return
 
     setInput('')
-    // Hiển thị trạng thái đang chờ AI ngay lập tức để tránh phải F5 lần đầu
+    // Show AI waiting status immediately to avoid F5 on first time
     setAwaitingAI(true)
-    // Fallback: nếu vì lý do nào đó không nhận được phản hồi, tự mở khóa sau 30s
+    // Fallback: if no response received for some reason, auto unlock after 30s
     if (awaitingTimeoutRef.current) clearTimeout(awaitingTimeoutRef.current)
     awaitingTimeoutRef.current = setTimeout(() => {
       setAwaitingAI(false)
@@ -331,7 +331,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
           id: Date.now() + 1,
           conversationId: animationConvId,
           senderName: 'SYSTEM',
-          content: error?.message || 'Gửi thất bại',
+          content: error?.message || 'Send failed',
           timestamp: new Date().toISOString()
         }
       ]))
@@ -367,7 +367,7 @@ export default function ChatPanel({ onMessagesUpdate }) {
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <CircularProgress size={24} />
             <Box sx={{ ml: 1, color: 'text.secondary' }}>
-              Đang tải tin nhắn cũ...
+              Loading older messages...
             </Box>
           </Box>
         )}

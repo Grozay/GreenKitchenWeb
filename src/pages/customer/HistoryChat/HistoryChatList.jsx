@@ -31,7 +31,7 @@ export default function HistoryChatList() {
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', px: { xs: 1.5, md: 2 }, py: 3 }}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>Lịch sử hội thoại</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 2, color: 'primary.main' }}>Chat History</Typography>
       <Paper sx={{ p: 0, borderRadius: 3, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }} elevation={2}>
         {loading ? (
           <Box sx={{ p: 2 }}>
@@ -43,8 +43,8 @@ export default function HistoryChatList() {
           </Box>
         ) : conversations.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
-            <Typography variant="subtitle1" fontWeight={600}>Chưa có cuộc hội thoại nào</Typography>
-            <Typography variant="body2">Bắt đầu trò chuyện để thấy lịch sử xuất hiện ở đây.</Typography>
+            <Typography variant="subtitle1" fontWeight={600}>No conversations yet</Typography>
+            <Typography variant="body2">Start chatting to see history appear here.</Typography>
           </Box>
         ) : (
           <List disablePadding>
@@ -63,7 +63,7 @@ export default function HistoryChatList() {
                     '&:hover': { transform: 'translateX(4px)', boxShadow: 1, bgcolor: 'action.hover' }
                   }}
                 >
-                  <ListItemText primary={`Conversation #${cid}`} secondary="Nhấn để xem chi tiết" />
+                  <ListItemText primary={`Conversation #${cid}`} secondary="Click to view details" />
                 </ListItemButton>
                 {idx < conversations.length - 1 && <Divider />}
               </Box>

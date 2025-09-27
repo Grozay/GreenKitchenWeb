@@ -30,7 +30,7 @@ function MessageBubble({ message, customerName, isOwn }) {
         >
           <Chip
             icon={<IconComponent fontSize="small" />}
-            label="Hệ thống"
+            label="System"
             color="primary"
             variant="outlined"
             size="small"

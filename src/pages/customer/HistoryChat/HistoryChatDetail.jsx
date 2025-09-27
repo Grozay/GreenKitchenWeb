@@ -35,8 +35,8 @@ export default function HistoryChatDetail() {
   const customerId = currentCustomer?.id
   const customerName = useSelector(selectCustomerName) // Sử dụng selector từ Redux
 
-  // Sử dụng customerName trực tiếp từ Redux - đơn giản hóa
-  const displayCustomerName = customerName || 'Bạn'
+  // Use customerName directly from Redux - simplified
+  const displayCustomerName = customerName || 'You'
   const effectiveCustomerId = customerId
 
   // Utility function để cập nhật trạng thái message thành SENT
@@ -227,8 +227,8 @@ export default function HistoryChatDetail() {
       // Clear timeout nếu có lỗi
       clearTimeout(timeoutId)
       
-      // Sử dụng utility function để tạo system message lỗi
-      const errorMessage = createSystemMessage(conversationId, error?.message || 'Gửi thất bại')
+      // Use utility function to create error system message
+      const errorMessage = createSystemMessage(conversationId, error?.message || 'Send failed')
       setMessages(prev => ([
         ...prev.filter(m => m.id !== pendingMessage.id),
         errorMessage
@@ -259,12 +259,12 @@ export default function HistoryChatDetail() {
         position: 'sticky', top: 0, zIndex: 1
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Tooltip title="Quay lại danh sách">
+          <Tooltip title="Back to list">
             <IconButton onClick={() => navigate('/agent')} sx={{ transition: 'transform .15s ease', '&:hover': { transform: 'translateX(-2px)' } }}>
               <ArrowBackIcon />
             </IconButton>
           </Tooltip>
-          <Typography variant="subtitle1" fontWeight={700}>GreenKitchen</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>Chat Conversation #{conversationId}</Typography>
         </Box>
         <IconButton>
           <MoreVertIcon />

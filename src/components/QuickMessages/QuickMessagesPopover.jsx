@@ -21,7 +21,7 @@ function QuickMessagesPopover({
 }) {
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Lọc tin nhắn nhanh theo search query
+  // Filter quick messages by search query
   const filteredQuickMessages = searchQuickMessages(searchQuery)
 
   const handleMessageClick = (message) => {
@@ -61,13 +61,13 @@ function QuickMessagesPopover({
       <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
           <Chip 
-            label="Tin nhắn nhanh" 
+            label="Quick Messages" 
             size="small" 
             color="primary" 
             variant="outlined"
           />
           <Chip 
-            label={`${filteredQuickMessages.length} tin nhắn`}
+            label={`${filteredQuickMessages.length} messages`}
             size="small"
             color="default"
             variant="outlined"
@@ -78,7 +78,7 @@ function QuickMessagesPopover({
         <TextField
           fullWidth
           size="small"
-          placeholder="Tìm kiếm tin nhắn nhanh..."
+          placeholder="Search quick messages..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           InputProps={{
@@ -106,14 +106,14 @@ function QuickMessagesPopover({
         />
         
         <Box sx={{ fontSize: '0.875rem', color: 'text.secondary', mt: 1 }}>
-          Chọn tin nhắn có sẵn để gửi nhanh
+          Select available messages to send quickly
         </Box>
       </Box>
       
       <List sx={{ p: 0, maxHeight: 350, overflow: 'auto' }}>
         {filteredQuickMessages.length === 0 ? (
           <Box sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>
-            Không tìm thấy tin nhắn nào phù hợp
+            No matching messages found
           </Box>
         ) : (
           filteredQuickMessages.map((message, index) => (
